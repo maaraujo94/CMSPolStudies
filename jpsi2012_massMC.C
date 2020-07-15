@@ -1,5 +1,5 @@
-// code that runs over MC, applies all cuts and saves a root file with pT and costheta_HX
-// current cuts: same as BPH-13-001 AN, wide mass window
+// code that runs over MC, applies all cuts but mass and saves a root file with pT, y, mass and costheta_HX - for mass window studies
+// current cuts: same as BPH-13-001 AN, no mass cut
 
 // macro to calculate cos(theta)
 double costh(TLorentzVector *p4_parent_lab, TLorentzVector *p4_daughter_lab)
@@ -18,7 +18,7 @@ double costh(TLorentzVector *p4_parent_lab, TLorentzVector *p4_daughter_lab)
   return costheta_HX;
 }
 
-void jpsi2012_MC()
+void jpsi2012_massMC()
 {
   TChain *mcJ = new TChain("jpsi_tuple");
 
@@ -46,20 +46,14 @@ void jpsi2012_MC()
   int mEvt = mcJ->GetEntries();
   int perc = mEvt / 100;
 
-  const int nbins = 9;
-  double pTbins[10] = {12, 14, 15.5, 17.5, 19, 21, 22.5, 25, 29, 70};
-  double cosa;
-  
-  TH1D *mcpT = new TH1D("hmc", "mc pT", 100, 0, 100);
-  TH1D **mcCos = new TH1D*[nbins];
-  for(int i = 0; i<nbins; i++)
-    mcCos[i] = new TH1D(Form("name%d", i), Form("pT bin %d", i), 100, -1, 1);
-
-  TFile *outfile = new TFile("MC_cos.root", "recreate");
+  TFile *outfile = new TFile("MC_mass_cos.root", "recreate");
   TTree *newtree = new TTree("MC_cos", "");
 
+  double cosa;
   TBranch *cos_tree = newtree->Branch("costh", &cosa);
   TBranch *pT_tree = newtree->Branch("JpsiPt", &JpsiPt);
+  TBranch *y_tree = newtree->Branch("JpsiRap", &JpsiRap);
+  TBranch *mass_tree = newtree->Branch("JpsiMass", &JpsiMass);
   
   for(int i = 0; i < mEvt; i++) {
     mcJ->GetEntry(i);
@@ -69,21 +63,15 @@ void jpsi2012_MC()
 	JpsiPt > 12 && JpsiPt < 70 &&
 	abs(JpsiRap) < 1.2 &&
 	abs(Jpsict/JpsictErr) < 2.5 &&
-	JpsiMass > 3 && JpsiMass < 3.2 &&
 	trigger == 1)
       {
-	mcpT->Fill(JpsiPt);
-	for(int bin = 0; bin < nbins; bin++)
-	  if (JpsiPt > pTbins[bin] && JpsiPt < pTbins[bin+1])
-	    {
-	      TLorentzVector *p4_jpsi = new TLorentzVector;
-	      p4_jpsi->SetPtEtaPhiM(JpsiPt, JpsiEta, JpsiPhi, JpsiMass);
-	      TLorentzVector *p4_muP = new TLorentzVector;
-	      p4_muP->SetPtEtaPhiM(muPPt, muPEta, muPPhi, muPMass);
+	TLorentzVector *p4_jpsi = new TLorentzVector;
+	p4_jpsi->SetPtEtaPhiM(JpsiPt, JpsiEta, JpsiPhi, JpsiMass);
+	TLorentzVector *p4_muP = new TLorentzVector;
+	p4_muP->SetPtEtaPhiM(muPPt, muPEta, muPPhi, muPMass);
 	      
-	      cosa = costh(p4_jpsi, p4_muP);
-	      mcCos[bin]->Fill(cosa);
-	    }
+	cosa = costh(p4_jpsi, p4_muP);
+
 	newtree->Fill();
       }
     if((i+1)%perc == 0) cout << (i+1)/perc << "% done with MC" << endl; 
@@ -92,17 +80,4 @@ void jpsi2012_MC()
   outfile->Write();
   outfile->Close();
   
-  TCanvas *c = new TCanvas("", "", 700, 700);
-  c->SetLogy();
-  
-  mcpT->Draw();
-
-  c->SaveAs("mc_pt.pdf");
-
-  c->SetLogy(0);
-  for(int i = 0; i < nbins; i++) {
-    c->Clear();
-    mcCos[i]->Draw();
-    c->SaveAs(Form("mc_cosa_bin%d.pdf", i));
-  }
 }
