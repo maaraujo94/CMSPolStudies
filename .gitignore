@@ -1,0 +1,10 @@
+*.d
+*.so
+*.pcm
+*.aux
+*.log
+*.gz
+*~
+*.root
+*.out
+*.pdf
