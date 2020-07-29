@@ -3,7 +3,7 @@ framework for CMS S-wave quarkonium polarization studies
 
 ## Available directories:
 
-- Store_data_codes: to run on LXPLUS, gives the data and MC (costheta_HX, pT) values of events that pass all cuts
+- Store_data_codes: to run on LXPLUS, gives the data and MC (costheta_HX, pT) values of events that pass all cuts; stores the distributions of cut variables
 
 - 1d_fit: stores events according to given binning, fits for lambda_theta in each pT bin (data/MC ratio of costheta_HX distribution fitted with angular distribution W(costheta_HX; lambda_theta))
 

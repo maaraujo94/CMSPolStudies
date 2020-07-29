@@ -1,6 +1,6 @@
 // code to get the 2d fine-binned data/mc ratio hist
 // plots data, mc and ratio
-// saves ratio, number of entries in each histo bin
+// saves ratio (normal and |costh|), number of entries in each histo bin
 
 void ratioSave()
 {
@@ -27,6 +27,9 @@ void ratioSave()
   
   TH2D *dataHist = new TH2D("dataH", "Data", 36, -0.9, 0.9, nPtBins, ptBins);
   TH2D *mcHist = new TH2D("mcH", "MC", 36, -0.9, 0.9, nPtBins, ptBins);
+
+  TH2D *dataHist_ab = new TH2D("dataH_ab", "Data", 18, 0, 0.9, nPtBins, ptBins);
+  TH2D *mcHist_ab = new TH2D("mcH_ab", "MC", 18, 0, 0.9, nPtBins, ptBins);
   
   // definitions to store data and MC events
   Double_t data_cos, data_pt;
@@ -43,12 +46,14 @@ void ratioSave()
     {
       treeD->GetEntry(i);
       dataHist->Fill(data_cos, data_pt);
+      dataHist_ab->Fill(abs(data_cos), data_pt);
     }
 
   for(int i = 0; i < mEvt; i++)
     {
       treeM->GetEntry(i);
       mcHist->Fill(mc_cos, mc_pt);
+      mcHist_ab->Fill(abs(mc_cos), mc_pt);
     }
   
   // plot all costh histograms
@@ -69,18 +74,30 @@ void ratioSave()
   c->SaveAs("plots/mc_2d.pdf");
   c->Clear();
 
+  dataHist_ab->SetStats(0);
+  dataHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+  dataHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
+  dataHist_ab->Draw("COLZ");
+  c->SaveAs("plots/data_2d_abs.pdf");
+  c->Clear();
+
+  mcHist_ab->SetStats(0);
+  mcHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+  mcHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
+  mcHist_ab->Draw("COLZ");
+  c->SaveAs("plots/mc_2d_abs.pdf");
+  c->Clear();
+  
   ofstream f_ent;
   f_ent.open("nEntries.txt");
  
   f_ent << "[pTmin, pTmax]; [cosmin, cosmax]: data entries / mc entries" << endl << endl;
   for(int pt = 0; pt < nPtBins; pt++) {
     for(int cos = 0; cos < 36; cos++) {
-      //if(dataHist->GetBinContent(cos, pt) > 0 && mcHist->GetBinContent(cos, pt) > 0) {
-	f_ent << "[" << ptBins[pt] << ", " << ptBins[pt+1] << "]; ";
+ 	f_ent << "[" << ptBins[pt] << ", " << ptBins[pt+1] << "]; ";
 	f_ent << "[" << -0.9+cos*0.05 << ", " << -0.9+(cos+1.)*0.05 << "]: ";
 	f_ent << dataHist->GetBinContent(cos+1, pt+1) << " / " << mcHist->GetBinContent(cos+1, pt+1) << endl;
-	// }
-    }
+   }
     f_ent << endl;
   }
   f_ent.close();
@@ -97,10 +114,20 @@ void ratioSave()
   c->SaveAs("plots/ratio_2d.pdf");
   c->Clear();
 
-  cout << dataHist->GetEntries() << ", " << mcHist->GetEntries() << ", " << ratioHist->GetEntries() << endl;
+  TH2D *ratioHist_ab = new TH2D("ratioH_ab", "ratioH abs", 18, 0, 0.9, nPtBins, ptBins);
+
+  c->SetLogz(0);
+  ratioHist_ab = (TH2D*)dataHist_ab->Clone(Form("ratioHist_ab"));
+  ratioHist_ab->Sumw2();
+  ratioHist_ab->Divide(mcHist_ab);
+  ratioHist_ab->SetTitle("Data/MC");
+  ratioHist_ab->Draw("COLZ");
+  c->SaveAs("plots/ratio_2d_abs.pdf");
+  c->Clear();
   
   TFile *outfile = new TFile("files/ratioHist.root", "recreate");
   ratioHist->Write();
+  ratioHist_ab->Write();
   outfile->Close();
 
 }

@@ -44,6 +44,16 @@ void fitCosMax()
   can->SaveAs("plots/costh_lim.pdf");
   can->Clear();
 
+  // save the fit results to a txt file
+  ofstream outfile;
+  outfile.open("cosMaxFitRes.txt");
+  outfile << "[a]*log([b]+[c]*pT)" << endl;
+  outfile << "a\t e_a\t b\t e_b\t c\t e_c\t chi2\t ndf" << endl;
+  for(int i = 0; i < 3; i++)
+    outfile << fitf->GetParameter(i) << "\t" << fitf->GetParError(i) << "\t";
+  outfile << fitf->GetChisquare() << "\t" << fitf->GetNDF() << endl;
+  outfile.close();
+  
   // read fine binned 2D histo and get the 1D histos w the costh cut
   /*  TFile *infile = new TFile("ratioHist.root");
   TH2D *hist = new TH2D();
