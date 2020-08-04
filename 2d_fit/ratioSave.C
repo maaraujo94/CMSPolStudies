@@ -89,7 +89,7 @@ void ratioSave()
   c->Clear();
   
   ofstream f_ent;
-  f_ent.open("nEntries.txt");
+  f_ent.open("text_output/nEntries.txt");
  
   f_ent << "[pTmin, pTmax]; [cosmin, cosmax]: data entries / mc entries" << endl << endl;
   for(int pt = 0; pt < nPtBins; pt++) {

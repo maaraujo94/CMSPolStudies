@@ -6,7 +6,7 @@ void fitCosMax()
   // get .txt where I stored each costh_max
   ifstream cosmax;
   string data;
-  cosmax.open("cos_max.txt");
+  cosmax.open("text_output/cos_max.txt");
 
   const int nbins = 29;
   double costhLim[nbins], ptLims[nbins+1], aux;
@@ -46,13 +46,26 @@ void fitCosMax()
 
   // save the fit results to a txt file
   ofstream outfile;
-  outfile.open("cosMaxFitRes.txt");
+  outfile.open("text_output/cosMaxFitRes.txt");
   outfile << "[a]*log([b]+[c]*pT)" << endl;
   outfile << "a\t e_a\t b\t e_b\t c\t e_c\t chi2\t ndf" << endl;
   for(int i = 0; i < 3; i++)
     outfile << fitf->GetParameter(i) << "\t" << fitf->GetParError(i) << "\t";
   outfile << fitf->GetChisquare() << "\t" << fitf->GetNDF() << endl;
   outfile.close();
+
+  outfile.open("text_output/cosMaxFitRes.tex");
+  outfile << "\\begin{tabular}{c|c|c|c}\n";
+  outfile << "$a$ & $b$ & $c$ & $\\chi^2$/ndf \\\\\n";
+  outfile << "\\hline\n";
+  for(int i = 0; i < 3; i++) {
+    int prec = ceil(-log10(fitf->GetParError(i)))+1;
+    outfile << "$" << setprecision(prec) << fixed << fitf->GetParameter(i) << "\\pm" << fitf->GetParError(i) << "$ & ";
+  }
+  outfile << setprecision(0) << fixed <<  fitf->GetChisquare() << "/" << fitf->GetNDF() << endl;
+  outfile << "\\end{tabular}\n";
+  outfile.close();
+
   
   // read fine binned 2D histo and get the 1D histos w the costh cut
   /*  TFile *infile = new TFile("ratioHist.root");
