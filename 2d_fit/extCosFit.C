@@ -3,21 +3,6 @@
 // and fit again with full |costh|<0.8 range
 // plots histos at 0.3 and 0.8 and compares with fit functions
 
-// input function - polynomial
-// currently unused
-Double_t func_poly(const Double_t *xx, const Double_t *par)
-{
-  double cos = xx[0], pt = xx[1];
-  int n = par[0];
-  double A = par[1];
-
-  double lth = 0;
-  for(int i = 0; i <= n; i++)
-    lth += par[i+2]*pow(pt, i);
-  
-  return A*(1+lth*cos*cos);
-}
-
 // main
 void extCosFit()
 {
@@ -41,20 +26,6 @@ void extCosFit()
   cout << "X axis: " << nBinsX << " bins in [" << minX << "," << maxX << "]" << endl;
   cout << "Y axis: " << nBinsY << " bins in [" << hist->GetYaxis()->GetBinLowEdge(1) << "," << hist->GetYaxis()->GetBinUpEdge(nBinsY) << "]" << endl;
   
-  // the fit function to be used - polynomial (currently unused)
-  // determine polynomial degree
-  /*const int n_poly = 1;
-  // function has 1 (n_poly) + 1 (A) + n_poly+1 (a_i) parameters
-  TF2 *fitMin = new TF2("fit m 2d", func_poly, 0., 0.3, 12., 70., n_poly+3, 2);
-  fitMin->FixParameter(0, n_poly);
-  fitMin->SetParName(0, "n_poly");
-  fitMin->SetParameter(1, 20);
-  fitMin->SetParName(1, "A");
-  for(int i = 0; i <= n_poly; i++) {
-    fitMin->SetParameter(i+2, 1./pow(10,i));
-    fitMin->SetParName(i+2, Form("a_%d", i));
-    }*/
-
   // the function to be used - linear lth = m(y-y_ref)+lth_ref
   TF2 *fitMin = new TF2("fit m 2d", "[0]*(1+([1]*(y-[3])+[2])*x*x)", 0., 0.3, 12., 70.);
   fitMin->SetParameters(20, 0.1, 0.1, 20);
@@ -120,16 +91,6 @@ void extCosFit()
   hist->SetTitle(Form("%s extrapolated", dataS.c_str()));
 
   // redo the fit using the full width of the histogram
-  /*TF2 *fitCom = new TF2( "fit c 2d", func_poly, 0., 0.8, 12., 70., n_poly+3, 2);
-  fitCom->FixParameter(0, n_poly);
-  fitCom->SetParName(0, "n_poly");
-  fitCom->SetParameter(1, 20);
-  fitCom->SetParName(1, "A");
-  for(int i = 0; i <= n_poly; i++) {
-    fitCom->SetParameter(i+2, 1./pow(10,i));
-    fitCom->SetParName(i+2, Form("a_%d", i));
-    }*/
-  
   TF2 *fitCom = new TF2("fit c 2d", "[0]*(1+([1]*(y-[3])+[2])*x*x)", 0., 0.8, 12., 70.);
   fitCom->SetParameters(20, 0.1, 0.1, 20);
   fitCom->SetParNames("A", "m", "lth_ref", "pT_ref");
