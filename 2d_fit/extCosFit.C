@@ -3,6 +3,34 @@
 // and fit again with full |costh|<0.8 range
 // plots histos at 0.3 and 0.8 and compares with fit functions
 
+TH2D* hist;
+
+// the fit function with all the free normalization parameters
+double fit_func(double *xx, double *par)
+{
+  // attribute x vars
+  double cos = xx[0], pt = xx[1];
+
+  // attribute parameters
+  int NA = hist->GetNbinsY();
+  double A[NA];
+  for(int i = 0; i < NA; i++) A[i] = par[i];
+  double m = par[NA], lth_ref = par[NA+1], pt_ref = par[NA+2];
+
+  int i;
+  double N = 0;
+  for(i = 1; i <= NA; i++) 
+    if(pt >= hist->GetYaxis()->GetBinLowEdge(i) && pt < hist->GetYaxis()->GetBinUpEdge(i)) {
+      N = A[i-1];
+      break;
+    }
+  if( pt == hist->GetYaxis()->GetBinUpEdge(NA)) N = A[NA-1];
+  
+  if(N==0) cout << N;
+  
+  return N*(1+(m*(pt-pt_ref)+lth_ref)*cos*cos);
+}
+
 // main
 void extCosFit()
 {
@@ -15,27 +43,34 @@ void extCosFit()
   bHist->SetDirectory(0);
   infile->Close();
 
-  TH2D* hist = (TH2D*)bHist->Clone();
+  hist = (TH2D*)bHist->Clone();
   
   // save some useful info
   int nBinsX = hist->GetNbinsX(), nBinsY = hist->GetNbinsY();
   double minX = hist->GetXaxis()->GetBinLowEdge(1), maxX = hist->GetXaxis()->GetBinUpEdge(nBinsX);
   const double *yBins = hist->GetYaxis()->GetXbins()->GetArray();
 
-  double pT_ref = 20, gamma = -2;
+  double pT_ref = 20;
   double histoMax = 35;
-  double ratioMax = 1.9;
-  double pullMax = 4.5;
+  double ratioMax = 1.7;
+  double pullMax = 3;
+  //  double pjMax[] = {20, 20, 20, 20, 25, 30, 35, 45};
+  double pjMax[] = {40, 40, 40, 40, 40, 40, 40, 40};
   
   // the function to be used - linear lth = m(y-y_ref)+lth_ref
-  // multiplied by power law
-  TF2 *fitMin = new TF2("fit m 2d", "[0]*(1+([1]*(y-[3])+[2])*x*x)*pow(1+1/([4]-2)*(y/3.097)*(y/3.097)/[5], -[4])", 0., 0.3, 12., 70.);
-  fitMin->SetParameters(20, 0.1, 0.1, 20, -0.5, gamma);
-  fitMin->SetParNames("A", "m", "lth_ref", "pT_ref", "beta", "gamma");
-  fitMin->FixParameter(3, pT_ref);
-  fitMin->FixParameter(5, gamma);
-  fitMin->FixParameter(1, 0);
-  
+  TF2 *fitMin = new TF2("fit m 2d", "fit_func", 0., 0.3, 12., 70., nBinsY+3, 2);
+  for(int i = 0; i < nBinsY; i++){
+    fitMin->SetParameter(i, 15);
+    fitMin->SetParName(i, Form("A_%d", i+1));
+  }
+  fitMin->SetParameter(nBinsY, 0.1);
+  fitMin->SetParameter(nBinsY+1, 0.1);
+  fitMin->SetParameter(nBinsY+2, pT_ref);
+  fitMin->FixParameter(nBinsY+2, pT_ref);
+  fitMin->SetParName(nBinsY, "m");
+  fitMin->SetParName(nBinsY+1, "lth_ref");
+  fitMin->SetParName(nBinsY+2, "pt_ref");
+    
   bHist->Fit(fitMin, "R");
   
   // after minimal fit we want to extrapolate the histogram values
@@ -75,12 +110,18 @@ void extCosFit()
     }
 
   // redo the fit using the full width of the histogram
-  TF2 *fitCom = new TF2("fit c 2d", "[0]*(1+([1]*(y-[3])+[2])*x*x)*pow(1+1/([4]-2)*(y/3.097)*(y/3.097)/[5], -[4])", 0., 0.8, 12., 70.);
-  fitCom->SetParameters(6, 0.1, 0.1, 20, -0.5, gamma);
-  fitCom->SetParNames("A", "m", "lth_ref", "pT_ref", "beta", "gamma");
-  fitCom->FixParameter(3, pT_ref);
-  fitCom->FixParameter(5, gamma);
-  fitCom->FixParameter(1, 0);
+  TF2 *fitCom = new TF2("fit c 2d", "fit_func", 0., 0.8, 12., 70., nBinsY+3, 2);
+  for(int i = 0; i < nBinsY; i++){
+    fitCom->SetParameter(i, 15);
+    fitCom->SetParName(i, Form("A_%d", i+1));
+  }
+  fitCom->SetParameter(nBinsY, 0.1);
+  fitCom->SetParameter(nBinsY+1, 0.1);
+  fitCom->SetParameter(nBinsY+2, pT_ref);
+  fitCom->FixParameter(nBinsY+2, pT_ref);
+  fitCom->SetParName(nBinsY, "m");
+  fitCom->SetParName(nBinsY+1, "lth_ref");
+  fitCom->SetParName(nBinsY+2, "pt_ref");
   
   hist->Fit(fitCom, "R");
   
@@ -120,44 +161,38 @@ void extCosFit()
   c->Clear();
 
   // save fit results to tex
-
-  // save fit output
   ofstream outtex;
   outtex.open("text_output/minMaxFit.tex");
-  outtex << "\\begin{tabular}{c|c|c|c|c|c|c|c}\n";
-  outtex << "$|\\cost|_{max}$ & $A$ & $m$ & $(\\lambda_\\theta)_{ref}$ & ${\\pt}_{ref}$ & $\\beta$ & $\\gamma$ & $\\chi^2$/ndf \\\\\n";
+  outtex << "\\begin{tabular}{c|c|c}\n";
+  outtex << "$|\\cost|_{max}$ & 0.3 & 0.8\\\\\n";
   outtex << "\\hline\n";
-  outtex << "$0.3$ & ";
-  for(int i = 0; i < 6; i++) {
-    if(fitMin->GetParError(i) == 0) {
-      int prec = ceil(-log10(abs(fitMin->GetParameter(i))))+1;
-      prec = max(prec, 0);
-      outtex << "$" << setprecision(prec) << fixed << fitMin->GetParameter(i)  << "$ & ";
-    }
-    else {
-      int prec = ceil(-log10(abs(fitMin->GetParError(i))))+1;
-      prec = max(prec, 0);
-      outtex << "$" << setprecision(prec) << fixed << fitMin->GetParameter(i) << "\\pm" << fitMin->GetParError(i) << "$ & ";
-    }
+  
+  for(int i=0; i<nBinsY; i++) {
+    int prec_min = ceil(-log10(abs(fitMin->GetParError(i))))+1;
+    prec_min = max(prec_min, 0);
+    int prec_com = ceil(-log10(abs(fitCom->GetParError(i))))+1;
+    prec_com = max(prec_com, 0);    
+    outtex << Form("$A_%d$ & $", i+1) << setprecision(prec_min) << fixed << fitMin->GetParameter(i) << "\\pm" << fitMin->GetParError(i) << "$ & $" << setprecision(prec_com) << fixed << fitCom->GetParameter(i) << "\\pm" << fitCom->GetParError(i) << "$ \\\\\n";
   }
-  outtex << setprecision(0) << fixed <<  fitMin->GetChisquare() << "/" << fitMin->GetNDF() <<  " \\\\\n";
-  outtex << "$0.8$ & ";
-  for(int i = 0; i < 6; i++) {
-    if(fitCom->GetParError(i) == 0) {
-      int prec = ceil(-log10(abs(fitCom->GetParameter(i))))+1;
-      prec = max(prec, 0);
-      outtex << "$" << setprecision(prec) << fixed << fitCom->GetParameter(i)  << "$ & ";
-    }
-    else {
-      int prec = ceil(-log10(abs(fitCom->GetParError(i))))+1;
-      prec = max(prec, 0);
-      outtex << "$" << setprecision(prec) << fixed << fitCom->GetParameter(i) << "\\pm" << fitCom->GetParError(i) << "$ & ";
-    }
-  }
-  outtex << setprecision(0) << fixed <<  fitCom->GetChisquare() << "/" << fitCom->GetNDF() << endl;
-  outtex << "\\end{tabular}\n";
-  outtex.close();
+  
+  int prec_min = ceil(-log10(abs(fitMin->GetParError(nBinsY))))+1;
+  prec_min = max(prec_min, 0);
+  int prec_com = ceil(-log10(abs(fitCom->GetParError(nBinsY))))+1;
+  prec_com = max(prec_com, 0);    
+  outtex << "$m$ & $" << setprecision(prec_min) << fixed << fitMin->GetParameter(nBinsY) << "\\pm" << fitMin->GetParError(nBinsY) << "$ & $" << setprecision(prec_com) << fixed << fitCom->GetParameter(nBinsY) << "\\pm" << fitCom->GetParError(nBinsY) << "$ \\\\\n";
 
+  prec_min = ceil(-log10(abs(fitMin->GetParError(nBinsY+1))))+1;
+  prec_min = max(prec_min, 0);
+  prec_com = ceil(-log10(abs(fitCom->GetParError(nBinsY+1))))+1;
+  prec_com = max(prec_com, 0);
+  outtex << Form("$\\lambda_\\theta(\\pt = %.1f$ GeV) & $", pT_ref) << setprecision(prec_min) << fixed << fitMin->GetParameter(nBinsY+1) << "\\pm" << fitMin->GetParError(nBinsY+1) << "$ & $" << setprecision(prec_com) << fixed << fitCom->GetParameter(nBinsY+1) << "\\pm" << fitCom->GetParError(nBinsY+1) << "$ \\\\\n";
+
+  outtex << "\\hline\n";
+  outtex << "$\\chi^2$/ndf & " << setprecision(0) << fixed <<  fitMin->GetChisquare() << "/" << fitMin->GetNDF() << " & " << fitCom->GetChisquare() << "/" << fitCom->GetNDF() << endl;
+  outtex << "\\end{tabular}\n";
+  
+  outtex.close();
+  
   // save plots to .root file
   TFile* outfile = new TFile("files/store_hist.root", "update");
   hist->Write(0, TObject::kOverwrite);
@@ -302,7 +337,6 @@ void extCosFit()
   // the projections before and after extrapolation
   TH1D *pMinHist[nBinsY], *pComHist[nBinsY];
   TH1D *fpMinHist[nBinsY], *fpComHist[nBinsY];
-  double pjMax[] = {20, 20, 25, 30, 35, 40, 50, 55};
   for(int i = 1; i <= nBinsY; i++) {
     pMinHist[i-1] = bHist->ProjectionX(Form("coarse_bin%d_1d_min", i), i, i);
     pMinHist[i-1]->SetTitle(Form("p_{T} bin %d: [%.0f, %.0f] GeV", i, yBins[i-1], yBins[i]));
@@ -344,8 +378,33 @@ void extCosFit()
     c->SaveAs(Form("plots/proj_pt%d.pdf", i));
     c->Clear();
   }
+
+  // plots of the fit quantities A_i and lambda_theta(pT)
+  TH1D *histA = new TH1D("histA", "A_{i} (p_{T})", nBinsY, yBins);
+  for(int i = 0; i < nBinsY; i++) {
+    histA->SetBinContent(i+1, fitCom->GetParameter(i));
+    histA->SetBinError(i+1, fitCom->GetParError(i));
+  }
+  histA->SetStats(0);
+  histA->GetXaxis()->SetTitle("p_{T} (GeV)");
+  histA->GetYaxis()->SetRangeUser(10, 22);
+  histA->Draw("error");
+  histA->Draw("hist same");
+  c->SaveAs("plots/fit_A_vals.pdf");
+  c->Clear();
   
+  TF1 *funcL = new TF1("funcL", "[0]*(x-[2])+[1]", 0, 70);
+  funcL->SetTitle("#lambda_{#theta} (p_{T})");
+  funcL->SetParameters(fitCom->GetParameter(nBinsY), fitCom->GetParameter(nBinsY+1), fitCom->GetParameter(nBinsY+2));
+  funcL->SetLineColor(kBlue);
+  funcL->GetYaxis()->SetRangeUser(-1,1);
+  funcL->GetXaxis()->SetTitle("p_{T} (GeV)");
+  funcL->Draw();
+  c->SaveAs("plots/fit_lth_pt.pdf");
+  c->Clear();
+
   c->Destructor();
+  
 }
 
 
