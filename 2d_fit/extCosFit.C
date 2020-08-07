@@ -17,37 +17,27 @@ void extCosFit()
 
   TH2D* hist = (TH2D*)bHist->Clone();
   
-  // cout some useful info for checking purposes
+  // save some useful info
   int nBinsX = hist->GetNbinsX(), nBinsY = hist->GetNbinsY();
   double minX = hist->GetXaxis()->GetBinLowEdge(1), maxX = hist->GetXaxis()->GetBinUpEdge(nBinsX);
   const double *yBins = hist->GetYaxis()->GetXbins()->GetArray();
 
-  cout << "fitting histogram " << hist->GetName() << endl;
-  cout << "X axis: " << nBinsX << " bins in [" << minX << "," << maxX << "]" << endl;
-  cout << "Y axis: " << nBinsY << " bins in [" << hist->GetYaxis()->GetBinLowEdge(1) << "," << hist->GetYaxis()->GetBinUpEdge(nBinsY) << "]" << endl;
+  double pT_ref = 20, gamma = -2;
+  double histoMax = 35;
+  double ratioMax = 1.9;
+  double pullMax = 4.5;
   
   // the function to be used - linear lth = m(y-y_ref)+lth_ref
-  TF2 *fitMin = new TF2("fit m 2d", "[0]*(1+([1]*(y-[3])+[2])*x*x)", 0., 0.3, 12., 70.);
-  fitMin->SetParameters(20, 0.1, 0.1, 20);
-  fitMin->SetParNames("A", "m", "lth_ref", "pT_ref");
-  fitMin->FixParameter(3, 20);
+  // multiplied by power law
+  TF2 *fitMin = new TF2("fit m 2d", "[0]*(1+([1]*(y-[3])+[2])*x*x)*pow(1+1/([4]-2)*(y/3.097)*(y/3.097)/[5], -[4])", 0., 0.3, 12., 70.);
+  fitMin->SetParameters(20, 0.1, 0.1, 20, -0.5, gamma);
+  fitMin->SetParNames("A", "m", "lth_ref", "pT_ref", "beta", "gamma");
+  fitMin->FixParameter(3, pT_ref);
+  fitMin->FixParameter(5, gamma);
+  fitMin->FixParameter(1, 0);
   
   bHist->Fit(fitMin, "R");
-
-  // save fit output
-  ofstream outtex;
-  outtex.open("text_output/minMaxFit.tex");
-  outtex << "\\begin{tabular}{c|c|c|c|c|c}\n";
-  outtex << Form("Fit & max $|\\cost|$ & $A$ & $m$ & $\\lambda_\\theta(\\pt=%.0f$ GeV) & $\\chi^2$/ndf \\\\\n", fitMin->GetParameter(3));
-  outtex << "\\hline\n";
-  outtex << "Minimal & $0.3$ & ";
-  for(int i = 0; i < 3; i++) {
-    int prec = ceil(-log10(fitMin->GetParError(i)))+1;
-    outtex << "$" << setprecision(prec) << fixed << fitMin->GetParameter(i) << "\\pm" << fitMin->GetParError(i) << "$ & ";
-  }
-  outtex << setprecision(0) << fixed <<  fitMin->GetChisquare() << "/" << fitMin->GetNDF() <<  " \\\\\n";
-  outtex.close();
-
+  
   // after minimal fit we want to extrapolate the histogram values
   // first read the |costh|max(pt) function
   ifstream in;
@@ -84,25 +74,29 @@ void extCosFit()
       }
     }
 
-  // save the histogram of the extrapolated info
+  // redo the fit using the full width of the histogram
+  TF2 *fitCom = new TF2("fit c 2d", "[0]*(1+([1]*(y-[3])+[2])*x*x)*pow(1+1/([4]-2)*(y/3.097)*(y/3.097)/[5], -[4])", 0., 0.8, 12., 70.);
+  fitCom->SetParameters(6, 0.1, 0.1, 20, -0.5, gamma);
+  fitCom->SetParNames("A", "m", "lth_ref", "pT_ref", "beta", "gamma");
+  fitCom->FixParameter(3, pT_ref);
+  fitCom->FixParameter(5, gamma);
+  fitCom->FixParameter(1, 0);
+  
+  hist->Fit(fitCom, "R");
+  
+  // plot the histogram of the extrapolated info
   dataS = hist->GetName();
   hist->SetName(Form("%s_ext", dataS.c_str()));
   dataS = hist->GetTitle();
   hist->SetTitle(Form("%s extrapolated", dataS.c_str()));
 
-  // redo the fit using the full width of the histogram
-  TF2 *fitCom = new TF2("fit c 2d", "[0]*(1+([1]*(y-[3])+[2])*x*x)", 0., 0.8, 12., 70.);
-  fitCom->SetParameters(20, 0.1, 0.1, 20);
-  fitCom->SetParNames("A", "m", "lth_ref", "pT_ref");
-  fitCom->FixParameter(3, 20);
+  cout << "histo variation:" << endl;
+  cout <<  hist->GetMaximum()  << " / " << bHist->GetMaximum() << endl;
   
-  hist->Fit(fitCom, "R");
-  
-  // plot the histogram of the extrapolated info
   hist->SetStats(0);
   hist->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   hist->GetYaxis()->SetTitle("p_{T} (GeV)");
-  hist->GetZaxis()->SetRangeUser(0,50);
+  hist->GetZaxis()->SetRangeUser(0, histoMax);
   hist->Draw("hist COLZ");
 
   TF1 *invF = new TF1("invF", "(exp(x/[0])-[1])/[2]", 0, 0.9);
@@ -117,7 +111,7 @@ void extCosFit()
   bHist->SetStats(0);
   bHist->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   bHist->GetYaxis()->SetTitle("p_{T} (GeV)");
-  bHist->GetZaxis()->SetRangeUser(0,50);
+  bHist->GetZaxis()->SetRangeUser(0,histoMax);
   bHist->Draw("hist COLZ");
 
   invF->Draw("same");
@@ -126,11 +120,39 @@ void extCosFit()
   c->Clear();
 
   // save fit results to tex
-  outtex.open("text_output/minMaxFit.tex", fstream::app);
-  outtex << "Complete & $0.8$ & ";
-  for(int i = 0; i < 3; i++) {
-    int prec = ceil(-log10(fitCom->GetParError(i)))+1;
-    outtex << "$" << setprecision(prec) << fixed << fitCom->GetParameter(i) << "\\pm" << fitCom->GetParError(i) << "$ & ";
+
+  // save fit output
+  ofstream outtex;
+  outtex.open("text_output/minMaxFit.tex");
+  outtex << "\\begin{tabular}{c|c|c|c|c|c|c|c}\n";
+  outtex << "$|\\cost|_{max}$ & $A$ & $m$ & $(\\lambda_\\theta)_{ref}$ & ${\\pt}_{ref}$ & $\\beta$ & $\\gamma$ & $\\chi^2$/ndf \\\\\n";
+  outtex << "\\hline\n";
+  outtex << "$0.3$ & ";
+  for(int i = 0; i < 6; i++) {
+    if(fitMin->GetParError(i) == 0) {
+      int prec = ceil(-log10(abs(fitMin->GetParameter(i))))+1;
+      prec = max(prec, 0);
+      outtex << "$" << setprecision(prec) << fixed << fitMin->GetParameter(i)  << "$ & ";
+    }
+    else {
+      int prec = ceil(-log10(abs(fitMin->GetParError(i))))+1;
+      prec = max(prec, 0);
+      outtex << "$" << setprecision(prec) << fixed << fitMin->GetParameter(i) << "\\pm" << fitMin->GetParError(i) << "$ & ";
+    }
+  }
+  outtex << setprecision(0) << fixed <<  fitMin->GetChisquare() << "/" << fitMin->GetNDF() <<  " \\\\\n";
+  outtex << "$0.8$ & ";
+  for(int i = 0; i < 6; i++) {
+    if(fitCom->GetParError(i) == 0) {
+      int prec = ceil(-log10(abs(fitCom->GetParameter(i))))+1;
+      prec = max(prec, 0);
+      outtex << "$" << setprecision(prec) << fixed << fitCom->GetParameter(i)  << "$ & ";
+    }
+    else {
+      int prec = ceil(-log10(abs(fitCom->GetParError(i))))+1;
+      prec = max(prec, 0);
+      outtex << "$" << setprecision(prec) << fixed << fitCom->GetParameter(i) << "\\pm" << fitCom->GetParError(i) << "$ & ";
+    }
   }
   outtex << setprecision(0) << fixed <<  fitCom->GetChisquare() << "/" << fitCom->GetNDF() << endl;
   outtex << "\\end{tabular}\n";
@@ -164,9 +186,12 @@ void extCosFit()
   // plot the minimal plots
   TLine *minLine = new TLine(0.3, 12, 0.3, 70);
   minLine->SetLineColor(kRed);
+
+  cout << "histo variation:" << endl;
+  cout <<  minHist->GetMaximum()  << " / " << comHist->GetMaximum() << endl;
   
   bHist->SetStats(0);
-  bHist->GetZaxis()->SetRangeUser(0,50); 
+  bHist->GetZaxis()->SetRangeUser(0, histoMax); 
   bHist->GetListOfFunctions()->Remove(bHist->GetFunction("fit m 2d"));
   bHist->Draw("COLZ");
   minLine->Draw("same");
@@ -174,7 +199,7 @@ void extCosFit()
   c->Clear();
 
   minHist->SetStats(0);
-  minHist->GetZaxis()->SetRangeUser(0,50);
+  minHist->GetZaxis()->SetRangeUser(0, histoMax);
   minHist->Draw("hist COLZ");
   minLine->Draw("same");
   c->SaveAs("plots/fit_min_fit.pdf");
@@ -185,7 +210,7 @@ void extCosFit()
   comLine->SetLineColor(kRed);
 
   hist->SetStats(0);
-  hist->GetZaxis()->SetRangeUser(0,50);
+  hist->GetZaxis()->SetRangeUser(0, histoMax);
   hist->GetListOfFunctions()->Remove(hist->GetFunction("fit c 2d"));
   hist->Draw("COLZ");
   comLine->Draw("same");
@@ -193,7 +218,7 @@ void extCosFit()
   c->Clear();
   
   comHist->SetStats(0);
-  comHist->GetZaxis()->SetRangeUser(0,50);
+  comHist->GetZaxis()->SetRangeUser(0, histoMax);
   comHist->Draw("COLZ");
   comLine->Draw("same");
   c->SaveAs("plots/fit_ext_fit.pdf");
@@ -226,16 +251,20 @@ void extCosFit()
     }
   }
 
+  cout << "pulls variation:" << endl;
+  cout <<  minPull->GetMinimum() << " - " << minPull->GetMaximum() << endl;
+  cout <<  comPull->GetMinimum() << " - " << comPull->GetMaximum() << endl;
+  
   // saving the pulls plots  
   minPull->SetStats(0);
-  minPull->GetZaxis()->SetRangeUser(-5,5);
+  minPull->GetZaxis()->SetRangeUser(-1.*pullMax, pullMax);
   minPull->Draw("COLZ");
   minLine->Draw("same");
   c->SaveAs("plots/fit_min_pull.pdf");
   c->Clear();
 
   comPull->SetStats(0);
-  comPull->GetZaxis()->SetRangeUser(-5,5);
+  comPull->GetZaxis()->SetRangeUser(-1.*pullMax, pullMax);
   comPull->Draw("COLZ");
   comLine->Draw("same");
   c->SaveAs("plots/fit_ext_pull.pdf");
@@ -247,17 +276,23 @@ void extCosFit()
 
   minDiv = (TH2D*)bHist->Clone(Form("minDiv"));
   minDiv->Divide(minHist);
-  minDiv->SetMaximum(2.1);
+  minDiv->SetMaximum();
+  comDiv = (TH2D*)hist->Clone(Form("comDiv"));
+  comDiv->Divide(comHist);
+  comDiv->SetMaximum();
+  
+  cout << "ratio variation:" << endl;
+  cout <<  minDiv->GetMaximum()  << " / " << comDiv->GetMaximum() << endl;
+  
   minDiv->SetTitle("Minimal fit data/fit");
+  minDiv->SetMaximum(ratioMax);
   minDiv->Draw("COLZ");
   minLine->Draw();
   c->SaveAs("plots/fit_min_quot.pdf");
   c->Clear();
 
-  comDiv = (TH2D*)hist->Clone(Form("comDiv"));
-  comDiv->Divide(comHist);
-  comDiv->SetMaximum(2.1);
   comDiv->SetTitle("Complete fit data/fit");
+  comDiv->SetMaximum(ratioMax);
   comDiv->Draw("COLZ");
   comLine->Draw();
   c->SaveAs("plots/fit_ext_quot.pdf");
@@ -292,7 +327,7 @@ void extCosFit()
     pComHist[i-1]->Draw();
     pMinHist[i-1]->Draw("same");
     fpComHist[i-1]->Draw("same");
-    fpMinHist[i-1]->Draw("same");
+    //fpMinHist[i-1]->Draw("same");
     
     c->SaveAs(Form("plots/proj_pt%d.pdf", i));
 
@@ -312,4 +347,5 @@ void extCosFit()
   
   c->Destructor();
 }
+
 

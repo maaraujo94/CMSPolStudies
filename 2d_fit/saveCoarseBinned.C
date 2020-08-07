@@ -50,7 +50,7 @@ void saveCoarseBinned()
     int nPtBins = hist->GetNbinsY();
     TH1D *fHist[nPtBins];
     for(int i = 1; i <= nPtBins; i++) {
-      fHist[i-1] = hist->ProjectionX(Form("fine_bin%d_1d%s", i, files[i_file].c_str()), i, i+1);
+      fHist[i-1] = hist->ProjectionX(Form("fine_bin%d_1d%s", i, files[i_file].c_str()), i, i);
       fHist[i-1]->SetTitle(Form("Data/MC f bin %d: [%.1f, %.1f] GeV", i, hist->GetYaxis()->GetBinLowEdge(i), hist->GetYaxis()->GetBinUpEdge(i)));
     }
     
