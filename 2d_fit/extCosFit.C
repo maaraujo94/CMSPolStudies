@@ -34,6 +34,8 @@ double fit_func(double *xx, double *par)
 // main
 void extCosFit()
 {
+  double M_q = 3.097; // using the J/psi mass
+
   TCanvas *c = new TCanvas("", "", 700, 700);
   
   // read the coarse 2d histo in |costh|
@@ -50,7 +52,7 @@ void extCosFit()
   double minX = hist->GetXaxis()->GetBinLowEdge(1), maxX = hist->GetXaxis()->GetBinUpEdge(nBinsX);
   const double *yBins = hist->GetYaxis()->GetXbins()->GetArray();
 
-  double pT_ref = 20;
+  double pT_ref = 7.;
   double histoMax = 35;
   double ratioMax = 1.7;
   double pullMax = 3;
@@ -58,7 +60,7 @@ void extCosFit()
   double pjMax[] = {40, 40, 40, 40, 40, 40, 40, 40};
   
   // the function to be used - linear lth = m(y-y_ref)+lth_ref
-  TF2 *fitMin = new TF2("fit m 2d", "fit_func", 0., 0.3, 12., 70., nBinsY+3, 2);
+  TF2 *fitMin = new TF2("fit m 2d", "fit_func", 0., 0.3, 12./M_q, 70./M_q, nBinsY+3, 2);
   for(int i = 0; i < nBinsY; i++){
     fitMin->SetParameter(i, 15);
     fitMin->SetParName(i, Form("A_%d", i+1));
@@ -69,7 +71,7 @@ void extCosFit()
   fitMin->FixParameter(nBinsY+2, pT_ref);
   fitMin->SetParName(nBinsY, "m");
   fitMin->SetParName(nBinsY+1, "lth_ref");
-  fitMin->SetParName(nBinsY+2, "pt_ref");
+  fitMin->SetParName(nBinsY+2, "xi_ref");
     
   bHist->Fit(fitMin, "R");
   
@@ -84,7 +86,7 @@ void extCosFit()
   in >> maxPar[0] >> aux >> maxPar[1] >> aux >> maxPar[2];
   in.close();
   
-  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", 0, 100);
+  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", 0, 25);
   cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
 
   double binErr = 100.*hist->GetBinError(1, nBinsY);
@@ -110,7 +112,7 @@ void extCosFit()
     }
 
   // redo the fit using the full width of the histogram
-  TF2 *fitCom = new TF2("fit c 2d", "fit_func", 0., 0.8, 12., 70., nBinsY+3, 2);
+  TF2 *fitCom = new TF2("fit c 2d", "fit_func", 0., 0.8, 12./M_q, 70./M_q, nBinsY+3, 2);
   for(int i = 0; i < nBinsY; i++){
     fitCom->SetParameter(i, 15);
     fitCom->SetParName(i, Form("A_%d", i+1));
@@ -121,9 +123,9 @@ void extCosFit()
   fitCom->FixParameter(nBinsY+2, pT_ref);
   fitCom->SetParName(nBinsY, "m");
   fitCom->SetParName(nBinsY+1, "lth_ref");
-  fitCom->SetParName(nBinsY+2, "pt_ref");
+  fitCom->SetParName(nBinsY+2, "xi_ref");
   
-  hist->Fit(fitCom, "R");
+  hist->Fit(fitCom, "VR");
   
   // plot the histogram of the extrapolated info
   dataS = hist->GetName();
@@ -136,7 +138,7 @@ void extCosFit()
   
   hist->SetStats(0);
   hist->GetXaxis()->SetTitle("|cos#theta_{HX}|");
-  hist->GetYaxis()->SetTitle("p_{T} (GeV)");
+  hist->GetYaxis()->SetTitle("p_{T}/M");
   hist->GetZaxis()->SetRangeUser(0, histoMax);
   hist->Draw("hist COLZ");
 
@@ -151,7 +153,7 @@ void extCosFit()
   // plot the original histogram
   bHist->SetStats(0);
   bHist->GetXaxis()->SetTitle("|cos#theta_{HX}|");
-  bHist->GetYaxis()->SetTitle("p_{T} (GeV)");
+  bHist->GetYaxis()->SetTitle("p_{T}/M");
   bHist->GetZaxis()->SetRangeUser(0,histoMax);
   bHist->Draw("hist COLZ");
 
@@ -185,7 +187,7 @@ void extCosFit()
   prec_min = max(prec_min, 0);
   prec_com = ceil(-log10(abs(fitCom->GetParError(nBinsY+1))))+1;
   prec_com = max(prec_com, 0);
-  outtex << Form("$\\lambda_\\theta(\\pt = %.1f$ GeV) & $", pT_ref) << setprecision(prec_min) << fixed << fitMin->GetParameter(nBinsY+1) << "\\pm" << fitMin->GetParError(nBinsY+1) << "$ & $" << setprecision(prec_com) << fixed << fitCom->GetParameter(nBinsY+1) << "\\pm" << fitCom->GetParError(nBinsY+1) << "$ \\\\\n";
+  outtex << Form("$\\lambda_\\theta(\\pt/M = %.1f$) & $", pT_ref) << setprecision(prec_min) << fixed << fitMin->GetParameter(nBinsY+1) << "\\pm" << fitMin->GetParError(nBinsY+1) << "$ & $" << setprecision(prec_com) << fixed << fitCom->GetParameter(nBinsY+1) << "\\pm" << fitCom->GetParError(nBinsY+1) << "$ \\\\\n";
 
   outtex << "\\hline\n";
   outtex << "$\\chi^2$/ndf & " << setprecision(0) << fixed <<  fitMin->GetChisquare() << "/" << fitMin->GetNDF() << " & " << fitCom->GetChisquare() << "/" << fitCom->GetNDF() << endl;
@@ -219,7 +221,7 @@ void extCosFit()
   }
 
   // plot the minimal plots
-  TLine *minLine = new TLine(0.3, 12, 0.3, 70);
+  TLine *minLine = new TLine(0.3, 12./M_q, 0.3, 70./M_q);
   minLine->SetLineColor(kRed);
 
   cout << "histo variation:" << endl;
@@ -241,7 +243,7 @@ void extCosFit()
   c->Clear();
 
   // plot the complete plots
-  TLine *comLine = new TLine(0.8, 12, 0.8, 70);
+  TLine *comLine = new TLine(0.8, 12./M_q, 0.8, 70./M_q);
   comLine->SetLineColor(kRed);
 
   hist->SetStats(0);
@@ -339,16 +341,16 @@ void extCosFit()
   TH1D *fpMinHist[nBinsY], *fpComHist[nBinsY];
   for(int i = 1; i <= nBinsY; i++) {
     pMinHist[i-1] = bHist->ProjectionX(Form("coarse_bin%d_1d_min", i), i, i);
-    pMinHist[i-1]->SetTitle(Form("p_{T} bin %d: [%.0f, %.0f] GeV", i, yBins[i-1], yBins[i]));
+    pMinHist[i-1]->SetTitle(Form("p_{T} bin %d: [%.0f, %.0f] GeV", i, yBins[i-1]*M_q, yBins[i]*M_q));
 
     pComHist[i-1] = hist->ProjectionX(Form("coarse_bin%d_1d_com", i), i, i);
-    pComHist[i-1]->SetTitle(Form("p_{T} bin %d: [%.0f, %.0f] GeV", i, yBins[i-1], yBins[i]));
+    pComHist[i-1]->SetTitle(Form("p_{T} bin %d: [%.0f, %.0f] GeV", i, yBins[i-1]*M_q, yBins[i]*M_q));
 
     fpMinHist[i-1] = minHist->ProjectionX(Form("coarse_bin%d_1d_min_f", i), i, i);
-    fpMinHist[i-1]->SetTitle(Form("Minimal fit c bin %d: [%.0f, %.0f] GeV", i, yBins[i-1], yBins[i]));
+    fpMinHist[i-1]->SetTitle(Form("Minimal fit c bin %d: [%.0f, %.0f] GeV", i, yBins[i-1]*M_q, yBins[i]*M_q));
 
     fpComHist[i-1] = comHist->ProjectionX(Form("coarse_bin%d_1d_com_f", i), i, i);
-    fpComHist[i-1]->SetTitle(Form("Complete fit c bin %d: [%.0f, %.0f] GeV", i, yBins[i-1], yBins[i]));
+    fpComHist[i-1]->SetTitle(Form("Complete fit c bin %d: [%.0f, %.0f] GeV", i, yBins[i-1]*M_q, yBins[i]*M_q));
 
     pComHist[i-1]->SetStats(0);
     pComHist[i-1]->SetLineColor(kBlack);
@@ -380,25 +382,25 @@ void extCosFit()
   }
 
   // plots of the fit quantities A_i and lambda_theta(pT)
-  TH1D *histA = new TH1D("histA", "A_{i} (p_{T})", nBinsY, yBins);
+  TH1D *histA = new TH1D("histA", "A_{i} (p_{T}/M)", nBinsY, yBins);
   for(int i = 0; i < nBinsY; i++) {
     histA->SetBinContent(i+1, fitCom->GetParameter(i));
     histA->SetBinError(i+1, fitCom->GetParError(i));
   }
   histA->SetStats(0);
-  histA->GetXaxis()->SetTitle("p_{T} (GeV)");
+  histA->GetXaxis()->SetTitle("p_{T}/M");
   histA->GetYaxis()->SetRangeUser(10, 22);
   histA->Draw("error");
   histA->Draw("hist same");
   c->SaveAs("plots/fit_A_vals.pdf");
   c->Clear();
   
-  TF1 *funcL = new TF1("funcL", "[0]*(x-[2])+[1]", 0, 70);
+  TF1 *funcL = new TF1("funcL", "[0]*(x-[2])+[1]", 0, 25);
   funcL->SetTitle("#lambda_{#theta} (p_{T})");
   funcL->SetParameters(fitCom->GetParameter(nBinsY), fitCom->GetParameter(nBinsY+1), fitCom->GetParameter(nBinsY+2));
   funcL->SetLineColor(kBlue);
   funcL->GetYaxis()->SetRangeUser(-1,1);
-  funcL->GetXaxis()->SetTitle("p_{T} (GeV)");
+  funcL->GetXaxis()->SetTitle("p_{T}/M");
   funcL->Draw();
   c->SaveAs("plots/fit_lth_pt.pdf");
   c->Clear();

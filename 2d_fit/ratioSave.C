@@ -4,6 +4,8 @@
 
 void ratioSave()
 {
+  double M_q = 3.097; // using J/psi mass
+
   // open files and read TTrees
   TFile *fin = new TFile("../Store_data_codes/data_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
@@ -18,11 +20,11 @@ void ratioSave()
   // prepare binning and histograms for plots
   const int nPtBins = 29;
   double ptBins[nPtBins+1];
-  for(int i=0 ; i<9; i++) ptBins[i] = i+12;
-  for(int i=0; i<15; i++) ptBins[i+9] = 22+2*i;
-  for(int i=0; i<4; i++) ptBins[i+24] = 52.5+2.5*i;
-  for(int i=0; i<2; i++) ptBins[i+28] = 65 + 5.*i;
-  for(int i=0; i<30; i++) cout << ptBins[i] << ",";
+  for(int i=0 ; i<9; i++) ptBins[i] = (i+12.)/M_q;
+  for(int i=0; i<15; i++) ptBins[i+9] = (22.+2.*i)/M_q;;
+  for(int i=0; i<4; i++) ptBins[i+24] = (52.5+2.5*i)/M_q;
+  for(int i=0; i<2; i++) ptBins[i+28] = (65. + 5.*i)/M_q;
+  for(int i=0; i<30; i++) cout << ptBins[i]*M_q << ",";
   cout << endl;
   
   TH2D *dataHist = new TH2D("dataH", "Data", 36, -0.9, 0.9, nPtBins, ptBins);
@@ -45,15 +47,15 @@ void ratioSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      dataHist->Fill(data_cos, data_pt);
-      dataHist_ab->Fill(abs(data_cos), data_pt);
+      dataHist->Fill(data_cos, data_pt/M_q);
+      dataHist_ab->Fill(abs(data_cos), data_pt/M_q);
     }
 
   for(int i = 0; i < mEvt; i++)
     {
       treeM->GetEntry(i);
-      mcHist->Fill(mc_cos, mc_pt);
-      mcHist_ab->Fill(abs(mc_cos), mc_pt);
+      mcHist->Fill(mc_cos, mc_pt/M_q);
+      mcHist_ab->Fill(abs(mc_cos), mc_pt/M_q);
     }
   
   // plot all costh histograms
@@ -62,28 +64,28 @@ void ratioSave()
   
   dataHist->SetStats(0);
   dataHist->GetXaxis()->SetTitle("cos#theta_{HX}");
-  dataHist->GetYaxis()->SetTitle("p_{T} (GeV)");
+  dataHist->GetYaxis()->SetTitle("p_{T}/M ");
   dataHist->Draw("COLZ");
   c->SaveAs("plots/data_2d.pdf");
   c->Clear();
 
   mcHist->SetStats(0);
   mcHist->GetXaxis()->SetTitle("cos#theta_{HX}");
-  mcHist->GetYaxis()->SetTitle("p_{T} (GeV)");
+  mcHist->GetYaxis()->SetTitle("p_{T}/M");
   mcHist->Draw("COLZ");
   c->SaveAs("plots/mc_2d.pdf");
   c->Clear();
 
   dataHist_ab->SetStats(0);
   dataHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
-  dataHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
+  dataHist_ab->GetYaxis()->SetTitle("p_{T}/M");
   dataHist_ab->Draw("COLZ");
   c->SaveAs("plots/data_2d_abs.pdf");
   c->Clear();
 
   mcHist_ab->SetStats(0);
   mcHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
-  mcHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
+  mcHist_ab->GetYaxis()->SetTitle("p_{T}/M");
   mcHist_ab->Draw("COLZ");
   c->SaveAs("plots/mc_2d_abs.pdf");
   c->Clear();
