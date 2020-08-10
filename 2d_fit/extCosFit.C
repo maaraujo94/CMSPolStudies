@@ -35,6 +35,7 @@ double fit_func(double *xx, double *par)
 void extCosFit()
 {
   double M_q = 3.097; // using the J/psi mass
+  string fit_type = "constant";
 
   TCanvas *c = new TCanvas("", "", 700, 700);
   
@@ -56,7 +57,6 @@ void extCosFit()
   double histoMax = 35;
   double ratioMax = 1.7;
   double pullMax = 3;
-  //  double pjMax[] = {20, 20, 20, 20, 25, 30, 35, 45};
   double pjMax[] = {40, 40, 40, 40, 40, 40, 40, 40};
   
   // the function to be used - linear lth = m(y-y_ref)+lth_ref
@@ -69,6 +69,7 @@ void extCosFit()
   fitMin->SetParameter(nBinsY+1, 0.1);
   fitMin->SetParameter(nBinsY+2, pT_ref);
   fitMin->FixParameter(nBinsY+2, pT_ref);
+  if(fit_type == "constant") fitMin->FixParameter(nBinsY, 0);
   fitMin->SetParName(nBinsY, "m");
   fitMin->SetParName(nBinsY+1, "lth_ref");
   fitMin->SetParName(nBinsY+2, "xi_ref");
@@ -121,17 +122,18 @@ void extCosFit()
   fitCom->SetParameter(nBinsY+1, 0.1);
   fitCom->SetParameter(nBinsY+2, pT_ref);
   fitCom->FixParameter(nBinsY+2, pT_ref);
+  if(fit_type == "constant") fitCom->FixParameter(nBinsY, 0);
   fitCom->SetParName(nBinsY, "m");
   fitCom->SetParName(nBinsY+1, "lth_ref");
   fitCom->SetParName(nBinsY+2, "xi_ref");
   
-  hist->Fit(fitCom, "VR");
+  TFitResultPtr fitres = hist->Fit(fitCom, "VRS");
   
   // plot the histogram of the extrapolated info
   dataS = hist->GetName();
   hist->SetName(Form("%s_ext", dataS.c_str()));
   dataS = hist->GetTitle();
-  hist->SetTitle(Form("%s extrapolated", dataS.c_str()));
+  hist->SetTitle(Form("%s extrapolated (%s)", dataS.c_str(), fit_type.c_str()));
 
   cout << "histo variation:" << endl;
   cout <<  hist->GetMaximum()  << " / " << bHist->GetMaximum() << endl;
@@ -147,7 +149,7 @@ void extCosFit()
   invF->SetLineColor(kRed);
   invF->Draw("same");
   
-  c->SaveAs("plots/ratio_2d_abs_ext.pdf");
+  c->SaveAs(Form("plots/fit_%s/ratio_2d_abs_ext.pdf", fit_type.c_str()));
   c->Clear();
 
   // plot the original histogram
@@ -159,12 +161,12 @@ void extCosFit()
 
   invF->Draw("same");
   
-  c->SaveAs("plots/ratio_2d_abs_coarse.pdf");
+  c->SaveAs(Form("plots/fit_%s/ratio_2d_abs_coarse.pdf", fit_type.c_str()));
   c->Clear();
 
   // save fit results to tex
   ofstream outtex;
-  outtex.open("text_output/minMaxFit.tex");
+  outtex.open(Form("text_output/fit_%s/minMaxFit.tex", fit_type.c_str()));
   outtex << "\\begin{tabular}{c|c|c}\n";
   outtex << "$|\\cost|_{max}$ & 0.3 & 0.8\\\\\n";
   outtex << "\\hline\n";
@@ -195,11 +197,6 @@ void extCosFit()
   
   outtex.close();
   
-  // save plots to .root file
-  TFile* outfile = new TFile("files/store_hist.root", "update");
-  hist->Write(0, TObject::kOverwrite);
-  outfile->Close();
-
   // now the illustrative plots
   // first the histogram plots in the given range compared to function
   TH2D *minHist = new TH2D("minHist", "Minimal fit function", nBinsX, minX, maxX, nBinsY, yBins);
@@ -230,16 +227,18 @@ void extCosFit()
   bHist->SetStats(0);
   bHist->GetZaxis()->SetRangeUser(0, histoMax); 
   bHist->GetListOfFunctions()->Remove(bHist->GetFunction("fit m 2d"));
+  bHist->SetTitle(Form("%s (%s)", bHist->GetTitle(), fit_type.c_str()));
   bHist->Draw("COLZ");
   minLine->Draw("same");
-  c->SaveAs("plots/fit_min_ratio.pdf");
+  c->SaveAs(Form("plots/fit_%s/fit_min_ratio.pdf", fit_type.c_str()));
   c->Clear();
-
+  
   minHist->SetStats(0);
   minHist->GetZaxis()->SetRangeUser(0, histoMax);
+  minHist->SetTitle(Form("%s (%s)", minHist->GetTitle(), fit_type.c_str()));
   minHist->Draw("hist COLZ");
   minLine->Draw("same");
-  c->SaveAs("plots/fit_min_fit.pdf");
+  c->SaveAs(Form("plots/fit_%s/fit_min_fit.pdf", fit_type.c_str()));
   c->Clear();
 
   // plot the complete plots
@@ -251,14 +250,15 @@ void extCosFit()
   hist->GetListOfFunctions()->Remove(hist->GetFunction("fit c 2d"));
   hist->Draw("COLZ");
   comLine->Draw("same");
-  c->SaveAs("plots/fit_ext_ratio.pdf");
+  c->SaveAs(Form("plots/fit_%s/fit_ext_ratio.pdf", fit_type.c_str()));
   c->Clear();
   
   comHist->SetStats(0);
   comHist->GetZaxis()->SetRangeUser(0, histoMax);
+  comHist->SetTitle(Form("%s (%s)", comHist->GetTitle(), fit_type.c_str()));
   comHist->Draw("COLZ");
   comLine->Draw("same");
-  c->SaveAs("plots/fit_ext_fit.pdf");
+  c->SaveAs(Form("plots/fit_%s/fit_ext_fit.pdf", fit_type.c_str()));
   c->Clear();
 
   // plot the pulls: (data_val-fit_val)/data_err
@@ -296,15 +296,17 @@ void extCosFit()
   minPull->SetStats(0);
   minPull->GetZaxis()->SetRangeUser(-1.*pullMax, pullMax);
   minPull->Draw("COLZ");
+  minPull->SetTitle(Form("%s (%s)", minPull->GetTitle(), fit_type.c_str()));
   minLine->Draw("same");
-  c->SaveAs("plots/fit_min_pull.pdf");
+  c->SaveAs(Form("plots/fit_%s/fit_min_pull.pdf", fit_type.c_str()));
   c->Clear();
 
   comPull->SetStats(0);
   comPull->GetZaxis()->SetRangeUser(-1.*pullMax, pullMax);
+  comPull->SetTitle(Form("%s (%s)", comPull->GetTitle(), fit_type.c_str()));
   comPull->Draw("COLZ");
   comLine->Draw("same");
-  c->SaveAs("plots/fit_ext_pull.pdf");
+  c->SaveAs(Form("plots/fit_%s/fit_ext_pull.pdf", fit_type.c_str()));
   c->Clear();
 
   // plot the ratio data/func
@@ -323,16 +325,18 @@ void extCosFit()
   
   minDiv->SetTitle("Minimal fit data/fit");
   minDiv->SetMaximum(ratioMax);
+  minDiv->SetTitle(Form("%s (%s)", minDiv->GetTitle(), fit_type.c_str()));
   minDiv->Draw("COLZ");
   minLine->Draw();
-  c->SaveAs("plots/fit_min_quot.pdf");
+  c->SaveAs(Form("plots/fit_%s/fit_min_quot.pdf", fit_type.c_str()));
   c->Clear();
-
+  
   comDiv->SetTitle("Complete fit data/fit");
   comDiv->SetMaximum(ratioMax);
+  comDiv->SetTitle(Form("%s (%s)", comDiv->GetTitle(), fit_type.c_str()));
   comDiv->Draw("COLZ");
   comLine->Draw();
-  c->SaveAs("plots/fit_ext_quot.pdf");
+  c->SaveAs(Form("plots/fit_%s/fit_ext_quot.pdf", fit_type.c_str()));
   c->Clear();
 
   // plot the 1D coarse bins with fit function superimposed (integ over pt bin)
@@ -365,7 +369,7 @@ void extCosFit()
     fpComHist[i-1]->Draw("same");
     //fpMinHist[i-1]->Draw("same");
     
-    c->SaveAs(Form("plots/proj_pt%d.pdf", i));
+    c->SaveAs(Form("plots/fit_%s/proj_pt%d.pdf", fit_type.c_str(), i));
 
     // draw limits of each fit
     TLine *min1D = new TLine(0.3, c->GetUymin(), 0.3, c->GetUymax());
@@ -377,7 +381,7 @@ void extCosFit()
     com1D->SetLineColor(kBlack);
     com1D->Draw();
 
-    c->SaveAs(Form("plots/proj_pt%d.pdf", i));
+    c->SaveAs(Form("plots/fit_%s/proj_pt%d.pdf", fit_type.c_str(), i));
     c->Clear();
   }
 
@@ -390,22 +394,81 @@ void extCosFit()
   histA->SetStats(0);
   histA->GetXaxis()->SetTitle("p_{T}/M");
   histA->GetYaxis()->SetRangeUser(10, 22);
+  histA->SetTitle(Form("%s (%s)", histA->GetTitle(), fit_type.c_str()));
   histA->Draw("error");
   histA->Draw("hist same");
-  c->SaveAs("plots/fit_A_vals.pdf");
+  c->SaveAs(Form("plots/fit_%s/fit_A_vals.pdf", fit_type.c_str()));
   c->Clear();
-  
+
+  // lambda_theta(xi) plotted as uncertainty band
   TF1 *funcL = new TF1("funcL", "[0]*(x-[2])+[1]", 0, 25);
-  funcL->SetTitle("#lambda_{#theta} (p_{T})");
   funcL->SetParameters(fitCom->GetParameter(nBinsY), fitCom->GetParameter(nBinsY+1), fitCom->GetParameter(nBinsY+2));
-  funcL->SetLineColor(kBlue);
-  funcL->GetYaxis()->SetRangeUser(-1,1);
-  funcL->GetXaxis()->SetTitle("p_{T}/M");
-  funcL->Draw();
-  c->SaveAs("plots/fit_lth_pt.pdf");
+
+  const int sizeunc = 71-12;
+  float l_band[4][sizeunc];
+  double dfm, dfl, ln = 1e4;
+  double m = fitCom->GetParameter(nBinsY), errm = fitCom->GetParError(nBinsY);
+  double l = fitCom->GetParameter(nBinsY+1), errl = fitCom->GetParError(nBinsY+1);
+  double errml = fitres->GetCovarianceMatrix()(nBinsY, nBinsY+1);
+
+  for(int i=0; i<sizeunc; i++) {
+    // x- and y-vals
+    l_band[0][i] = (12.+i)/M_q; 
+    l_band[1][i] = funcL->Eval(l_band[0][i]);
+
+    // x uncertainty
+    l_band[2][i]=0.5/M_q;
+
+    // uncert contribution from m
+    if(m != 0) {
+      funcL->SetParameter(0, m + errm/ln);
+      dfm = (funcL->Eval(l_band[0][i])-l_band[1][i]) / (errm/ln);
+      funcL->SetParameter(0, m);
+    
+      // uncert contrib from lth_ref
+      funcL->SetParameter(1, l + errl/ln);
+      dfl = (funcL->Eval(l_band[0][i])-l_band[1][i]) / (errl/ln);
+      funcL->SetParameter(1, l);
+      
+      // y uncertainty
+      l_band[3][i] = sqrt(dfm*dfm*errm*errm + dfl*dfl*errl*errl + 2*dfm*dfl*errml);
+    }
+    else {
+      l_band[3][i] = errl;
+    }
+  }
+
+  TH1F *func = c->DrawFrame(0, -1, 25, 1);
+  func->SetXTitle("p_{T}/M");
+  func->SetYTitle("#lambda_{#theta}");
+  func->GetYaxis()->SetTitleOffset(1.3);
+  func->GetYaxis()->SetLabelOffset(0.01);
+  func->SetTitle(Form("#lambda_{#theta} (p_{T}/M) (%s)", fit_type.c_str()));
+  
+  TGraphErrors* l_unc = new TGraphErrors(sizeunc, l_band[0], l_band[1], l_band[2], l_band[3]);
+  l_unc->SetLineColor(kBlack);
+  l_unc->SetFillColorAlpha(kBlue, 0.5);
+  l_unc->SetTitle(Form("#lambda_{#theta} (p_{T}/M) (%s)", fit_type.c_str()));
+  l_unc->Draw("ce3");
+  
+  TF1 *zero = new TF1("zero", "0", 0, 25);
+  zero->SetLineColor(kBlack);
+  zero->SetLineStyle(kDashed);
+  zero->Draw("lsame");
+
+  c->SaveAs(Form("plots/fit_%s/fit_lth_pt.pdf", fit_type.c_str()));
   c->Clear();
 
   c->Destructor();
+
+  // save lambda_theta band to root file
+  TFile* outfile = new TFile("files/fit_res_2d.root", "update");
+  hist->SetName(Form("%s_%s", hist->GetName(), fit_type.c_str()));
+  hist->Write(0, TObject::kOverwrite);
+  l_unc->SetName(Form("lth_%s", fit_type.c_str()));
+  l_unc->Write(0, TObject::kOverwrite);
+  outfile->Close();
+
   
 }
 
