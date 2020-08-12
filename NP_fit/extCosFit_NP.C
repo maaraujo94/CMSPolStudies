@@ -35,12 +35,12 @@ double fit_func(double *xx, double *par)
 void extCosFit_NP()
 {
   double M_q = 3.097; // using the J/psi mass
-  string fit_type = "constant";
+  string fit_type = "linear";
 
   TCanvas *c = new TCanvas("", "", 700, 700);
   
   // read the coarse 2d histo in |costh|
-  TFile *infile = new TFile("files/store_hist.root");
+  TFile *infile = new TFile("files/ratioHist.root");
   TH2D *bHist = new TH2D();
   infile->GetObject("cHist_ab", bHist);
   bHist->SetDirectory(0);
@@ -80,7 +80,7 @@ void extCosFit_NP()
   // first read the |costh|max(pt) function
   ifstream in;
   string dataS;
-  in.open("text_output/cosMaxFitRes.txt");
+  in.open("../2d_fit/text_output/cosMaxFitRes.txt");
   getline(in, dataS);
   getline(in, dataS);
   double maxPar[3], aux;
@@ -466,7 +466,9 @@ void extCosFit_NP()
   hist->SetName(Form("%s_%s", hist->GetName(), fit_type.c_str()));
   hist->Write(0, TObject::kOverwrite);
   l_unc->SetName(Form("lth_%s", fit_type.c_str()));
-  l_unc->Write(0, TObject::kOverwrite);
+  l_unc->Write(0, TObject::kOverwrite); 
+  histA->SetName(Form("A_%s", fit_type.c_str()));
+  histA->Write(0, TObject::kOverwrite);
   outfile->Close();
 
   

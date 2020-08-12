@@ -35,12 +35,12 @@ double fit_func(double *xx, double *par)
 void extCosFit()
 {
   double M_q = 3.097; // using the J/psi mass
-  string fit_type = "constant";
+  string fit_type = "linear";
 
   TCanvas *c = new TCanvas("", "", 700, 700);
   
   // read the coarse 2d histo in |costh|
-  TFile *infile = new TFile("files/store_hist.root");
+  TFile *infile = new TFile("files/ratioHist.root");
   TH2D *bHist = new TH2D();
   infile->GetObject("cHist_ab", bHist);
   bHist->SetDirectory(0);
@@ -127,7 +127,7 @@ void extCosFit()
   fitCom->SetParName(nBinsY+1, "lth_ref");
   fitCom->SetParName(nBinsY+2, "xi_ref");
   
-  TFitResultPtr fitres = hist->Fit(fitCom, "VRS");
+  TFitResultPtr fitres = hist->Fit(fitCom, "RS");
   
   // plot the histogram of the extrapolated info
   dataS = hist->GetName();
@@ -467,6 +467,8 @@ void extCosFit()
   hist->Write(0, TObject::kOverwrite);
   l_unc->SetName(Form("lth_%s", fit_type.c_str()));
   l_unc->Write(0, TObject::kOverwrite);
+  histA->SetName(Form("A_%s", fit_type.c_str()));
+  histA->Write(0, TObject::kOverwrite);
   outfile->Close();
 
   

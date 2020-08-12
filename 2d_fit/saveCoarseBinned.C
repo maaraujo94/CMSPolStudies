@@ -6,10 +6,6 @@ void saveCoarseBinned()
 {
   double M_q = 3.097; // using J/psi mass
   
-  // create file so it can be updated later
-  TFile* outfile = new TFile("files/store_hist.root", "recreate");
-  outfile->Close();
-
   string files[2] = {"", "_ab"};
 
   // run over the two ratio histograms (normal and |costh|)
@@ -58,11 +54,9 @@ void saveCoarseBinned()
     
     // store in outfile the fine-binned histo, the coarse-binned
     // and each of the coarse-binned 1D projections
-    TFile* outfile_2 = new TFile("files/store_hist.root", "update");
+    TFile* outfile_2 = new TFile("files/ratioHist.root", "update");
     hist->Write();
     cHist->Write();
-    for(int i = 0; i < nBinsY; i++) pHist[i]->Write();
-    for(int i = 0; i < nPtBins; i++) fHist[i]->Write();
     outfile_2->Close();
   } 
 }
