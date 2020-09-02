@@ -2,20 +2,20 @@
 // plots data, mc and ratio
 // saves ratio (normal and |costh|), number of entries in each histo bin
 
-void ratioSave_NP()
+void ratioSave()
 {
   double M_q = 3.097; // using J/psi mass
 
   // open files and read TTrees
-  TFile *fin = new TFile("../Store_data_codes/data_NP2p5cos.root");
+  TFile *fin = new TFile("../Store_data_codes/data_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
-  TFile *fin2 = new TFile("../Store_data_codes/MC_cos.root");
-  TTree *treeM = (TTree*)fin2->Get("MC_cos");
+  TFile *fin2 = new TFile("../Store_data_codes/data_NP2p5cos.root");
+  TTree *treeM = (TTree*)fin2->Get("data_cos");
   
   int dEvt = treeD->GetEntries();
   int mEvt = treeM->GetEntries();
 
-  cout << dEvt << " data events after cuts and " << mEvt << " MC events after cuts" << endl;
+  cout << dEvt << " PR events after cuts and " << mEvt << " NP events after cuts" << endl;
 
   // prepare binning and histograms for plots
   const int nPtBins = 29;
@@ -27,11 +27,11 @@ void ratioSave_NP()
   for(int i=0; i<30; i++) cout << ptBins[i]*M_q << ",";
   cout << endl;
   
-  TH2D *dataHist = new TH2D("dataH", "Data", 36, -0.9, 0.9, nPtBins, ptBins);
-  TH2D *mcHist = new TH2D("mcH", "MC", 36, -0.9, 0.9, nPtBins, ptBins);
+  TH2D *dataHist = new TH2D("dataH", "Data (PR)", 36, -0.9, 0.9, nPtBins, ptBins);
+  TH2D *mcHist = new TH2D("mcH", "Data (NP)", 36, -0.9, 0.9, nPtBins, ptBins);
 
-  TH2D *dataHist_ab = new TH2D("dataH_ab", "Data", 18, 0, 0.9, nPtBins, ptBins);
-  TH2D *mcHist_ab = new TH2D("mcH_ab", "MC", 18, 0, 0.9, nPtBins, ptBins);
+  TH2D *dataHist_ab = new TH2D("dataH_ab", "Data (PR)", 18, 0, 0.9, nPtBins, ptBins);
+  TH2D *mcHist_ab = new TH2D("mcH_ab", "Data (NP)", 18, 0, 0.9, nPtBins, ptBins);
   
   // definitions to store data and MC events
   Double_t data_cos, data_pt;
@@ -61,39 +61,46 @@ void ratioSave_NP()
   // plot all costh histograms
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLogz();
+
+  double relMax = 2.5e5;
+  double absMax = 2*relMax;
   
   dataHist->SetStats(0);
   dataHist->GetXaxis()->SetTitle("cos#theta_{HX}");
   dataHist->GetYaxis()->SetTitle("p_{T}/M ");
+  dataHist->SetMaximum(relMax);
   dataHist->Draw("COLZ");
-  c->SaveAs("plots/data_2d.pdf");
+  c->SaveAs("plots/pr_2d.pdf");
   c->Clear();
 
   mcHist->SetStats(0);
   mcHist->GetXaxis()->SetTitle("cos#theta_{HX}");
   mcHist->GetYaxis()->SetTitle("p_{T}/M");
+  mcHist->SetMaximum(relMax);
   mcHist->Draw("COLZ");
-  c->SaveAs("plots/mc_2d.pdf");
+  c->SaveAs("plots/np_2d.pdf");
   c->Clear();
-
+  
   dataHist_ab->SetStats(0);
   dataHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   dataHist_ab->GetYaxis()->SetTitle("p_{T}/M");
+  dataHist_ab->SetMaximum(absMax);
   dataHist_ab->Draw("COLZ");
-  c->SaveAs("plots/data_2d_abs.pdf");
+  c->SaveAs("plots/pr_2d_abs.pdf");
   c->Clear();
 
   mcHist_ab->SetStats(0);
   mcHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   mcHist_ab->GetYaxis()->SetTitle("p_{T}/M");
+  mcHist_ab->SetMaximum(absMax);
   mcHist_ab->Draw("COLZ");
-  c->SaveAs("plots/mc_2d_abs.pdf");
+  c->SaveAs("plots/np_2d_abs.pdf");
   c->Clear();
-  
+
   ofstream f_ent;
   f_ent.open("text_output/nEntries.txt");
  
-  f_ent << "[pTmin, pTmax]; [cosmin, cosmax]: data entries / mc entries" << endl << endl;
+  f_ent << "[pTmin, pTmax]; [cosmin, cosmax]: PR entries / NP entries" << endl << endl;
   for(int pt = 0; pt < nPtBins; pt++) {
     for(int cos = 0; cos < 36; cos++) {
  	f_ent << "[" << ptBins[pt] << ", " << ptBins[pt+1] << "]; ";
@@ -109,9 +116,10 @@ void ratioSave_NP()
 
   c->SetLogz(0);
   ratioHist = (TH2D*)dataHist->Clone(Form("ratioHist"));
+  ratioHist->SetMaximum();
   ratioHist->Sumw2();
   ratioHist->Divide(mcHist);
-  ratioHist->SetTitle("Data/MC");
+  ratioHist->SetTitle("PR/NP");
   ratioHist->Draw("COLZ");
   c->SaveAs("plots/ratio_2d.pdf");
   c->Clear();
@@ -120,9 +128,10 @@ void ratioSave_NP()
 
   c->SetLogz(0);
   ratioHist_ab = (TH2D*)dataHist_ab->Clone(Form("ratioHist_ab"));
+  ratioHist_ab->SetMaximum();
   ratioHist_ab->Sumw2();
   ratioHist_ab->Divide(mcHist_ab);
-  ratioHist_ab->SetTitle("Data/MC");
+  ratioHist_ab->SetTitle("PR/NP");
   ratioHist_ab->Draw("COLZ");
   c->SaveAs("plots/ratio_2d_abs.pdf");
   c->Clear();

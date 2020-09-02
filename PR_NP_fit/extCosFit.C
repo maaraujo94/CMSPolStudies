@@ -32,7 +32,7 @@ double fit_func(double *xx, double *par)
 }
 
 // main
-void extCosFit_NP()
+void extCosFit()
 {
   double M_q = 3.097; // using the J/psi mass
   string fit_type = "constant";
@@ -54,15 +54,16 @@ void extCosFit_NP()
   const double *yBins = hist->GetYaxis()->GetXbins()->GetArray();
 
   double pT_ref = 7.;
-  double histoMax = 60;
-  double ratioMax = 1.7;
-  double pullMax = 3;
-  double pjMax[] = {50, 50, 50, 50, 50, 50, 50, 50};
+  double histoMax = 1.9;
+  double ratioMax = 2.6;
+  double pullMax = 5;
+  //double pjMax[] = {3, 3, 3, 3, 3, 3, 3, 3};
+  double mult = 1.4;
   
   // the function to be used - linear lth = m(y-y_ref)+lth_ref
   TF2 *fitMin = new TF2("fit m 2d", "fit_func", 0., 0.3, 12./M_q, 70./M_q, nBinsY+3, 2);
   for(int i = 0; i < nBinsY; i++){
-    fitMin->SetParameter(i, 15);
+    fitMin->SetParameter(i, 1.);
     fitMin->SetParName(i, Form("A_%d", i+1));
   }
   fitMin->SetParameter(nBinsY, 0.1);
@@ -80,7 +81,7 @@ void extCosFit_NP()
   // first read the |costh|max(pt) function
   ifstream in;
   string dataS;
-  in.open("../2d_fit/text_output/cosMaxFitRes.txt");
+  in.open("text_output/cosMaxFitRes.txt");
   getline(in, dataS);
   getline(in, dataS);
   double maxPar[3], aux;
@@ -115,7 +116,7 @@ void extCosFit_NP()
   // redo the fit using the full width of the histogram
   TF2 *fitCom = new TF2("fit c 2d", "fit_func", 0., 0.8, 12./M_q, 70./M_q, nBinsY+3, 2);
   for(int i = 0; i < nBinsY; i++){
-    fitCom->SetParameter(i, 15);
+    fitCom->SetParameter(i, 1.);
     fitCom->SetParName(i, Form("A_%d", i+1));
   }
   fitCom->SetParameter(nBinsY, 0.1);
@@ -362,8 +363,8 @@ void extCosFit_NP()
     pMinHist[i-1]->SetStats(0);
     fpComHist[i-1]->SetLineColor(kRed);
     fpMinHist[i-1]->SetLineColor(kViolet);
-    
-    pComHist[i-1]->GetYaxis()->SetRangeUser(0, pjMax[i-1]);
+
+    pComHist[i-1]->GetYaxis()->SetRangeUser(0, mult*fitCom->GetParameter(i-1));
     pComHist[i-1]->Draw();
     pMinHist[i-1]->Draw("same");
     fpComHist[i-1]->Draw("same");
@@ -393,7 +394,7 @@ void extCosFit_NP()
   }
   histA->SetStats(0);
   histA->GetXaxis()->SetTitle("p_{T}/M");
-  histA->GetYaxis()->SetRangeUser(5, 40);
+  histA->GetYaxis()->SetRangeUser(0.4, 1.8);
   histA->SetTitle(Form("%s (%s)", histA->GetTitle(), fit_type.c_str()));
   histA->Draw("error");
   histA->Draw("hist same");
@@ -466,16 +467,12 @@ void extCosFit_NP()
   hist->SetName(Form("%s_%s", hist->GetName(), fit_type.c_str()));
   hist->Write(0, TObject::kOverwrite);
   l_unc->SetName(Form("lth_%s", fit_type.c_str()));
-  l_unc->Write(0, TObject::kOverwrite); 
+  l_unc->Write(0, TObject::kOverwrite);
   histA->SetName(Form("A_%s", fit_type.c_str()));
   histA->Write(0, TObject::kOverwrite);
-  for(int i = 0; i < nBinsY; i++){
-    pComHist[i]->SetName(Form("ext_proj_%d_%s", i+1, fit_type.c_str()));
-    pComHist[i]->Write(0, TObject::kOverwrite);
-    pMinHist[i]->SetName(Form("base_proj_%d_%s", i+1, fit_type.c_str()));
-    pMinHist[i]->Write(0, TObject::kOverwrite);
-    fpComHist[i]->SetName(Form("fit_proj_%d_%s", i+1, fit_type.c_str()));
-    fpComHist[i]->Write(0, TObject::kOverwrite);
+  for(int i = 0; i < nBinsY; i++) {
+    fpComHist[i]->SetName(Form("Fit_%s_%d", fit_type.c_str(), i));
+    fpComHist[i]->Write();
   }
   outfile->Close();
 
