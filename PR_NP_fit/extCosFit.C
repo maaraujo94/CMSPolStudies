@@ -165,35 +165,29 @@ void extCosFit()
   c->SaveAs(Form("plots/fit_%s/ratio_2d_abs_coarse.pdf", fit_type.c_str()));
   c->Clear();
 
-  // save fit results to tex
+  // save fit results to tex - only full fit
   ofstream outtex;
   outtex.open(Form("text_output/fit_%s/minMaxFit.tex", fit_type.c_str()));
-  outtex << "\\begin{tabular}{c|c|c}\n";
-  outtex << "$|\\cost|_{max}$ & 0.3 & 0.8\\\\\n";
+  outtex << "\\begin{tabular}{c|c}\n";
+  outtex << "Parameter & Value\\\\\n";
   outtex << "\\hline\n";
   
   for(int i=0; i<nBinsY; i++) {
-    int prec_min = ceil(-log10(abs(fitMin->GetParError(i))))+1;
-    prec_min = max(prec_min, 0);
     int prec_com = ceil(-log10(abs(fitCom->GetParError(i))))+1;
     prec_com = max(prec_com, 0);    
-    outtex << Form("$A_%d$ & $", i+1) << setprecision(prec_min) << fixed << fitMin->GetParameter(i) << "\\pm" << fitMin->GetParError(i) << "$ & $" << setprecision(prec_com) << fixed << fitCom->GetParameter(i) << "\\pm" << fitCom->GetParError(i) << "$ \\\\\n";
+    outtex << Form("$A_%d$ & $", i+1)  << setprecision(prec_com) << fixed << fitCom->GetParameter(i) << "\\pm" << fitCom->GetParError(i) << "$ \\\\\n";
   }
   
-  int prec_min = ceil(-log10(abs(fitMin->GetParError(nBinsY))))+1;
-  prec_min = max(prec_min, 0);
   int prec_com = ceil(-log10(abs(fitCom->GetParError(nBinsY))))+1;
   prec_com = max(prec_com, 0);    
-  outtex << "$m$ & $" << setprecision(prec_min) << fixed << fitMin->GetParameter(nBinsY) << "\\pm" << fitMin->GetParError(nBinsY) << "$ & $" << setprecision(prec_com) << fixed << fitCom->GetParameter(nBinsY) << "\\pm" << fitCom->GetParError(nBinsY) << "$ \\\\\n";
+  outtex << "$m$ & $" << setprecision(prec_com) << fixed << fitCom->GetParameter(nBinsY) << "\\pm" << fitCom->GetParError(nBinsY) << "$ \\\\\n";
 
-  prec_min = ceil(-log10(abs(fitMin->GetParError(nBinsY+1))))+1;
-  prec_min = max(prec_min, 0);
   prec_com = ceil(-log10(abs(fitCom->GetParError(nBinsY+1))))+1;
   prec_com = max(prec_com, 0);
-  outtex << Form("$\\lambda_\\theta(\\pt/M = %.1f$) & $", pT_ref) << setprecision(prec_min) << fixed << fitMin->GetParameter(nBinsY+1) << "\\pm" << fitMin->GetParError(nBinsY+1) << "$ & $" << setprecision(prec_com) << fixed << fitCom->GetParameter(nBinsY+1) << "\\pm" << fitCom->GetParError(nBinsY+1) << "$ \\\\\n";
+  outtex << Form("$\\lambda_\\theta(\\pt/M = %.1f$) & $", pT_ref) << setprecision(prec_com) << fixed << fitCom->GetParameter(nBinsY+1) << "\\pm" << fitCom->GetParError(nBinsY+1) << "$ \\\\\n";
 
   outtex << "\\hline\n";
-  outtex << "$\\chi^2$/ndf & " << setprecision(0) << fixed <<  fitMin->GetChisquare() << "/" << fitMin->GetNDF() << " & " << fitCom->GetChisquare() << "/" << fitCom->GetNDF() << endl;
+  outtex << "$\\chi^2$/ndf & " << setprecision(0) << fixed  << fitCom->GetChisquare() << "/" << fitCom->GetNDF() << endl;
   outtex << "\\end{tabular}\n";
   
   outtex.close();

@@ -47,6 +47,19 @@ void plotRes()
     }
   }
 
+  // read the |costh|max(pt) function
+  ifstream in;
+  string dataS;
+  in.open("text_output/cosMaxFitRes.txt");
+  getline(in, dataS);
+  getline(in, dataS);
+  double maxPar[3], aux;
+  in >> maxPar[0] >> aux >> maxPar[1] >> aux >> maxPar[2];
+  in.close();
+  
+  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", 0, 25);
+  cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
+  
   // get the linear/constant lambda fit points
   TFile *fDep = new TFile("files/fit_res_2d.root");
   TH1D *fitLin[nBinspT], *fitCon[nBinspT];
@@ -84,11 +97,19 @@ void plotRes()
     fitCon[i]->SetMarkerColor(kRed);
     fitCon[i]->Draw("same");
 
+    double cosLim = cosMax->Integral(pTBins[i], pTBins[i+1])/(pTBins[i+1]-pTBins[i]);
+    double cR = floor(cosLim*10.)/10.;
+    if(cosLim-cR>0.05) cR += 0.05;
+    TLine *cLim = new TLine(cR, 0, cR, A[i]*1.4);
+    cLim->SetLineStyle(kDashed);
+    cLim->SetLineColor(kBlack);
+    cLim->Draw();
+
     // the legend
-    TLegend *leg = new TLegend(0.7, 0.2, 0.9, 0.4);
+    TLegend *leg = new TLegend(0.2, 0.2, 0.4, 0.4);
     leg->SetTextSize(0.03);
     leg->AddEntry(hData[i], "data", "pl");
-    leg->AddEntry(hInd[i], "indep", "pl");
+    leg->AddEntry(hInd[i], "free", "pl");
     leg->AddEntry(fitLin[i], "linear", "pl");
     leg->AddEntry(fitCon[i], "constant", "pl");
     leg->Draw();
@@ -97,6 +118,51 @@ void plotRes()
     c->SaveAs(Form("plots/ratio_final/bin_%d.pdf", i));
     c->Clear();
   }
+
+  // plot the results normalized
+  for(int i = 0; i < nBinspT; i++) {
+    // the data
+    hData[i]->SetTitle(Form("PR/NP p_{T} bin %d: [%.0f, %.0f] GeV (scaled)", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
+    double norm = hData[i]->GetBinContent(1);
+    hData[i]->Scale(1./norm);
+    hData[i]->GetYaxis()->SetRangeUser(0.7, 1.3);
+    hData[i]->Draw();
+
+    // the independent fit
+    norm = hInd[i]->GetBinContent(1);
+    hInd[i]->Scale(1./norm);
+    hInd[i]->Draw("hist same");
+
+    // the linear and constant fits
+    norm = fitLin[i]->GetBinContent(1);
+    fitLin[i]->Scale(1./norm);
+    fitLin[i]->Draw("hist same");
+    norm = fitCon[i]->GetBinContent(1);
+    fitCon[i]->Scale(1./norm);
+    fitCon[i]->Draw("hist same");
+
+    double cosLim = cosMax->Integral(pTBins[i], pTBins[i+1])/(pTBins[i+1]-pTBins[i]);
+    double cR = floor(cosLim*10.)/10.;
+    if(cosLim-cR>0.05) cR += 0.05;
+    TLine *cLim = new TLine(cR, 0.7, cR, 1.3);
+    cLim->SetLineStyle(kDashed);
+    cLim->SetLineColor(kBlack);
+    cLim->Draw();
+
+    // the legend
+    TLegend *leg = new TLegend(0.2, 0.2, 0.4, 0.4);
+    leg->SetTextSize(0.03);
+    leg->AddEntry(hData[i], "data", "pl");
+    leg->AddEntry(hInd[i], "free", "pl");
+    leg->AddEntry(fitLin[i], "linear", "pl");
+    leg->AddEntry(fitCon[i], "constant", "pl");
+    leg->Draw();
+
+    // save and clear
+    c->SaveAs(Form("plots/ratio_final/bin_%d_norm.pdf", i));
+    c->Clear();
+  }
+
   fDep->Close();
 
   // draw lambda_th(pT)
@@ -124,7 +190,7 @@ void plotRes()
   // the legend
   TLegend *leg = new TLegend(0.7, 0.2, 0.9, 0.4);
   leg->SetTextSize(0.03);
-  leg->AddEntry(graph_lth, "indep", "pl");
+  leg->AddEntry(graph_lth, "free", "pl");
   leg->AddEntry(lin_lth, "linear", "pl");
   leg->AddEntry(con_lth, "constant", "pl");
   leg->Draw();

@@ -20,9 +20,8 @@ vector< string > parseString( string line, string deli) {
 // main
 void indFit()
 {
-double M_q = 3.097; // using J/psi mass
-  
-  
+  double M_q = 3.097; // using J/psi mass
+ 
   // read the coarse histos in |costh|
   TFile *infile = new TFile("files/ratioHist.root");
   TH2D *hist = new TH2D();
@@ -109,4 +108,39 @@ double M_q = 3.097; // using J/psi mass
   graphN->Write();
   graphCM->Write();
   outfile->Close();
+
+  // save fit results to tex - only full fit
+  ofstream outtex;
+  outtex.open("text_output/indFit.tex");
+  outtex << "\\begin{tabular}{c|c|c|c}\n";
+  outtex << "Bin & $A$ & $\\lambda_\\theta$ & $\\chi^2/$ndf \\\\\n";
+  outtex << "\\hline\n";
+  for(int i=0; i<nBinsY; i++) {
+    outtex << i+1 << " & $";
+    // parameter A
+    int prec_com = ceil(-log10(abs(parA[1][i])))+1;
+    prec_com = max(prec_com, 0);    
+    outtex << setprecision(prec_com) << fixed << parA[0][i] << "\\pm" << parA[1][i] << "$ & $";
+    // parameter l_th
+    prec_com = ceil(-log10(abs(parL[1][i])))+1;
+    outtex << setprecision(prec_com) << fixed << parL[0][i] << "\\pm" << parL[1][i] << "$ & ";
+    outtex << setprecision(0) << fixed << chi2[i] << "/" << ndf[i] << " \\\\\n"; 
+  }
+  outtex << "\\end{tabular}\n";
+  outtex.close();
+
+  TCanvas *c = new TCanvas("", "", 700, 700);
+  TH1D *histA = new TH1D("histA", "A_{i} (p_{T}/M) (independent)", nBinsY, yBins);
+  for(int i = 0; i < nBinsY; i++) {
+    histA->SetBinContent(i+1, parA[0][i]);
+    histA->SetBinError(i+1, parA[1][i]);
+  }
+  histA->SetStats(0);
+  histA->GetXaxis()->SetTitle("p_{T}/M");
+  histA->GetYaxis()->SetRangeUser(0.4, 1.8);
+  histA->Draw("error");
+  histA->Draw("hist same");
+  c->SaveAs("plots/fit_A_vals.pdf");
+  c->Clear();
+
 }
