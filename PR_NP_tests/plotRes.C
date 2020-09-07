@@ -8,7 +8,7 @@ void plotRes()
   // get the ratio points
   TFile *fIn = new TFile("files/ratioHist.root");
   TH2D* rHist;
-  fIn->GetObject("ratioHist_ab", rHist);
+  fIn->GetObject("cHist_ab", rHist);
   rHist->SetDirectory(0);
   fIn->Close();
 
@@ -187,11 +187,6 @@ void plotRes()
   con_lth->SetFillColorAlpha(kRed, 0.3);
   con_lth->Draw("ce3");
 
-  TLine *fitLim = new TLine(pTBins[19], -1, pTBins[19], 1);
-  fitLim->SetLineColor(kBlack);
-  fitLim->SetLineStyle(kDashed);
-  fitLim->Draw();
-  
   // the legend
   TLegend *leg = new TLegend(0.7, 0.2, 0.9, 0.4);
   leg->SetTextSize(0.03);

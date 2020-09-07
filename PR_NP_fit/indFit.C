@@ -25,7 +25,8 @@ void indFit()
   // read the coarse histos in |costh|
   TFile *infile = new TFile("files/ratioHist.root");
   TH2D *hist = new TH2D();
-  infile->GetObject("cHist_ab", hist);
+  //infile->GetObject("cHist_ab", hist);
+  infile->GetObject("ratioHist_ab", hist);
   hist->SetDirectory(0);
 
   int nBinsX = hist->GetNbinsX(), nBinsY = hist->GetNbinsY();
@@ -36,7 +37,7 @@ void indFit()
   // get the 1d plots
   TH1D *pHist[nBinsY];
   for(int i = 1; i <= nBinsY; i++) {
-    pHist[i-1] = hist->ProjectionX(Form("coarse_bin%d_1d_min", i), i, i);
+    pHist[i-1] = hist->ProjectionX(Form("fine_bin%d_1d_min", i), i, i);
     pHist[i-1]->SetTitle(Form("p_{T} bin %d: [%.0f, %.0f] GeV", i, yBins[i-1]*M_q, yBins[i]*M_q));
   }
   
@@ -67,7 +68,7 @@ void indFit()
   // the cycle to fit each bin and store fit results
   TFile *outfile = new TFile("files/fit_res_1d.root", "recreate");
 
-  double parA[2][nBinsY], parL[2][nBinsY], chi2[nBinsY], ndf[nBinsY];
+  double parA[2][nBinsY], parL[2][nBinsY], chi2[nBinsY], ndf[nBinsY], chiP[nBinsY];
   double bins[nBinsY], ebins[nBinsY], cMaxVal[nBinsY];
  
   for(int i = 0; i < nBinsY; i++) {
@@ -75,7 +76,10 @@ void indFit()
     double pMax = hist->GetYaxis()->GetBinUpEdge(i+1);
     
     cMaxVal[i] = cosMax->Integral(pMin, pMax)/(pMax-pMin);
-    fit1d->SetRange(0, cMaxVal[i]);
+    double cR = floor(cMaxVal[i]*10.)/10.;
+    if(cMaxVal[i]-cR>0.05) cR += 0.05;
+    fit1d->SetRange(0, cR);
+    cMaxVal[i] = cR;
     
     pHist[i]->Fit(fit1d, "R");
     parA[0][i] = fit1d->GetParameter(0);
@@ -84,6 +88,7 @@ void indFit()
     parL[1][i] = fit1d->GetParError(1);
     chi2[i] = fit1d->GetChisquare();
     ndf[i] = fit1d->GetNDF();
+    chiP[i] = TMath::Prob(chi2[i], ndf[i]);
     bins[i] = (pMax+pMin)/2.;
     ebins[i] = (pMax-pMin)/2.;    
     pHist[i]->Write();
@@ -94,18 +99,21 @@ void indFit()
   TGraphErrors *graphL = new TGraphErrors(nBinsY, bins, parL[0], ebins, parL[1]);
   TGraph *graphC = new TGraph(nBinsY, bins, chi2);
   TGraph *graphN = new TGraph(nBinsY, bins, ndf);
+  TGraph *graphP = new TGraph(nBinsY, bins, chiP);
   TGraph *graphCM = new TGraph(nBinsY, bins, cMaxVal);
 
   graphA->SetName("graph_A");
   graphL->SetName("graph_lambda");
   graphC->SetName("graph_chisquare");
   graphN->SetName("graph_NDF");
+  graphP->SetName("graph_chiP");
   graphCM->SetName("graph_cosMax");
  
   graphA->Write();
   graphL->Write();
   graphC->Write();
   graphN->Write();
+  graphP->Write();
   graphCM->Write();
   outfile->Close();
 

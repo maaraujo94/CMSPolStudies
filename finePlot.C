@@ -56,7 +56,31 @@ void finePlot()
     c->SaveAs(Form("plots/PN_bin%d.pdf", i+1));
     c->Clear();
   }
-  c->Destructor();
+  
+  // getting PR/NP hist
+  TFile *fPNc = new TFile("PR_NP_fit/files/ratioHist.root");
+  TH2D *hPNc = (TH2D*)fPNc->Get("cHist_ab");
+  hPNc->SetDirectory(0);
+  fPNc->Close();
 
+  nBinsY = hPNc->GetNbinsY();
+  
+  // get the 1D dists
+  TH1D *pPNc[nBinsY];
+  for(int i = 1; i <= nBinsY; i++) {
+    pPNc[i-1] = hPNc->ProjectionX(Form("PR_NP_c_bin%d", i), i, i);
+  }
+
+  for(int i = 0; i < nBinsY; i++) {
+    pPNc[i]->SetStats(0);
+    pPNc[i]->SetMaximum(pPNc[i]->GetBinContent(1)*1.4);
+    pPNc[i]->SetTitle(Form("PR/NP coarse bin %d", i+1));
+    pPNc[i]->Draw();
+    c->SaveAs(Form("plots/PN_c_bin%d.pdf", i+1));
+    c->Clear();
+  }
+  c->Destructor();
+  
 }
+
 

@@ -35,14 +35,14 @@ double fit_func(double *xx, double *par)
 void extCosFit()
 {
   double M_q = 3.097; // using the J/psi mass
-  string fit_type = "linear";
+  string fit_type = "constant";
 
   TCanvas *c = new TCanvas("", "", 700, 700);
   
-  // read the fine 2d histo in |costh|
+  // read the coarse 2d histo in |costh|
   TFile *infile = new TFile("files/ratioHist.root");
   TH2D *bHist = new TH2D();
-  infile->GetObject("ratioHist_ab", bHist);
+  infile->GetObject("cHist_ab", bHist);
   bHist->SetDirectory(0);
   infile->Close();
 
@@ -54,9 +54,9 @@ void extCosFit()
   const double *yBins = hist->GetYaxis()->GetXbins()->GetArray();
 
   double pT_ref = 7.;
-  double histoMax = 1.8;
-  double ratioMax = 1.3;
-  double pullMax = 3.5;
+  double histoMax = 3.2;
+  double ratioMax = 1.7;
+  double pullMax = 4.5;
   //double pjMax[] = {3, 3, 3, 3, 3, 3, 3, 3};
   double mult = 1.4;
   
@@ -175,7 +175,7 @@ void extCosFit()
   for(int i=0; i<nBinsY; i++) {
     int prec_com = ceil(-log10(abs(fitCom->GetParError(i))))+1;
     prec_com = max(prec_com, 0);    
-    outtex << Form("$A_{%d}$ & $", i+1)  << setprecision(prec_com) << fixed << fitCom->GetParameter(i) << "\\pm" << fitCom->GetParError(i) << "$ \\\\\n";
+    outtex << Form("$A_%d$ & $", i+1)  << setprecision(prec_com) << fixed << fitCom->GetParameter(i) << "\\pm" << fitCom->GetParError(i) << "$ \\\\\n";
   }
   
   int prec_com = ceil(-log10(abs(fitCom->GetParError(nBinsY))))+1;
@@ -466,7 +466,7 @@ void extCosFit()
   histA->Write(0, TObject::kOverwrite);
   for(int i = 0; i < nBinsY; i++) {
     fpComHist[i]->SetName(Form("Fit_%s_%d", fit_type.c_str(), i));
-    fpComHist[i]->Write(0, TObject::kOverwrite);
+    fpComHist[i]->Write();
   }
   outfile->Close();
 

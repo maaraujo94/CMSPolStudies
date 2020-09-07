@@ -55,8 +55,8 @@ void saveCoarseBinned()
     // store in outfile the fine-binned histo, the coarse-binned
     // and each of the coarse-binned 1D projections
     TFile* outfile_2 = new TFile("files/ratioHist.root", "update");
-    hist->Write();
-    cHist->Write();
+    hist->Write(0, TObject::kOverwrite);
+    cHist->Write(0, TObject::kOverwrite);
     outfile_2->Close();
   } 
 }

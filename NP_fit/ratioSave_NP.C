@@ -27,10 +27,10 @@ void ratioSave_NP()
   for(int i=0; i<30; i++) cout << ptBins[i]*M_q << ",";
   cout << endl;
   
-  TH2D *dataHist = new TH2D("dataH", "Data", 36, -0.9, 0.9, nPtBins, ptBins);
+  TH2D *dataHist = new TH2D("dataH", "Data (NP)", 36, -0.9, 0.9, nPtBins, ptBins);
   TH2D *mcHist = new TH2D("mcH", "MC", 36, -0.9, 0.9, nPtBins, ptBins);
 
-  TH2D *dataHist_ab = new TH2D("dataH_ab", "Data", 18, 0, 0.9, nPtBins, ptBins);
+  TH2D *dataHist_ab = new TH2D("dataH_ab", "Data (NP)", 18, 0, 0.9, nPtBins, ptBins);
   TH2D *mcHist_ab = new TH2D("mcH_ab", "MC", 18, 0, 0.9, nPtBins, ptBins);
   
   // definitions to store data and MC events
@@ -111,7 +111,7 @@ void ratioSave_NP()
   ratioHist = (TH2D*)dataHist->Clone(Form("ratioHist"));
   ratioHist->Sumw2();
   ratioHist->Divide(mcHist);
-  ratioHist->SetTitle("Data/MC");
+  ratioHist->SetTitle("NP/MC");
   ratioHist->Draw("COLZ");
   c->SaveAs("plots/ratio_2d.pdf");
   c->Clear();
@@ -122,7 +122,7 @@ void ratioSave_NP()
   ratioHist_ab = (TH2D*)dataHist_ab->Clone(Form("ratioHist_ab"));
   ratioHist_ab->Sumw2();
   ratioHist_ab->Divide(mcHist_ab);
-  ratioHist_ab->SetTitle("Data/MC");
+  ratioHist_ab->SetTitle("NP/MC");
   ratioHist_ab->Draw("COLZ");
   c->SaveAs("plots/ratio_2d_abs.pdf");
   c->Clear();

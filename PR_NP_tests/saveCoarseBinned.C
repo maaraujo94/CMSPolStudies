@@ -36,52 +36,19 @@ void saveCoarseBinned()
       pHist[i]->SetTitle(Form("PR/NP c bin %d: [%.0f, %.0f] GeV", i+1, binsY[i]*M_q, binsY[i+1]*M_q));
     }
 
-    // get the dividing factors for each pt,costh bin
-    // NOTE: only average over nonzero bins
-    int nPtBins = hist->GetNbinsY();
-    TH1D *fHist[nPtBins];
-    for(int i = 1; i <= nPtBins; i++) {
-      fHist[i-1] = hist->ProjectionX(Form("fine_bin%d_1d%s", i, files[i_file].c_str()), i, i);
-    }
-    // factors
-    int div[nBinsY][nBinsX];
-    for(int i = 0; i < nBinsY; i++)
-      for(int j = 0; j < nBinsX; j++)
-	div[i][j] = 0;
-    
-    for(int i = 0; i < nBinsY; i++) {
-      int npts = ptBins[i+1]-ptBins[i];
-      for(int j = 0; j < npts; j++) {
-	for(int k = 1; k <= nBinsX; k++) {
-	  if(fHist[ptBins[i]+j]->GetBinContent(k) > 0) div[i][k-1]++;
-	}
-      }
-    }    
-
-    for(int i = 0; i < nBinsX; i++) {
-      for(int j = 0; j < nBinsY; j++)
-	cout << div[j][i] << "/" << ptBins[j+1]-ptBins[j] << " ";
-      cout << endl;
-    }
-    cout << endl;
-    
     // then fill histo with 1D histo values and errors
     for(int iX = 0; iX < nBinsX; iX++) {
       for(int iY = 0; iY < nBinsY; iY++) {
-	if(pHist[iY]->GetBinContent(iX+1) == 0) div[iY][iX] = 1.;
-	cout << div[iY][iX] << " ";
-	cHist->SetBinContent(iX+1, iY+1, pHist[iY]->GetBinContent(iX+1)/div[iY][iX]);
-	cHist->SetBinError(iX+1, iY+1, pHist[iY]->GetBinError(iX+1)/div[iY][iX]);
+	cHist->SetBinContent(iX+1, iY+1, pHist[iY]->GetBinContent(iX+1)/(ptBins[iY+1]-ptBins[iY]));
+	cHist->SetBinError(iX+1, iY+1, pHist[iY]->GetBinError(iX+1)/(ptBins[iY+1]-ptBins[iY]));
       }
-      cout << endl;
     }
-    cout << endl;
     
     // store in outfile the fine-binned histo, the coarse-binned
     // and each of the coarse-binned 1D projections
     TFile* outfile_2 = new TFile("files/ratioHist.root", "update");
-    hist->Write(0, TObject::kOverwrite);
-    cHist->Write(0, TObject::kOverwrite);
+    hist->Write();
+    cHist->Write();
     outfile_2->Close();
   } 
 }
