@@ -20,7 +20,7 @@ vector< string > parseString( string line, string deli) {
 // main
 void indFit()
 {
-  double M_q = 3.097; // using J/psi mass
+  double M_q = 1;//3.097; // using J/psi mass
  
   // read the coarse histos in |costh|
   TFile *infile = new TFile("files/ratioHist.root");
@@ -62,8 +62,9 @@ void indFit()
   in >> maxPar[0] >> aux >> maxPar[1] >> aux >> maxPar[2];
   in.close();
   
-  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", 0, 25);
-  cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
+  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x/[3])", 0, 75);
+  cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2], 3.097);
+  cosMax->FixParameter(3, 3.097);
  
   // the cycle to fit each bin and store fit results
   TFile *outfile = new TFile("files/fit_res_1d.root", "recreate");

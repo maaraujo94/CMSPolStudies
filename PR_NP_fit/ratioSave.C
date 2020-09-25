@@ -4,7 +4,7 @@
 
 void ratioSave()
 {
-  double M_q = 3.097; // using J/psi mass
+  double M_q = 1;//3.097; // using J/psi mass
 
   // open files and read TTrees
   TFile *fin = new TFile("../Store_data_codes/data_cos.root");
@@ -67,32 +67,32 @@ void ratioSave()
   
   dataHist->SetStats(0);
   dataHist->GetXaxis()->SetTitle("cos#theta_{HX}");
-  dataHist->GetYaxis()->SetTitle("p_{T}/M ");
-  dataHist->SetMaximum(relMax);
+  dataHist->GetYaxis()->SetTitle("p_{T} (GeV)");
+  //dataHist->SetMaximum(relMax);
   dataHist->Draw("COLZ");
   c->SaveAs("plots/pr_2d.pdf");
   c->Clear();
 
   mcHist->SetStats(0);
   mcHist->GetXaxis()->SetTitle("cos#theta_{HX}");
-  mcHist->GetYaxis()->SetTitle("p_{T}/M");
-  mcHist->SetMaximum(relMax);
+  mcHist->GetYaxis()->SetTitle("p_{T} (GeV)");
+  //mcHist->SetMaximum(relMax);
   mcHist->Draw("COLZ");
   c->SaveAs("plots/np_2d.pdf");
   c->Clear();
   
   dataHist_ab->SetStats(0);
   dataHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
-  dataHist_ab->GetYaxis()->SetTitle("p_{T}/M");
-  dataHist_ab->SetMaximum(absMax);
+  dataHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
+  //dataHist_ab->SetMaximum(absMax);
   dataHist_ab->Draw("COLZ");
   c->SaveAs("plots/pr_2d_abs.pdf");
   c->Clear();
 
   mcHist_ab->SetStats(0);
   mcHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
-  mcHist_ab->GetYaxis()->SetTitle("p_{T}/M");
-  mcHist_ab->SetMaximum(absMax);
+  mcHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
+  //mcHist_ab->SetMaximum(absMax);
   mcHist_ab->Draw("COLZ");
   c->SaveAs("plots/np_2d_abs.pdf");
   c->Clear();

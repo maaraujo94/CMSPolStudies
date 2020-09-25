@@ -79,7 +79,7 @@ void plotRes()
     }
     
     hData[i]->SetStats(0);
-    hData[i]->SetTitle(Form("PR/NP p_{T} bin %d: [%.0f, %.0f] GeV", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
+    hData[i]->SetTitle(Form("NP/MC p_{T} bin %d: [%.0f, %.0f] GeV", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
     hData[i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     hData[i]->SetLineColor(kBlack);
     hData[i]->SetMarkerColor(kBlack);
@@ -111,7 +111,7 @@ void plotRes()
   // plot the results normalized
   for(int i = 0; i < nBinspT; i++) {
     // the data
-    hData[i]->SetTitle(Form("PR/NP p_{T} bin %d: [%.0f, %.0f] GeV (scaled)", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
+    hData[i]->SetTitle(Form("NP/MC p_{T} bin %d: [%.0f, %.0f] GeV (scaled)", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
     double norm = hData[i]->GetBinContent(1);
     hData[i]->Scale(1./norm);
     hData[i]->GetYaxis()->SetRangeUser(0.7, 1.3);
@@ -149,7 +149,7 @@ void plotRes()
   func->SetYTitle("#lambda_{#theta}");
   func->GetYaxis()->SetTitleOffset(1.3);
   func->GetYaxis()->SetLabelOffset(0.01);
-  func->SetTitle("#lambda_{#theta} (PR/NP)");
+  func->SetTitle("#lambda_{#theta} (NP)");
 
   // the three lambda_th distributions
   graph_lth->SetLineColor(kBlack);
@@ -160,7 +160,7 @@ void plotRes()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  
+
   c->SaveAs("plots/ratio_final/lth.pdf");
   c->Clear();
   c->Destructor();

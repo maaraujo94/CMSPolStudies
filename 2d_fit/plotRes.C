@@ -1,14 +1,14 @@
-// code to combine all the fit functions and plot with the ratio points
-// also plots the lambda_th functions all superimposed
+// code to combine the free fit function with the ratio points
+// also plots the lambda_th function
 
 void plotRes()
 {
-  double M_q = 3.097;
+  double M_q = 1;//3.097;
   
   // get the ratio points
   TFile *fIn = new TFile("files/ratioHist.root");
   TH2D* rHist;
-  fIn->GetObject("cHist_ab", rHist);
+  fIn->GetObject("ratioHist_ab", rHist);
   rHist->SetDirectory(0);
   fIn->Close();
 
@@ -57,26 +57,29 @@ void plotRes()
   in >> maxPar[0] >> aux >> maxPar[1] >> aux >> maxPar[2];
   in.close();
   
-  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", 0, 25);
-  cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
-  
-  // get the linear/constant lambda fit points
-  TFile *fDep = new TFile("files/fit_res_2d.root");
-  TH1D *fitLin[nBinspT], *fitCon[nBinspT];
-  for(int i = 0; i < nBinspT; i++) {
-    fitLin[i] = (TH1D*)fDep->Get(Form("Fit_linear_%d", i));
-    fitCon[i] = (TH1D*)fDep->Get(Form("Fit_constant_%d", i));
-  }
-  // get the lambda_th
-  TGraphErrors *lin_lth = (TGraphErrors*)fDep->Get("lth_linear");
-  TGraphErrors *con_lth = (TGraphErrors*)fDep->Get("lth_constant");
+  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x/[3])", 0, 75);
+  cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2], 3.097);
   
   // plot the results
   TCanvas *c = new TCanvas("name", "title", 700, 700);
   for(int i = 0; i < nBinspT; i++) {
+    // get the costh fit limit
+    double cosLim = cosMax->Integral(pTBins[i], pTBins[i+1])/(pTBins[i+1]-pTBins[i]);
+    double cR = floor(cosLim*10.)/10.;
+    if(cosLim-cR>0.05) cR += 0.05;
+    cout << cR << endl << endl;;
+
     // the data
+    for(int j = 0; j < nBinsC; j++) {
+      if(hData[i]->GetXaxis()->GetBinUpEdge(j+1)>cR+0.01) {
+	cout << hData[i]->GetXaxis()->GetBinUpEdge(j+1) << endl;
+	hData[i]->SetBinContent(j+1, 0);
+	hData[i]->SetBinError(j+1, 0);
+      }
+    }
+    
     hData[i]->SetStats(0);
-    hData[i]->SetTitle(Form("PR/NP p_{T} bin %d: [%.0f, %.0f] GeV", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
+    hData[i]->SetTitle(Form("PR/MC p_{T} bin %d: [%.0f, %.0f] GeV", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
     hData[i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     hData[i]->SetLineColor(kBlack);
     hData[i]->SetMarkerColor(kBlack);
@@ -88,18 +91,6 @@ void plotRes()
     hInd[i]->SetMarkerColor(kBlue);
     hInd[i]->Draw("same");
 
-    // the linear and constant fits
-    fitLin[i]->SetLineColor(kGreen);
-    fitLin[i]->SetMarkerColor(kGreen);
-    fitLin[i]->Draw("same");
-
-    fitCon[i]->SetLineColor(kRed);
-    fitCon[i]->SetMarkerColor(kRed);
-    fitCon[i]->Draw("same");
-
-    double cosLim = cosMax->Integral(pTBins[i], pTBins[i+1])/(pTBins[i+1]-pTBins[i]);
-    double cR = floor(cosLim*10.)/10.;
-    if(cosLim-cR>0.05) cR += 0.05;
     TLine *cLim = new TLine(cR, 0, cR, A[i]*1.4);
     cLim->SetLineStyle(kDashed);
     cLim->SetLineColor(kBlack);
@@ -109,9 +100,7 @@ void plotRes()
     TLegend *leg = new TLegend(0.2, 0.2, 0.4, 0.4);
     leg->SetTextSize(0.03);
     leg->AddEntry(hData[i], "data", "pl");
-    leg->AddEntry(hInd[i], "free", "pl");
-    leg->AddEntry(fitLin[i], "linear", "pl");
-    leg->AddEntry(fitCon[i], "constant", "pl");
+    leg->AddEntry(hInd[i], "fit", "pl");
     leg->Draw();
 
     // save and clear
@@ -122,7 +111,7 @@ void plotRes()
   // plot the results normalized
   for(int i = 0; i < nBinspT; i++) {
     // the data
-    hData[i]->SetTitle(Form("PR/NP p_{T} bin %d: [%.0f, %.0f] GeV (scaled)", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
+    hData[i]->SetTitle(Form("PR/MC p_{T} bin %d: [%.0f, %.0f] GeV (scaled)", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
     double norm = hData[i]->GetBinContent(1);
     hData[i]->Scale(1./norm);
     hData[i]->GetYaxis()->SetRangeUser(0.7, 1.3);
@@ -133,14 +122,6 @@ void plotRes()
     hInd[i]->Scale(1./norm);
     hInd[i]->Draw("hist same");
 
-    // the linear and constant fits
-    norm = fitLin[i]->GetBinContent(1);
-    fitLin[i]->Scale(1./norm);
-    fitLin[i]->Draw("hist same");
-    norm = fitCon[i]->GetBinContent(1);
-    fitCon[i]->Scale(1./norm);
-    fitCon[i]->Draw("hist same");
-
     double cosLim = cosMax->Integral(pTBins[i], pTBins[i+1])/(pTBins[i+1]-pTBins[i]);
     double cR = floor(cosLim*10.)/10.;
     if(cosLim-cR>0.05) cR += 0.05;
@@ -150,12 +131,10 @@ void plotRes()
     cLim->Draw();
 
     // the legend
-    TLegend *leg = new TLegend(0.2, 0.2, 0.4, 0.4);
+    TLegend *leg = new TLegend(0.2, 0.2, 0.35, 0.35);
     leg->SetTextSize(0.03);
     leg->AddEntry(hData[i], "data", "pl");
-    leg->AddEntry(hInd[i], "free", "pl");
-    leg->AddEntry(fitLin[i], "linear", "pl");
-    leg->AddEntry(fitCon[i], "constant", "pl");
+    leg->AddEntry(hInd[i], "fit", "pl");
     leg->Draw();
 
     // save and clear
@@ -163,38 +142,25 @@ void plotRes()
     c->Clear();
   }
 
-  fDep->Close();
-
   // draw lambda_th(pT)
   // the frame
-  TH1F *func = c->DrawFrame(0, -1, 25, 1);
-  func->SetXTitle("p_{T}/M");
+  TH1F *func = c->DrawFrame(0, -1, 80, 1);
+  func->SetXTitle("p_{T} (GeV)");
   func->SetYTitle("#lambda_{#theta}");
   func->GetYaxis()->SetTitleOffset(1.3);
   func->GetYaxis()->SetLabelOffset(0.01);
-  func->SetTitle("#lambda_{#theta} (p_{T}/M)");
+  func->SetTitle("#lambda_{#theta} (PR)");
 
   // the three lambda_th distributions
-  graph_lth->SetLineColor(kBlue);
-  graph_lth->SetMarkerColor(kBlue);
+  graph_lth->SetLineColor(kBlack);
+  graph_lth->SetMarkerColor(kBlack);
   graph_lth->Draw("p");
-  lin_lth->SetLineColor(kGreen);
-  lin_lth->SetMarkerColor(kGreen);
-  lin_lth->SetFillColorAlpha(kGreen, 0.3);
-  lin_lth->Draw("ce3");
-  con_lth->SetLineColor(kRed);
-  con_lth->SetMarkerColor(kRed);
-  con_lth->SetFillColorAlpha(kRed, 0.3);
-  con_lth->Draw("ce3");
 
-  // the legend
-  TLegend *leg = new TLegend(0.7, 0.2, 0.9, 0.4);
-  leg->SetTextSize(0.03);
-  leg->AddEntry(graph_lth, "free", "pl");
-  leg->AddEntry(lin_lth, "linear", "pl");
-  leg->AddEntry(con_lth, "constant", "pl");
-  leg->Draw();
-
+  TLine *zero = new TLine(0, 0, 80, 0);
+  zero->SetLineColor(kBlack);
+  zero->SetLineStyle(kDashed);
+  zero->Draw();
+  
   c->SaveAs("plots/ratio_final/lth.pdf");
   c->Clear();
   c->Destructor();

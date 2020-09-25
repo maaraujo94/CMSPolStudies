@@ -4,7 +4,7 @@
 
 void ratioSave()
 {
-  double M_q = 3.097; // using J/psi mass
+  double M_q = 1;//3.097; // using J/psi mass
 
   // open files and read TTrees
   TFile *fin = new TFile("../Store_data_codes/data_cos.root");
@@ -60,32 +60,33 @@ void ratioSave()
   
   // plot all costh histograms
   TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetRightMargin(0.11);
   c->SetLogz();
   
   dataHist->SetStats(0);
   dataHist->GetXaxis()->SetTitle("cos#theta_{HX}");
-  dataHist->GetYaxis()->SetTitle("p_{T}/M ");
+  dataHist->GetYaxis()->SetTitle("p_{T} (GeV)");
   dataHist->Draw("COLZ");
   c->SaveAs("plots/data_2d.pdf");
   c->Clear();
 
   mcHist->SetStats(0);
   mcHist->GetXaxis()->SetTitle("cos#theta_{HX}");
-  mcHist->GetYaxis()->SetTitle("p_{T}/M");
+  mcHist->GetYaxis()->SetTitle("p_{T} (GeV)");
   mcHist->Draw("COLZ");
   c->SaveAs("plots/mc_2d.pdf");
   c->Clear();
 
   dataHist_ab->SetStats(0);
   dataHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
-  dataHist_ab->GetYaxis()->SetTitle("p_{T}/M");
+  dataHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
   dataHist_ab->Draw("COLZ");
   c->SaveAs("plots/data_2d_abs.pdf");
   c->Clear();
 
   mcHist_ab->SetStats(0);
   mcHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
-  mcHist_ab->GetYaxis()->SetTitle("p_{T}/M");
+  mcHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
   mcHist_ab->Draw("COLZ");
   c->SaveAs("plots/mc_2d_abs.pdf");
   c->Clear();
@@ -131,5 +132,11 @@ void ratioSave()
   ratioHist->Write();
   ratioHist_ab->Write();
   outfile->Close();
+
+  TFile *plotFile = new TFile("../plots/store.root", "update");
+  dataHist_ab->Write("data_PR_abs", TObject::kOverwrite);
+  mcHist_ab->Write("mc_abs", TObject::kOverwrite);
+  ratioHist_ab->Write("ratio_PR_abs", TObject::kOverwrite);
+  plotFile->Close();
 
 }
