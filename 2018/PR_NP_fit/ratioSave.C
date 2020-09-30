@@ -25,7 +25,6 @@ void ratioSave()
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i]*M_q << ",";
   cout << endl;
 
-
   TH2D *dataHist = new TH2D("dataH", "Data (PR)", 40, -1., 1., nPtBins, ptBins);
   TH2D *mcHist = new TH2D("mcH", "Data (NP)", 40, -1., 1., nPtBins, ptBins);
 
