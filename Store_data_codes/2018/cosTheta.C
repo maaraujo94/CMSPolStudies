@@ -129,7 +129,8 @@ void cosTheta()
     tree->GetEntry(i);
 
     if(muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6
-       && abs(muP_p4->Eta()) < 1.6 && abs(muM_p4->Eta()) < 1.6
+       //&& abs(muP_p4->Eta()) < 1.6 && abs(muM_p4->Eta()) < 1.6
+       && abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4
        && mumu_p4->M() < 3.2 && mumu_p4->M() > 3.
        && abs(mumu_p4->Rapidity()) < 1.2) {
        //       && bu_p4->M() < 5.32 && bu_p4->M() > 5.24) {

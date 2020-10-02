@@ -24,9 +24,8 @@ void jpsi2018_MC()
 
   mcJ->Add("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18.root");
 
-  Double_t JpsiPt, Jpsict, JpsictErr, vProb, cosa, lts;
+  Double_t JpsiPt, Jpsict, cosa;
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
-  UInt_t trigger, run;
   
   mcJ->SetBranchAddress("muP_p4", &muP_p4);
   mcJ->SetBranchAddress("muM_p4", &muM_p4);

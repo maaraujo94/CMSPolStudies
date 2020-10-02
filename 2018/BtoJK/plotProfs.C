@@ -169,6 +169,10 @@ void plotProfs()
   p_angC->SetMinimum(-1);
   p_angC->SetMaximum(1);
   p_angC->Draw("error");
+  TLine *zeroL = new TLine(ptBins[0], 0, ptBins[nPtBins], 0);
+  zeroL->SetLineColor(kBlack);
+  zeroL->SetLineStyle(kDashed);
+  zeroL->Draw();
 
   c->SaveAs("plots/prof_cos.pdf");
   c->Clear();
@@ -180,6 +184,7 @@ void plotProfs()
   p_angS1->SetMinimum(-1);
   p_angS1->SetMaximum(1);
   p_angS1->Draw("error");
+  zeroL->Draw();
 
   c->SaveAs("plots/prof_sin1.pdf");
   c->Clear();
@@ -191,7 +196,8 @@ void plotProfs()
   p_angS2->SetMinimum(-1);
   p_angS2->SetMaximum(1);
   p_angS2->Draw("error");
-
+  zeroL->Draw();
+  
   c->SaveAs("plots/prof_sin2.pdf");
   c->Clear();
 
@@ -205,6 +211,8 @@ void plotProfs()
     zero[i] = 0;
   }
 
+  TFile *outfile = new TFile("files/lambdas.root", "recreate");
+  
   for(int i = 0; i < 3; i++) {
     double lambda_N = ln[i];
     double lambda_th[nPtBins], lambda_th_up[nPtBins], lambda_th_down[nPtBins];
@@ -269,7 +277,7 @@ void plotProfs()
     TGraphAsymmErrors *l_ph = new TGraphAsymmErrors(nPtBins, xBins, lambda_ph, exBins, exBins, lambda_ph_down, lambda_ph_up);
     TGraphAsymmErrors *l_tp = new TGraphAsymmErrors(nPtBins, xBins, lambda_tp, exBins, exBins, lambda_tp_down, lambda_tp_up);
 
-    TH1F *fc = c->DrawFrame(0, -1.0, 215, 1.0);
+    TH1F *fc = c->DrawFrame(ptBins[0], -1.0, ptBins[nPtBins], 1.0);
     fc->SetXTitle("p_{T}/M");
     fc->SetYTitle("#lambda");
     fc->GetYaxis()->SetTitleOffset(1);
@@ -292,10 +300,14 @@ void plotProfs()
     leg_l->AddEntry(l_tp, "#lambda_{#theta#phi}", "pl");
     leg_l->Draw();
 
+    l_th->SetName(Form("lambdaN_%d", i));
+    l_th->SetTitle(Form("#lambda_{N} = %.2f", ln[i]));
+    l_th->Write();
+
     c->SaveAs(Form("plots/lambda_N_%d.pdf", i));
     c->Clear();
   }
-  
+  outfile->Close();
   infile->Close();
 
 }
