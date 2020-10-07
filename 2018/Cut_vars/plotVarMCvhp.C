@@ -4,9 +4,9 @@
 - dimuon mass, pT, y, ct/cterr
 */
 
-void plotVarMChp()
+void plotVarMCvhp()
 {
-  TFile *infile = new TFile("../../Store_data_codes/2018/Jpsi_MC_hpt_cuts.root");
+  TFile *infile = new TFile("../../Store_data_codes/2018/Jpsi_MC_vhpt_cuts.root");
   TH1D *h_muPpT = (TH1D*)infile->Get("h_muPpT");
   TH1D *h_muNpT = (TH1D*)infile->Get("h_muNpT");
   TH1D *h_muPEta = (TH1D*)infile->Get("h_muPEta");
@@ -25,7 +25,7 @@ void plotVarMChp()
   h_muPpT->GetYaxis()->SetRangeUser(1e-6, 1e-1);
   h_muPpT->GetXaxis()->SetTitle("p_{T}(#mu) (GeV)");
   h_muPpT->SetLineColor(kRed);
-  h_muPpT->SetTitle("Inclusive MC (high p_{T}) muon p_{T}");
+  h_muPpT->SetTitle("Inclusive MC (very high p_{T}) muon p_{T}");
   h_muPpT->Draw("hist");
   h_muNpT->SetLineColor(kBlue);
   h_muNpT->Draw("hist same");
@@ -33,7 +33,7 @@ void plotVarMChp()
   mupT->SetLineStyle(kDashed);
   mupT->SetLineColor(kBlack);
   mupT->Draw("lsame");
-  c->SaveAs("plots/MC_hpt_muon_pt.pdf");
+  c->SaveAs("plots/MC_vhpt_muon_pt.pdf");
   c->Clear();
 
   c->SetLogy(0);
@@ -43,7 +43,7 @@ void plotVarMChp()
   h_muPEta->GetYaxis()->SetRangeUser(0, 0.035);
   h_muPEta->GetXaxis()->SetTitle("#eta(#mu)");
   h_muPEta->SetLineColor(kRed);
-  h_muPEta->SetTitle("Inclusive MC (high p_{T}) muon #eta");
+  h_muPEta->SetTitle("Inclusive MC (very high p_{T}) muon #eta");
   h_muPEta->Draw("hist");
   h_muNEta->SetLineColor(kBlue);
   h_muNEta->Draw("hist same");
@@ -55,7 +55,7 @@ void plotVarMChp()
   muEta_2->SetLineStyle(kDashed);
   muEta_2->SetLineColor(kBlack);
   muEta_2->Draw("lsame");
-  c->SaveAs("plots/MC_hpt_muon_eta.pdf");
+  c->SaveAs("plots/MC_vhpt_muon_eta.pdf");
   c->Clear();
 
   c->SetLogy(0);
@@ -63,7 +63,7 @@ void plotVarMChp()
   h_JMass->Scale(1./norm);
   h_JMass->GetYaxis()->SetRangeUser(0, 0.07);
   h_JMass->GetXaxis()->SetTitle("M(J/#psi) (GeV)");
-  h_JMass->SetTitle("Inclusive MC (high p_{T}) J/#psi mass");
+  h_JMass->SetTitle("Inclusive MC (very high p_{T}) J/#psi mass");
   h_JMass->Draw("hist");
   TLine *JMass_1 = new TLine(3, 0, 3, 0.07);
   JMass_1->SetLineStyle(kDashed);
@@ -73,7 +73,7 @@ void plotVarMChp()
   JMass_2->SetLineStyle(kDashed);
   JMass_2->SetLineColor(kBlack);
   JMass_2->Draw("lsame");
-  c->SaveAs("plots/MC_hpt_jpsi_mass.pdf");
+  c->SaveAs("plots/MC_vhpt_jpsi_mass.pdf");
   c->Clear();
 
   c->SetLogy();
@@ -81,17 +81,17 @@ void plotVarMChp()
   h_JPt->Scale(1./norm);
   h_JPt->GetYaxis()->SetRangeUser(4e-6, 5e-1);
   h_JPt->GetXaxis()->SetTitle("p_{T}(J/#psi) (GeV)");
-  h_JPt->SetTitle("Inclusive MC (high p_{T}) J/#psi p_{T}");
+  h_JPt->SetTitle("Inclusive MC (very high p_{T}) J/#psi p_{T}");
   h_JPt->Draw("hist");
-  TLine *JPt_1 = new TLine(46, 4e-6, 46, 5e-1);
+  TLine *JPt_1 = new TLine(66, 4e-6, 66, 5e-1);
   JPt_1->SetLineStyle(kDashed);
   JPt_1->SetLineColor(kBlack);
   JPt_1->Draw("lsame");
-  TLine *JPt_2 = new TLine(66, 4e-6, 66, 5e-1);
+  TLine *JPt_2 = new TLine(100, 4e-6, 100, 5e-1);
   JPt_2->SetLineStyle(kDashed);
   JPt_2->SetLineColor(kBlack);
   JPt_2->Draw("lsame");
-  c->SaveAs("plots/MC_hpt_jpsi_pt.pdf");
+  c->SaveAs("plots/MC_vhpt_jpsi_pt.pdf");
   c->Clear();
 
   c->SetLogy(0);
@@ -99,7 +99,7 @@ void plotVarMChp()
   h_Jy->Scale(1./norm);
   h_Jy->GetYaxis()->SetRangeUser(0, 0.03);
   h_Jy->GetXaxis()->SetTitle("y(J/#psi)");
-  h_Jy->SetTitle("Inclusive MC (high p_{T}) J/#psi y");
+  h_Jy->SetTitle("Inclusive MC (very high p_{T}) J/#psi y");
   h_Jy->Draw("hist");
   TLine *JRap_1 = new TLine(-1.2, 0, -1.2, 0.03);
   JRap_1->SetLineStyle(kDashed);
@@ -109,7 +109,7 @@ void plotVarMChp()
   JRap_2->SetLineStyle(kDashed);
   JRap_2->SetLineColor(kBlack);
   JRap_2->Draw("lsame");
-  c->SaveAs("plots/MC_hpt_jpsi_rap.pdf");
+  c->SaveAs("plots/MC_vhpt_jpsi_rap.pdf");
   c->Clear();
 
   infile->Close();

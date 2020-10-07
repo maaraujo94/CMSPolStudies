@@ -18,13 +18,13 @@ double costh(TLorentzVector *p4_parent_lab, TLorentzVector *p4_daughter_lab)
   return costheta_HX;
 }
 
-void jpsi2018_MC()
+void jpsi2018_MC_vhighpt()
 {
   TChain *mcJ = new TChain("jpsitree");
 
-  mcJ->Add("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18.root");
+  mcJ->Add("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18-veryhighpt.root");
 
-  Double_t JpsiPt, cosa;
+  Double_t cosa, lts, JpsiPt;
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
   
   mcJ->SetBranchAddress("muP_p4", &muP_p4);
@@ -34,7 +34,7 @@ void jpsi2018_MC()
   int mEvt = mcJ->GetEntries();
   int perc = mEvt / 100;
 
-  TFile *outfile = new TFile("MC18_cos.root", "recreate");
+  TFile *outfile = new TFile("MC18_vhpt_cos.root", "recreate");
   TTree *newtree = new TTree("MC_cos", "");
 
   TBranch *cos_tree = newtree->Branch("costh", &cosa);

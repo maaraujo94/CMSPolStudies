@@ -1,169 +1,180 @@
-// code to combine the free fit function with the ratio points
-// also plots the lambda_th function
+// code to plot the fit results
 
 void plotRes()
 {
-  double M_q = 1;//3.097;
-  
-  // get the ratio points
+  // get the histo limits
   TFile *fIn = new TFile("files/ratioHist.root");
   TH2D* rHist;
+  TH2D* rHist_hpt;
+  TH2D* rHist_vhpt;
   fIn->GetObject("ratioHist_ab", rHist);
-  rHist->SetDirectory(0);
-  fIn->Close();
-
-  // save some useful info
-  int nBinspT = rHist->GetNbinsY(), nBinsC = rHist->GetNbinsX();
-  double minC = rHist->GetXaxis()->GetBinLowEdge(1), maxC = rHist->GetXaxis()->GetBinUpEdge(nBinsC);
+  fIn->GetObject("ratioHist_ab_hpt", rHist_hpt);
+  fIn->GetObject("ratioHist_ab_vhpt", rHist_vhpt);
+  
+  int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
-
-  // get the ratios in each coarse pT bin
-  TH1D *hData[nBinspT];
-  for(int i = 0; i < nBinspT; i++)
-    hData[i] = rHist->ProjectionX(Form("hData_%d", i), i+1, i+1);
-
-  // get the independent fit points
-  // get A and lambda values for each bin
+  int nBinspT_hpt = rHist_hpt->GetNbinsY();
+  const double *pTBins_hpt = rHist_hpt->GetYaxis()->GetXbins()->GetArray();
+  int nBinspT_vhpt = rHist_vhpt->GetNbinsY();
+  const double *pTBins_vhpt = rHist_vhpt->GetYaxis()->GetXbins()->GetArray();
+  
+  // get the fit results
+  // get A, lambda, chiProb values for each bin
   TFile *fInd = new TFile("files/fit_res_1d.root");
   TGraphErrors* graph_A = (TGraphErrors*)fInd->Get("graph_A");
-  TGraphErrors* graph_lth;
-  fInd->GetObject("graph_lambda", graph_lth);
-  fInd->Close();
+  TGraphErrors* graph_lth = (TGraphErrors*)fInd->Get("graph_lambda");
+  TGraphErrors* graph_chi = (TGraphErrors*)fInd->Get("graph_chiP");
+  TGraphErrors* graph_A_hpt = (TGraphErrors*)fInd->Get("graph_A_hpt");
+  TGraphErrors* graph_lth_hpt = (TGraphErrors*)fInd->Get("graph_lambda_hpt");
+  TGraphErrors* graph_chi_hpt = (TGraphErrors*)fInd->Get("graph_chiP_hpt");
+  TGraphErrors* graph_A_vhpt = (TGraphErrors*)fInd->Get("graph_A_vhpt");
+  TGraphErrors* graph_lth_vhpt = (TGraphErrors*)fInd->Get("graph_lambda_vhpt");
+  TGraphErrors* graph_chi_vhpt = (TGraphErrors*)fInd->Get("graph_chiP_vhpt");
 
-  double *lambda = graph_lth->GetY();
-  double *A = graph_A->GetY();
+  double* chisquare = ((TGraphErrors*)fInd->Get("graph_chisquare"))->GetY();
+  double* ndf = ((TGraphErrors*)fInd->Get("graph_NDF"))->GetY();
+  double* chisquare_hpt = ((TGraphErrors*)fInd->Get("graph_chisquare_hpt"))->GetY();
+  double* ndf_hpt = ((TGraphErrors*)fInd->Get("graph_NDF_hpt"))->GetY();
+  double* chisquare_vhpt = ((TGraphErrors*)fInd->Get("graph_chisquare_vhpt"))->GetY();
+  double* ndf_vhpt = ((TGraphErrors*)fInd->Get("graph_NDF_vhpt"))->GetY();
 
-  // get the fit function, plot in histograms
-  TF1 *wInd = new TF1("wInd", "[0]*(1+[1]*x*x)", minC, maxC);
-  TH1D **hInd = new TH1D*[nBinspT];
-  for(int i = 0; i < nBinspT; i++) {
-    hInd[i] = new TH1D(Form("hInd_%d", i), Form("hInd_%d", i), nBinsC, minC, maxC);
-    wInd->SetParameters(A[i], lambda[i]);
-    for(int j = 0; j < nBinsC; j++) {
-      double min = hInd[i]->GetXaxis()->GetBinLowEdge(j+1);
-      double max = hInd[i]->GetXaxis()->GetBinUpEdge(j+1);
-      double fillVal = wInd->Integral(min, max)/(max-min);
-      hInd[i]->SetBinContent(j+1, fillVal);
-    }
-  }
+  int ntot = nBinspT+nBinspT_hpt+nBinspT_vhpt;
+  TH1D* pHist[ntot];
+  for(int i = 0; i < ntot; i++)
+    pHist[i] = (TH1D*)fInd->Get(Form("fine_bin%d_1d_min", i+1));
 
-  // read the |costh|max(pt) function
-  ifstream in;
-  string dataS;
-  in.open("text_output/cosMaxFitRes.txt");
-  getline(in, dataS);
-  getline(in, dataS);
-  double maxPar[3], aux;
-  in >> maxPar[0] >> aux >> maxPar[1] >> aux >> maxPar[2];
-  in.close();
-  
-  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", 0, 215);
-  cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
-  
-  // plot the results
+  // draw the fit results
   TCanvas *c = new TCanvas("name", "title", 700, 700);
-  for(int i = 0; i < nBinspT; i++) {
-    // get the costh fit limit
-    double cosLim = cosMax->Integral(pTBins[i], pTBins[i+1])/(pTBins[i+1]-pTBins[i]);
-    double cR = floor(cosLim*10.)/10.;
-    if(cosLim-cR>0.05) cR += 0.05;
-    cout << cR << endl << endl;;
 
-    // the data
-    for(int j = 0; j < nBinsC; j++) {
-      if(hData[i]->GetXaxis()->GetBinUpEdge(j+1)>cR+0.01) {
-	cout << hData[i]->GetXaxis()->GetBinUpEdge(j+1) << endl;
-	hData[i]->SetBinContent(j+1, 0);
-	hData[i]->SetBinError(j+1, 0);
-      }
-    }
+  // draw the distributions
+  for(int i = 0; i < ntot; i++) {
+    double chis = i < nBinspT ? chisquare[i] : i < nBinspT+nBinspT_hpt ? chisquare_hpt[i-nBinspT] : chisquare_vhpt[i-nBinspT-nBinspT_hpt];
+    int nf = i < nBinspT ? (int)ndf[i] : i < nBinspT+nBinspT_hpt ? (int)ndf_hpt[i-nBinspT] : (int)ndf_vhpt[i-nBinspT-nBinspT_hpt];
+    double aVal = i < nBinspT ? graph_A->GetY()[i] : i < nBinspT+nBinspT_hpt ? graph_A_hpt->GetY()[i-nBinspT] : graph_A_vhpt->GetY()[i-nBinspT-nBinspT_hpt];
+
+    cout << i << " " << aVal << endl;
     
-    hData[i]->SetStats(0);
-    hData[i]->SetTitle(Form("PR/MC p_{T} bin %d: [%.0f, %.0f] GeV", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
-    hData[i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
-    hData[i]->SetLineColor(kBlack);
-    hData[i]->SetMarkerColor(kBlack);
-    hData[i]->GetYaxis()->SetRangeUser(0, A[i]*1.4);
-    hData[i]->Draw();
+    pHist[i]->SetStats(0);
+    pHist[i]->SetMaximum(aVal*1.4);
+    pHist[i]->Draw();
+    
+    TLatex lc;
+    lc.SetTextSize(0.03);
+    lc.DrawLatex(0.1, aVal*0.3, Form("#chi^{2}/ndf = %.0f/%d", chis, nf));
+    lc.DrawLatex(0.1, aVal*0.2, Form("P(#chi^{2},ndf) = %.1f%%", 100*TMath::Prob(chis, nf)));
 
-    // the independent fit
-    hInd[i]->SetLineColor(kBlue);
-    hInd[i]->SetMarkerColor(kBlue);
-    hInd[i]->Draw("same");
-
-    TLine *cLim = new TLine(cR, 0, cR, A[i]*1.4);
-    cLim->SetLineStyle(kDashed);
-    cLim->SetLineColor(kBlack);
-    cLim->Draw();
-
-    // the legend
-    TLegend *leg = new TLegend(0.2, 0.2, 0.4, 0.4);
-    leg->SetTextSize(0.03);
-    leg->AddEntry(hData[i], "data", "pl");
-    leg->AddEntry(hInd[i], "fit", "pl");
-    leg->Draw();
-
-    // save and clear
-    c->SaveAs(Form("plots/ratio_final/bin_%d.pdf", i));
-    c->Clear();
+    c->SaveAs(Form("plots/ratio_final/bin_%d.pdf", i+1));
   }
-
-  // plot the results normalized
-  for(int i = 0; i < nBinspT; i++) {
-    // the data
-    hData[i]->SetTitle(Form("PR/MC p_{T} bin %d: [%.0f, %.0f] GeV (scaled)", i+1, pTBins[i]*M_q, pTBins[i+1]*M_q));
-    double norm = hData[i]->GetBinContent(1);
-    hData[i]->Scale(1./norm);
-    hData[i]->GetYaxis()->SetRangeUser(0.7, 1.3);
-    hData[i]->Draw();
-
-    // the independent fit
-    norm = hInd[i]->GetBinContent(1);
-    hInd[i]->Scale(1./norm);
-    hInd[i]->Draw("hist same");
-
-    double cosLim = cosMax->Integral(pTBins[i], pTBins[i+1])/(pTBins[i+1]-pTBins[i]);
-    double cR = floor(cosLim*10.)/10.;
-    if(cosLim-cR>0.05) cR += 0.05;
-    TLine *cLim = new TLine(cR, 0.7, cR, 1.3);
-    cLim->SetLineStyle(kDashed);
-    cLim->SetLineColor(kBlack);
-    cLim->Draw();
-
-    // the legend
-    TLegend *leg = new TLegend(0.2, 0.2, 0.35, 0.35);
-    leg->SetTextSize(0.03);
-    leg->AddEntry(hData[i], "data", "pl");
-    leg->AddEntry(hInd[i], "fit", "pl");
-    leg->Draw();
-
-    // save and clear
-    c->SaveAs(Form("plots/ratio_final/bin_%d_norm.pdf", i));
-    c->Clear();
-  }
-
+ 
   // draw lambda_th(pT)
-  // the frame
-  TH1F *func = c->DrawFrame(0, -1, 215, 1);
-  func->SetXTitle("p_{T} (GeV)");
-  func->SetYTitle("#lambda_{#theta}");
-  func->GetYaxis()->SetTitleOffset(1.3);
-  func->GetYaxis()->SetLabelOffset(0.01);
-  func->SetTitle("#lambda_{#theta} (PR)");
+  TH1F *fl = c->DrawFrame(pTBins[0], -1, pTBins_vhpt[nBinspT_vhpt], 1);
+  fl->SetXTitle("p_{T} (GeV)");
+  fl->SetYTitle("#lambda_{#theta}");
+  fl->GetYaxis()->SetTitleOffset(1.3);
+  fl->GetYaxis()->SetLabelOffset(0.01);
+  fl->SetTitle("#lambda_{#theta} (PR)");
 
-  // the three lambda_th distributions
+  // combine both lambda_th distributions
   graph_lth->SetLineColor(kBlack);
   graph_lth->SetMarkerColor(kBlack);
   graph_lth->Draw("p");
+  graph_lth_hpt->SetLineColor(kBlack);
+  graph_lth_hpt->SetMarkerColor(kBlack);
+  graph_lth_hpt->Draw("p");
+  graph_lth_vhpt->SetLineColor(kBlack);
+  graph_lth_vhpt->SetMarkerColor(kBlack);
+  graph_lth_vhpt->Draw("p");
 
-  TLine *zero = new TLine(0, 0, 215, 0);
+  TLine *zero = new TLine(pTBins[0], 0, pTBins_vhpt[nBinspT_vhpt], 0);
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  
+  TLine *trans1 = new TLine(pTBins_hpt[0], -1, pTBins_hpt[0], 1);
+  trans1->SetLineColor(kBlack);
+  trans1->SetLineStyle(kDashed);
+  trans1->Draw();
+  TLine *trans2 = new TLine(pTBins_vhpt[0], -1, pTBins_vhpt[0], 1);
+  trans2->SetLineColor(kBlack);
+  trans2->SetLineStyle(kDashed);
+  trans2->Draw();
+
   c->SaveAs("plots/ratio_final/lth.pdf");
+  c->Clear();
+
+  // draw A(pT)
+  c->SetLogy();
+  TH1F *fa = c->DrawFrame(pTBins[0], 0.04, pTBins_vhpt[nBinspT_vhpt], 6);
+  fa->SetXTitle("p_{T} (GeV)");
+  fa->SetYTitle("A");
+  fa->GetYaxis()->SetTitleOffset(1.3);
+  fa->GetYaxis()->SetLabelOffset(0.01);
+  fa->SetTitle("A (PR)");
+
+  // combine both lambda_th distributions
+  graph_A->SetLineColor(kBlack);
+  graph_A->SetMarkerColor(kBlack);
+  graph_A->Draw("p");
+  graph_A_hpt->SetLineColor(kBlack);
+  graph_A_hpt->SetMarkerColor(kBlack);
+  graph_A_hpt->Draw("p");
+  graph_A_vhpt->SetLineColor(kBlack);
+  graph_A_vhpt->SetMarkerColor(kBlack);
+  graph_A_vhpt->Draw("p");
+
+  TLine *trans1_A = new TLine(pTBins_hpt[0], 0.04, pTBins_hpt[0], 6);
+  trans1_A->SetLineColor(kBlack);
+  trans1_A->SetLineStyle(kDashed);
+  trans1_A->Draw();
+  TLine *trans2_A = new TLine(pTBins_vhpt[0], 0.04, pTBins_vhpt[0], 6);
+  trans2_A->SetLineColor(kBlack);
+  trans2_A->SetLineStyle(kDashed);
+  trans2_A->Draw();
+
+  c->SaveAs("plots/ratio_final/A.pdf");
+  c->Clear();
+
+  // draw chiProb(pT)
+  c->SetLogy(0);
+  TH1F *fc = c->DrawFrame(pTBins[0], 0, pTBins_vhpt[nBinspT_vhpt], 1);
+  fc->SetXTitle("p_{T} (GeV)");
+  fc->SetYTitle("P(#chi^{2}, ndf)");
+  fc->GetYaxis()->SetTitleOffset(1.3);
+  fc->GetYaxis()->SetLabelOffset(0.01);
+  fc->SetTitle("P(#chi^{2}, ndf) (PR)");
+
+  // combine both lambda_th distributions
+  graph_chi->SetLineColor(kBlack);
+  graph_chi->SetMarkerColor(kBlack);
+  graph_chi->SetMarkerStyle(20);
+  graph_chi->SetMarkerSize(0.75);
+  graph_chi->Draw("p");
+  graph_chi_hpt->SetLineColor(kBlack);
+  graph_chi_hpt->SetMarkerColor(kBlack);
+  graph_chi_hpt->SetMarkerStyle(20);
+  graph_chi_hpt->SetMarkerSize(0.75);
+  graph_chi_hpt->Draw("p");
+  graph_chi_vhpt->SetLineColor(kBlack);
+  graph_chi_vhpt->SetMarkerColor(kBlack);
+  graph_chi_vhpt->SetMarkerStyle(20);
+  graph_chi_vhpt->SetMarkerSize(0.75);
+  graph_chi_vhpt->Draw("p");
+
+  TLine *trans1_C = new TLine(pTBins_hpt[0], 0, pTBins_hpt[0], 1);
+  trans1_C->SetLineColor(kBlack);
+  trans1_C->SetLineStyle(kDashed);
+  trans1_C->Draw();
+  TLine *trans2_C = new TLine(pTBins_vhpt[0], 0, pTBins_vhpt[0], 1);
+  trans2_C->SetLineColor(kBlack);
+  trans2_C->SetLineStyle(kDashed);
+  trans2_C->Draw();
+
+  c->SaveAs("plots/ratio_final/chiP.pdf");
   c->Clear();
   c->Destructor();
   
+  fIn->Close();
+  fInd->Close();
+
+
 }
 

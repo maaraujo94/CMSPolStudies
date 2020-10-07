@@ -26,8 +26,8 @@ void indFit()
 
   int bin = 0;
   
-  string fileN[2] = {"", "_hpt"};
-  for(int i_pt = 0; i_pt < 2; i_pt++) {
+  string fileN[3] = {"", "_hpt", "_vhpt"};
+  for(int i_pt = 0; i_pt < 3; i_pt++) {
     // read the coarse histos in |costh|
     TFile *infile = new TFile("files/ratioHist.root");
     TH2D *hist = new TH2D();

@@ -1,43 +1,57 @@
 void getCos()
 {
-  TFile *infile = new TFile("files/ratioHist.root");
-
-  TH2D *hist = new TH2D();
-  infile->GetObject("ratioHist_ab", hist);
-  int nBinsY = hist->GetNbinsY();
-  const double* yBins = hist->GetYaxis()->GetXbins()->GetArray();
-  hist->SetDirectory(0);
-  
-  infile->Close();
-  TH1D *pHist[nBinsY];
-  for(int i = 0; i < nBinsY; i++) {
-    pHist[i] = hist->ProjectionX(Form("fine_bin%d_1d_ab", i+1), i+1, i+1);
-  }
-  cout << yBins[0] << " " << yBins[1] << endl;
-
-  double cosMax[nBinsY];
-  for(int i = 0; i < nBinsY; i++) {
-    int nBinsX = pHist[i]->GetNbinsX();
-    for(int j = 1; j < nBinsX; j++) {
-      if(pHist[i]->GetBinError(j+2) > 2.*pHist[i]->GetBinError(j+1)) {
-	  cosMax[i] = pHist[i]->GetBinLowEdge(j+2);
-	  cout << "[" << yBins[i] << "," << yBins[i+1] << "]: cosMax = " << cosMax[i] << endl;
-	  break;
-      }
-    }
-  }
+  string fileN[3] = {"", "_hpt", "_vhpt"};
+  double aux = 0;
 
   ofstream fout;
   fout.open("text_output/cos_max.txt");
-  for(int i = 0; i < nBinsY; i++) {
-    if(i == 0)
-      fout << yBins[i] << "\t" << yBins[i+1] << "\t" << cosMax[i] << endl;
-    else if(cosMax[i] >= cosMax[i-1])
-      fout << yBins[i] << "\t" << yBins[i+1] << "\t" << cosMax[i] << endl;
-    else {
-      cosMax[i] = cosMax[i-1];
-      fout << yBins[i] << "\t" << yBins[i+1] << "\t" << cosMax[i] << endl;
+  fout.close();  
+  
+  for(int i_pt = 0; i_pt < 3; i_pt++) {
+    // read the coarse histos in |costh|
+    TFile *infile = new TFile("files/ratioHist.root");
+    TH2D *hist = new TH2D();
+    infile->GetObject(Form("ratioHist_ab%s", fileN[i_pt].c_str()), hist);
+    hist->SetDirectory(0);
+
+    int nBinsY = hist->GetNbinsY();
+    const double* yBins = hist->GetYaxis()->GetXbins()->GetArray();
+    hist->SetDirectory(0);
+  
+    infile->Close();
+
+    TH1D *pHist[nBinsY];
+    for(int i = 0; i < nBinsY; i++) {
+      pHist[i] = hist->ProjectionX(Form("fine_bin%d_1d_ab", i+1), i+1, i+1);
     }
+    
+    double cosMax[nBinsY];
+    for(int i = 0; i < nBinsY; i++) {
+      int nBinsX = pHist[i]->GetNbinsX();
+      for(int j = 1; j < nBinsX; j++) {
+	if(pHist[i]->GetBinError(j+2) > 2.*pHist[i]->GetBinError(j+1)) {
+	  cosMax[i] = pHist[i]->GetBinLowEdge(j+2);
+	  break;
+	}
+      }
+    }
+    
+    fout.open("text_output/cos_max.txt", std::ofstream::app);
+    for(int i = 0; i < nBinsY; i++) {
+      if(i == 0 && cosMax[i] >= aux)
+	fout << yBins[i] << "\t" << yBins[i+1] << "\t" << cosMax[i] << endl;
+      else if(i == 0 && cosMax[i] < aux) {
+	cosMax[i] = aux;
+	fout << yBins[i] << "\t" << yBins[i+1] << "\t" << cosMax[i] << endl;
+      }
+      else if(cosMax[i] >= cosMax[i-1])
+	fout << yBins[i] << "\t" << yBins[i+1] << "\t" << cosMax[i] << endl;
+      else {
+	cosMax[i] = cosMax[i-1];
+	fout << yBins[i] << "\t" << yBins[i+1] << "\t" << cosMax[i] << endl;
+      }
+      aux = cosMax[i];
+    }
+    fout.close();
   }
-  fout.close();
 }
