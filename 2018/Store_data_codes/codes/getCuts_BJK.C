@@ -4,7 +4,7 @@
 - dimuon mass, pT, y, ct/cterr
 */
 
-void cutVarBJK()
+void getCuts_BJK()
 {
   // tree for data
   TChain *tree = new TChain("treeS");

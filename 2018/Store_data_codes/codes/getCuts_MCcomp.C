@@ -1,10 +1,10 @@
-// code to compare the cut variables for the 2018 Jpsi MC in both samples
+// code to compare the cut variables for the 2018 Jpsi MC in both samples (low and high pT - very high pT not included)
 /* variables to plot
 - single muon pT, eta
-- dimuon mass, pT, y, ct/cterr
+- dimuon mass, pT, y
 */
 
-void mc_comp()
+void getCuts_MCcomp()
 {
   string name[2] = {"filtered-all-psi-mc-LOCAL18.root", "filtered-all-psi-mc-LOCAL18-highpt.root"};
 

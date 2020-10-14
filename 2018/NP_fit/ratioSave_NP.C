@@ -33,7 +33,7 @@ void ratioSave_NP()
   string data;
   int pt_bins = 7;
   double pt_min[pt_bins], pt_max[pt_bins], c1[pt_bins], c2[pt_bins], m[pt_bins], aux, sig;
-  ifile.open("../fit_sig.txt");
+  ifile.open("../Cut_vars/text_output/fit_sig.txt");
   getline(ifile, data);
   getline(ifile, data);
   for(int i = 0; i < 7; i++) {
@@ -42,13 +42,13 @@ void ratioSave_NP()
   ifile.close();
   
   // open files and read TTrees
-  TFile *fin = new TFile("../../Store_data_codes/2018/data18_cos.root");
+  TFile *fin = new TFile("../Store_data_codes/data18_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
-  TFile *fin2 = new TFile("../../Store_data_codes/2018/MC18_cos.root");
+  TFile *fin2 = new TFile("../Store_data_codes/MC18_cos.root");
   TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
-  TFile *fin3 = new TFile("../../Store_data_codes/2018/MC18_hpt_cos.root");
+  TFile *fin3 = new TFile("../Store_data_codes/MC18_hpt_cos.root");
   TTree *treeM2 = (TTree*)fin3->Get("MC_cos");
-  TFile *fin4 = new TFile("../../Store_data_codes/2018/MC18_vhpt_cos.root");
+  TFile *fin4 = new TFile("../Store_data_codes/MC18_vhpt_cos.root");
   TTree *treeM3 = (TTree*)fin4->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();

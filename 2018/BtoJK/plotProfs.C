@@ -13,7 +13,7 @@ double lambda_thetaphi(double s2, double cos, double lambda_N)
 
 void plotProfs()
 {
-  TFile *infile = new TFile("../../Store_data_codes/2018/btopk_cos.root");
+  TFile *infile = new TFile("../Store_data_codes/btopk_cos.root");
   TTree *tree = (TTree*)infile->Get("data_cos");
   
   int nEvt = tree->GetEntries();

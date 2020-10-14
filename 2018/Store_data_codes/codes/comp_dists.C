@@ -1,9 +1,10 @@
+// plot the non-normalized pT dist of each sample for direct comparison
 void comp_dists()
 {
-  TFile *fData = new TFile("data18_cos.root");
-  TFile *fMC1 = new TFile("MC18_cos.root");
-  TFile *fMC2 = new TFile("MC18_hpt_cos.root");
-  TFile *fMC3 = new TFile("MC18_vhpt_cos.root");
+  TFile *fData = new TFile("../data18_cos.root");
+  TFile *fMC1 = new TFile("../MC18_cos.root");
+  TFile *fMC2 = new TFile("../MC18_hpt_cos.root");
+  TFile *fMC3 = new TFile("../MC18_vhpt_cos.root");
 
   TTree *tData = (TTree*)fData->Get("data_cos");
   TTree *tMC1 = (TTree*)fMC1->Get("MC_cos");

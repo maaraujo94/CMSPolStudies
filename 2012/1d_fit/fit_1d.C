@@ -3,9 +3,9 @@
 void fit_1d()
 {
   // open files and read TTrees
-  TFile *fin = new TFile("../../Store_data_codes/data_cos.root");
+  TFile *fin = new TFile("../Store_data_codes/data_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
-  TFile *fin2 = new TFile("../../Store_data_codes/MC_cos.root");
+  TFile *fin2 = new TFile("../Store_data_codes/MC_cos.root");
   TTree *treeM = (TTree*)fin2->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();

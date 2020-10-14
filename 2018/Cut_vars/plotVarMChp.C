@@ -6,7 +6,7 @@
 
 void plotVarMChp()
 {
-  TFile *infile = new TFile("../../Store_data_codes/2018/Jpsi_MC_hpt_cuts.root");
+  TFile *infile = new TFile("../Store_data_codes/Jpsi_MC_hpt_cuts.root");
   TH1D *h_muPpT = (TH1D*)infile->Get("h_muPpT");
   TH1D *h_muNpT = (TH1D*)infile->Get("h_muNpT");
   TH1D *h_muPEta = (TH1D*)infile->Get("h_muPEta");

@@ -1,4 +1,5 @@
 // code to run on lxplus to get angular dists in cut sample
+// runs on B->J/psi K sample
 
 const double gPI = TMath::Pi();
 const double Mprot = 0.9382720;
@@ -77,7 +78,7 @@ double costh(TLorentzVector *p4_parent_lab, TLorentzVector *p4_daughter_lab)
   return theta_HX;
 }
 
-void cosTheta()
+void ang_BJK()
 {
   // tree for data
   TChain *tree = new TChain("treeS");

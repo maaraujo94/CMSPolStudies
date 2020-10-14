@@ -1,5 +1,5 @@
-// code that runs over data, applies all cuts and saves a root file with pT and costheta_HX
-// current cuts: same as BPH-13-001 AN, wide mass window
+// code that runs over data, applies all cuts and saves a root file with Jpsi pT, y, mass and lts + costheta_HX
+// current cuts: based on trigger and distributions; no mass/lts cut
 
 // macro to calculate cos(theta)
 double costh(TLorentzVector *p4_parent_lab, TLorentzVector *p4_daughter_lab)
@@ -18,7 +18,7 @@ double costh(TLorentzVector *p4_parent_lab, TLorentzVector *p4_daughter_lab)
   return costheta_HX;
 }
 
-void jpsi2018_data()
+void ang_data()
 {
   // open tree and read data
   TChain *dataJ = new TChain("jpsitree");

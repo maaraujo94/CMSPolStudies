@@ -1,22 +1,29 @@
-// code to plot the cut variables for the 2018 Jpsi MC
+// code to plot the cut variables for the 2018 Jpsi data
 /* variables to plot
 - single muon pT, eta
 - dimuon mass, pT, y, ct/cterr
 */
 
-void mc_vhpt_cut()
+void getCuts_data()
 {
-  // tree for MC
+  // tree for data
   TChain *tree = new TChain("jpsitree");
 
-  tree->Add("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18-veryhighpt.root");
+  tree->Add("/eos/user/m/maaraujo/JpsiRun2/Data/filtered-17-18-psi-19aug20.root");
 
   // creating desired vars and setting branch address
+  Double_t  Jpsict, JpsictErr, vProb;
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
+  UInt_t trigger, run;
   
   tree->SetBranchAddress("muP_p4", &muP_p4);
   tree->SetBranchAddress("muM_p4", &muM_p4);
   tree->SetBranchAddress("mumu_p4", &mumu_p4);
+  tree->SetBranchAddress("vProb", &vProb);
+  tree->SetBranchAddress("trigger", &trigger);
+  tree->SetBranchAddress("run", &run);
+  tree->SetBranchAddress("ctpv", &Jpsict);
+  tree->SetBranchAddress("ctpv_error", &JpsictErr);
 
   // aux vars for reading tree
   int nEvt = tree->GetEntries();
@@ -30,23 +37,28 @@ void mc_vhpt_cut()
   TH1D *h_JMass  = new TH1D("h_JMass",  "data Jpsi mass",          100, 2.9, 3.3);
   TH1D *h_JPt    = new TH1D("h_JPt",    "data Jpsi pT",            100, 0, 200);
   TH1D *h_Jy     = new TH1D("h_Jy",     "data Jpsi y",             100, -2.5, 2.5);
+  TH1D *h_Jlts   = new TH1D("h_Jlts",   "data Jpsi lifetime sig",  100, 0, 25);
 
   // reading tree, filling histograms
   for(int i = 0; i < nEvt; i++) {
     tree->GetEntry(i);
 
-    h_muPpT->Fill(muP_p4->Pt());
-    h_muNpT->Fill(muM_p4->Pt());
-    h_muPEta->Fill(muP_p4->Eta());
-    h_muNEta->Fill(muM_p4->Eta());
-    h_JMass->Fill(mumu_p4->M());
-    h_JPt->Fill(mumu_p4->Pt());
-    h_Jy->Fill(mumu_p4->Rapidity());
-  
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with MC" << endl; 
+    if((trigger&16) == 16 && vProb > 0.01 && run > 313000)
+      {
+	h_muPpT->Fill(muP_p4->Pt());
+	h_muNpT->Fill(muM_p4->Pt());
+	h_muPEta->Fill(muP_p4->Eta());
+	h_muNEta->Fill(muM_p4->Eta());
+	h_JMass->Fill(mumu_p4->M());
+	h_JPt->Fill(mumu_p4->Pt());
+	h_Jy->Fill(mumu_p4->Rapidity());
+	h_Jlts->Fill(abs(Jpsict/JpsictErr));
+      }
+
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with data" << endl; 
   }
 
-  TFile *outfile = new TFile("Jpsi_MC_vhpt_cuts.root", "recreate");
+  TFile *outfile = new TFile("Jpsi_data_cuts.root", "recreate");
   h_muPpT->Write();
   h_muNpT->Write();
   h_muPEta->Write();
@@ -54,6 +66,7 @@ void mc_vhpt_cut()
   h_JMass->Write();
   h_JPt->Write();
   h_Jy->Write();
+  h_Jlts->Write();
   outfile->Close();
 
 }

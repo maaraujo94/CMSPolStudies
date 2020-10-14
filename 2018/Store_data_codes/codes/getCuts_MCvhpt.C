@@ -1,15 +1,15 @@
-// code to plot the cut variables for the 2018 Jpsi MC
+// code to plot the cut variables for the 2018 Jpsi MC (very high pT)
 /* variables to plot
 - single muon pT, eta
-- dimuon mass, pT, y, ct/cterr
+- dimuon mass, pT, y
 */
 
-void mc_cut()
+void getCuts_MCvhpt()
 {
   // tree for MC
   TChain *tree = new TChain("jpsitree");
 
-  tree->Add("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18.root");
+  tree->Add("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18-veryhighpt.root");
 
   // creating desired vars and setting branch address
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
@@ -46,7 +46,7 @@ void mc_cut()
     if((i+1)%perc == 0) cout << (i+1)/perc << "% done with MC" << endl; 
   }
 
-  TFile *outfile = new TFile("Jpsi_MC_cuts.root", "recreate");
+  TFile *outfile = new TFile("Jpsi_MC_vhpt_cuts.root", "recreate");
   h_muPpT->Write();
   h_muNpT->Write();
   h_muPEta->Write();

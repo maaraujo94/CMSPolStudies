@@ -6,7 +6,7 @@
 
 void compVarMC()
 {
-  TFile *infile = new TFile("../../Store_data_codes/2018/Jpsi_MC_comp.root");
+  TFile *infile = new TFile("../Store_data_codes/Jpsi_MC_comp.root");
   TH1D *h_muPpT_0 = (TH1D*)infile->Get("h_muPpT_0");
   TH1D *h_muNpT_0 = (TH1D*)infile->Get("h_muNpT_0");
   TH1D *h_muPEta_0 = (TH1D*)infile->Get("h_muPEta_0");

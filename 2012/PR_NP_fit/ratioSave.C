@@ -7,9 +7,9 @@ void ratioSave()
   double M_q = 1;//3.097; // using J/psi mass
 
   // open files and read TTrees
-  TFile *fin = new TFile("../../Store_data_codes/2012/data_cos.root");
+  TFile *fin = new TFile("../Store_data_codes/data_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
-  TFile *fin2 = new TFile("../../Store_data_codes/2012/data_NP2p5cos.root");
+  TFile *fin2 = new TFile("../Store_data_codes/data_NP2p5cos.root");
   TTree *treeM = (TTree*)fin2->Get("data_cos");
   
   int dEvt = treeD->GetEntries();
