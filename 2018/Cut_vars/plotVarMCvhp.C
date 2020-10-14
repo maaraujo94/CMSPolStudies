@@ -65,14 +65,14 @@ void plotVarMCvhp()
   h_JMass->GetXaxis()->SetTitle("M(J/#psi) (GeV)");
   h_JMass->SetTitle("Inclusive MC (very high p_{T}) J/#psi mass");
   h_JMass->Draw("hist");
-  TLine *JMass_1 = new TLine(3, 0, 3, 0.07);
+  /*TLine *JMass_1 = new TLine(3, 0, 3, 0.07);
   JMass_1->SetLineStyle(kDashed);
   JMass_1->SetLineColor(kBlack);
   JMass_1->Draw("lsame");
   TLine *JMass_2 = new TLine(3.2, 0, 3.2, 0.07);
   JMass_2->SetLineStyle(kDashed);
   JMass_2->SetLineColor(kBlack);
-  JMass_2->Draw("lsame");
+  JMass_2->Draw("lsame");*/
   c->SaveAs("plots/MC_vhpt_jpsi_mass.pdf");
   c->Clear();
 

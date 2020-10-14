@@ -24,7 +24,7 @@ void jpsi2018_MC()
 
   mcJ->Add("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18.root");
 
-  Double_t JpsiPt, cosa;
+  Double_t JpsiPt, cosa, mass, rap;
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
   
   mcJ->SetBranchAddress("muP_p4", &muP_p4);
@@ -39,16 +39,19 @@ void jpsi2018_MC()
 
   TBranch *cos_tree = newtree->Branch("costh", &cosa);
   TBranch *pT_tree = newtree->Branch("JpsiPt", &JpsiPt);
+  newtree->Branch("JpsiMass", &mass);
+  newtree->Branch("JpsiRap", &rap);
   
   for(int i = 0; i < mEvt; i++) {
     mcJ->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
 	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
-	abs(mumu_p4->Rapidity()) < 1.2 &&
-	mumu_p4->M() > 3 && mumu_p4->M() < 3.2 )
+	abs(mumu_p4->Rapidity()) < 1.2  )
       {
 	cosa = costh(mumu_p4, muP_p4);
 	JpsiPt = mumu_p4->Pt();
+	rap = abs(mumu_p4->Rapidity());
+	mass = mumu_p4->M();
 
 	newtree->Fill();
       }

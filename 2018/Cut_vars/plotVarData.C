@@ -66,14 +66,14 @@ void plotVarData()
   h_JMass->GetXaxis()->SetTitle("M(J/#psi) (GeV)");
   h_JMass->SetTitle("Inclusive data J/#psi mass");
   h_JMass->Draw("hist");
-  TLine *JMass_1 = new TLine(3, 0, 3, 0.07);
+  /*TLine *JMass_1 = new TLine(3, 0, 3, 0.07);
   JMass_1->SetLineStyle(kDashed);
   JMass_1->SetLineColor(kBlack);
   JMass_1->Draw("lsame");
   TLine *JMass_2 = new TLine(3.2, 0, 3.2, 0.07);
   JMass_2->SetLineStyle(kDashed);
   JMass_2->SetLineColor(kBlack);
-  JMass_2->Draw("lsame");
+  JMass_2->Draw("lsame");*/
   c->SaveAs("plots/data_jpsi_mass.pdf");
   c->Clear();
 
@@ -120,10 +120,14 @@ void plotVarData()
   h_Jlts->GetXaxis()->SetTitle("|c#tau|/#sigma_{c#tau}");
   h_Jlts->SetTitle("Inclusive data J/#psi lts");
   h_Jlts->Draw("hist");
-  TLine *Jlts = new TLine(2.5, 1e-3, 2.5, 3e-1);
-  Jlts->SetLineStyle(kDashed);
-  Jlts->SetLineColor(kBlack);
-  Jlts->Draw("lsame");
+  TLine *Jlts_1 = new TLine(2.5, 1e-3, 2.5, 3e-1);
+  Jlts_1->SetLineStyle(kDashed);
+  Jlts_1->SetLineColor(kBlack);
+  Jlts_1->Draw("lsame");
+  TLine *Jlts_2 = new TLine(4, 1e-3, 4, 3e-1);
+  Jlts_2->SetLineStyle(kDashed);
+  Jlts_2->SetLineColor(kBlack);
+  Jlts_2->Draw("lsame");
   c->SaveAs("plots/data_jpsi_lts.pdf");
 
   infile->Close();

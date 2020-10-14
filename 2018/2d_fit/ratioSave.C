@@ -2,8 +2,46 @@
 // plots data, mc and ratio
 // saves ratio (normal and |costh|), number of entries in each histo bin
 
+// macro to determine sigma_m(y)
+double sigma_y(double y, double c1, double c2, double m)
+{
+  // define fit limits
+  double y1 = 0.25, y2 = 0.5, y3 = 0.7;
+  
+  // convert to easy system
+  double m1 = (c2-c1)/(y2-y1);
+  double b1 = c1-m1*y1;
+  double m2 = m;
+  double b2 = c2-m2*y3;
+
+  // return the correct function depending on input y
+  if(y < 0 || y > 1.2) {
+    cout << "incorrect y input" << endl;
+    return 0;
+  }
+  
+  else if(y <= y1) return c1;
+  else if(y <= y2) return b1+m1*y;
+  else if(y <= y3) return c2;
+  else return b2 + m2*y; 
+}
+
+
 void ratioSave()
 {
+  // start by getting the parameters for the sigma(y; pt) function
+  ifstream ifile;
+  string data;
+  int pt_bins = 7;
+  double pt_min[pt_bins], pt_max[pt_bins], c1[pt_bins], c2[pt_bins], m[pt_bins], aux, sig;
+  ifile.open("../fit_sig.txt");
+  getline(ifile, data);
+  getline(ifile, data);
+  for(int i = 0; i < 7; i++) {
+    ifile >> pt_min[i] >> pt_max[i] >> c1[i] >> aux >> c2[i] >> aux >> m[i] >> aux;
+  }
+  ifile.close();
+  
   // open files and read TTrees
   TFile *fin = new TFile("../../Store_data_codes/2018/data18_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
@@ -37,33 +75,52 @@ void ratioSave()
   TH2D *mcHist_ab = new TH2D("mcH_ab", "MC", 20, 0, 1., nPtBins, ptBins);
   
   // definitions to store data and MC events
-  Double_t data_cos, data_pt, lts;
-  Double_t mc_cos, mc_pt;
- 
+  Double_t data_cos, data_pt, lts, data_m, data_y;
+  Double_t mc_cos, mc_pt, mc_m, mc_y;
+  
   treeD->SetBranchAddress("costh", &data_cos);
   treeD->SetBranchAddress("JpsiPt", &data_pt);
+  treeD->SetBranchAddress("JpsiRap", &data_y);
+  treeD->SetBranchAddress("JpsiMass", &data_m);
   treeD->SetBranchAddress("lts", &lts);
   
   treeM1->SetBranchAddress("costh", &mc_cos);
   treeM1->SetBranchAddress("JpsiPt", &mc_pt);
+  treeM1->SetBranchAddress("JpsiRap", &mc_y);
+  treeM1->SetBranchAddress("JpsiMass", &mc_m);
 
   // cycle over data and MC, fill the costh histogram acc to binning
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(lts < 2.5) {
-	dataHist->Fill(data_cos, data_pt);
-	dataHist_ab->Fill(abs(data_cos), data_pt);
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins]) {
+	for(int j = 0; j < pt_bins; j++)
+	  if(data_pt < pt_max[j] && data_pt > pt_min[j]) {
+	    sig = sigma_y(data_y, c1[j], c2[j], m[j]);
+	  }
+
+	if(lts < 2.5 && data_m < 3.097 + 2.5*sig && data_m > 3.097 - 2.5*sig) {
+	  dataHist->Fill(data_cos, data_pt);
+	  dataHist_ab->Fill(abs(data_cos), data_pt);
+	}
       }
     }
-
+  
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      mcHist->Fill(mc_cos, mc_pt);
-      mcHist_ab->Fill(abs(mc_cos), mc_pt);
+      if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins]) {
+	for(int j = 0; j < pt_bins; j++)
+	  if(mc_pt < pt_max[j] && mc_pt > pt_min[j])
+	    sig = sigma_y(mc_y, c1[j], c2[j], m[j]);
+	
+	if(mc_m < 3.097 + 2.5*sig && mc_m > 3.097 - 2.5*sig) {
+	  mcHist->Fill(mc_cos, mc_pt);
+	  mcHist_ab->Fill(abs(mc_cos), mc_pt);
+	}
+      }
     }
-
+  
   // plot all costh histograms
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetRightMargin(0.11);
@@ -134,7 +191,7 @@ void ratioSave()
   c->SaveAs("plots/ratio_2d_abs_1.pdf");
   c->Clear();
 
-    cout << "Running second sample" << endl;
+  cout << "Running second sample" << endl;
   cout << treeD->GetEntries("lts<2.5 && JpsiPt > 46 && JpsiPt < 66") << " data events after cuts and " << treeM2->GetEntries("JpsiPt<66") << " MC events after cuts" << endl;
 
   // prepare binning and histograms for plots 
@@ -153,22 +210,38 @@ void ratioSave()
   // definitions to store data and MC events
   treeM2->SetBranchAddress("costh", &mc_cos);
   treeM2->SetBranchAddress("JpsiPt", &mc_pt);
+  treeM2->SetBranchAddress("JpsiRap", &mc_y);
+  treeM2->SetBranchAddress("JpsiMass", &mc_m);
 
   // cycle over data and MC, fill the costh histogram acc to binning
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(lts < 2.5) {
-	dataHist_hpt->Fill(data_cos, data_pt);
-	dataHist_ab_hpt->Fill(abs(data_cos), data_pt);
+      if(data_pt > ptBins_hpt[0] && data_pt < ptBins_hpt[nPtBins_hpt]) {
+	for(int j = 0; j < pt_bins; j++)
+	  if(data_pt < pt_max[j] && data_pt > pt_min[j])
+	    sig = sigma_y(data_y, c1[j], c2[j], m[j]);
+	
+	if(lts < 2.5 && data_m < 3.097 + 2.5*sig && data_m > 3.097 - 2.5*sig) {
+	  dataHist_hpt->Fill(data_cos, data_pt);
+	  dataHist_ab_hpt->Fill(abs(data_cos), data_pt);
+	}
       }
     }
-
+  
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      mcHist_hpt->Fill(mc_cos, mc_pt);
-      mcHist_ab_hpt->Fill(abs(mc_cos), mc_pt);
+      if(mc_pt > ptBins_hpt[0] && mc_pt < ptBins_hpt[nPtBins_hpt]) {
+	for(int j = 0; j < pt_bins; j++)
+	  if(mc_pt < pt_max[j] && mc_pt > pt_min[j])
+	    sig = sigma_y(mc_y, c1[j], c2[j], m[j]);
+	
+	if(mc_m < 3.097 + 2.5*sig && mc_m > 3.097 - 2.5*sig) {
+	  mcHist_hpt->Fill(mc_cos, mc_pt);
+	  mcHist_ab_hpt->Fill(abs(mc_cos), mc_pt);
+	}
+      }
     }
   
   // plot all costh histograms
@@ -259,24 +332,40 @@ void ratioSave()
   // definitions to store data and MC events
   treeM3->SetBranchAddress("costh", &mc_cos);
   treeM3->SetBranchAddress("JpsiPt", &mc_pt);
+  treeM3->SetBranchAddress("JpsiRap", &mc_y);
+  treeM3->SetBranchAddress("JpsiMass", &mc_m);
 
   // cycle over data and MC, fill the costh histogram acc to binning
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(lts < 2.5) {
-	dataHist_vhpt->Fill(data_cos, data_pt);
-	dataHist_ab_vhpt->Fill(abs(data_cos), data_pt);
+      if(data_pt > ptBins_vhpt[0] && data_pt < ptBins_vhpt[nPtBins_vhpt]) {
+	for(int j = 0; j < pt_bins; j++)
+	  if(data_pt < pt_max[j] && data_pt > pt_min[j])
+	    sig = sigma_y(data_y, c1[j], c2[j], m[j]);
+	
+	if(lts < 2.5 && data_m < 3.097 + 2.5*sig && data_m > 3.097 - 2.5*sig) {
+	  dataHist_vhpt->Fill(data_cos, data_pt);
+	  dataHist_ab_vhpt->Fill(abs(data_cos), data_pt);
+	}
       }
     }
-
+  
   for(int i = 0; i < m2Evt; i++)
     {
       treeM3->GetEntry(i);
-      mcHist_vhpt->Fill(mc_cos, mc_pt);
-      mcHist_ab_vhpt->Fill(abs(mc_cos), mc_pt);
+      if(mc_pt > ptBins_vhpt[0] && mc_pt < ptBins_vhpt[nPtBins_vhpt]) {
+	for(int j = 0; j < pt_bins; j++)
+	  if(mc_pt < pt_max[j] && mc_pt > pt_min[j])
+	    sig = sigma_y(mc_y, c1[j], c2[j], m[j]);
+	
+	if(mc_m < 3.097 + 2.5*sig && mc_m > 3.097 - 2.5*sig) {
+	  mcHist_vhpt->Fill(mc_cos, mc_pt);
+	  mcHist_ab_vhpt->Fill(abs(mc_cos), mc_pt);
+	}
+      }
     }
-  
+
   // plot all costh histograms
   c->SetRightMargin(0.11);
   c->SetLogz();
@@ -354,5 +443,13 @@ void ratioSave()
   ratioHist_vhpt->Write();
   ratioHist_ab_vhpt->Write();
   outfile->Close();
+
+  cout << dataHist->GetEntries() << " data events and " << mcHist->GetEntries() << " MC events in sample 1" << endl;
+  cout << dataHist_hpt->GetEntries() << " data events and " << mcHist_hpt->GetEntries() << " MC events in sample 2" << endl;
+  cout << dataHist_vhpt->GetEntries() << " data events and " << mcHist_vhpt->GetEntries() << " MC events in sample 3" << endl;
+
+  cout << endl << "Total data events: " << dataHist->GetEntries()+dataHist_hpt->GetEntries()+dataHist_vhpt->GetEntries() << endl;
+  cout << "Total MC events: " << mcHist->GetEntries()+mcHist_hpt->GetEntries()+mcHist_vhpt->GetEntries() << endl;
+   
 
 }
