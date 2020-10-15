@@ -74,16 +74,16 @@ void ratioSave_NP()
   TH2D *mcHist_ab = new TH2D("mcH_ab", "MC", 20 , 0, 1.0, nPtBins, ptBins);
   
   // definitions to store data and MC events
-  Double_t data_cos, data_pt, lts, data_m, data_y;
-  Double_t mc_cos, mc_pt, mc_m, mc_y;
+  Double_t data_th, data_pt, lts, data_m, data_y;
+  Double_t mc_th, mc_pt, mc_m, mc_y;
 
-  treeD->SetBranchAddress("costh", &data_cos);
+  treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("JpsiPt", &data_pt);
   treeD->SetBranchAddress("JpsiRap", &data_y);
   treeD->SetBranchAddress("JpsiMass", &data_m);
   treeD->SetBranchAddress("lts", &lts);
   
-  treeM1->SetBranchAddress("costh", &mc_cos);
+  treeM1->SetBranchAddress("theta", &mc_th);
   treeM1->SetBranchAddress("JpsiPt", &mc_pt);
   treeM1->SetBranchAddress("JpsiRap", &mc_y);
   treeM1->SetBranchAddress("JpsiMass", &mc_m);
@@ -99,8 +99,8 @@ void ratioSave_NP()
 	  }
 
 	if(lts > 4.0 && data_m < 3.097 + 2.5*sig && data_m > 3.097 - 2.5*sig) {
-	  dataHist->Fill(data_cos, data_pt);
-	  dataHist_ab->Fill(abs(data_cos), data_pt);
+	  dataHist->Fill(cos(data_th), data_pt);
+	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
 	}
       }
     }
@@ -114,8 +114,8 @@ void ratioSave_NP()
 	    sig = sigma_y(mc_y, c1[j], c2[j], m[j]);
 	
 	if(mc_m < 3.097 + 2.5*sig && mc_m > 3.097 - 2.5*sig) {
-	  mcHist->Fill(mc_cos, mc_pt);
-	  mcHist_ab->Fill(abs(mc_cos), mc_pt);
+	  mcHist->Fill(cos(mc_th), mc_pt);
+	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
 	}
       }
     }
@@ -209,7 +209,7 @@ void ratioSave_NP()
   TH2D *mcHist_ab_hpt = new TH2D("mcH_ab_hpt", "MC", 20 , 0, 1.0, nPtBins_hpt, ptBins_hpt);
   
   // definitions to store data and MC events
-  treeM2->SetBranchAddress("costh", &mc_cos);
+  treeM2->SetBranchAddress("theta", &mc_th);
   treeM2->SetBranchAddress("JpsiPt", &mc_pt);
   treeM2->SetBranchAddress("JpsiRap", &mc_y);
   treeM2->SetBranchAddress("JpsiMass", &mc_m);
@@ -224,8 +224,8 @@ void ratioSave_NP()
 	    sig = sigma_y(data_y, c1[j], c2[j], m[j]);
 	
 	if(lts > 4.0 && data_m < 3.097 + 2.5*sig && data_m > 3.097 - 2.5*sig) {
-	  dataHist_hpt->Fill(data_cos, data_pt);
-	  dataHist_ab_hpt->Fill(abs(data_cos), data_pt);
+	  dataHist_hpt->Fill(cos(data_th), data_pt);
+	  dataHist_ab_hpt->Fill(abs(cos(data_th)), data_pt);
 	}
       }
     }
@@ -239,8 +239,8 @@ void ratioSave_NP()
 	    sig = sigma_y(mc_y, c1[j], c2[j], m[j]);
 	
 	if(mc_m < 3.097 + 2.5*sig && mc_m > 3.097 - 2.5*sig) {
-	  mcHist_hpt->Fill(mc_cos, mc_pt);
-	  mcHist_ab_hpt->Fill(abs(mc_cos), mc_pt);
+	  mcHist_hpt->Fill(cos(mc_th), mc_pt);
+	  mcHist_ab_hpt->Fill(abs(cos(mc_th)), mc_pt);
 	}
       }
     }
@@ -331,7 +331,7 @@ void ratioSave_NP()
   TH2D *mcHist_ab_vhpt = new TH2D("mcH_ab_vhpt", "MC", 20 , 0, 1.0, nPtBins_vhpt, ptBins_vhpt);
   
   // definitions to store data and MC events
-  treeM3->SetBranchAddress("costh", &mc_cos);
+  treeM3->SetBranchAddress("theta", &mc_th);
   treeM3->SetBranchAddress("JpsiPt", &mc_pt);
   treeM3->SetBranchAddress("JpsiRap", &mc_y);
   treeM3->SetBranchAddress("JpsiMass", &mc_m);
@@ -346,8 +346,8 @@ void ratioSave_NP()
 	    sig = sigma_y(data_y, c1[j], c2[j], m[j]);
 	
 	if(lts > 4.0 && data_m < 3.097 + 2.5*sig && data_m > 3.097 - 2.5*sig) {
-	  dataHist_vhpt->Fill(data_cos, data_pt);
-	  dataHist_ab_vhpt->Fill(abs(data_cos), data_pt);
+	  dataHist_vhpt->Fill(cos(data_th), data_pt);
+	  dataHist_ab_vhpt->Fill(abs(cos(data_th)), data_pt);
 	}
       }
     }
@@ -361,8 +361,8 @@ void ratioSave_NP()
 	    sig = sigma_y(mc_y, c1[j], c2[j], m[j]);
 	
 	if(mc_m < 3.097 + 2.5*sig && mc_m > 3.097 - 2.5*sig) {
-	  mcHist_vhpt->Fill(mc_cos, mc_pt);
-	  mcHist_ab_vhpt->Fill(abs(mc_cos), mc_pt);
+	  mcHist_vhpt->Fill(cos(mc_th), mc_pt);
+	  mcHist_ab_vhpt->Fill(abs(cos(mc_th)), mc_pt);
 	}
       }
     }

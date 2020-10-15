@@ -25,6 +25,8 @@ void indFit()
   outf->Close();
 
   int bin = 0;
+
+  TCanvas *c = new TCanvas("", "", 700, 700);    
   
   string fileN[3] = {"", "_hpt", "_vhpt"};
   for(int i_pt = 0; i_pt < 3; i_pt++) {
@@ -76,50 +78,51 @@ void indFit()
     double parA[2][nBinsY], parL[2][nBinsY], chi2[nBinsY], ndf[nBinsY], chiP[nBinsY];
     double bins[nBinsY], ebins[nBinsY], cMaxVal[nBinsY];
  
-  for(int i = 0; i < nBinsY; i++) {
-    double pMin = hist->GetYaxis()->GetBinLowEdge(i+1);
-    double pMax = hist->GetYaxis()->GetBinUpEdge(i+1);
+    for(int i = 0; i < nBinsY; i++) {
+      double pMin = hist->GetYaxis()->GetBinLowEdge(i+1);
+      double pMax = hist->GetYaxis()->GetBinUpEdge(i+1);
     
-    cMaxVal[i] = cosMax->Integral(pMin, pMax)/(pMax-pMin);
-    double cR = floor(cMaxVal[i]*10.)/10.;
-    if(cMaxVal[i]-cR>0.05) cR += 0.05;
-    fit1d->SetRange(0, cR);
-    cMaxVal[i] = cR;
+      cMaxVal[i] = cosMax->Integral(pMin, pMax)/(pMax-pMin);
+      double cR = floor(cMaxVal[i]*10.)/10.;
+      if(cMaxVal[i]-cR>0.05) cR += 0.05;
+      fit1d->SetRange(0, cR);
+      cMaxVal[i] = cR;
     
-    pHist[i]->Fit(fit1d, "R");
-    parA[0][i] = fit1d->GetParameter(0);
-    parA[1][i] = fit1d->GetParError(0);
-    parL[0][i] = fit1d->GetParameter(1);
-    parL[1][i] = fit1d->GetParError(1);
-    chi2[i] = fit1d->GetChisquare();
-    ndf[i] = fit1d->GetNDF();
-    chiP[i] = TMath::Prob(chi2[i], ndf[i]);
-    bins[i] = (pMax+pMin)/2.;
-    ebins[i] = (pMax-pMin)/2.;    
-    pHist[i]->Write();
-  }
+      pHist[i]->Fit(fit1d, "R");
+      parA[0][i] = fit1d->GetParameter(0);
+      parA[1][i] = fit1d->GetParError(0);
+      parL[0][i] = fit1d->GetParameter(1);
+      parL[1][i] = fit1d->GetParError(1);
+      chi2[i] = fit1d->GetChisquare();
+      ndf[i] = fit1d->GetNDF();
+      chiP[i] = TMath::Prob(chi2[i], ndf[i]);
+      bins[i] = (pMax+pMin)/2.;
+      ebins[i] = (pMax-pMin)/2.;    
+      pHist[i]->Write();
+    }
 
-  // make and save the TGraph with the fit results and max costh used
-  TGraphErrors *graphA = new TGraphErrors(nBinsY, bins, parA[0], ebins, parA[1]);
-  TGraphErrors *graphL = new TGraphErrors(nBinsY, bins, parL[0], ebins, parL[1]);
-  TGraph *graphC = new TGraph(nBinsY, bins, chi2);
-  TGraph *graphN = new TGraph(nBinsY, bins, ndf);
-  TGraph *graphP = new TGraph(nBinsY, bins, chiP);
-  TGraph *graphCM = new TGraph(nBinsY, bins, cMaxVal);
+    // make and save the TGraph with the fit results and max costh used
+    TGraphErrors *graphA = new TGraphErrors(nBinsY, bins, parA[0], ebins, parA[1]);
+    TGraphErrors *graphL = new TGraphErrors(nBinsY, bins, parL[0], ebins, parL[1]);
+    TGraph *graphC = new TGraph(nBinsY, bins, chi2);
+    TGraph *graphN = new TGraph(nBinsY, bins, ndf);
+    TGraph *graphP = new TGraph(nBinsY, bins, chiP);
+    TGraph *graphCM = new TGraph(nBinsY, bins, cMaxVal);
 
-  graphA->SetName(Form("graph_A%s", fileN[i_pt].c_str()));
-  graphL->SetName(Form("graph_lambda%s", fileN[i_pt].c_str()));
-  graphC->SetName(Form("graph_chisquare%s", fileN[i_pt].c_str()));
-  graphN->SetName(Form("graph_NDF%s", fileN[i_pt].c_str()));
-  graphP->SetName(Form("graph_chiP%s", fileN[i_pt].c_str()));
-  graphCM->SetName(Form("graph_cosMax%s", fileN[i_pt].c_str()));
+    graphA->SetName(Form("graph_A%s", fileN[i_pt].c_str()));
+    graphL->SetName(Form("graph_lambda%s", fileN[i_pt].c_str()));
+    graphC->SetName(Form("graph_chisquare%s", fileN[i_pt].c_str()));
+    graphN->SetName(Form("graph_NDF%s", fileN[i_pt].c_str()));
+    graphP->SetName(Form("graph_chiP%s", fileN[i_pt].c_str()));
+    graphCM->SetName(Form("graph_cosMax%s", fileN[i_pt].c_str()));
  
-  graphA->Write();
-  graphL->Write();
-  graphC->Write();
-  graphN->Write();
-  graphP->Write();
-  graphCM->Write();
-  outfile->Close();
+    graphA->Write();
+    graphL->Write();
+    graphC->Write();
+    graphN->Write();
+    graphP->Write();
+    graphCM->Write();
+    outfile->Close();
   }
+  c->Destructor();
 }

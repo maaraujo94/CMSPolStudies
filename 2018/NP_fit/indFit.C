@@ -25,6 +25,8 @@ void indFit()
   outf->Close();
 
   int bin = 0;
+
+  TCanvas *c = new TCanvas("","",700,700);
   
   string fileN[3] = {"", "_hpt", "_vhpt"};
   for(int i_pt = 0; i_pt < 3; i_pt++) {
@@ -122,4 +124,5 @@ void indFit()
   graphCM->Write();
   outfile->Close();
   }
+  c->Destructor();
 }
