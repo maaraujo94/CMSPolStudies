@@ -1,5 +1,5 @@
-// code that runs over data, applies all cuts and saves a root file with Jpsi pT, y, mass and lts + costheta_HX
-// current cuts: based on trigger and distributions; no mass/lts cut
+// code that runs over MC, applies all cuts and saves a root file with Jpsi pT, y and mass + costheta_HX
+// current cuts: based on trigger and distributions; no mass/ cut
 
 const double gPI = TMath::Pi();
 const double Mprot = 0.9382720;
@@ -61,40 +61,35 @@ double *cos_B(TLorentzVector *B, TLorentzVector *psi, TLorentzVector *beam, TLor
   return ang;
 }
 
-
-void ang_data()
+void ang_MC_hpt()
 {
-  // open tree and read data
-  TChain *dataJ = new TChain("jpsitree");
+  TChain *tree = new TChain("psi2stree");
 
-  dataJ->Add("/eos/user/m/maaraujo/JpsiRun2/Data/filtered-17-18-psi-19aug20.root");
+  tree->Add("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-mc-LOCAL18-highpt.root");
 
-  Double_t JpsiPt, Jpsict, JpsictErr, vProb, th, phi, lts, mass, rap;
+  Double_t mmPt, th, phi, mass, rap, lts;
   double *ang;
+  Float_t ct, ctErr;
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
-  UInt_t trigger, run;
   
-  dataJ->SetBranchAddress("muP_p4", &muP_p4);
-  dataJ->SetBranchAddress("muM_p4", &muM_p4);
-  dataJ->SetBranchAddress("mumu_p4", &mumu_p4);
-  dataJ->SetBranchAddress("vProb", &vProb);
-  dataJ->SetBranchAddress("trigger", &trigger);
-  dataJ->SetBranchAddress("run", &run);
-  dataJ->SetBranchAddress("ctpv", &Jpsict);
-  dataJ->SetBranchAddress("ctpv_error", &JpsictErr);
-  
-  int dEvt = dataJ->GetEntries();
-  int perc = dEvt / 100;
+  tree->SetBranchAddress("muP_p4", &muP_p4);
+  tree->SetBranchAddress("muM_p4", &muM_p4);
+  tree->SetBranchAddress("mumu_p4", &mumu_p4);
+  tree->SetBranchAddress("ctpv", &ct);
+  tree->SetBranchAddress("ctpv_error", &ctErr);
+ 
+  int mEvt = tree->GetEntries();
+  int perc = mEvt / 100;
 
-  TFile *outfile = new TFile("data18_cos.root", "recreate");
-  TTree *newtree = new TTree("data_cos", "");
-  
+  TFile *outfile = new TFile("MC18_hpt_cos.root", "recreate");
+  TTree *newtree = new TTree("MC_cos", "");
+
   newtree->Branch("theta", &th);
   newtree->Branch("phi", &phi);
-  newtree->Branch("JpsiPt", &JpsiPt);
+  newtree->Branch("dimPt", &mmPt);
   newtree->Branch("lts", &lts);
-  newtree->Branch("JpsiMass", &mass);
-  newtree->Branch("JpsiRap", &rap);
+  newtree->Branch("Mass", &mass);
+  newtree->Branch("Rap", &rap);
 
   // beam and target vectors (always the same)
   double pbeam = sqrts/2.;
@@ -105,30 +100,26 @@ void ang_data()
   beam->SetPxPyPzE( 0., 0., pbeam, Ebeam);
   targ->SetPxPyPzE( 0., 0., -pbeam, Ebeam);
 
-  for(int i = 0; i < dEvt; i++) {
-    dataJ->GetEntry(i);
+  for(int i = 0; i < mEvt; i++) {
+    tree->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
 	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
-	vProb > 0.01 &&
-	abs(mumu_p4->Rapidity()) < 1.2 &&
-	(trigger&16) == 16 &&
-	run > 313000)
+	abs(mumu_p4->Rapidity()) < 1.2  )
       {
-	JpsiPt = mumu_p4->Pt();
+	mmPt = mumu_p4->Pt();
 	rap = abs(mumu_p4->Rapidity());
 	mass = mumu_p4->M();
-	lts = Jpsict/JpsictErr;
-
+	lts = ct/ctErr;
+	
 	ang = cos_B(mumu_p4, muP_p4, beam, targ);
 	th = ang[0];
 	phi = ang[1];
-	
+
 	newtree->Fill();
-	
       }
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with data" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with MC" << endl; 
   }
-  
+
   outfile->Write();
   outfile->Close();
   

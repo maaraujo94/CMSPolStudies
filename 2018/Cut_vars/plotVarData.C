@@ -15,7 +15,8 @@ void plotVarData()
   TH1D *h_JPt = (TH1D*)infile->Get("h_JPt");
   TH1D *h_Jy = (TH1D*)infile->Get("h_Jy");
   TH1D *h_Jlts = (TH1D*)infile->Get("h_Jlts");
-  
+  TH1D *h_vP = (TH1D*)infile->Get("h_vP");
+ 
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLogy();
   double norm;
@@ -79,16 +80,18 @@ void plotVarData()
 
   c->SetLogy();
   norm = h_JPt->Integral();
-  h_JPt->Scale(1./norm);
-  h_JPt->GetYaxis()->SetRangeUser(4e-6, 5e-1);
+  //h_JPt->Scale(1./norm);
+  h_JPt->SetStats(0);
+  h_JPt->GetYaxis()->SetRangeUser(1e2, 1e7);
   h_JPt->GetXaxis()->SetTitle("p_{T}(J/#psi) (GeV)");
+  h_JPt->GetYaxis()->SetTitle("dN/dp_{T}");
   h_JPt->SetTitle("Inclusive data J/#psi p_{T}");
   h_JPt->Draw("hist");
-  TLine *JPt_1 = new TLine(25, 4e-6, 25, 5e-1);
+  TLine *JPt_1 = new TLine(25, 1e2, 25, 1e7);
   JPt_1->SetLineStyle(kDashed);
   JPt_1->SetLineColor(kBlack);
   JPt_1->Draw("lsame");
-  TLine *JPt_2 = new TLine(100, 4e-6, 100, 5e-1);
+  TLine *JPt_2 = new TLine(100, 1e2, 100, 1e7);
   JPt_2->SetLineStyle(kDashed);
   JPt_2->SetLineColor(kBlack);
   JPt_2->Draw("lsame");
@@ -97,16 +100,18 @@ void plotVarData()
 
   c->SetLogy(0);
   norm = h_Jy->Integral();
-  h_Jy->Scale(1./norm);
-  h_Jy->GetYaxis()->SetRangeUser(0, 0.03);
+  //h_Jy->Scale(1./norm);
+  h_Jy->SetStats(0);
+  h_Jy->GetYaxis()->SetRangeUser(0, 6e5);
   h_Jy->GetXaxis()->SetTitle("y(J/#psi)");
+  h_Jy->GetYaxis()->SetTitle("dN/dy");
   h_Jy->SetTitle("Inclusive data J/#psi y");
   h_Jy->Draw("hist");
-  TLine *JRap_1 = new TLine(-1.2, 0, -1.2, 0.03);
+  TLine *JRap_1 = new TLine(-1.2, 0, -1.2, 6e5);
   JRap_1->SetLineStyle(kDashed);
   JRap_1->SetLineColor(kBlack);
   JRap_1->Draw("lsame");
-  TLine *JRap_2 = new TLine(1.2, 0, 1.2, 0.03);
+  TLine *JRap_2 = new TLine(1.2, 0, 1.2, 6e5);
   JRap_2->SetLineStyle(kDashed);
   JRap_2->SetLineColor(kBlack);
   JRap_2->Draw("lsame");
@@ -120,6 +125,10 @@ void plotVarData()
   h_Jlts->GetXaxis()->SetTitle("|c#tau|/#sigma_{c#tau}");
   h_Jlts->SetTitle("Inclusive data J/#psi lts");
   h_Jlts->Draw("hist");
+  TLine *Jlts_0 = new TLine(-2.5, 1e-3, -2.5, 3e-1);
+  Jlts_0->SetLineStyle(kDashed);
+  Jlts_0->SetLineColor(kBlack);
+  Jlts_0->Draw("lsame");
   TLine *Jlts_1 = new TLine(2.5, 1e-3, 2.5, 3e-1);
   Jlts_1->SetLineStyle(kDashed);
   Jlts_1->SetLineColor(kBlack);
@@ -129,6 +138,18 @@ void plotVarData()
   Jlts_2->SetLineColor(kBlack);
   Jlts_2->Draw("lsame");
   c->SaveAs("plots/data_jpsi_lts.pdf");
+  c->Clear();
+
+  c->SetLogy(0);
+  h_vP->GetYaxis()->SetRangeUser(1.5e5, 4e5);
+  h_vP->GetXaxis()->SetTitle("vProb");
+  h_vP->SetTitle("Inclusive data J/#psi vProb");
+  h_vP->Draw("error");
+  TLine *vP_0 = new TLine(0.01, 1.5e5, 0.01, 4e5);
+  vP_0->SetLineStyle(kDashed);
+  vP_0->SetLineColor(kBlack);
+  vP_0->Draw("lsame");
+  c->SaveAs("plots/data_jpsi_vP.pdf");
 
   infile->Close();
   

@@ -42,7 +42,7 @@ void ratioSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(lts < 2.5) {
+      if(abs(lts < 2.5)) {
 	dataHist->Fill(data_cos, data_pt/M_q);
 	dataHist_ab->Fill(abs(data_cos), data_pt/M_q);
       }

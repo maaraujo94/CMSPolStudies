@@ -78,16 +78,18 @@ void plotVarMChp()
 
   c->SetLogy();
   norm = h_JPt->Integral();
-  h_JPt->Scale(1./norm);
-  h_JPt->GetYaxis()->SetRangeUser(4e-6, 5e-1);
+  //h_JPt->Scale(1./norm);
+  h_JPt->SetStats(0);
+  h_JPt->GetYaxis()->SetRangeUser(1e2, 1e7);
   h_JPt->GetXaxis()->SetTitle("p_{T}(J/#psi) (GeV)");
+  h_JPt->GetYaxis()->SetTitle("dN/dp_{T}");
   h_JPt->SetTitle("Inclusive MC (high p_{T}) J/#psi p_{T}");
   h_JPt->Draw("hist");
-  TLine *JPt_1 = new TLine(46, 4e-6, 46, 5e-1);
+  TLine *JPt_1 = new TLine(46, 1e2, 46, 1e7);
   JPt_1->SetLineStyle(kDashed);
   JPt_1->SetLineColor(kBlack);
   JPt_1->Draw("lsame");
-  TLine *JPt_2 = new TLine(66, 4e-6, 66, 5e-1);
+  TLine *JPt_2 = new TLine(66, 1e2, 66, 1e7);
   JPt_2->SetLineStyle(kDashed);
   JPt_2->SetLineColor(kBlack);
   JPt_2->Draw("lsame");
@@ -96,16 +98,18 @@ void plotVarMChp()
 
   c->SetLogy(0);
   norm = h_Jy->Integral();
-  h_Jy->Scale(1./norm);
-  h_Jy->GetYaxis()->SetRangeUser(0, 0.03);
+  //h_Jy->Scale(1./norm);
+  h_Jy->SetStats(0);
+  h_Jy->GetYaxis()->SetRangeUser(0, 6e5);
   h_Jy->GetXaxis()->SetTitle("y(J/#psi)");
+  h_Jy->GetYaxis()->SetTitle("dN/dy");
   h_Jy->SetTitle("Inclusive MC (high p_{T}) J/#psi y");
   h_Jy->Draw("hist");
-  TLine *JRap_1 = new TLine(-1.2, 0, -1.2, 0.03);
+  TLine *JRap_1 = new TLine(-1.2, 0, -1.2, 6e5);
   JRap_1->SetLineStyle(kDashed);
   JRap_1->SetLineColor(kBlack);
   JRap_1->Draw("lsame");
-  TLine *JRap_2 = new TLine(1.2, 0, 1.2, 0.03);
+  TLine *JRap_2 = new TLine(1.2, 0, 1.2, 6e5);
   JRap_2->SetLineStyle(kDashed);
   JRap_2->SetLineColor(kBlack);
   JRap_2->Draw("lsame");

@@ -99,7 +99,7 @@ void ratioSave()
 	    sig = sigma_y(data_y, c1[j], c2[j], m[j]);
 	  }
 
-	if(lts < 2.5 && data_m < 3.097 + 2.5*sig && data_m > 3.097 - 2.5*sig) {
+	if(abs(lts) < 2.5 && data_m < 3.097 + 2.5*sig && data_m > 3.097 - 2.5*sig) {
 	  dataHist->Fill(cos(data_th), data_pt);
 	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
 	}
@@ -436,6 +436,7 @@ void ratioSave()
   c->Clear();
 
   TFile *outfile = new TFile("files/ratioHist.root", "recreate");
+  dataHist_ab->Write();
   ratioHist->Write();
   ratioHist_ab->Write();
   ratioHist_hpt->Write();
