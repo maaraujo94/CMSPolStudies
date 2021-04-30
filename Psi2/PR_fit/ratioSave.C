@@ -15,32 +15,16 @@ void ratioSave()
   int dEvt = treeD->GetEntries();
   int m1Evt = treeM1->GetEntries();
   int m2Evt = treeM2->GetEntries();
-
-  cout << "first pT range: 25 to 46 GeV" << endl;
-  cout << treeD->GetEntries("abs(lts)<2.5 && dimPt > 25 && dimPt < 46 && Mass > 3.685-0.12 && Mass < 3.685+0.12") << " data events after cuts and " << treeM1->GetEntries("abs(lts)<2.5 && dimPt > 25 && dimPt < 46 && Mass > 3.685-0.12 && Mass < 3.685+0.12") << " MC events after cuts" << endl;
-  cout << "second pT range: 46 to 100 GeV" << endl;
-  cout << treeD->GetEntries("abs(lts)<2.5 && dimPt > 46 && dimPt < 100 && Mass > 3.685-0.12 && Mass < 3.685+0.12") << " data events after cuts and " << treeM2->GetEntries("abs(lts)<2.5 && dimPt > 46 && dimPt < 100 && Mass > 3.685-0.12 && Mass < 3.685+0.12") << " MC events after cuts" << endl << endl;
-
+  
   // prepare binning and histograms for plots
-  /*const int nPtBins = 36;
-  double ptBins[nPtBins+1];
-  for(int i=0; i<15; i++) ptBins[i] = i+25.;
-  for(int i=0; i<15; i++) ptBins[i+15] = 40.+2.*i;
-  for(int i=0; i<7; i++) ptBins[i+30] = 70.+5.*i;*/
-  /*const int nPtBins = 19;
-  double ptBins[nPtBins+1];
-  ptBins[0] = 25;
-  for(int i=0; i<8; i++) ptBins[i+1] = 26.+2.*i;
-  for(int i=0; i<7; i++) ptBins[i+9] = 42.+4.*i;
-  for(int i=0; i<4; i++) ptBins[i+16] = 70.+10.*i;*/
   const int nPtBins = 9;
   double ptBins[10] = {25, 28, 32, 36, 40, 46, 54, 66, 80, 100};
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
   // define the mass windows for the signal and the sidebands
-  double Mq = 3.685, sigW = 0.12;
-  double bkgW = sigW;//2.*sigW;
+  double Mq = 3.685, sigW = 0.12; // changed psi mass to 3.685 for easier bins
+  double bkgW = sigW;
   double m_min[] = {3.4, Mq-sigW, Mq+bkgW};
   double m_max[] = {Mq-bkgW, Mq+sigW, 4.0};
   string wname[3] = {"L", "S", "R"};
@@ -128,20 +112,6 @@ void ratioSave()
   c->SetRightMargin(0.11);
   c->SetLogz();
 
-  dataHist[1]->SetStats(0);
-  dataHist[1]->GetXaxis()->SetTitle("cos#theta_{HX}");
-  dataHist[1]->GetYaxis()->SetTitle("p_{T} (GeV)");
-  dataHist[1]->Draw("COLZ");
-  c->SaveAs("plots/data_2d.pdf");
-  c->Clear();
-
-  mcHist[1]->SetStats(0);
-  mcHist[1]->GetXaxis()->SetTitle("cos#theta_{HX}");
-  mcHist[1]->GetYaxis()->SetTitle("p_{T} (GeV)");
-  mcHist[1]->Draw("COLZ");
-  c->SaveAs("plots/mc_2d.pdf");
-  c->Clear();
-
   dataHist_ab[1]->SetStats(0);
   dataHist_ab[1]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   dataHist_ab[1]->GetYaxis()->SetTitle("p_{T} (GeV)");
@@ -168,34 +138,29 @@ void ratioSave()
     c->SetLogz(0);
     ratioHist[i_w] = (TH2D*)dataHist[i_w]->Clone(Form("ratioHist_%s", wname[i_w].c_str()));
     ratioHist[i_w]->Sumw2();
-    ratioHist[i_w]->Divide(mcHist[i_w]);
-    ratioHist[i_w]->SetTitle("PR/MC");
-    if (i_w == 1) {
-      ratioHist[i_w]->Draw("COLZ");
-      c->SaveAs("plots/ratio_2d.pdf");
-      c->Clear();
-    }
+    ratioHist[i_w]->Divide(mcHist[1]);
     
     ratioHist_ab[i_w] = new TH2D(Form("ratioH_ab_%s", wname[i_w].c_str()), Form("ratioH abs %s", wtit[i_w].c_str()), 20, 0, 1., nPtBins, ptBins);
   
     c->SetLogz(0);
     ratioHist_ab[i_w] = (TH2D*)dataHist_ab[i_w]->Clone(Form("ratioHist_ab_%s", wname[i_w].c_str()));
     ratioHist_ab[i_w]->Sumw2();
-    ratioHist_ab[i_w]->Divide(mcHist_ab[i_w]);
-    ratioHist_ab[i_w]->SetTitle("PR/MC");
-    if(i_w == 1) {
-      ratioHist_ab[i_w]->Draw("COLZ");
-      c->SaveAs("plots/ratio_2d_abs.pdf");
-      c->Clear();
-    }
+    ratioHist_ab[i_w]->Divide(mcHist_ab[1]);
+    ratioHist_ab[i_w]->SetStats(0);
+    ratioHist_ab[i_w]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+    ratioHist_ab[i_w]->GetYaxis()->SetTitle("p_{T} (GeV)");
+    ratioHist_ab[i_w]->SetTitle(Form("%s/MC", wtit[i_w].c_str()));
+    ratioHist_ab[i_w]->Draw("COLZ");
+    c->SaveAs(Form("plots/ratio%s_2d_abs.pdf", wname[i_w].c_str()));
+    c->Clear();
 
     dataHist[i_w]->Write();
     dataHist_ab[i_w]->Write();
+    ratioHist[i_w]->Write();
+    ratioHist_ab[i_w]->Write();
     if(i_w == 1) {
       mcHist[i_w]->Write();
       mcHist_ab[i_w]->Write();
-      ratioHist[i_w]->Write();
-      ratioHist_ab[i_w]->Write();
     }
   }
   outfile->Close();

@@ -63,33 +63,10 @@ double *cos_B(TLorentzVector *B, TLorentzVector *psi, TLorentzVector *beam, TLor
 
 void ang_MC_hpt()
 {
-  TChain *tree = new TChain("psi2stree");
-
-  tree->Add("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-mc-LOCAL18-highpt.root");
-
   Double_t mmPt, th, phi, mass, rap, lts;
   double *ang;
   Float_t ct, ctErr;
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
-  
-  tree->SetBranchAddress("muP_p4", &muP_p4);
-  tree->SetBranchAddress("muM_p4", &muM_p4);
-  tree->SetBranchAddress("mumu_p4", &mumu_p4);
-  tree->SetBranchAddress("ctpv", &ct);
-  tree->SetBranchAddress("ctpv_error", &ctErr);
- 
-  int mEvt = tree->GetEntries();
-  int perc = mEvt / 100;
-
-  TFile *outfile = new TFile("MC18_hpt_cos.root", "recreate");
-  TTree *newtree = new TTree("MC_cos", "");
-
-  newtree->Branch("theta", &th);
-  newtree->Branch("phi", &phi);
-  newtree->Branch("dimPt", &mmPt);
-  newtree->Branch("lts", &lts);
-  newtree->Branch("Mass", &mass);
-  newtree->Branch("Rap", &rap);
 
   // beam and target vectors (always the same)
   double pbeam = sqrts/2.;
@@ -100,8 +77,31 @@ void ang_MC_hpt()
   beam->SetPxPyPzE( 0., 0., pbeam, Ebeam);
   targ->SetPxPyPzE( 0., 0., -pbeam, Ebeam);
 
+  // 2017 tree
+  TFile *fin7 = new TFile("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-mc-LOCAL17-highpt.root");
+  TTree *tree7 = (TTree*)fin7->Get("psi2stree");
+
+  tree7->SetBranchAddress("muP_p4", &muP_p4);
+  tree7->SetBranchAddress("muM_p4", &muM_p4);
+  tree7->SetBranchAddress("mumu_p4", &mumu_p4);
+  tree7->SetBranchAddress("ctpv", &ct);
+  tree7->SetBranchAddress("ctpv_error", &ctErr);
+ 
+  int mEvt = tree7->GetEntries();
+  int perc = mEvt / 100;
+
+  TFile *fout7 = new TFile("MC17_hpt_cos.root", "recreate");
+  TTree *newtree7 = new TTree("MC_cos", "");
+
+  newtree7->Branch("theta", &th);
+  newtree7->Branch("phi", &phi);
+  newtree7->Branch("dimPt", &mmPt);
+  newtree7->Branch("lts", &lts);
+  newtree7->Branch("Mass", &mass);
+  newtree7->Branch("Rap", &rap);
+
   for(int i = 0; i < mEvt; i++) {
-    tree->GetEntry(i);
+    tree7->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
 	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
 	abs(mumu_p4->Rapidity()) < 1.2  )
@@ -115,12 +115,60 @@ void ang_MC_hpt()
 	th = ang[0];
 	phi = ang[1];
 
-	newtree->Fill();
+	newtree7->Fill();
       }
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with MC" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2017 MC" << endl; 
   }
 
-  outfile->Write();
-  outfile->Close();
+  fout7->Write();
+  fout7->Close();
+  fin7->Close();
+  
+  // 2018 tree
+  TFile *fin8 = new TFile("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-mc-LOCAL18-highpt.root");
+  TTree *tree8 = (TTree*)fin8->Get("psi2stree");
+
+  tree8->SetBranchAddress("muP_p4", &muP_p4);
+  tree8->SetBranchAddress("muM_p4", &muM_p4);
+  tree8->SetBranchAddress("mumu_p4", &mumu_p4);
+  tree8->SetBranchAddress("ctpv", &ct);
+  tree8->SetBranchAddress("ctpv_error", &ctErr);
+ 
+  mEvt = tree8->GetEntries();
+  perc = mEvt / 100;
+
+  TFile *fout8 = new TFile("MC18_hpt_cos.root", "recreate");
+  TTree *newtree8 = new TTree("MC_cos", "");
+
+  newtree8->Branch("theta", &th);
+  newtree8->Branch("phi", &phi);
+  newtree8->Branch("dimPt", &mmPt);
+  newtree8->Branch("lts", &lts);
+  newtree8->Branch("Mass", &mass);
+  newtree8->Branch("Rap", &rap);
+
+  for(int i = 0; i < mEvt; i++) {
+    tree8->GetEntry(i);
+    if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
+	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
+	abs(mumu_p4->Rapidity()) < 1.2  )
+      {
+	mmPt = mumu_p4->Pt();
+	rap = abs(mumu_p4->Rapidity());
+	mass = mumu_p4->M();
+	lts = ct/ctErr;
+	
+	ang = cos_B(mumu_p4, muP_p4, beam, targ);
+	th = ang[0];
+	phi = ang[1];
+
+	newtree8->Fill();
+      }
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2018 MC" << endl; 
+  }
+
+  fout8->Write();
+  fout8->Close();
+  fin8->Close();
   
 }
