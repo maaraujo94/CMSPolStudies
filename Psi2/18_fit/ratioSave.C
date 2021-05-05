@@ -9,7 +9,7 @@ void ratioSave()
   TTree *treeD = (TTree*)fin->Get("data_cos");
   TFile *fin2 = new TFile("../Store_data_codes/MC18_cos.root");
   TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
-  TFile *fin3 = new TFile("../Store_data_codes/MC18_hpt_cos.root");
+  TFile *fin3 = new TFile("../Store_data_codes/MCh18_cos.root");
   TTree *treeM2 = (TTree*)fin3->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();

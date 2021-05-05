@@ -67,9 +67,10 @@ void getCuts_data()
 	h7_vP->Fill(vProb);
       }
 
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with data" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2017 data" << endl; 
   }
-
+  cout << endl;
+  
   fin7->Close();
   
   TFile *fout7 = new TFile("Psi2_17_data_cuts.root", "recreate");
@@ -117,7 +118,7 @@ void getCuts_data()
 	h8_vP->Fill(vProb);
       }
 
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with data" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2018 data" << endl; 
   }
 
   fin8->Close();

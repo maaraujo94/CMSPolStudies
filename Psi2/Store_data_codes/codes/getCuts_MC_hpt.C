@@ -1,4 +1,4 @@
-// code to plot the cut variables for the 2017/18 Psi(2S) MC
+// code to plot the cut variables for the 2017/18 Psi(2S) MC (high pT)
 /* variables to plot
 - single muon pT, eta
 - dimuon mass, pT, y
@@ -9,9 +9,9 @@ void getCuts_MC_hpt()
   // preparing histograms to be filled
   //2017
   TH1D *h7_muPpT  = new TH1D("h7_muPpT",  "2017 MC (high pT) muon pT",            100, 0, 150);
-  TH1D *h7_muNpT  = new TH1D("h7_muNpT",  "muonN pT",                     100, 0, 150);
+  TH1D *h7_muNpT  = new TH1D("h7_muNpT",  "muonN pT",                             100, 0, 150);
   TH1D *h7_muPEta = new TH1D("h7_muPEta", "2017 MC (high pT) muon eta",           100, -2, 2);
-  TH1D *h7_muNEta = new TH1D("h7_muNEta", "muonN eta",                    100, -2, 2);
+  TH1D *h7_muNEta = new TH1D("h7_muNEta", "muonN eta",                            100, -2, 2);
   TH1D *h7_JMass  = new TH1D("h7_JMass",  "2017 MC (high pT) Psi2S mass",         100, 3.35, 4);
   TH1D *h7_JPt    = new TH1D("h7_JPt",    "2017 MC (high pT) Psi2S pT",           100, 0, 200);
   TH1D *h7_Jy     = new TH1D("h7_Jy",     "2017 MC (high pT) Psi2S y",            100, -2, 2);
@@ -19,9 +19,9 @@ void getCuts_MC_hpt()
 
   // 2018
   TH1D *h8_muPpT  = new TH1D("h8_muPpT",  "2018 MC (high pT) muon pT",            100, 0, 150);
-  TH1D *h8_muNpT  = new TH1D("h8_muNpT",  "muonN pT",                     100, 0, 150);
+  TH1D *h8_muNpT  = new TH1D("h8_muNpT",  "muonN pT",                             100, 0, 150);
   TH1D *h8_muPEta = new TH1D("h8_muPEta", "2018 MC (high pT) muon eta",           100, -2, 2);
-  TH1D *h8_muNEta = new TH1D("h8_muNEta", "muonN eta",                    100, -2, 2);
+  TH1D *h8_muNEta = new TH1D("h8_muNEta", "muonN eta",                            100, -2, 2);
   TH1D *h8_JMass  = new TH1D("h8_JMass",  "2018 MC (high pT) Psi2S mass",         100, 3.35, 4);
   TH1D *h8_JPt    = new TH1D("h8_JPt",    "2018 MC (high pT) Psi2S pT",           100, 0, 200);
   TH1D *h8_Jy     = new TH1D("h8_Jy",     "2018 MC (high pT) Psi2S y",            100, -2, 2);
@@ -58,9 +58,9 @@ void getCuts_MC_hpt()
     h7_Jy->Fill(mumu_p4->Rapidity());
     h7_Jlts->Fill(ct/ctErr);
  
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with MC" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2017 MC" << endl; 
   }
-
+  cout << endl;
   fin7->Close();
   
   TFile *fout7 = new TFile("Psi2_17_MC_hpt_cuts.root", "recreate");
@@ -102,9 +102,9 @@ void getCuts_MC_hpt()
     h8_Jy->Fill(mumu_p4->Rapidity());
     h8_Jlts->Fill(ct/ctErr);
  
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with MC" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2018 MC" << endl; 
   }
-
+  cout << endl;
   fin8->Close();
 
   TFile *fout8 = new TFile("Psi2_18_MC_hpt_cuts.root", "recreate");

@@ -1,4 +1,4 @@
-// code to plot the cut variables for the Data and MC Psi(2S) sample
+// code to plot the cut variables for the Data and MC Psi(2S) samples
 /* variables to plot
    - single muon pT, eta
    - dimuon mass, pT, y, ct/cterr
@@ -31,14 +31,14 @@ void plotCutVar()
   for(int i_i = 0; i_i < 3; i_i++) {
     // 2017 plots
     TFile *fin7 = new TFile(Form("../Store_data_codes/Psi2_17_%s_cuts.root", s_source[i_i].c_str()));
-    TH1D *h7_muPpT = (TH1D*)fin7->Get("h7_muPpT");
-    TH1D *h7_muNpT = (TH1D*)fin7->Get("h7_muNpT");
+    TH1D *h7_muPpT  = (TH1D*)fin7->Get("h7_muPpT");
+    TH1D *h7_muNpT  = (TH1D*)fin7->Get("h7_muNpT");
     TH1D *h7_muPEta = (TH1D*)fin7->Get("h7_muPEta");
     TH1D *h7_muNEta = (TH1D*)fin7->Get("h7_muNEta");
-    TH1D *h7_JMass = (TH1D*)fin7->Get("h7_JMass");
-    TH1D *h7_JPt = (TH1D*)fin7->Get("h7_JPt");
-    TH1D *h7_Jy = (TH1D*)fin7->Get("h7_Jy");
-    TH1D *h7_Jlts = (TH1D*)fin7->Get("h7_Jlts");
+    TH1D *h7_JMass  = (TH1D*)fin7->Get("h7_JMass");
+    TH1D *h7_JPt    = (TH1D*)fin7->Get("h7_JPt");
+    TH1D *h7_Jy     = (TH1D*)fin7->Get("h7_Jy");
+    TH1D *h7_Jlts   = (TH1D*)fin7->Get("h7_Jlts");
     TH1D *h7_vP;
     if(i_i == 0)
       fin7->GetObject("h7_vP", h7_vP);
@@ -168,14 +168,14 @@ void plotCutVar()
 
     // 2018 plots
     TFile *fin8 = new TFile(Form("../Store_data_codes/Psi2_18_%s_cuts.root", s_source[i_i].c_str()));
-    TH1D *h8_muPpT = (TH1D*)fin8->Get("h8_muPpT");
-    TH1D *h8_muNpT = (TH1D*)fin8->Get("h8_muNpT");
+    TH1D *h8_muPpT  = (TH1D*)fin8->Get("h8_muPpT");
+    TH1D *h8_muNpT  = (TH1D*)fin8->Get("h8_muNpT");
     TH1D *h8_muPEta = (TH1D*)fin8->Get("h8_muPEta");
     TH1D *h8_muNEta = (TH1D*)fin8->Get("h8_muNEta");
-    TH1D *h8_JMass = (TH1D*)fin8->Get("h8_JMass");
-    TH1D *h8_JPt = (TH1D*)fin8->Get("h8_JPt");
-    TH1D *h8_Jy = (TH1D*)fin8->Get("h8_Jy");
-    TH1D *h8_Jlts = (TH1D*)fin8->Get("h8_Jlts");
+    TH1D *h8_JMass  = (TH1D*)fin8->Get("h8_JMass");
+    TH1D *h8_JPt    = (TH1D*)fin8->Get("h8_JPt");
+    TH1D *h8_Jy     = (TH1D*)fin8->Get("h8_Jy");
+    TH1D *h8_Jlts   = (TH1D*)fin8->Get("h8_Jlts");
     TH1D *h8_vP;
     if(i_i == 0)
       fin8->GetObject("h8_vP", h8_vP);

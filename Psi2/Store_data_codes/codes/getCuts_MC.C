@@ -9,9 +9,9 @@ void getCuts_MC()
   // preparing histograms to be filled
   //2017
   TH1D *h7_muPpT  = new TH1D("h7_muPpT",  "2017 MC muon pT",            100, 0, 150);
-  TH1D *h7_muNpT  = new TH1D("h7_muNpT",  "muonN pT",                     100, 0, 150);
+  TH1D *h7_muNpT  = new TH1D("h7_muNpT",  "muonN pT",                   100, 0, 150);
   TH1D *h7_muPEta = new TH1D("h7_muPEta", "2017 MC muon eta",           100, -2, 2);
-  TH1D *h7_muNEta = new TH1D("h7_muNEta", "muonN eta",                    100, -2, 2);
+  TH1D *h7_muNEta = new TH1D("h7_muNEta", "muonN eta",                  100, -2, 2);
   TH1D *h7_JMass  = new TH1D("h7_JMass",  "2017 MC Psi2S mass",         100, 3.35, 4);
   TH1D *h7_JPt    = new TH1D("h7_JPt",    "2017 MC Psi2S pT",           100, 0, 200);
   TH1D *h7_Jy     = new TH1D("h7_Jy",     "2017 MC Psi2S y",            100, -2, 2);
@@ -19,9 +19,9 @@ void getCuts_MC()
 
   // 2018
   TH1D *h8_muPpT  = new TH1D("h8_muPpT",  "2018 MC muon pT",            100, 0, 150);
-  TH1D *h8_muNpT  = new TH1D("h8_muNpT",  "muonN pT",                     100, 0, 150);
+  TH1D *h8_muNpT  = new TH1D("h8_muNpT",  "muonN pT",                   100, 0, 150);
   TH1D *h8_muPEta = new TH1D("h8_muPEta", "2018 MC muon eta",           100, -2, 2);
-  TH1D *h8_muNEta = new TH1D("h8_muNEta", "muonN eta",                    100, -2, 2);
+  TH1D *h8_muNEta = new TH1D("h8_muNEta", "muonN eta",                  100, -2, 2);
   TH1D *h8_JMass  = new TH1D("h8_JMass",  "2018 MC Psi2S mass",         100, 3.35, 4);
   TH1D *h8_JPt    = new TH1D("h8_JPt",    "2018 MC Psi2S pT",           100, 0, 200);
   TH1D *h8_Jy     = new TH1D("h8_Jy",     "2018 MC Psi2S y",            100, -2, 2);
@@ -58,9 +58,9 @@ void getCuts_MC()
     h7_Jy->Fill(mumu_p4->Rapidity());
     h7_Jlts->Fill(ct/ctErr);
  
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with MC" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2017 MC" << endl; 
   }
-
+  cout << endl;
   fin7->Close();
   
   TFile *fout7 = new TFile("Psi2_17_MC_cuts.root", "recreate");
@@ -74,7 +74,7 @@ void getCuts_MC()
   h7_Jlts->Write();
   fout7->Close();
 
-    // 2018 tree
+  // 2018 tree
   TFile *fin8 = new TFile("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-mc-LOCAL18.root");
   TTree *tree8 = (TTree*)fin8->Get("psi2stree");
 
@@ -102,9 +102,9 @@ void getCuts_MC()
     h8_Jy->Fill(mumu_p4->Rapidity());
     h8_Jlts->Fill(ct/ctErr);
  
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with MC" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2018 MC" << endl; 
   }
-
+  cout << endl;
   fin8->Close();
 
   TFile *fout8 = new TFile("Psi2_18_MC_cuts.root", "recreate");

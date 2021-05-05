@@ -90,7 +90,7 @@ void ang_MC_hpt()
   int mEvt = tree7->GetEntries();
   int perc = mEvt / 100;
 
-  TFile *fout7 = new TFile("MC17_hpt_cos.root", "recreate");
+  TFile *fout7 = new TFile("MCh17_cos.root", "recreate");
   TTree *newtree7 = new TTree("MC_cos", "");
 
   newtree7->Branch("theta", &th);
@@ -137,7 +137,7 @@ void ang_MC_hpt()
   mEvt = tree8->GetEntries();
   perc = mEvt / 100;
 
-  TFile *fout8 = new TFile("MC18_hpt_cos.root", "recreate");
+  TFile *fout8 = new TFile("MCh18_cos.root", "recreate");
   TTree *newtree8 = new TTree("MC_cos", "");
 
   newtree8->Branch("theta", &th);
