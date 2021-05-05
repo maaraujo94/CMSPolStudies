@@ -1,22 +1,6 @@
 // code to do the individual fit
 // as this fits each slice on its own, can use the right fit range already
 
-// function to parse a string into components separated by "deli"
-vector< string > parseString( string line, string deli) {
-  vector< string > out;
-  string aux = line;
-  size_t pos = 0;
-  
-  while( (pos = aux.find(deli)) != string::npos)
-    {
-      out.push_back( aux.substr( 0, pos ) );
-      aux.erase( 0, pos + deli.length() );	    
-    }
-  out.push_back( aux );
-  
-  return out;
-}
-
 // main
 void indFit()
 {
@@ -24,20 +8,11 @@ void indFit()
   TFile *outf = new TFile("files/fit_res_1d.root", "recreate");
   outf->Close();
 
-  int bin = 0;
-
   TCanvas *c = new TCanvas("", "", 700, 700);    
   
-  // read the coarse histos in |costh|
-  /*  TFile *infile = new TFile("files/ratioHist.root");
+  // read the pure signal histos in |costh|
+  TFile *infile = new TFile("files/ratioHist.root");
   TH2D *hist = new TH2D();
-  //infile->GetObject(Form("cHist"), hist);
-  infile->GetObject(Form("ratioHist_ab_S"), hist);
-  hist->SetDirectory(0);*/
-  
-  TFile *infile = new TFile("/home/mariana/Documents/2021_PhD_work/CERN/0416_newSub/store_ang.root");
-  TH2D *hist = new TH2D();
-  //infile->GetObject(Form("cHist"), hist);
   infile->GetObject(Form("PSig_ab"), hist);
   hist->SetDirectory(0);
   int nBinsX = hist->GetNbinsX(), nBinsY = hist->GetNbinsY();
@@ -47,23 +22,18 @@ void indFit()
   
   // get the 1d plots
   TH1D *pHist[nBinsY];
+  int bin = 0;
   for(int i = 1; i <= nBinsY; i++) {
     bin++;
     pHist[i-1] = hist->ProjectionX(Form("fine_bin%d_1d_min", bin), i, i);
-    pHist[i-1]->SetTitle(Form("p_{T} bin %d: [%.0f, %.0f] GeV", bin, yBins[i-1], yBins[i]));
+    pHist[i-1]->SetTitle(Form("2018 p_{T} bin %d: [%.0f, %.0f] GeV", bin, yBins[i-1], yBins[i]));
   }
   
-  // cout some useful info for checking purposes
-  cout << "fitting histogram " << hist->GetName() << endl;
-  cout << "X axis: " << nBinsX << " bins in [" << hist->GetXaxis()->GetBinLowEdge(1) << "," << hist->GetXaxis()->GetBinUpEdge(nBinsX) << "]" << endl;
-  cout << "Y axis: " << nBinsY << " bins in [" << hist->GetYaxis()->GetBinLowEdge(1) << "," << hist->GetYaxis()->GetBinUpEdge(nBinsY) << "]" << endl;
-
   // the fit function to be used
   TF1 *fit1d = new TF1("fit f 1d", "[0]*(1+[1]*x*x)", 0, 1);
   fit1d->SetParNames("A", "l_th");
   fit1d->SetParameters(1., 0.01);
-  //fit1d->FixParameter(1, 0);
-
+  
   // get the fit range from our cosmax(pT)
   ifstream in;
   string dataS;

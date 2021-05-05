@@ -5,8 +5,8 @@ void plotRes()
   // get the histo limits
   TFile *fIn = new TFile("files/ratioHist.root");
   TH2D* rHist;
-  //fIn->GetObject("cHist", rHist);
   fIn->GetObject(Form("ratioHist_ab_S"), rHist);
+  TH2D *pS = (TH2D*)fIn->Get("PSig_ab");
   
   int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
@@ -32,7 +32,7 @@ void plotRes()
   }
   
   // draw the fit results
-  TCanvas *c = new TCanvas("name", "title", 700, 700);
+  TCanvas *c = new TCanvas("", "", 700, 700);
 
   // draw the distributions
   for(int i = 0; i < ntot; i++) {
@@ -45,7 +45,7 @@ void plotRes()
     pHist[i]->SetMaximum(aVal*1.6);
     pHist[i]->SetMarkerColor(kBlack);
     pHist[i]->SetLineColor(kBlack);
-    pHist[i]->SetTitle(Form("PR/MC %s", pHist[i]->GetTitle()));
+    pHist[i]->SetTitle(Form("2018 PR/MC %s", pHist[i]->GetTitle()));
     pHist[i]->Draw();
 
     TF1 *func_c = pcHist[i]->GetFunction("fit f 1d");
@@ -65,41 +65,6 @@ void plotRes()
     c->SaveAs(Form("plots/ratio_final/bin_%d.pdf", i+1));
   }
  
-  // draw lambda_th(pT)
-  /*  TH1F *fl = c->DrawFrame(pTBins[0], -1, pTBins_vhpt[nBinspT_vhpt], 1);
-  fl->SetXTitle("p_{T} (GeV)");
-  fl->SetYTitle("#lambda_{#theta}");
-  fl->GetYaxis()->SetTitleOffset(1.3);
-  fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("#lambda_{#theta} (PR)");
-
-  // combine both lambda_th distributions
-  graph_lth->SetLineColor(kBlack);
-  graph_lth->SetMarkerColor(kBlack);
-  graph_lth->Draw("p");
-  graph_lth_hpt->SetLineColor(kBlack);
-  graph_lth_hpt->SetMarkerColor(kBlack);
-  graph_lth_hpt->Draw("p");
-  graph_lth_vhpt->SetLineColor(kBlack);
-  graph_lth_vhpt->SetMarkerColor(kBlack);
-  graph_lth_vhpt->Draw("p");
-
-  TLine *zero = new TLine(pTBins[0], 0, pTBins_vhpt[nBinspT_vhpt], 0);
-  zero->SetLineColor(kBlack);
-  zero->SetLineStyle(kDashed);
-  zero->Draw();
-  TLine *trans1 = new TLine(pTBins_hpt[0], -1, pTBins_hpt[0], 1);
-  trans1->SetLineColor(kBlack);
-  trans1->SetLineStyle(kDashed);
-  trans1->Draw();
-  TLine *trans2 = new TLine(pTBins_vhpt[0], -1, pTBins_vhpt[0], 1);
-  trans2->SetLineColor(kBlack);
-  trans2->SetLineStyle(kDashed);
-  trans2->Draw();
-
-  c->SaveAs("plots/ratio_final/lth.pdf");
-  c->Clear();*/
-  
   int N = graph_lth->GetN();
   double X[N], Y[N], EX[N], EY[N];
   for(int i = 0; i < N; i++) {
@@ -117,7 +82,7 @@ void plotRes()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("#lambda_{#theta} (PR)");
+  fl->SetTitle("2018 #lambda_{#theta} (PR)");
 
   TGraphErrors* lth_full = new TGraphErrors(N, X, Y, EX, EY);
   lth_full->SetLineColor(kBlack);
@@ -143,12 +108,12 @@ void plotRes()
 
   // draw A(pT)
   c->SetLogy(0);
-  TH1F *fa = c->DrawFrame(20, 0, pTBins[nBinspT], 0.25);
+  TH1F *fa = c->DrawFrame(20, 0, pTBins[nBinspT], 0.2);
   fa->SetXTitle("p_{T} (GeV)");
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
   fa->GetYaxis()->SetLabelOffset(0.01);
-  fa->SetTitle("A (PR)");
+  fa->SetTitle("2018 A (PR)");
 
   // combine both lambda_th distributions
   graph_A->SetLineColor(kBlack);
@@ -165,7 +130,7 @@ void plotRes()
   fc->SetYTitle("P(#chi^{2}, ndf)");
   fc->GetYaxis()->SetTitleOffset(1.3);
   fc->GetYaxis()->SetLabelOffset(0.01);
-  fc->SetTitle("P(#chi^{2}, ndf) (PR)");
+  fc->SetTitle("2018 P(#chi^{2}, ndf) (PR)");
 
   // combine both lambda_th distributions
   graph_chiP->SetLineColor(kBlack);
@@ -184,7 +149,7 @@ void plotRes()
   fcc->SetYTitle("#chi^{2}");
   fcc->GetYaxis()->SetTitleOffset(1.3);
   fcc->GetYaxis()->SetLabelOffset(0.01);
-  fcc->SetTitle("#chi^{2} (PR)");
+  fcc->SetTitle("2018 #chi^{2} (PR)");
 
   // combine both lambda_th distributions
   graph_chi->SetLineColor(kRed);
@@ -206,6 +171,16 @@ void plotRes()
  
   c->SaveAs("plots/ratio_final/chisquare.pdf");
   c->Clear();
+
+  // plot the 2D pure signal / MC dist
+  pS->SetStats(0);
+  pS->SetTitle("2018 Data/MC (Pure Signal)");
+  pS->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+  pS->GetYaxis()->SetTitle("p_{T} (GeV)");
+  pS->Draw("COLZ");
+  c->SaveAs("plots/PSig_2d_abs.pdf");
+  c->Clear();
+
   c->Destructor();
   
   fIn->Close();

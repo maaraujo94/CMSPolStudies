@@ -23,11 +23,9 @@ void ratioSave()
   cout << endl;
 
   // define the mass windows for the signal and the sidebands
-  double Mq = 3.685, sigW = 0.12; // changed psi mass to 3.685 for easier bins
-  double bkgW = sigW;
-  double m_min[] = {3.4, Mq-sigW, Mq+bkgW};
-  double m_max[] = {Mq-bkgW, Mq+sigW, 4.0};
-  string wname[3] = {"L", "S", "R"};
+double m_min[] = {3.4, 3.565, 3.805};
+  double m_max[] = {3.52, 3.805, 4.0};
+    string wname[3] = {"L", "S", "R"};
   string wtit[3] = {"LSB", "Peak", "RSB"};
 
   TH2D **dataHist = new TH2D*[3];
@@ -36,11 +34,11 @@ void ratioSave()
   TH2D **mcHist_ab = new TH2D*[3];
 
   for(int i_w = 0; i_w < 3; i_w++) {
-    dataHist[i_w] = new TH2D(Form("dataH_%s", wname[i_w].c_str()), Form("Data (PR) %s", wtit[i_w].c_str()), 40, -1., 1., nPtBins, ptBins);
-    mcHist[i_w] = new TH2D(Form("mcH_%s", wname[i_w].c_str()), Form("MC %s", wtit[i_w].c_str()), 40, -1., 1., nPtBins, ptBins);
+    dataHist[i_w] = new TH2D(Form("dataH_%s", wname[i_w].c_str()), Form("2018 Data (PR) %s", wtit[i_w].c_str()), 40, -1., 1., nPtBins, ptBins);
+    mcHist[i_w] = new TH2D(Form("mcH_%s", wname[i_w].c_str()), Form("2018 MC %s", wtit[i_w].c_str()), 40, -1., 1., nPtBins, ptBins);
     
-    dataHist_ab[i_w] = new TH2D(Form("dataH_ab_%s", wname[i_w].c_str()), Form("Data (PR) %s", wtit[i_w].c_str()), 20, 0, 1., nPtBins, ptBins);
-    mcHist_ab[i_w] = new TH2D(Form("mcH_ab_%s", wname[i_w].c_str()), Form("MC %s", wtit[i_w].c_str()), 20, 0, 1., nPtBins, ptBins);
+    dataHist_ab[i_w] = new TH2D(Form("dataH_ab_%s", wname[i_w].c_str()), Form("2018 Data (PR) %s", wtit[i_w].c_str()), 20, 0, 1., nPtBins, ptBins);
+    mcHist_ab[i_w] = new TH2D(Form("mcH_ab_%s", wname[i_w].c_str()), Form("2018 MC %s", wtit[i_w].c_str()), 20, 0, 1., nPtBins, ptBins);
   }
   
   // definitions to store data and MC events
@@ -149,7 +147,7 @@ void ratioSave()
     ratioHist_ab[i_w]->SetStats(0);
     ratioHist_ab[i_w]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     ratioHist_ab[i_w]->GetYaxis()->SetTitle("p_{T} (GeV)");
-    ratioHist_ab[i_w]->SetTitle(Form("%s/MC", wtit[i_w].c_str()));
+    ratioHist_ab[i_w]->SetTitle(Form("2018 %s/MC", wtit[i_w].c_str()));
     ratioHist_ab[i_w]->Draw("COLZ");
     c->SaveAs(Form("plots/ratio%s_2d_abs.pdf", wname[i_w].c_str()));
     c->Clear();

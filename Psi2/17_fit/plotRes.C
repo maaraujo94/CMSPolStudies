@@ -32,7 +32,7 @@ void plotRes()
   }
   
   // draw the fit results
-  TCanvas *c = new TCanvas("name", "title", 700, 700);
+  TCanvas *c = new TCanvas("", "", 700, 700);
 
   // draw the distributions
   for(int i = 0; i < ntot; i++) {
