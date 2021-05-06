@@ -14,7 +14,13 @@ void subBkg()
   // get the data/MC histogram
   TFile *fin = new TFile("files/ratioHist.root");
   TH2D *dataHist_ab = (TH2D*)fin->Get("ratioHist_ab_S");
+  TH2D* mcHist = (TH2D*)fin->Get("mcH_ab_S");
+  TH2D* o_LSB = (TH2D*)fin->Get("dataH_ab_L");
+  TH2D* o_RSB = (TH2D*)fin->Get("dataH_ab_R");
   dataHist_ab->SetDirectory(0);
+  mcHist->SetDirectory(0);
+  o_LSB->SetDirectory(0);
+  o_RSB->SetDirectory(0);
   fin->Close();
 
   // doing the binning from the data
@@ -84,8 +90,13 @@ void subBkg()
     TH1D *h_LSB = new TH1D(Form("h_LSB_%d", i_pt), "2018 cos#theta", nBinsX, minX, maxX);
     TH1D *h_RSB = new TH1D(Form("h_RSB_%d", i_pt), "2018 cos#theta", nBinsX, minX, maxX);
 
+    // scaling to make N fit with the data (model used scaled histos)
+    double mcEvt = mcHist->Integral(1, nBinsX, i_pt+1, i_pt+1);
+    double LSBEvt = o_LSB->Integral(1, nBinsX, i_pt+1, i_pt+1);
+    double RSBEvt = o_RSB->Integral(1, nBinsX, i_pt+1, i_pt+1);
+    
     // fill histos with the model function
-    N = g_NL->GetY()[i_pt];
+    N = g_NL->GetY()[i_pt] * LSBEvt/mcEvt; // HERE
     l_2 = g_l2L->GetY()[i_pt];
     l_4 = g_l4L->GetY()[i_pt];
     f_cth->SetParameters(N, l_2, l_4);
@@ -96,7 +107,7 @@ void subBkg()
       h_LSB->SetBinError(i_cos+1, 0);
     }
     
-    N = g_NR->GetY()[i_pt];
+    N = g_NR->GetY()[i_pt] * RSBEvt/mcEvt; // HERE
     l_2 = g_l2R->GetY()[i_pt];
     l_4 = g_l4R->GetY()[i_pt];
     f_cth->SetParameters(N, l_2, l_4);

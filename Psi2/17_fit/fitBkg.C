@@ -5,8 +5,14 @@ void fitBkg()
   TFile *fIn = new TFile("files/ratioHist.root");
   TH2D* bL_R = (TH2D*)fIn->Get("ratioHist_ab_L");
   TH2D* bR_R = (TH2D*)fIn->Get("ratioHist_ab_R");
+  TH2D* mcHist = (TH2D*)fIn->Get("mcH_ab_S");
+  TH2D* h_LSB = (TH2D*)fIn->Get("dataH_ab_L");
+  TH2D* h_RSB = (TH2D*)fIn->Get("dataH_ab_R");
   bL_R->SetDirectory(0);
   bR_R->SetDirectory(0);
+  mcHist->SetDirectory(0);
+  h_LSB->SetDirectory(0);
+  h_RSB->SetDirectory(0);
   fIn->Close();
   
   // define the ratio fit function
@@ -60,6 +66,13 @@ void fitBkg()
 	pHistL[i]->SetTitle(Form("2017 LSB/MC bin %d: [%.0f, %.0f] GeV", i+1, yBins[i], yBins[i+1]));
 	pHistR[i] = bR_R->ProjectionX(Form("RSB_bin%d_1d", i+1), i+1, i+1);
 	pHistR[i]->SetTitle(Form("2017 RSB/MC bin %d: [%.0f, %.0f] GeV", i+1, yBins[i], yBins[i+1]));
+
+	// normalize by nr MC events
+	double mcEvt = mcHist->Integral(1, nBinsX, i+1, i+1);
+	double LSBEvt = h_LSB->Integral(1, nBinsX, i+1, i+1);
+	double RSBEvt = h_RSB->Integral(1, nBinsX, i+1, i+1);
+	pHistL[i]->Scale(mcEvt/LSBEvt);
+	pHistR[i]->Scale(mcEvt/RSBEvt);
 
 	// initializing the pull and dev histos
 	pullL[i] = new TH1D(Form("pullL_%d_%d", i_fit, i), Form("2017 fit pulls (%.0f < p_{T} < %.0f GeV)", yBins[i], yBins[i+1]), nBinsX, minX, maxX);
@@ -268,7 +281,7 @@ void fitBkg()
       c->Clear();
       
       c->SetLogy(0);
-      TH1F *fN = c->DrawFrame(yBins[0]-5, 0.005, yBins[nBinsY]+5, 0.05);
+      TH1F *fN = c->DrawFrame(yBins[0]-5, 0.6, yBins[nBinsY]+5, 1.);
       fN->SetXTitle("p_{T} (GeV)");
       fN->SetYTitle("N");
       fN->GetYaxis()->SetTitleOffset(1.3);
@@ -345,14 +358,14 @@ void fitBkg()
       ofstream fout;
       fout.open(Form("text_output/mbkg_cos_%d.tex", i_fit+1));
       fout << "\\begin{tabular}{c||c|c|c|c||c|c|c|c}\n";
-      fout << "$\\pt$ (GeV) & $N_L$ (1e-3) & $\\lambda_{2,L}$ & $\\lambda_{4,L}$  & $\\chi^2_L$/ndf & $N_R$ (1e-3) & $\\lambda_{2,R}$ & $\\lambda_{4,R}$  & $\\chi^2_R$/ndf \\\\\n";
+      fout << "$\\pt$ (GeV) & $N_L$ & $\\lambda_{2,L}$ & $\\lambda_{4,L}$  & $\\chi^2_L$/ndf & $N_R$ & $\\lambda_{2,R}$ & $\\lambda_{4,R}$  & $\\chi^2_R$/ndf \\\\\n";
       fout << "\\hline\n";
       for(int i = 0; i < nBinsY; i++) {
 	double pMin = bL_R->GetYaxis()->GetBinLowEdge(i+1);
 	double pMax = bL_R->GetYaxis()->GetBinUpEdge(i+1);
 	fout << Form("$[%.0f, %.0f]$", pMin, pMax) << " & ";
 
-	fout << Form("%.2f", par_L[0][i]*1e3) << "$\\pm$" << Form("%.2f", epar_L[0][i]*1e3) << " & ";
+	fout << Form("%.3f", par_L[0][i]) << "$\\pm$" << Form("%.3f", epar_L[0][i]) << " & ";
 	if(i_fit <= 1)
 	  fout << Form("%.3f", par_L[1][i]) << "$\\pm$" << Form("%.3f", epar_L[1][i]) << " & ";
 	else
@@ -363,7 +376,7 @@ void fitBkg()
 	  fout << Form("%.1f", par_L[2][i]) << " & ";
 	fout << Form("%.0f", chi2[0][i]) << "/" << Form("%.0f", ndf[0][i]) << " & ";
 	
-	fout << Form("%.2f", par_R[0][i]*1e3) << "$\\pm$" << Form("%.2f", epar_R[0][i]*1e3) << " & ";
+	fout << Form("%.3f", par_R[0][i]) << "$\\pm$" << Form("%.3f", epar_R[0][i]) << " & ";
 	if(i_fit <= 1)
 	  fout << Form("%.3f", par_R[1][i]) << "$\\pm$" << Form("%.3f", epar_R[1][i]) << " & ";
 	else
