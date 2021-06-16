@@ -101,7 +101,7 @@ void binnedSub()
   cout << "Mass histograms filled for all pT bins" << endl;
 
   TCanvas *c = new TCanvas("", "", 700, 700);
-
+  
   ofstream fout;
   fout.open("text_output/mbkg_fit.tex");
   fout << "\\begin{tabular}{c|c||c|c|c||c|c|c}\n";
@@ -137,9 +137,11 @@ void binnedSub()
       massFit[i_pt]->FixParameter(4, mbin[i_pt]*1e3);
 
       // plot fit
+      c->SetLogy(); 
       c->SetLeftMargin(0.11);
-      h_PM[i_pt]->SetMaximum(ymax*1.1);
-      h_PM[i_pt]->SetMinimum(0);
+      
+      h_PM[i_pt]->SetMaximum(ymax*1.5);
+      h_PM[i_pt]->SetMinimum(h_PM[i_pt]->GetMinimum()*0.8);
       h_PM[i_pt]->SetStats(0);
       h_PM[i_pt]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
       h_PM[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", mbin[i_pt]*1000));
@@ -147,19 +149,19 @@ void binnedSub()
       h_PM[i_pt]->Draw("error");
       TFitResultPtr mF_r = h_PM[i_pt]->Fit(Form("mFit_%d", i_pt), "RS");
       
-      TLine *cut1 = new TLine(min, 0, min, ymax*1.1);
+      TLine *cut1 = new TLine(min, 0, min, ymax*1.5);
       cut1->SetLineColor(kRed);
       cut1->SetLineStyle(kDashed);
       cut1->Draw();
-      TLine *cut2 = new TLine(mlc, 0, mlc, ymax*1.1);
+      TLine *cut2 = new TLine(mlc, 0, mlc, ymax*1.5);
       cut2->SetLineColor(kRed);
       cut2->SetLineStyle(kDashed);
       cut2->Draw();
-      TLine *cut3 = new TLine(max, 0, max, ymax*1.1);
+      TLine *cut3 = new TLine(max, 0, max, ymax*1.5);
       cut3->SetLineColor(kRed);
       cut3->SetLineStyle(kDashed);
       cut3->Draw();
-      TLine *cut4 = new TLine(muc, 0, muc, ymax*1.1);
+      TLine *cut4 = new TLine(muc, 0, muc, ymax*1.5);
       cut4->SetLineColor(kRed);
       cut4->SetLineStyle(kDashed);
       cut4->Draw();
@@ -211,6 +213,7 @@ void binnedSub()
 	}
       } 
 
+      c->SetLogy(0);
       // plotting pulls
       TH1F *fc_p = c->DrawFrame(minH[i_pt], -5, maxH[i_pt], 5);
       fc_p->SetXTitle("M(#mu#mu) (GeV)");

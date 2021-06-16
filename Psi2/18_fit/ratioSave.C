@@ -23,9 +23,9 @@ void ratioSave()
   cout << endl;
 
   // define the mass windows for the signal and the sidebands
-double m_min[] = {3.4, 3.565, 3.805};
+  double m_min[] = {3.4, 3.565, 3.805};
   double m_max[] = {3.52, 3.805, 4.0};
-    string wname[3] = {"L", "S", "R"};
+  string wname[3] = {"L", "S", "R"};
   string wtit[3] = {"LSB", "Peak", "RSB"};
 
   TH2D **dataHist = new TH2D*[3];
