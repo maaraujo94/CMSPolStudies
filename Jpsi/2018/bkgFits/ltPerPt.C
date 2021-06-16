@@ -220,7 +220,7 @@ void ltPerPt(double binLow, double binHigh)
   c->Clear();
   
   ofstream ftable;
-  ftable.open("files/lt_fit.txt", std::ios::app);
+  ftable.open("text_output/lt_fit.txt", std::ios::app);
   ftable << binLow << "\t " << binHigh << "\t ";
   for(int i = 0; i < 7; i++) {
     if(i < 2)

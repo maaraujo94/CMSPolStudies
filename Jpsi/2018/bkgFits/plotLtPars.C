@@ -9,7 +9,7 @@ void plotLtPars()
   double chis[pt_bins], ndf[pt_bins], fNP[pt_bins], chiN[pt_bins], zero[pt_bins];
 
   // read the fit results
-  ifile.open("files/lt_fit.txt");
+  ifile.open("text_output/lt_fit.txt");
   getline(ifile, data);
 
   double mults[] = {1./10., 1./10., 100., 1e3, 1e3, 1e3, 1e3};
@@ -72,7 +72,7 @@ void plotLtPars()
 
   TGraphErrors *g_chi = new TGraphErrors(pt_bins, pt_avg, chiN, pt_err, zero);
 
-  TH1F *fchi = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 30);
+  TH1F *fchi = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 35);
   fchi->SetXTitle("p_{T} (GeV)");
   fchi->SetYTitle("#chi^{2}/ndf");
   fchi->GetYaxis()->SetTitleOffset(1.5);

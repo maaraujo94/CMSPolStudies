@@ -27,7 +27,7 @@ double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
 double bkg_exp(double m, double p1, double p2)
 {
   // this is the expression for an exponential bkg
-  if(DO_EXP == 1) return p1 * exp( - p2 * m);
+  if(DO_EXP == 1) return p1 * exp( - m / p2 );
   // this is the expression for a linear bkg
   else return p1 * ( p2 - m );
 }
@@ -77,7 +77,7 @@ void mBkg()
   cout << endl;
 
   // prepare mass histograms
-  int mbins = 80;
+  int mbins = 40;
   double lowm = 2.9, him = 3.3;
   TH1D **h_d1d = new TH1D*[nPtBins];
   for(int ip = 0; ip < nPtBins; ip++)
@@ -140,8 +140,8 @@ void mBkg()
     }
   }
 
-  double m_min[] = {2.92, 3.0, 3.21};
-  double m_max[] = {2.95, 3.2, 3.28};
+  double m_min[] = {2.94, 3.0, 3.21};
+  double m_max[] = {2.95, 3.2, 3.26};
   double p1v, p2v;
 
   // define 2d function for fitting
@@ -150,7 +150,7 @@ void mBkg()
   f_cb->SetParName(0, "f");
   f_cb->SetParameter(0, 0.7);
   f_cb->SetParName(nPtBins+1, "mu");
-  f_cb->SetParameter(nPtBins+1, 3.);
+  f_cb->SetParameter(nPtBins+1, 3.1);
   // define linear parameters - sigma1, sigma2
   f_cb->SetParName(nPtBins+2, "m_sig1");
   f_cb->SetParameter(nPtBins+2, 1.e-4);
@@ -162,8 +162,8 @@ void mBkg()
   f_cb->SetParameter(nPtBins+5, 3.e-2);
   // define free parameters - N, alpha, n
   for(int i = 0; i < nPtBins; i++) {
-    f_cb->SetParName(i+1, Form("N_%d", i));
-    f_cb->SetParameter(i+1, 4.e-3);  
+    f_cb->SetParName(i+1, Form("NS_%d", i));
+    f_cb->SetParameter(i+1, 8.e-3);  
 
     f_cb->SetParName(nPtBins+6+i, Form("n_%d", i));
     //f_cb->SetParameter(nPtBins+6+i, 1.2);
@@ -173,13 +173,13 @@ void mBkg()
     //f_cb->SetParameter(i+6+2*nPtBins, 3.);
     f_cb->FixParameter(i+6+2*nPtBins, 2.15);
 
-    f_cb->SetParName(i+6+3*nPtBins, Form("p1_%d", i));
-    if(DO_EXP) p1v = 0.15;
+    f_cb->SetParName(i+6+3*nPtBins, Form("NB_%d", i));
+    if(DO_EXP) p1v = 0.3;
     else p1v = h_d1d[i]->Integral()/500.;
     f_cb->SetParameter(i+6+3*nPtBins, p1v);
 
-    f_cb->SetParName(i+6+4*nPtBins, Form("p2_%d", i));
-    if(DO_EXP) p2v = 1.5;
+    f_cb->SetParName(i+6+4*nPtBins, Form("lambda_%d", i));
+    if(DO_EXP) p2v = 0.7;
     else p2v = 4.;
     f_cb->SetParameter(i+6+4*nPtBins, p2v);
     //f_cb->FixParameter(i+6+4*nPtBins, 1.55);
@@ -191,15 +191,15 @@ void mBkg()
 
   // tf1 for plotting in the 1D bins
   TF1 *f_1d = new TF1("f_1d", "[0]*cb_exp(x,[1],[3],[2],[5],[6]) + (1.-[0]) * cb_exp(x,[1],[4],[2],[5],[6])+bkg_exp(x,[7],[8])", m_min[0], m_max[2]);
-  f_cb->SetParNames("f", "N", "mu", "sigma1", "sigma2", "n", "alpha", "p1", "p2");
+  f_cb->SetParNames("f", "NS", "mu", "sigma1", "sigma2", "n", "alpha", "p1", "lmabda");
 
   // separate parts of the fit function
   TF1 *fp1 = new TF1("fp1", "[0]*cb_exp(x,[1],[3],[2],[4],[5])", m_min[0], m_max[2]);
-  fp1->SetParNames("f", "N", "mu", "sigma1", "n", "alpha");
+  fp1->SetParNames("f", "NS", "mu", "sigma1", "n", "alpha");
   TF1 *fp2 = new TF1("fp2", "(1.-[0]) * cb_exp(x,[1],[3],[2],[4],[5])", m_min[0], m_max[2]);
-  fp2->SetParNames("f", "N", "mu", "sigma2", "n", "alpha");
+  fp2->SetParNames("f", "NS", "mu", "sigma2", "n", "alpha");
   TF1 *fp3 = new TF1("fp3", "bkg_exp(x,[0],[1])", m_min[0], m_max[2]);
-  fp3->SetParNames("p1", "p2");
+  fp3->SetParNames("NB", "lambda");
 
   double pt_val[nPtBins], pt_err[nPtBins];
   double pars[5][nPtBins], epars[5][nPtBins];
@@ -340,7 +340,7 @@ void mBkg()
 
   // storing the free parameters
   TFile *fout = new TFile("files/mfit_data.root", "recreate");
-  string parlab[] = {"f", "N", "mu", "sig1", "sig2", "n", "alpha", "p1", "p2"};
+  string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda"};
   int ct_p = 0, ct_pos = 0;
   int p_pos[] = {0, nPtBins+1};  
 
@@ -386,10 +386,10 @@ void mBkg()
   fout->Close();
 
   ofstream ftex;
-  ftex.open(Form("files/mfit_data.tex"));
-  ftex << "\\begin{tabular}{c||c|c|c|c|c}\n";
-  if(DO_EXP == 1)  ftex << "$\\pt$ (GeV) & $N$ & $n$ & $\\alpha$ & $p_1$  & $p_2$ (GeV$^{-1}$) \\\\\n";
-  else  ftex << "$\\pt$ (GeV) & $N$ & $n$ & $\\alpha$ & $p_1$ (GeV$^{-1}$) & $p_2$ (GeV) \\\\\n";
+  ftex.open(Form("text_output/mfit_data.tex"));
+  ftex << "\\begin{tabular}{c||c|c|c|c|c||c}\n";
+  if(DO_EXP == 1)  ftex << "$\\pt$ (GeV) & $N_{SR}$ & $n$ & $\\alpha$ & $N_{BG}$  & $\\lambda$ (GeV) & $f_{bkg}$ (\\%) \\\\\n";
+  else  ftex << "$\\pt$ (GeV) & $N$ & $n$ & $\\alpha$ & $p_1$ (GeV$^{-1}$) & $p_2$ (GeV)  & $f_{bkg}$ (\\%) \\\\\n";
   ftex << "\\hline\n";
 
   for(int i = 0; i < nPtBins; i++) {
@@ -409,13 +409,14 @@ void mBkg()
 	ftex << " & " <<  setprecision(p_norm) << fixed << val ;
       }
     }
+    ftex << " & " << setprecision(2) << fixed << fBkg[i];
     ftex <<  "\\\\\n";
   }
   ftex << "\\end{tabular}\n";
   ftex.close();
 
   ofstream fout2;
-  fout2.open(Form("files/mfit_dataA.tex"));
+  fout2.open(Form("text_output/mfit_dataA.tex"));
   fout2 << "\\begin{tabular}{c|c|cc|cc||c}\n";
   fout2 << " \\multirow{2}{*}{$f$ $(\\%)$} & \\multirow{2}{*}{$\\mu$ $(MeV)$} & \\multicolumn{2}{|c|}{$\\sigma_1$} & \\multicolumn{2}{|c||}{$\\sigma_2$} & \\multirow{2}{*}{$\\chi^2/$ndf} \\\\\n";
   fout2 << " & & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & \\\\\n";

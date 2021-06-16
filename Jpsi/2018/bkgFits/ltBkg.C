@@ -72,7 +72,7 @@ void ltBkg()
   
   else {
     ofstream ftable;
-    ftable.open("files/lt_fit.txt");
+    ftable.open("text_output/lt_fit.txt");
     ftable << "pt_min\t pt_max\t N_PR\t eN_PR\t N_NP\t eN_NP\t f\t ef\t mu\t emu\t sigma1\t esigma1\t sigma2\t esigma2\t lambda\t elambda\t chi2\t NDF\t f_NP\n";
     ftable.close();
     

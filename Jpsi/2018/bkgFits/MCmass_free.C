@@ -1,4 +1,4 @@
-int DO_FILL = 0;
+int DO_FILL = 1;
 double gPI = TMath::Pi();
 
 // crystal ball function
@@ -159,7 +159,7 @@ void MCmass_free()
 
   // output for latex
   ofstream fout;
-  fout.open(Form("files/mfit_MC_free.tex"));
+  fout.open(Form("text_output/mfit_MC_free.tex"));
   fout << "\\begin{tabular}{c||c|c|c|c|c|c|c||c}\n";
   fout << "$\\pt$ (GeV) & $N$ $(\\times1e5)$ & $f$ (\\%) & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ &  $\\alpha$ & $\\chi^2$/ndf \\\\\n";
   fout << "\\hline\n";
@@ -174,9 +174,7 @@ void MCmass_free()
     
     double N = mHist[i_pt]->GetMaximum()/10.;
     f_cb->SetParameters(N, f, mu, sig1, sig2, n, alpha);
-    f_cb->FixParameter(5, 1.2);
-    f_cb->FixParameter(6, 2.15);
-
+    
     // fitting, plotting histo
     c->SetLogy();
     mHist[i_pt]->Fit("f_cb", "R");
