@@ -6,21 +6,21 @@ void plotDMPars(int DO_EXP)
 
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "p1", "p2", "fBG", "chiN"};
   string partit[] = {"f", "N_{SR}", "#mu", "#sigma_{1}", "#sigma_{2}", "n", "#alpha", "p_{1}", "p_{2}", "f_{bkg}"};
-  string parax[] = {"f (%)", "N_{SR}", "#mu (GeV)", "#sigma_{1} (GeV)", "#sigma_{2} (GeV)", "n", "#alpha", "p_{1} (GeV^{-1})", "p_{2} (GeV)", "f_{bkg} (%)"};
-  double parmin[] = {0,    0.008, 3.0934, 0.015, 0.03, 1.0, 2.0, 1e2, 3.6, 0.};
-  double parmax[] = {100., 0.01, 3.0944, 0.035, 0.05, 1.4, 2.3, 5e4, 3.8, 10.};
+  string parax[] = {"f (%)", "N_{SR}", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "p_{1} (GeV^{-1})", "p_{2} (GeV)", "f_{bkg} (%)"};
+  double parmin[] = {0,    2e1, 3093.4, 15, 30, 1.0, 2.0, 1e2, 3.6, 0.};
+  double parmax[] = {100., 5e4, 3094.4, 35, 50, 1.4, 2.3, 5e4, 3.8, 15.};
 
   if(DO_EXP == 1) {
-    parmin[7] = 0.;
-    parmax[7] = 1.5;
-    parmin[8] = 0.5;
-    parmax[8] = 0.7;
+    parmin[7] = 2e3;
+    parmax[7] = 1e6;
+    parmin[8] = 500;
+    parmax[8] = 700;
     parlab[7] = "NB";
     parlab[8] = "lambda";
     partit[7] = "N_{BG}";
     partit[8] = "#lambda";
     parax[7] = "N_{BG}";
-    parax[8] = "#lambda (GeV)";
+    parax[8] = "#lambda (MeV)";
   }
   
   // initialize tgraphs for parameters
@@ -53,7 +53,10 @@ void plotDMPars(int DO_EXP)
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
     fl->SetTitle(Form("2018 %s", partit[i_p].c_str()));
-      
+
+    if(i_p == 1 || i_p == 7) c->SetLogy();
+    else c->SetLogy(0);
+    
     if(i_p == 1 || i_p >= 5) {
       g_par[i_p]->SetLineColor(kBlue);
       g_par[i_p]->SetMarkerColor(kBlue);
@@ -64,6 +67,15 @@ void plotDMPars(int DO_EXP)
       g_par[i_p]->SetLineColor(kBlue);
       g_par[i_p]->SetFillColorAlpha(kBlue, 0.5);
       g_par[i_p]->Draw("ce3");
+    }
+
+    if(i_p == 9) {
+      TF1 *flin = new TF1("flin", "[0]*x+[1]", pt_min, pt_max);
+      flin->SetParNames("m", "b");
+      flin->SetParameters(0.1, 5);
+      flin->SetLineColor(kBlue);
+      flin->SetLineStyle(kDashed);
+      g_par[i_p]->Fit(flin);
     }
       
     c->SaveAs(Form("plots/dataMass/%s.pdf", parlab[i_p].c_str()));

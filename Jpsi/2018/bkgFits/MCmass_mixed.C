@@ -23,7 +23,7 @@ double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
 }
 
 // crystal ball function parser - called by TF2
-// parameters: f, N(per bin), mu, sig1(linear), sig2(linear), n(per bin), alpha (per bin)
+// parameters: f, N(per bin), mu, sig1(per bin), sig2(per bin), n(per bin), alpha (per bin)
 double cb_func(double *x, double *par)
 {
   // get m, pt and corresp pt bin
@@ -35,12 +35,12 @@ double cb_func(double *x, double *par)
 
   double f = par[0];
   double mu = par[nPtBins+1];
-  double sig1 = par[nPtBins+2] * pt + par[nPtBins+3];
-  double sig2 = par[nPtBins+4] * pt + par[nPtBins+5];
   
   double N = par[1+pt_bin];
-  double n = par[6+nPtBins+pt_bin];
-  double alpha = par[6+2*nPtBins+pt_bin];
+  double sig1 = par[2+nPtBins+pt_bin];
+  double sig2 = par[2+2*nPtBins+pt_bin];
+  double n = par[2+3*nPtBins+pt_bin];
+  double alpha = par[2+4*nPtBins+pt_bin];
   
   double func = f * cb_exp(m, N, sig1, mu, n, alpha) + (1.-f) * cb_exp(m, N, sig2, mu, n, alpha);
   return func;
@@ -54,7 +54,7 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 
 
 // MAIN
-void MCmass_dep()
+void MCmass_mixed()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
@@ -178,31 +178,29 @@ void MCmass_dep()
   double fit_f = 3.28;
 
   // define 2d function for fitting
-  TF2 *f_cb = new TF2("f_cb", cb_func, fit_i, fit_f, 25, 100, 3*nPtBins+6, 2);
+  TF2 *f_cb = new TF2("f_cb", cb_func, fit_i, fit_f, 25, 100, 5*nPtBins+2, 2);
   // define constant parameters - f, mu
   f_cb->SetParName(0, "f");
   f_cb->SetParameter(0, 0.7);
   f_cb->SetParName(nPtBins+1, "mu");
   f_cb->SetParameter(nPtBins+1, 3.097);
-  // define linear parameters - sigma1, sigma2
-  f_cb->SetParName(nPtBins+2, "m_sig1");
-  f_cb->SetParameter(nPtBins+2, 8.e-5);
-  f_cb->SetParName(nPtBins+3, "b_sig1");
-  f_cb->SetParameter(nPtBins+3, 2.e-2);
-  f_cb->SetParName(nPtBins+4, "m_sig2");
-  f_cb->SetParameter(nPtBins+4, 1.e-4);
-  f_cb->SetParName(nPtBins+5, "b_sig2");
-  f_cb->SetParameter(nPtBins+5, 3.e-2);
   // define free parameters - N, alpha, n
   for(int i = 0; i < nPtBins; i++) {
     f_cb->SetParName(i+1, Form("N_%d", i));
+    //f_cb->SetParameter(i+1, 5e-3);  
     f_cb->SetParameter(i+1, h_m1d[i]->Integral()/100.);  
-    f_cb->SetParName(nPtBins+6+i, Form("n_%d", i));
-    f_cb->SetParameter(nPtBins+6+i, 2.0);
-    //f_cb->FixParameter(nPtBins+6+i, 1.2);
-    f_cb->SetParName(i+6+2*nPtBins, Form("alpha_%d", i));
-    f_cb->SetParameter(i+6+2*nPtBins, 2.);
-    //f_cb->FixParameter(i+6+2*nPtBins, 2.15);
+
+    f_cb->SetParName(i+2+nPtBins, Form("sig1_%d", i));
+    f_cb->SetParameter(i+2+nPtBins, 2.e-2);
+
+    f_cb->SetParName(i+2+2*nPtBins, Form("sig2_%d", i));
+    f_cb->SetParameter(i+2+2*nPtBins, 4.e-2);
+    
+    f_cb->SetParName(i+2+3*nPtBins, Form("n_%d", i));
+    f_cb->SetParameter(i+2+3*nPtBins, 2.0);
+
+    f_cb->SetParName(i+2+4*nPtBins, Form("alpha_%d", i));
+    f_cb->SetParameter(i+2+4*nPtBins, 2.);
   }
   // tf1 for plotting in the 1D bins
   TF1 *f_1d = new TF1("f_1d", "[0]*cb_exp(x,[1],[3],[2],[5],[6]) + (1.-[0]) * cb_exp(x,[1],[4],[2],[5],[6])", fit_i, fit_f);
@@ -217,9 +215,9 @@ void MCmass_dep()
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
 
-  TFile *fout = new TFile("files/mfit_MC_dep.root", "recreate");
+  TFile *fout = new TFile("files/mfit_MC_mix.root", "recreate");
 
-  for(int ifit = 0; ifit < 3; ifit++)
+  for(int ifit = 0; ifit < 1; ifit++)
     {
       if(ifit == 1) { // fix n to its central value 1.2
 	// define constant parameters - f, mu
@@ -232,7 +230,7 @@ void MCmass_dep()
 	f_cb->SetParameter(nPtBins+5, 3.e-2);
 	// define free parameters - N, alpha, n
 	for(int i = 0; i < nPtBins; i++) {
-	  f_cb->SetParameter(i+1, h_m1d[i]->Integral()/100.);  
+	  f_cb->SetParameter(i+1, h_m1d[i]->GetMaximum()/20.);  
 	  f_cb->FixParameter(nPtBins+6+i, 1.2);
 	  f_cb->SetParameter(i+6+2*nPtBins, 2.);
 	}
@@ -248,7 +246,7 @@ void MCmass_dep()
 	f_cb->SetParameter(nPtBins+5, 3.e-2);
 	// define free parameters - N, alpha, n
 	for(int i = 0; i < nPtBins; i++) {
-	  f_cb->SetParameter(i+1, h_m1d[i]->Integral()/100.);  
+	  f_cb->SetParameter(i+1, h_m1d[i]->GetMaximum()/20.);  
 	  f_cb->FixParameter(i+6+2*nPtBins, 2.15);
 	}
       }
@@ -256,7 +254,7 @@ void MCmass_dep()
       h_m2d->Fit("f_cb", "R");
   
       double pt_val[nPtBins], pt_err[nPtBins];
-      double pars[3][nPtBins], epars[3][nPtBins];
+      double pars[5][nPtBins], epars[5][nPtBins];
       
       // cycle over all pT bins
       for(int i_pt = 0; i_pt < nPtBins; i_pt++) {
@@ -265,11 +263,15 @@ void MCmass_dep()
 
 	// storing free parameters
 	pars[0][i_pt] = f_cb->GetParameter(i_pt+1);
-	pars[1][i_pt] = f_cb->GetParameter(i_pt+6+nPtBins);
-	pars[2][i_pt] = f_cb->GetParameter(i_pt+6+2*nPtBins);
+	pars[1][i_pt] = f_cb->GetParameter(i_pt+2+nPtBins);
+	pars[2][i_pt] = f_cb->GetParameter(i_pt+2+2*nPtBins);
+	pars[3][i_pt] = f_cb->GetParameter(i_pt+2+3*nPtBins);
+	pars[4][i_pt] = f_cb->GetParameter(i_pt+2+4*nPtBins);
 	epars[0][i_pt] = f_cb->GetParError(i_pt+1);
-	epars[1][i_pt] = f_cb->GetParError(i_pt+6+nPtBins);
-	epars[2][i_pt] = f_cb->GetParError(i_pt+6+2*nPtBins);
+	epars[1][i_pt] = f_cb->GetParError(i_pt+2+nPtBins);
+	epars[2][i_pt] = f_cb->GetParError(i_pt+2+2*nPtBins);
+	epars[3][i_pt] = f_cb->GetParError(i_pt+2+3*nPtBins);
+	epars[4][i_pt] = f_cb->GetParError(i_pt+2+4*nPtBins);
 
 
 	if(ifit == 2) { // only plot in the last fit
@@ -277,9 +279,6 @@ void MCmass_dep()
 	  
 	  h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.2);
 	  h_m1d[i_pt]->SetMinimum(h_m1d[i_pt]->GetMaximum()*8e-3);
-	  h_m1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
-	  h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.4);
-	  h_m1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
 	  h_m1d[i_pt]->SetMarkerStyle(20);
 	  h_m1d[i_pt]->SetMarkerSize(0.75);
 	  h_m1d[i_pt]->SetMarkerColor(kBlack);
@@ -291,21 +290,21 @@ void MCmass_dep()
 	  f_1d->SetParameters(f_cb->GetParameter(0),
 			      pars[0][i_pt],
 			      f_cb->GetParameter(nPtBins+1),
-			      f_cb->GetParameter(nPtBins+2) * pt_val[i_pt] + f_cb->GetParameter(nPtBins+3),
-			      f_cb->GetParameter(nPtBins+4) * pt_val[i_pt] + f_cb->GetParameter(nPtBins+5),
 			      pars[1][i_pt],
-			      pars[2][i_pt]);
+			      pars[2][i_pt],
+			      pars[3][i_pt],
+			      pars[4][i_pt]);
 
-	  fp1->SetParameters(f_cb->GetParameter(0), pars[0][i_pt], f_cb->GetParameter(nPtBins+1), f_cb->GetParameter(nPtBins+2) * pt_val[i_pt] + f_cb->GetParameter(nPtBins+3), pars[1][i_pt], pars[2][i_pt]);
+	  fp1->SetParameters(f_cb->GetParameter(0), pars[0][i_pt], f_cb->GetParameter(nPtBins+1), pars[1][i_pt], pars[3][i_pt], pars[4][i_pt]);
 	  fp1->SetLineColor(kRed);
 	  fp1->SetLineStyle(kDashed);
 	  fp1->Draw("lsame");
-	  fp2->SetParameters(f_cb->GetParameter(0), pars[0][i_pt], f_cb->GetParameter(nPtBins+1), f_cb->GetParameter(nPtBins+4) * pt_val[i_pt] + f_cb->GetParameter(nPtBins+5), pars[1][i_pt], pars[2][i_pt]);
+	  fp2->SetParameters(f_cb->GetParameter(0), pars[0][i_pt], f_cb->GetParameter(nPtBins+1), pars[2][i_pt], pars[3][i_pt], pars[4][i_pt]);
 	  fp2->SetLineColor(kGreen);
 	  fp2->SetLineStyle(kDashed);
 	  fp2->Draw("lsame");
 	  
-	  c->SaveAs(Form("plots/MCMass/CB_pt%d_dep.pdf", i_pt));
+	  c->SaveAs(Form("plots/MCMass/CB_pt%d_mix.pdf", i_pt));
 	  c->Clear();
 	  
 	  // calculating pulls
@@ -323,13 +322,9 @@ void MCmass_dep()
 	  }
 	  
 	  c->SetLogy(0);
-
-	  double lowmp = 2.94, himp = 3.2;
 	  
 	  // plotting the puls
-	  TH1F *fl = c->DrawFrame(lowmp, -6, himp, 6);
-	  fl->SetXTitle("M(#mu#mu) (GeV)");
-	  fl->SetYTitle("pulls");
+	  TH1F *fl = c->DrawFrame(lowm, -6, him, 6);
 	  fl->GetYaxis()->SetTitleOffset(1.3);
 	  fl->GetYaxis()->SetLabelOffset(0.01);
 	  fl->SetTitle(Form("MC J/#psi Pulls (%.0f < p_{T} < %.0f)", ptBins[i_pt], ptBins[i_pt+1]));
@@ -340,20 +335,21 @@ void MCmass_dep()
 	  g_pull->SetMarkerStyle(20);
 	  g_pull->Draw("p");
 	  
-	  TLine *zero = new TLine(lowmp, 0, himp, 0);
+	  TLine *zero = new TLine(lowm, 0, him, 0);
 	  zero->SetLineStyle(kDashed);
 	  zero->Draw();
 	  
-	  c->SaveAs(Form("plots/MCMass/pulls_pt%d_dep.pdf", i_pt));
+	  c->SaveAs(Form("plots/MCMass/pulls_pt%d_mix.pdf", i_pt));
 	  c->Clear();
 	}
 	pars[0][i_pt] /= (ptBins[i_pt+1]-ptBins[i_pt]);
 	epars[0][i_pt] /= (ptBins[i_pt+1]-ptBins[i_pt]);
-	  
+	pars[1][i_pt] *= 1e3;
+	epars[1][i_pt] *= 1e3;
+	pars[2][i_pt] *= 1e3;
+	epars[2][i_pt] *= 1e3;	  
       }
-    
 
-      
       // plotting the free parameters
       double parmin[] = {0, 4.6e-3, 3.09, 0.018, 0.03,  0.6, 1.9};
       double parmax[] = {1, 5e-3,   3.10, 0.03,  0.055, 2.0, 2.4};
@@ -374,29 +370,15 @@ void MCmass_dep()
 	fl->SetTitle(partit[i_p].c_str());
 
 	// free parameters: N, n, alpha
-	if(i_p == 1 || i_p == 5 || i_p == 6) {
+	if(i_p != 0 && i_p != 2) {
 	  TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, pars[ct_p], pt_err, epars[ct_p]);
 	  g_par->SetLineColor(kBlue);
 	  g_par->SetMarkerColor(kBlue);
 	  g_par->Draw("p");
-	  g_par->Write(Form("%s_dep%d", parlab[i_p].c_str(), ifit));
+	  g_par->Write(Form("%s_mix", parlab[i_p].c_str()));
 	  ct_p++;
 	}
-	// linear parameters: sig1, sig2
-	else if(i_p == 3 || i_p == 4) {
-	  double par_val[nPtBins], par_err[nPtBins];
-	  int n_v = i_p - (i_p%2);
-	  for(int i = 0; i < nPtBins; i++) {
-	    par_val[i] = (f_cb->GetParameter(nPtBins+n_v) * pt_val[i] + f_cb->GetParameter(nPtBins+n_v+1))*1e3;
-	    par_err[i] = sqrt(pow(f_cb->GetParError(nPtBins+n_v) * pt_val[i], 2) + pow(f_cb->GetParError(nPtBins+n_v+1), 2))*1e3;
-	  }
-	  TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, par_val, pt_err, par_err);
-	  g_par->SetLineColor(kBlue);
-	  g_par->SetMarkerColor(kBlue);
-	  g_par->Draw("p");
-	  g_par->Write(Form("%s_dep%d", parlab[i_p].c_str(), ifit));
-	}
-    
+	// constant parameters - mu and f
 	else {
 	  double par_val[nPtBins], par_err[nPtBins], mult = 1.;
 	  if(i_p == 0) mult = 100.;
@@ -409,39 +391,32 @@ void MCmass_dep()
 	  g_par->SetLineColor(kBlue);
 	  g_par->SetMarkerColor(kBlue);
 	  g_par->Draw("p");
-	  g_par->Write(Form("%s_dep%d", parlab[i_p].c_str(), ifit));
+	  g_par->Write(Form("%s_mix", parlab[i_p].c_str()));
 	  ct_pos++;
 	}
     
 	c->Clear();
       }
       TLine *l_chi = new TLine(ptBins[0], f_cb->GetChisquare()/f_cb->GetNDF(), ptBins[nPtBins], f_cb->GetChisquare()/f_cb->GetNDF());
-      l_chi->Write(Form("chiN_dep%d", ifit));
+      l_chi->Write(Form("chiN_mix"));
       
       ofstream ftex;
-      ftex.open(Form("text_output/mfit_MC_dep%d.tex", ifit));
-      ftex << "\\begin{tabular}{c||c|c|c}\n";
-      ftex << "$\\pt$ (GeV) & $N$ & $n$ & $\\alpha$ \\\\\n";
+      ftex.open(Form("text_output/mfit_MC_mix.tex"));
+      ftex << "\\begin{tabular}{c||c|c|c|c|c}\n";
+      ftex << "$\\pt$ (GeV) & $N$ & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ & $\\alpha$ \\\\\n";
       ftex << "\\hline\n";
 
       for(int i = 0; i < nPtBins; i++) {
 	// pT bin
 	ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
-	for(int i_p = 0; i_p < 3; i_p++) {
+	for(int i_p = 0; i_p < 5; i_p++) {
 	  double mult = 1.;
- 
-	  double val = pars[i_p][i]*mult, unc = epars[i_p][i]*mult;
-	  if (unc > 0) {
-	    int p_norm = 1.; 
-	    if(unc < 1 ) 
-	      p_norm = ceil(-log10(unc))+1;	
-	    ftex << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
-	  }
-	  else {
-	    int p_norm = 3.;
-	    ftex << " & " <<  setprecision(p_norm) << fixed << val ;
-	  }
 	  
+	  double val = pars[i_p][i]*mult, unc = epars[i_p][i]*mult;
+	  int p_norm = 1.; 
+	  if(unc != 0) 
+	    p_norm = ceil(-log10(unc))+1;	
+	  ftex << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
 	}
 	ftex <<  "\\\\\n";
       }
@@ -449,10 +424,9 @@ void MCmass_dep()
       ftex.close();
 
       ofstream fout2;
-      fout2.open(Form("text_output/mfit_MC_depA%d.tex", ifit));
-      fout2 << "\\begin{tabular}{c|c|cc|cc||c}\n";
-      fout2 << " \\multirow{2}{*}{$f$ $(\\%)$} & \\multirow{2}{*}{$\\mu$ $(MeV)$} & \\multicolumn{2}{|c|}{$\\sigma_1$} & \\multicolumn{2}{|c||}{$\\sigma_2$} & \\multirow{2}{*}{$\\chi^2/$ndf} \\\\\n";
-      fout2 << " & & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & \\\\\n";
+      fout2.open(Form("text_output/mfit_MC_mixA.tex"));
+      fout2 << "\\begin{tabular}{c|c||c}\n";
+      fout2 << " $f$ $(\\%)$ & $\\mu$ $(MeV)$ & $\\chi^2/$ndf \\\\\n";
       fout2 << "\\hline\n";
 
       // f
@@ -465,24 +439,6 @@ void MCmass_dep()
       unc = f_cb->GetParError(p_pos[1])*1000.;
       p_norm = ceil(-log10(unc))+1;	
       fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-      // sigma_1
-      val = f_cb->GetParameter(nPtBins+2)*1e5;
-      unc = f_cb->GetParError(nPtBins+2)*1e5;
-      p_norm = ceil(-log10(unc))+1;	
-      fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-      val = f_cb->GetParameter(nPtBins+3)*1000.;
-      unc = f_cb->GetParError(nPtBins+3)*1000.;
-      p_norm = ceil(-log10(unc))+1;	
-      fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-      // sigma_2 
-      val = f_cb->GetParameter(nPtBins+4)*1e5;
-      unc = f_cb->GetParError(nPtBins+4)*1e5;
-      p_norm = ceil(-log10(unc))+1;	
-      fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-      val = f_cb->GetParameter(nPtBins+5)*1000.;
-      unc = f_cb->GetParError(nPtBins+5)*1000.;
-      p_norm = ceil(-log10(unc))+1;	
-      fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
       // chi^2
       fout2 << setprecision(0) << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << "\\\\\n";
       fout2 << "\\end{tabular}\n";
@@ -492,6 +448,6 @@ void MCmass_dep()
       cout << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << endl;
     }
   fout->Close();
-      
+  
   c->Destructor(); 
 }

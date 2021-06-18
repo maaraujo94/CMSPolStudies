@@ -1,4 +1,4 @@
-int DO_FILL = 1;
+int DO_FILL = 0;
 double gPI = TMath::Pi();
 
 // crystal ball function
@@ -38,6 +38,7 @@ void MCmass_free()
   for(int i = 0; i < 2; i++) ptBins[i+8] = 40.+i*3;
   for(int i = 0; i < 1; i++) ptBins[i+10] = 46.+i*4;
   for(int i = 0; i < 4; i++) ptBins[i+11] = 50.+i*5.;
+  ptBins[14] = 66;
   for(int i = 0; i < 4; i++) ptBins[i+15] = 70.+i*10.;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
@@ -139,8 +140,8 @@ void MCmass_free()
   cout << "all psi(2S) MC mass histograms filled" << endl << endl;
 
   // scale histos for easier normalization
-  for(int i = 0; i < nPtBins; i++)
-    mHist[i]->Scale(1./mHist[i]->Integral());
+  //for(int i = 0; i < nPtBins; i++)
+    //mHist[i]->Scale(1./mHist[i]->Integral());
 
   double fit_i = 2.92;
   double fit_f = 3.28;
@@ -161,7 +162,7 @@ void MCmass_free()
   ofstream fout;
   fout.open(Form("text_output/mfit_MC_free.tex"));
   fout << "\\begin{tabular}{c||c|c|c|c|c|c|c||c}\n";
-  fout << "$\\pt$ (GeV) & $N$ $(\\times1e5)$ & $f$ (\\%) & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ &  $\\alpha$ & $\\chi^2$/ndf \\\\\n";
+  fout << "$\\pt$ (GeV) & $N$ & $f$ (\\%) & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ &  $\\alpha$ & $\\chi^2$/ndf \\\\\n";
   fout << "\\hline\n";
 
   double pars[8][nPtBins], epars[8][nPtBins];
@@ -172,7 +173,7 @@ void MCmass_free()
     pt_val[i_pt] = 0.5*(ptBins[i_pt+1]+ptBins[i_pt]);
     pt_err[i_pt] = 0.5*(ptBins[i_pt+1]-ptBins[i_pt]);
     
-    double N = mHist[i_pt]->GetMaximum()/10.;
+    double N = mHist[i_pt]->Integral()/100.;
     f_cb->SetParameters(N, f, mu, sig1, sig2, n, alpha);
     
     // fitting, plotting histo
@@ -185,17 +186,26 @@ void MCmass_free()
     for(int i_p = 0; i_p < 7; i_p++) {
       pars[i_p][i_pt] = f_cb->GetParameter(i_p);
       epars[i_p][i_pt] = f_cb->GetParError(i_p);
-      if(f_cb->GetParError(i_p) != 0) {
+      if(i_p == 0) {
+	pars[i_p][i_pt] /= (ptBins[i_pt+1]-ptBins[i_pt]);
+	epars[i_p][i_pt]  /= (ptBins[i_pt+1]-ptBins[i_pt]);
+      }
+      else if(i_p == 1) {
+	pars[i_p][i_pt] *= 100.;
+	epars[i_p][i_pt]  *= 100.;
+      }
+      else if(i_p > 1 && i_p < 5) {
+	pars[i_p][i_pt] *= 1e3;
+	epars[i_p][i_pt]  *= 1e3;
+      }
+      if(epars[i_p][i_pt] != 0) {
 	double mult = 1.;
-	if(i_p == 0) mult = 1e5;
-	else if(i_p == 1) mult = 100.;
-	else if((i_p > 1 && i_p < 5)) mult = 1000.;
-	int p_norm = ceil(-log10(f_cb->GetParError(i_p)*mult))+1;	
-	fout <<  setprecision(p_norm) << fixed << f_cb->GetParameter(i_p)*mult << " $\\pm$ " << f_cb->GetParError(i_p)*mult << " & " << endl;
+	int p_norm = ceil(-log10(epars[i_p][i_pt]*mult))+1;	
+	fout <<  setprecision(p_norm) << fixed << pars[i_p][i_pt]*mult << " $\\pm$ " << epars[i_p][i_pt]*mult << " & " << endl;
       }
       else {
-	int p_norm = 3;//ceil(-log10(f_cb->GetParameter(i_p)))+1;	
-	fout << setprecision(p_norm) << fixed << f_cb->GetParameter(i_p) << " & " << endl;
+	int p_norm = 3;//ceil(-log10(pars[i_p][i_pt]))+1;	
+	fout << setprecision(p_norm) << fixed << pars[i_p][i_pt] << " & " << endl;
       }
     }
     pars[7][i_pt] = f_cb->GetChisquare()/f_cb->GetNDF();//TMath::Prob(f_cb->GetChisquare(), f_cb->GetNDF());

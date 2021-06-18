@@ -68,6 +68,8 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 // MAIN
 void mBkg()
 {
+  double pToChi = 0;
+  
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
   for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
@@ -133,7 +135,7 @@ void mBkg()
 
   // scale 1d histos and fill 2d histo
   for(int i = 0; i < nPtBins; i++) {
-    h_d1d[i]->Scale(1./h_d1d[i]->Integral());
+    //h_d1d[i]->Scale(1./h_d1d[i]->Integral());
     for(int j = 0; j < mbins; j++) {
       h_d2d->SetBinContent(j+1, i+1, h_d1d[i]->GetBinContent(j+1));
       h_d2d->SetBinError(j+1, i+1, h_d1d[i]->GetBinError(j+1));
@@ -163,7 +165,7 @@ void mBkg()
   // define free parameters - N, alpha, n
   for(int i = 0; i < nPtBins; i++) {
     f_cb->SetParName(i+1, Form("NS_%d", i));
-    f_cb->SetParameter(i+1, 8.e-3);  
+    f_cb->SetParameter(i+1, h_d1d[i]->Integral()/100.);  
 
     f_cb->SetParName(nPtBins+6+i, Form("n_%d", i));
     //f_cb->SetParameter(nPtBins+6+i, 1.2);
@@ -174,7 +176,7 @@ void mBkg()
     f_cb->FixParameter(i+6+2*nPtBins, 2.15);
 
     f_cb->SetParName(i+6+3*nPtBins, Form("NB_%d", i));
-    if(DO_EXP) p1v = 0.3;
+    if(DO_EXP) p1v = h_d1d[i]->Integral()/2.;
     else p1v = h_d1d[i]->Integral()/500.;
     f_cb->SetParameter(i+6+3*nPtBins, p1v);
 
@@ -233,12 +235,12 @@ void mBkg()
 			pars[3][i_pt],
 			pars[4][i_pt]);
   
-    //c->SetLogy();
-    //h_d1d[i_pt]->SetMaximum(h_d1d[i_pt]->GetMaximum()*1.2);
-    //h_d1d[i_pt]->SetMinimum(h_d1d[i_pt]->GetMaximum()*8e-3);
-
     h_d1d[i_pt]->SetMaximum(h_d1d[i_pt]->GetMaximum()*1.1);
     h_d1d[i_pt]->SetMinimum(0);
+    h_d1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
+    h_d1d[i_pt]->GetYaxis()->SetTitleOffset(1.4);
+    h_d1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
+    h_d1d[i_pt]->GetXaxis()->SetRangeUser(m_min[0], m_max[2]);
     h_d1d[i_pt]->SetMarkerStyle(20);
     h_d1d[i_pt]->SetMarkerSize(0.75);
     h_d1d[i_pt]->SetMarkerColor(kBlack);
@@ -259,19 +261,13 @@ void mBkg()
     fp3->SetLineStyle(kDashed);
     fp3->Draw("lsame");
 
-    TLine ***lims = new TLine**[3];
-    for(int i = 0; i < 3; i++) {
-      lims[i] = new TLine*[2];
-      lims[i][0] = new TLine(m_min[i], 0, m_min[i], getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.5, 0));
-      lims[i][1] = new TLine(m_max[i], 0, m_max[i], getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.5, 0));
-      for(int j = 0; j < 2; j++) {
-	if(i == 1) 
-	  lims[i][j]->SetLineColor(kRed);
-	else 
-	  lims[i][j]->SetLineColor(kBlue);
-	lims[i][j]->SetLineStyle(kDashed);
-	lims[i][j]->Draw();
-      }
+    TLine **lims = new TLine*[2];
+    lims[0] = new TLine(m_min[1], 0, m_min[1], getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.5, 0));
+    lims[1] = new TLine(m_max[1], 0, m_max[1], getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.5, 0));
+    for(int j = 0; j < 2; j++) {
+      lims[j]->SetLineColor(kRed);
+      lims[j]->SetLineStyle(kDashed);
+      lims[j]->Draw();
     }
     
     c->SaveAs(Form("plots/dataMass/CB_pt%d.pdf", i_pt));
@@ -287,23 +283,25 @@ void mBkg()
     efz[i_pt] = 0;
 
     // calculating pulls
-    double mv[mbins], pv[mbins];
+    double mv[mbins], pv[mbins], dv[mbins];
     for(int i_m = 0 ; i_m < mbins; i_m++) {
       mv[i_m] = h_d1d[i_pt]->GetBinCenter(i_m+1);
       double fitv = f_1d->Eval(mv[i_m]);
       double datav = h_d1d[i_pt]->GetBinContent(i_m+1);
       double datau = h_d1d[i_pt]->GetBinError(i_m+1);
-      if(datau > 0 && mv[i_m] > m_min[0] && mv[i_m] < m_max[2]) {
-	pv[i_m] = (datav-fitv)/datau;
-      }
-      else
-	pv[i_m] = 0;
+      if(datau > 0 && mv[i_m] > m_min[0] && mv[i_m] < m_max[2]) pv[i_m] = (datav-fitv)/datau;
+      else pv[i_m] = 0;
+      if(fitv > 0 && mv[i_m] > m_min[0] && mv[i_m] < m_max[2]) dv[i_m] = (datav-fitv)/fitv * 100.;
+      else dv[i_m] = 0;
+      pToChi += pow(pv[i_m], 2);
     }
-
+  
     c->SetLogy(0);
-
+    
     // plotting the puls
-    TH1F *fl = c->DrawFrame(lowm, -20, him, 20);
+    TH1F *fl = c->DrawFrame(m_min[0], -20, m_max[2], 20);
+    fl->SetXTitle("M(#mu#mu) (GeV)");
+    fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
     fl->SetTitle(Form("Data J/#psi Pulls (%.0f < p_{T} < %.0f)", ptBins[i_pt], ptBins[i_pt+1]));
@@ -314,30 +312,60 @@ void mBkg()
     g_pull->SetMarkerStyle(20);
     g_pull->Draw("p");
     
-    TLine *zero = new TLine(lowm, 0, him, 0);
+    TLine *zero = new TLine(m_min[0], 0, m_max[2], 0);
     zero->SetLineStyle(kDashed);
     zero->Draw();
 
-    TLine ***limp = new TLine**[3];
-    for(int i = 0; i < 3; i++) {
-      limp[i] = new TLine*[2];
-      limp[i][0] = new TLine(m_min[i], -20, m_min[i], 20);
-      limp[i][1] = new TLine(m_max[i], -20, m_max[i], 20);
-      for(int j = 0; j < 2; j++) {
-	if(i == 1) 
-	  limp[i][j]->SetLineColor(kRed);
-	else 
-	  limp[i][j]->SetLineColor(kBlue);
-	limp[i][j]->SetLineStyle(kDashed);
-	limp[i][j]->Draw();
-      }
+    TLine **limp = new TLine*[2];
+    limp[0] = new TLine(m_min[1], -20, m_min[1], 20);
+    limp[1] = new TLine(m_max[1], -20, m_max[1], 20);
+    for(int j = 0; j < 2; j++) {
+      limp[j]->SetLineColor(kRed);
+      limp[j]->SetLineStyle(kDashed);
+      limp[j]->Draw();
     }
 
     
     c->SaveAs(Form("plots/dataMass/pulls_pt%d.pdf", i_pt));
     c->Clear();
-  }
 
+    // plotting the devs
+    TH1F *fd = c->DrawFrame(m_min[0], -15, m_max[2], 15);
+    fd->SetXTitle("M(#mu#mu) (GeV)");
+    fd->SetYTitle("relative difference (%)");
+    fd->GetYaxis()->SetTitleOffset(1.3);
+    fd->GetYaxis()->SetLabelOffset(0.01);
+    fd->SetTitle(Form("Data J/#psi rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+  
+    TGraph *g_dev = new TGraph(mbins, mv, dv);
+    g_dev->SetLineColor(kBlack);
+    g_dev->SetMarkerColor(kBlack);
+    g_dev->SetMarkerStyle(20);
+    g_dev->Draw("psame");
+    
+    // aux lines - pull = 0 and sigma limits
+    zero->Draw("lsame");
+
+    TLine **limd = new TLine*[2];
+    limd[0] = new TLine(m_min[1], -15, m_min[1], 15);
+    limd[1] = new TLine(m_max[1], -15, m_max[1], 15);
+    for(int j = 0; j < 2; j++) {
+      limd[j]->SetLineColor(kRed);
+      limd[j]->SetLineStyle(kDashed);
+      limd[j]->Draw();
+    }
+  
+    c->SaveAs(Form("plots/dataMass/devs_pt%d.pdf", i_pt));
+    c->Clear();
+
+    pars[0][i_pt] /= (ptBins[i_pt+1]-ptBins[i_pt]);
+    epars[0][i_pt] /= (ptBins[i_pt+1]-ptBins[i_pt]);
+    pars[3][i_pt] /= (ptBins[i_pt+1]-ptBins[i_pt]);
+    epars[3][i_pt] /= (ptBins[i_pt+1]-ptBins[i_pt]);
+    pars[4][i_pt] *= 1e3;
+    epars[4][i_pt] *= 1e3;
+  }
+  
   // storing the free parameters
   TFile *fout = new TFile("files/mfit_data.root", "recreate");
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda"};
@@ -356,8 +384,8 @@ void mBkg()
       double par_val[nPtBins], par_err[nPtBins];
       int n_v = i_p - (i_p%2);
       for(int i = 0; i < nPtBins; i++) {
-	par_val[i] = f_cb->GetParameter(nPtBins+n_v) * pt_val[i] + f_cb->GetParameter(nPtBins+n_v+1);
-	par_err[i] = sqrt(pow(f_cb->GetParError(nPtBins+n_v) * pt_val[i], 2) + pow(f_cb->GetParError(nPtBins+n_v+1), 2));
+	par_val[i] = (f_cb->GetParameter(nPtBins+n_v) * pt_val[i] + f_cb->GetParameter(nPtBins+n_v+1))*1e3;
+	par_err[i] = (sqrt(pow(f_cb->GetParError(nPtBins+n_v) * pt_val[i], 2) + pow(f_cb->GetParError(nPtBins+n_v+1), 2)))*1e3;
       }
       TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, par_val, pt_err, par_err);
       g_par->Write(Form("fit_%s", parlab[i_p].c_str()));
@@ -371,6 +399,10 @@ void mBkg()
 	if(i_p == 0) {
 	  par_val[i] *= 100.;
 	  par_err[i] *= 100.;
+	}
+	if(i_p == 2) {
+	  par_val[i] *= 1e3;
+	  par_err[i] *= 1e3;
 	}
       }
       TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, par_val, pt_err, par_err);
@@ -388,15 +420,15 @@ void mBkg()
   ofstream ftex;
   ftex.open(Form("text_output/mfit_data.tex"));
   ftex << "\\begin{tabular}{c||c|c|c|c|c||c}\n";
-  if(DO_EXP == 1)  ftex << "$\\pt$ (GeV) & $N_{SR}$ & $n$ & $\\alpha$ & $N_{BG}$  & $\\lambda$ (GeV) & $f_{bkg}$ (\\%) \\\\\n";
-  else  ftex << "$\\pt$ (GeV) & $N$ & $n$ & $\\alpha$ & $p_1$ (GeV$^{-1}$) & $p_2$ (GeV)  & $f_{bkg}$ (\\%) \\\\\n";
+  if(DO_EXP == 1)  ftex << "$\\pt$ (GeV) & $N_{SR}$ & $n$ & $\\alpha$ & $N_{BG}$  & $\\lambda$ (MeV) & $f_{bkg}$ (\\%) \\\\\n";
+  else  ftex << "$\\pt$ (GeV) & $N$ & $n$ & $\\alpha$ & $p_1$ (GeV$^{-1}$) & $p_2$ (MeV)  & $f_{bkg}$ (\\%) \\\\\n";
   ftex << "\\hline\n";
 
   for(int i = 0; i < nPtBins; i++) {
     // pT bin
     ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
     for(int i_p = 0; i_p < 5; i_p++) {
-      double mult = 1.; 
+      double mult = 1.;
       double val = pars[i_p][i]*mult, unc = epars[i_p][i]*mult;
       if (unc > 0) {
 	int p_norm = 1.; 
@@ -405,7 +437,7 @@ void mBkg()
 	ftex << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
       }
       else {
-	int p_norm = 2.;
+	int p_norm = 3.;
 	ftex << " & " <<  setprecision(p_norm) << fixed << val ;
       }
     }
@@ -463,6 +495,8 @@ void mBkg()
   */
   
   c->Destructor();
+
+  cout << "from the pulls calculations we get a total chi^2 = " << pToChi << endl;
 
   plotDMPars(DO_EXP);
 }
