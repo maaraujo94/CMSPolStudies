@@ -40,6 +40,8 @@ void plotLtPars()
   string par_unit[] = {" per 5 GeV", " per 5 GeV", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
   
   TGraphErrors **g_par = new TGraphErrors*[7];
+  TFile *fout = new TFile("files/ltfit.root", "recreate");
+  
   for(int i = 0; i < 7; i++) {
     if(i==3) continue;
     g_par[i] = new TGraphErrors(pt_bins, pt_avg, par[i], pt_err, epar[i]);
@@ -65,11 +67,14 @@ void plotLtPars()
     g_par[i]->SetLineColor(kBlack);
     g_par[i]->Draw("psame");
 
+    g_par[i]->SetName(Form("fit_%s", par_tit[i].c_str()));
+    g_par[i]->Write();
 
+    
     c->SaveAs(Form("plots/lifetime/par_%s.pdf", par_tit[i].c_str()));
     c->Clear();
   }
-
+  
   TGraphErrors *g_chi = new TGraphErrors(pt_bins, pt_avg, chiN, pt_err, zero);
 
   TH1F *fchi = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 35);
@@ -108,6 +113,11 @@ void plotLtPars()
   g_frac->SetMarkerColor(kBlack);
   g_frac->SetLineColor(kBlack);
   g_frac->Draw("psame");
+
+  g_frac->SetName("fit_fNP");
+  g_frac->Write();
+  fout->Close();
+
   
   c->SaveAs(Form("plots/lifetime/par_fNP.pdf"));
   c->Clear();
@@ -189,5 +199,7 @@ void plotLtPars()
   
   c->SaveAs(Form("plots/lifetime/par_sigRat.pdf"));
   c->Clear();
+
   c->Destructor();
+
 }

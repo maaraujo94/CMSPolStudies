@@ -47,50 +47,43 @@ void jpsi2012_data()
 
   int dEvt = dataJ->GetEntries();
   int perc = dEvt / 100;
-
-  const int nbins = 9;
-  double pTbins[10] = {12, 14, 15.5, 17.5, 19, 21, 22.5, 25, 29, 70};
-  double cosa;
   
   TH1D *datapT = new TH1D("hdata", "data pT", 100, 0, 100);
-  TH1D **dataCos = new TH1D*[nbins];
-  for(int i = 0; i<nbins; i++)
-    dataCos[i] = new TH1D(Form("name%d", i), Form("pT bin %d", i), 100, -1, 1);
 
   TFile *outfile = new TFile("data_cos.root", "recreate");
   TTree *newtree = new TTree("data_cos", "");
 
-  TBranch *cos_tree = newtree->Branch("costh", &cosa);
-  TBranch *pT_tree = newtree->Branch("JpsiPt", &JpsiPt);
+  double cosa;
+  newtree->Branch("costh", &cosa);
+  newtree->Branch("JpsiPt", &JpsiPt);
+  newtree->Branch("lt", &Jpsict);
+  newtree->Branch("lterr", &JpsictErr);
+  newtree->Branch("Mass", &JpsiMass);
+  newtree->Branch("Rap", &JpsiRap);
+
+  cout << "processing " << dEvt << " events:" << endl;
   
   for(int i = 0; i < dEvt; i++) {
     dataJ->GetEntry(i);
     if( muPPt > 5.6 && muNPt > 5.6 && 
-	abs(muPEta) < 1.6 && abs(muNEta) < 1.6 &&
+	abs(muPEta) < 1.4 && abs(muNEta) < 1.4 &&
 	vProb > 0.01 &&
-	JpsiPt > 12 && JpsiPt < 70 &&
 	abs(JpsiRap) < 1.2 &&
-	abs(Jpsict/JpsictErr) < 2.5 &&
-	JpsiMass > 3 && JpsiMass < 3.2 &&
 	trigger == 1)
       {
 	datapT->Fill(JpsiPt);
-	for(int bin = 0; bin < nbins; bin++)
-	    if (JpsiPt > pTbins[bin] && JpsiPt < pTbins[bin+1])
-	      {
-		TLorentzVector *p4_jpsi = new TLorentzVector;
-		p4_jpsi->SetPtEtaPhiM(JpsiPt, JpsiEta, JpsiPhi, JpsiMass);
-		TLorentzVector *p4_muP = new TLorentzVector;
-		p4_muP->SetPtEtaPhiM(muPPt, muPEta, muPPhi, muPMass);
 
-		cosa = costh(p4_jpsi, p4_muP);
-		dataCos[bin]->Fill(cosa);
-	      }
+	TLorentzVector *p4_jpsi = new TLorentzVector;
+	p4_jpsi->SetPtEtaPhiM(JpsiPt, JpsiEta, JpsiPhi, JpsiMass);
+	TLorentzVector *p4_muP = new TLorentzVector;
+	p4_muP->SetPtEtaPhiM(muPPt, muPEta, muPPhi, muPMass);
+	
+	cosa = costh(p4_jpsi, p4_muP);
 	newtree->Fill();
       }
     if((i+1)%perc == 0) cout << (i+1)/perc << "% done with data" << endl; 
   }
-
+  
   outfile->Write();
   outfile->Close();
   
@@ -100,11 +93,4 @@ void jpsi2012_data()
   datapT->Draw();
 
   c->SaveAs("data_pt.pdf");
-
-  c->SetLogy(0);
-  for(int i = 0; i < nbins; i++) {
-    c->Clear();
-    dataCos[i]->Draw();
-    c->SaveAs(Form("data_cosa_bin%d.pdf", i));
-  }
 }

@@ -1,4 +1,4 @@
-int DO_FILL = 0;
+int DO_FILL = 1;
 double gPI = TMath::Pi();
 
 // crystal ball function
@@ -76,7 +76,7 @@ void MCmass_free()
     for(int i = 0; i < mEvt; i++)
       {
 	tree1->GetEntry(i);
-	if(mc_pt > 25 && mc_pt < 46 && mc_lt > -0.1 && mc_lt < 0.1) {
+	if(mc_pt > 25 && mc_pt < 46 && abs(mc_lt) < 0.01) {
 	  for(int i_p = 0; i_p < nPtBins; i_p++)
 	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
 	      mHist[i_p]->Fill(mc_m);
@@ -95,7 +95,7 @@ void MCmass_free()
     for(int i = 0; i < mEvt; i++)
       {
 	tree2->GetEntry(i);
-	if(mc_pt > 46 && mc_pt < 66 && mc_lt > -0.1 && mc_lt < 0.1) {
+	if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.01) {
 	  for(int i_p = 0; i_p < nPtBins; i_p++)
 	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
 	      mHist[i_p]->Fill(mc_m);
@@ -114,7 +114,7 @@ void MCmass_free()
     for(int i = 0; i < mEvt; i++)
       {
 	tree3->GetEntry(i);
-	if(mc_pt > 66 && mc_pt < 100 && mc_lt > -0.1 && mc_lt < 0.1) {
+	if(mc_pt > 66 && mc_pt < 100 && abs(mc_lt) < 0.01) {
 	  for(int i_p = 0; i_p < nPtBins; i_p++)
 	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
 	      mHist[i_p]->Fill(mc_m);

@@ -7,14 +7,14 @@ void plotDMPars(int DO_EXP)
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "p1", "p2", "fBG", "chiN"};
   string partit[] = {"f", "N_{SR}", "#mu", "#sigma_{1}", "#sigma_{2}", "n", "#alpha", "p_{1}", "p_{2}", "f_{bkg}"};
   string parax[] = {"f (%)", "N_{SR}", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "p_{1} (GeV^{-1})", "p_{2} (GeV)", "f_{bkg} (%)"};
-  double parmin[] = {0,    2e1, 3093.4, 15, 30, 1.0, 2.0, 1e2, 3.6, 0.};
-  double parmax[] = {100., 5e4, 3094.4, 35, 50, 1.4, 2.3, 5e4, 3.8, 15.};
+  double parmin[] = {0,    1e1, 3093.4, 15, 30, 1.0, 2.0, 1e2, 3.6, 0.};
+  double parmax[] = {100., 2e4, 3094.4, 30, 45, 1.4, 2.3, 5e4, 3.8, 15.};
 
   if(DO_EXP == 1) {
-    parmin[7] = 2e3;
-    parmax[7] = 1e6;
-    parmin[8] = 500;
-    parmax[8] = 700;
+    parmin[7] = 1e1;
+    parmax[7] = 8e4;
+    parmin[8] = 800;
+    parmax[8] = 2400;
     parlab[7] = "NB";
     parlab[8] = "lambda";
     partit[7] = "N_{BG}";
@@ -75,14 +75,14 @@ void plotDMPars(int DO_EXP)
       flin->SetParameters(0.1, 5);
       flin->SetLineColor(kBlue);
       flin->SetLineStyle(kDashed);
-      g_par[i_p]->Fit(flin);
+      //g_par[i_p]->Fit(flin);
     }
       
     c->SaveAs(Form("plots/dataMass/%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }
 
-  TH1F *fl = c->DrawFrame(pt_min, 0, pt_max, 50);
+  TH1F *fl = c->DrawFrame(pt_min, 0, pt_max, 20);
   fl->SetXTitle("p_{T} (GeV)");
   fl->SetYTitle("#chi^{2}/ndf");
   fl->GetYaxis()->SetTitleOffset(1.3);

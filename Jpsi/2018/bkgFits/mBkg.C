@@ -108,7 +108,7 @@ void mBkg()
     for(int i = 0; i < dEvt; i++)
       {
 	tree1->GetEntry(i);
-	if(data_pt > 25 && data_pt < 100 && data_lt > -0.1 && data_lt < 0.1) {
+	if(data_pt > 25 && data_pt < 100 && abs(data_lt) < 0.01) {
 	  for(int i_p = 0; i_p < nPtBins; i_p++)
 	    if(data_pt > ptBins[i_p] && data_pt < ptBins[i_p+1])
 	      h_d1d[i_p]->Fill(data_m);
