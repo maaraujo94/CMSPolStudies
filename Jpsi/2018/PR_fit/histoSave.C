@@ -117,11 +117,18 @@ void histoSave()
   mcHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   mcHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
 
+  TH2D *ratioHist_ab = new TH2D("ratioH_ab", "2018 Data/MC", 20, 0, 1., nPtBins, ptBins);
+  ratioHist_ab = (TH2D*)dataHist_ab->Clone("ratioH_ab");
+  ratioHist_ab->Sumw2();
+  ratioHist_ab->Divide(mcHist_ab);
+  ratioHist_ab->SetTitle("2018 Data/MC");
+    
   TFile *outfile = new TFile("files/histoStore.root", "recreate");
   dataHist->Write();
   dataHist_ab->Write();
   mcHist->Write();
   mcHist_ab->Write();
+  ratioHist_ab->Write();
   outfile->Close();
 
   cout << dataHist->GetEntries() << " data events and " << mcHist->GetEntries() << " MC events" << endl;

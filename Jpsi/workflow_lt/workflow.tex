@@ -24,10 +24,13 @@
 
 \tableofcontents
 
+\pagebreak
+
 \section{Cheat sheet: code order}
 
 \begin{enumerate}
 \item histoSave.C
+\item getCos.C
 \item bkgSave.C
 \item MCmass\_[...].C (optional - illustrative plots)
 \item ltBkg.C
@@ -35,6 +38,8 @@
 \item mBkg.C
 \item plotDMPars.C
 \item bkgCosth.C
+\item fitBkgCosth.C / fitBkgCosth2d.C
+\item (only for 2d fit) plotCosPars.C
 \end{enumerate}
 
 \pagebreak
@@ -62,6 +67,10 @@ Fine binning for data and MC
 
 Run histoSave.C to store the 2d histos ($\pt$ vs $\cost$) in histoStore.root.
 
+\subsection{Limit $\cost$}
+
+Run getCos.C to get the limit $\cost$ in each $\pt$ and interpolate a function to get $\cost_{max}(\pt)$
+
 \pagebreak
 
 \section{Background fitting: Mass and Lifetime distributions}
@@ -88,7 +97,8 @@ Coarse binning for background fitting
 
 \subsection{Storing histograms}
 
-Run bkgSave.C to store the 1d histos (mass in the prompt region and lifetime in the signal region) for all $\pt$ bins.
+Run bkgSave.C to store the 1d histos (mass in the prompt region and lifetime in the signal region) for all $\pt$ bins. Stores data, MC and data/MC ratio.
+
 
 \subsection{Lifetime fit}
 
@@ -179,5 +189,38 @@ RSB background selection:
 \subsection{Storing histograms}
 
 Run bkgHisto.C to store the 2d histos ($\pt$ vs $\cost$) of data/MC for the three background regions.
+
+\subsection{$\cost$ fit}
+
+For each $\pt$ bin, fit the distribution with
+\begin{equation}
+f_{\cost} = N\left(1+\lambda_2(\cost)^2+\lambda_4(\cost)^4\right)
+\end{equation}
+
+For the NP case, $\lambda_2$ is redefined as $\lambda_{NP}$ and $\lambda_4=0$.
+
+Running a 1d fit with normalization $N$ free and $\lambda_2$, $\lambda_4$ successively fixed to their central values (considered constant in $\pt$).
+
+Also running a 2d fit with normalization $N$ free and $\lambda_2$, $\lambda_4$ constant in $\pt$.
+
+\subsubsection{Running the fit}
+
+Run fitBkgCosth.C to run the 1d fit or fitBkgCosth2d.C to run the 2d fit. Outputs all fit parameters per $\pt$ bin. Plots distributions, pulls and relative difference.
+
+\subsection{Plotting the fit parameters}
+
+The 1d fit automatically plots the results. For the 2d fit, run plotCosPars.C. This plots:
+\begin{itemize}
+\item $N$ and $\lambda_{NP}$ for NP fit
+\item $N$, $\lambda_2$ and $\lambda_4$ for sideband fits
+\end{itemize}
+
+\pagebreak
+
+\section{Background subtraction}
+
+\subsection{Getting the background distributions}
+
+Generate the background $\cost$ distributions using the above fit parameters, in the fine binning of the data
 
 \end{document}

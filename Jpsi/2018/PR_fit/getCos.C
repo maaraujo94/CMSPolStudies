@@ -9,9 +9,9 @@ void getCos()
   fout.close();  
   
   // read the coarse histos in |costh|
-  TFile *infile = new TFile("files/ratioHist.root");
+  TFile *infile = new TFile("files/histoStore.root");
   TH2D *hist = new TH2D();
-  infile->GetObject(Form("ratioHist_ab"), hist);
+  infile->GetObject(Form("ratioH_ab"), hist);
   hist->SetDirectory(0);
   infile->Close();
 
