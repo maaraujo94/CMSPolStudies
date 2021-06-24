@@ -1,0 +1,15 @@
+\contentsline {section}{\numberline {1}Cheat sheet: code order}{1}{section.1}
+\contentsline {section}{\numberline {2}PR SR $p_\text {T}$ vs $\qopname \relax o{cos}\theta $}{2}{section.2}
+\contentsline {subsection}{\numberline {2.1}Cuts and binning}{2}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Storing histograms}{2}{subsection.2.2}
+\contentsline {section}{\numberline {3}Background fitting: Mass and Lifetime distributions}{3}{section.3}
+\contentsline {subsection}{\numberline {3.1}Regions and binning}{3}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Storing histograms}{3}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Lifetime fit}{3}{subsection.3.3}
+\contentsline {subsubsection}{\numberline {3.3.1}Running the fit}{3}{subsubsection.3.3.1}
+\contentsline {subsection}{\numberline {3.4}Mass fit}{3}{subsection.3.4}
+\contentsline {subsubsection}{\numberline {3.4.1}Running the fit}{4}{subsubsection.3.4.1}
+\contentsline {subsection}{\numberline {3.5}Plotting the fit parameters}{4}{subsection.3.5}
+\contentsline {section}{\numberline {4}Background fitting: $\qopname \relax o{cos}\theta $ distributions}{5}{section.4}
+\contentsline {subsection}{\numberline {4.1}Background selection}{5}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Storing histograms}{5}{subsection.4.2}

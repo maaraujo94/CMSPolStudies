@@ -1,0 +1,183 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{indentfirst}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{comment}
+\usepackage{braket}
+\usepackage{xcolor}
+
+\newcommand{\pt}{p_\text{T}}
+\newcommand{\cost}{\cos\theta}
+
+\newcommand{\loc}{/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/2018/bkgFits}
+
+\begin{document}
+
+\title{$J/\psi$ polarization workflow }
+\author{Mariana Ara\'ujo (LIP)}
+\maketitle
+
+\tableofcontents
+
+\section{Cheat sheet: code order}
+
+\begin{enumerate}
+\item histoSave.C
+\item bkgSave.C
+\item MCmass\_[...].C (optional - illustrative plots)
+\item ltBkg.C
+\item plotLtPars.C
+\item mBkg.C
+\item plotDMPars.C
+\item bkgCosth.C
+\end{enumerate}
+
+\pagebreak
+
+\section{PR SR $\pt$ vs $\cost$}
+\subsection{Cuts and binning} 
+
+Cuts on stored datafiles:
+\begin{itemize}
+\item $M(\mu\mu)\in[3.0,3.2]$ GeV
+\item $|y(\mu\mu)|<1.2$
+\item $|\ell|<0.01$ cm
+\end{itemize}
+
+Fine binning for data and MC
+\begin{itemize}
+\item $25-37$ GeV: 12 bins of 1 GeV
+\item $37-46$ GeV: 6 bins of 1.5 GeV
+\item $46-76$ GeV: 12 bins of 2.5 GeV
+\item $76-100$ GeV: 6 bins of 4 GeV
+\item $100-120$ GeV: 2 bins of 10 GeV
+\end{itemize}
+
+\subsection{Storing histograms}
+
+Run histoSave.C to store the 2d histos ($\pt$ vs $\cost$) in histoStore.root.
+
+\pagebreak
+
+\section{Background fitting: Mass and Lifetime distributions}
+\subsection{Regions and binning} 
+
+The three mass regions and the two lifetime regions are defined according to fixed limits
+\begin{equation}\begin{cases}
+m^{LSB}&\in[2.92, 2.95] \text{ GeV}\\
+m^{SR}&\in[3.0, 3.2]  \text{ GeV}\\
+m^{RSB}&\in[3.21, 3.28]  \text{ GeV}\\
+\end{cases}\hspace{0.5cm}\text{and}\hspace{0.5cm}
+\begin{cases}
+|\ell^{PR}| < 0.01\text{ cm} \\
+0.014 < \ell^{NP} < 0.05\text{ cm}
+\end{cases}
+\end{equation}
+
+Coarse binning for background fitting
+\begin{itemize}
+\item $25-46$ GeV: 3 bins of 7 GeV
+\item $46-76$ GeV: 3 bins of 10 GeV
+\item $76-100$ GeV: 1 bin of 24 GeV
+\end{itemize}
+
+\subsection{Storing histograms}
+
+Run bkgSave.C to store the 1d histos (mass in the prompt region and lifetime in the signal region) for all $\pt$ bins.
+
+\subsection{Lifetime fit}
+
+Fit the $\ell$ region $[-0.01,0.05]$ cm (mass in the signal region). For the PR contribution (equal to the resolution), consider a double Gaussian distribution:
+\begin{equation}
+L_{PR}=L_{res} = (1-f)\cdot g_{G_1}(\ell|\mu, \sigma_1)+f\cdot g_{G_2}(\ell|\mu, \sigma_2),
+\end{equation}
+
+Both Gaussian functions share a common $\mu$ and have independent $\sigma_{1,2}$. For the NP contribution, consider a negative exponential convoluted with the double Gaussian defined above:
+\begin{equation}
+L_{NP}=	\left[\exp(-\ell/\lambda)\cdot\mathcal{H}(\ell)\right]*L_{res}(\ell|\mu, \sigma_1,\sigma_2),
+\end{equation}
+where $\mathcal{H}$ is the Heaviside step function.
+
+Running a 2d fit with constant $f=0.14$ and $\mu=0$, free $\sigma_{1,2}$, $\lambda$, and normalizations $N_{PR}$, $N_{NP}$.
+
+\subsubsection{Running the fit}
+
+Run ltBkg.C to run the 2d fit reading the histos from bkgSave.C and outputting all fit parameters as well as $\chi^2/$ndf and NP fraction per $\pt$ bin, $f_{NP}$. Plots distribution, pulls and relative difference.
+
+\subsection{Mass fit}
+
+Fit the mass region $[2.94, 3.26]$ GeV (lifetime in the prompt region). For each $\pt$ bin, fit the signal with a double crystal ball function:
+\begin{equation}
+f\cdot g_{CB_1}(m_{\mu^+\mu^-})+(1-f)\cdot g_{CB_2}(m_{\mu^+\mu^-}),
+\end{equation}
+where a crystal ball function $g_{CB}(m_{\mu^+\mu^-})$ is defined by
+\begin{equation}
+g_{CB}(m) = \begin{cases}
+\frac{N_{SR}}{\sqrt{2\pi}\sigma_{CB}}\exp\left(-\frac{(m-\mu)^2}{2\sigma^2_{CB}}\right), & \text{for }\frac{m-\mu}{\sigma_{CB}} > -\alpha \\
+\frac{N_{SR}}{\sqrt{2\pi}\sigma_{CB}}\left(\frac{n}{|\alpha|}\right)^n\exp\left(-\frac{|\alpha|^2}{2}\right)\left(\frac{n}{|\alpha|}-|\alpha|-\frac{m-\mu}{\sigma_{CB}}\right)^{-n}, & \text{for }\frac{m-\mu}{\sigma_{CB}}\leq-\alpha
+\end{cases}.
+\end{equation}
+Both CB functions share a common $N_{SR}$, $\mu$, $n$ and $\alpha$, and have independent $\sigma_{1,2}$. The background is modeled with a negative exponential
+\begin{equation}
+N_{BG} \text{e}^{- m / \lambda}
+\end{equation}
+
+Running a 2d fit with constant $f$ and $\mu$, linear $\sigma_{1,2}$ and free $\lambda$ and normalizations $N_{SR}$, $N_{BG}$. The tail parameters $n$ and $\alpha$ are fixed to results of the MC studies (1.2 and 2.15, respectively). 
+
+\subsubsection{Running the fit}
+
+Run ltBkg.C to run the 2d fit reading the histos from bkgSave.C and outputting all fit parameters as well as $\chi^2/$ndf and mass background fraction per $\pt$ bin, $f_{BG}$. Plots distribution, pulls and relative difference.
+
+\subsection{Plotting the fit parameters}
+
+The lifetime fit parameters are plotted with plotLtPars.C. This plots:
+\begin{itemize}
+\item All 7 fit parameters
+\item $f_{NP}$
+\item $\sigma=\sqrt{\sigma_1^2+\sigma_2^2}$
+\item rms$=\sigma\cdot\pt/M$
+\item $\sigma_2/\sigma_2$
+\end{itemize}
+
+The mass fit parameters are plotted with plotDMPars.C. This plots:
+\begin{itemize}
+\item All 9 fit parameters
+\item $f_{BG}$
+\end{itemize}
+
+\pagebreak
+
+\section{Background fitting: $\cost$ distributions}
+\subsection{Background selection}
+
+NP background selection:
+\begin{itemize}
+\item $M(\mu\mu)\in[3.0,3.2]$ GeV
+\item $|y(\mu\mu)|<1.2$
+\item $0.014 < \ell < 0.05$ cm
+\end{itemize}
+
+LSB background selection:
+\begin{itemize}
+\item $M(\mu\mu)\in[2.92,2.95]$ GeV
+\item $|y(\mu\mu)|<1.2$
+\item $|\ell| < 0.01$ cm
+\end{itemize}
+
+RSB background selection:
+\begin{itemize}
+\item $M(\mu\mu)\in[3.21,3.28]$ GeV
+\item $|y(\mu\mu)|<1.2$
+\item $|\ell| < 0.01$ cm
+\end{itemize}
+
+\subsection{Storing histograms}
+
+Run bkgHisto.C to store the 2d histos ($\pt$ vs $\cost$) of data/MC for the three background regions.
+
+\end{document}
