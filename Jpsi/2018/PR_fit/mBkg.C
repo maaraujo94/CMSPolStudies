@@ -181,6 +181,7 @@ void mBkg()
   
     h_d1d[i_pt]->SetMaximum(h_d1d[i_pt]->GetMaximum()*1.1);
     h_d1d[i_pt]->SetMinimum(0);
+    h_d1d[i_pt]->SetStats(0);
     h_d1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
     h_d1d[i_pt]->GetYaxis()->SetTitleOffset(1.4);
     h_d1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
@@ -357,8 +358,8 @@ void mBkg()
     ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
     for(int i_p = 0; i_p < 5; i_p++) {
       double mult = 1.;
-      if(i == 0 || i == 3) mult = 1./(ptBins[i+1]-ptBins[i]);
-      else if(i == 4) mult = 1e3;
+      if(i_p == 0 || i_p == 3) mult = 1./(ptBins[i+1]-ptBins[i]);
+      else if(i_p == 4) mult = 1e3;
       double val = pars[i_p][i]*mult, unc = epars[i_p][i]*mult;
       if (unc > 0) {
 	int p_norm = 1.; 

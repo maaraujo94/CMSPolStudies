@@ -18,11 +18,11 @@ void plotCutVar()
   double mue_cut = 1.4;
   double mass_range[2] = {0, 1.4e6};
   double dmp_range[2] = {1e2, 1e7};
-  double dmp_cut[4][2] = {{25, 100}, {25, 46}, {46, 66}, {66, 100}};
+  double dmp_cut[4][2] = {{25, 120}, {25, 46}, {46, 66}, {66, 120}};
   double dmy_range[2] = {0, 6e5};
   double dmy_cut = 1.2;
   double dml_range[2] = {1e4, 2e6};
-  double dml_cut[2] = {2.5, 4};
+  double dml_cut[2] = {0.01, 0.014};
   double vp_range[2] = {1.e5, 4e5};
   double vp_cut = 0.01;
   
@@ -37,7 +37,7 @@ void plotCutVar()
     TH1D *h7_JMass  = (TH1D*)fin7->Get("h7_JMass");
     TH1D *h7_JPt    = (TH1D*)fin7->Get("h7_JPt");
     TH1D *h7_Jy     = (TH1D*)fin7->Get("h7_Jy");
-    TH1D *h7_Jlts   = (TH1D*)fin7->Get("h7_Jlts");
+    TH1D *h7_Jlt    = (TH1D*)fin7->Get("h7_Jlt");
     TH1D *h7_vP;
     if(i_i == 0)
       fin7->GetObject("h7_vP", h7_vP);
@@ -123,23 +123,23 @@ void plotCutVar()
     c->Clear();
 
     c->SetLogy();
-    h7_Jlts->GetYaxis()->SetRangeUser(dml_range[0], dml_range[1]);
-    h7_Jlts->GetXaxis()->SetTitle("|c#tau|/#sigma_{c#tau}");
-    h7_Jlts->SetTitle(Form("2017 %s J/#psi lts", s_name[i_i].c_str()));
-    h7_Jlts->Draw("error");
-    TLine *Jlts_0 = new TLine(-dml_cut[0], dml_range[0], -dml_cut[0], dml_range[1]);
-    Jlts_0->SetLineStyle(kDashed);
-    Jlts_0->SetLineColor(kBlack);
-    Jlts_0->Draw("lsame");
-    TLine *Jlts_1 = new TLine(dml_cut[0], dml_range[0], dml_cut[0], dml_range[1]);
-    Jlts_1->SetLineStyle(kDashed);
-    Jlts_1->SetLineColor(kBlack);
-    Jlts_1->Draw("lsame");
-    TLine *Jlts_2 = new TLine(dml_cut[1], dml_range[0], dml_cut[1], dml_range[1]);
-    Jlts_2->SetLineStyle(kDashed);
-    Jlts_2->SetLineColor(kBlack);
-    Jlts_2->Draw("lsame");
-    c->SaveAs(Form("plots/%s17_dimuon_lts.pdf", s_source[i_i].c_str()));
+    h7_Jlt->GetYaxis()->SetRangeUser(dml_range[0], dml_range[1]);
+    h7_Jlt->GetXaxis()->SetTitle("|c#tau| (cm)");
+    h7_Jlt->SetTitle(Form("2017 %s J/#psi lt", s_name[i_i].c_str()));
+    h7_Jlt->Draw("error");
+    TLine *Jlt_0 = new TLine(-dml_cut[0], dml_range[0], -dml_cut[0], dml_range[1]);
+    Jlt_0->SetLineStyle(kDashed);
+    Jlt_0->SetLineColor(kBlack);
+    Jlt_0->Draw("lsame");
+    TLine *Jlt_1 = new TLine(dml_cut[0], dml_range[0], dml_cut[0], dml_range[1]);
+    Jlt_1->SetLineStyle(kDashed);
+    Jlt_1->SetLineColor(kBlack);
+    Jlt_1->Draw("lsame");
+    TLine *Jlt_2 = new TLine(dml_cut[1], dml_range[0], dml_cut[1], dml_range[1]);
+    Jlt_2->SetLineStyle(kDashed);
+    Jlt_2->SetLineColor(kBlack);
+    Jlt_2->Draw("lsame");
+    c->SaveAs(Form("plots/%s17_dimuon_lt.pdf", s_source[i_i].c_str()));
     c->Clear();
 
     TLine *vP_0 = new TLine(vp_cut, vp_range[0], vp_cut, vp_range[1]);
@@ -166,7 +166,7 @@ void plotCutVar()
     TH1D *h8_JMass  = (TH1D*)fin8->Get("h8_JMass");
     TH1D *h8_JPt    = (TH1D*)fin8->Get("h8_JPt");
     TH1D *h8_Jy     = (TH1D*)fin8->Get("h8_Jy");
-    TH1D *h8_Jlts   = (TH1D*)fin8->Get("h8_Jlts");
+    TH1D *h8_Jlt   = (TH1D*)fin8->Get("h8_Jlt");
     TH1D *h8_vP;
     if(i_i == 0)
       fin8->GetObject("h8_vP", h8_vP);
@@ -230,14 +230,14 @@ void plotCutVar()
     c->Clear();
 
     c->SetLogy();
-    h8_Jlts->GetYaxis()->SetRangeUser(dml_range[0], dml_range[1]);
-    h8_Jlts->GetXaxis()->SetTitle("|c#tau|/#sigma_{c#tau}");
-    h8_Jlts->SetTitle(Form("2018 %s J/#psi lts", s_name[i_i].c_str()));
-    h8_Jlts->Draw("error");
-    Jlts_0->Draw("lsame");
-    Jlts_1->Draw("lsame");
-    Jlts_2->Draw("lsame");
-    c->SaveAs(Form("plots/%s18_dimuon_lts.pdf", s_source[i_i].c_str()));
+    h8_Jlt->GetYaxis()->SetRangeUser(dml_range[0], dml_range[1]);
+    h8_Jlt->GetXaxis()->SetTitle("|c#tau| (cm)");
+    h8_Jlt->SetTitle(Form("2018 %s J/#psi lt", s_name[i_i].c_str()));
+    h8_Jlt->Draw("error");
+    Jlt_0->Draw("lsame");
+    Jlt_1->Draw("lsame");
+    Jlt_2->Draw("lsame");
+    c->SaveAs(Form("plots/%s18_dimuon_lt.pdf", s_source[i_i].c_str()));
     c->Clear();
 
     if(i_i == 0) {

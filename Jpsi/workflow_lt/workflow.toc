@@ -19,3 +19,9 @@
 \contentsline {subsection}{\numberline {4.4}Plotting the fit parameters}{6}{subsection.4.4}
 \contentsline {section}{\numberline {5}Background subtraction}{7}{section.5}
 \contentsline {subsection}{\numberline {5.1}Getting the background distributions}{7}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}Interpolating the background fractions}{7}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}Running the subtraction}{7}{subsection.5.3}
+\contentsline {section}{\numberline {6}Final results}{8}{section.6}
+\contentsline {subsection}{\numberline {6.1}Final binning}{8}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}$\qopname \relax o{cos}\theta $ fit}{8}{subsection.6.2}
+\contentsline {subsection}{\numberline {6.3}Plotting results}{8}{subsection.6.3}

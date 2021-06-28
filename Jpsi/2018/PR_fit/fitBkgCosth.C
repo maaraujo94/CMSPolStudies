@@ -80,18 +80,18 @@ void fitBkgCosth()
       f_fit->SetParameter(0, pHist[i]->GetBinContent(1)*1.1);
       if(i_inp == 0) {
 	f_fit->FixParameter(2, 0);
-	f_fit->FixParameter(1, -0.146);
+	//f_fit->FixParameter(1, -0.146);
       }
       else if(i_inp == 1) {
 	f_fit->FixParameter(1, 0.3);
-	f_fit->FixParameter(2, 0.5);
-	//f_fit->ReleaseParameter(2);
-	//f_fit->SetParameter(2, 0.1);
+	//f_fit->FixParameter(2, 0.5);
+	f_fit->ReleaseParameter(2);
+	f_fit->SetParameter(2, 0.1);
       }
       else if(i_inp == 2) {
 	f_fit->FixParameter(1, 0.5);
-	//f_fit->SetParameter(2, 0.1);
-	f_fit->FixParameter(2, 0.9);
+	f_fit->SetParameter(2, 0.1);
+	//f_fit->FixParameter(2, 0.9);
       }
       pHist[i]->Fit("f_fit", "R");
       for(int j = 0; j < 3; j++) {

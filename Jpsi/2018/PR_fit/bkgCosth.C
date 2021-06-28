@@ -144,10 +144,27 @@ void bkgCosth()
     ratioHist_ab[i]->Divide(mcHist_ab);
     ratioHist_ab[i]->SetTitle(Form("2018 Data/MC (%s)", lbl[i].c_str()));
 
+    dataHist_ab[i]->Write();
     ratioHist_ab[i]->Write();
   }
 
   outfile->Close();
+  int nBinsX = dataHist_ab[0]->GetNbinsX();
 
+  ofstream fout;
+  fout.open("text_output/SB_evts.tex");
+  fout << "\\begin{tabular}{c||c|c}\n";
+  fout << "$\\pt$ (GeV) & LSB & RSB  \\\\\n";
+  fout << "\\hline\n";
+  for(int i = 0; i < nPtBins; i++) {
+    double pMin = dataHist_ab[0]->GetYaxis()->GetBinLowEdge(i+1);
+    double pMax = dataHist_ab[0]->GetYaxis()->GetBinUpEdge(i+1);
+    fout << Form("$[%.0f, %.0f]$", pMin, pMax);
+    fout << " & " <<  dataHist_ab[1]->Integral(1,nBinsX,i+1, i+1);
+    fout << " & " <<  dataHist_ab[2]->Integral(1,nBinsX,i+1, i+1);
+    fout <<  "\\\\\n";
+  }
+  fout << "\\end{tabular}\n";
+  fout.close();
 
 }

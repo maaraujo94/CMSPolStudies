@@ -92,7 +92,7 @@ void ltPerPt(double binLow, double binHigh)
 
   TH1F *fh = c->DrawFrame(lowPlot, ltHist->GetMinimum(), hit, ltHist->GetMaximum());
   fh->SetXTitle("c#tau (mm)");
-  fh->SetYTitle(Form("Events / %.0f #mum", wbin*1000.));
+  fh->SetYTitle(Form("Events per %.0f #mum", wbin*1000.));
   fh->GetYaxis()->SetTitleOffset(1.3);
   fh->GetYaxis()->SetLabelOffset(0.01);
   fh->SetTitle(ltHist->GetTitle());
@@ -129,13 +129,13 @@ void ltPerPt(double binLow, double binHigh)
   }
   double x_pos = lowt+0.5*(hit-lowt);
   
-  TLatex lc;
+  /*  TLatex lc;
   lc.SetTextSize(0.03);
   lc.DrawLatex(x_pos, lt_pos[0], Form("#sigma_{1} = %.2f #pm %.2f #mum", fitS->GetParameter(4)*1e3, fitS->GetParError(4)*1e3));
   lc.DrawLatex(x_pos, lt_pos[1], Form("#sigma_{2} = %.2f #pm %.2f #mum", fitS->GetParameter(5)*1e3, fitS->GetParError(5)*1e3));
   lc.DrawLatex(x_pos, lt_pos[2], Form("f_{2} = %.2f #pm %.2f %%", fitS->GetParameter(2)*100, fitS->GetParError(2)*100));
   lc.DrawLatex(x_pos, lt_pos[3], Form("#lambda = %.1f #pm %.1f #mum", fitS->GetParameter(6)*1e3, fitS->GetParError(6)*1e3));
-  lc.DrawLatex(x_pos, lt_pos[4], Form("#chi^{2}/ndf = %.0f/%d", fitS->GetChisquare(), fitS->GetNDF()));
+  lc.DrawLatex(x_pos, lt_pos[4], Form("#chi^{2}/ndf = %.0f/%d", fitS->GetChisquare(), fitS->GetNDF()));*/
   
   c->SaveAs(Form("plots/lifetime/dist_fit_%.0f.pdf", binLow));
   c->Clear();

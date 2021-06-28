@@ -1,38 +1,38 @@
-// code to do the individual fit
-// as this fits each slice on its own, can use the right fit range already
+// code to do the individual fit (1d costheta maps)
 
 // main
 void indFit()
 {
-
-  TFile *outf = new TFile("files/fit_res_1d.root", "recreate");
-  outf->Close();
-
-  TCanvas *c = new TCanvas("", "", 700, 700);    
-  
   // read the coarse histos in |costh|
-  TFile *infile = new TFile("files/ratioHist.root");
-  TH2D *hist = new TH2D();
-  infile->GetObject("ratioHist_ab", hist);
-  hist->SetDirectory(0);
-
-  int nBinsX = hist->GetNbinsX(), nBinsY = hist->GetNbinsY();
-  const double *yBins = hist->GetYaxis()->GetXbins()->GetArray();
-
+  TFile *infile = new TFile("files/histoStore.root");
+  TH2D **h_fit = new TH2D*[5];
+  string lbl[] = {"Data", "NP", "PR", "J", "SB"};
+  for(int i = 0; i < 5; i++) {
+    infile->GetObject(Form("h_%s_c", lbl[i].c_str()), h_fit[i]);
+    h_fit[i]->SetDirectory(0);
+  }
   infile->Close();
-  
+
+  // get the binning
+  int nBinsX = h_fit[0]->GetNbinsX(), nBinsY = h_fit[0]->GetNbinsY();
+  const double *yBins = h_fit[0]->GetYaxis()->GetXbins()->GetArray();
+
   // get the 1d plots
-  TH1D *pHist[nBinsY];
-  for(int i = 1; i <= nBinsY; i++) {
-    pHist[i-1] = hist->ProjectionX(Form("fine_bin%d_1d_min", i), i, i);
-    pHist[i-1]->SetTitle(Form("p_{T} bin %d: [%.0f, %.0f] GeV", i, yBins[i-1], yBins[i]));
+  TH1D *pHist[5][nBinsY];
+  for(int i_t = 0; i_t < 5; i_t++) {
+    for(int i = 1; i <= nBinsY; i++) {
+      pHist[i_t][i-1] = h_fit[i_t]->ProjectionX(Form("bin%d_%d", i, i_t+1), i, i);
+      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.0f, %.0f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
+    }
   }
   
   // the fit function to be used
-  TF1 *fit1d = new TF1("fit f 1d", "[0]*(1+[1]*x*x)", 0, 1);
-  fit1d->SetParNames("A", "l_th");
-  fit1d->SetParameters(1., 0.1);
-
+  TF1 **fit1d = new TF1*[4];
+  for(int i = 0; i < 4; i++) {
+    fit1d[i] = new TF1(Form("fit_%d", i), "[0]*(1+[1]*x*x)", 0, 1);
+    fit1d[i]->SetParNames("A", "l_th");
+  }
+  
   // get the fit range from our cosmax(pT)
   ifstream in;
   string dataS;
@@ -47,55 +47,121 @@ void indFit()
   cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
  
   // the cycle to fit each bin and store fit results
-  TFile *outfile = new TFile("files/fit_res_1d.root", "update");
+  TCanvas *c = new TCanvas("", "", 700, 700);    
+  TFile *outfile = new TFile("files/finalFitRes.root", "recreate");
 
-  double parA[2][nBinsY], parL[2][nBinsY], chi2[nBinsY], ndf[nBinsY], chiP[nBinsY];
-  double bins[nBinsY], ebins[nBinsY], cMaxVal[nBinsY];
- 
+  double parA[4][nBinsY], eparA[4][nBinsY];
+  double parL[4][nBinsY], eparL[4][nBinsY];
+  double chi2[4][nBinsY], ndf[4][nBinsY], chiP[4][nBinsY];
+  double pt[nBinsY], ept[nBinsY];
+  
   for(int i = 0; i < nBinsY; i++) {
-    double pMin = hist->GetYaxis()->GetBinLowEdge(i+1);
-    double pMax = hist->GetYaxis()->GetBinUpEdge(i+1);
+    // get pt vars
+    double pMin = h_fit[0]->GetYaxis()->GetBinLowEdge(i+1);
+    double pMax = h_fit[0]->GetYaxis()->GetBinUpEdge(i+1);
+    pt[i] = (pMax+pMin)/2.;
+    ept[i] = (pMax-pMin)/2.;
+
+    // get max costheta
+    double cMaxVal = cosMax->Integral(pMin, pMax)/(pMax-pMin);
+    double cR = floor(cMaxVal*10.)/10.;
+    if(cMaxVal-cR>0.05) cR += 0.05;
+
+    // fit the 4 functions
+    for(int i_t = 0; i_t < 4; i_t++) {
+      fit1d[i_t]->SetRange(0, cR);
+      fit1d[i_t]->SetParameters(pHist[i_t][i]->GetBinContent(1)*1.1, 0.1);
+
+      pHist[i_t][i]->Fit(fit1d[i_t], "R0");
+
+      parA[i_t][i] = fit1d[i_t]->GetParameter(0);
+      eparA[i_t][i] = fit1d[i_t]->GetParError(0);
+      parL[i_t][i] = fit1d[i_t]->GetParameter(1);
+      eparL[i_t][i] = fit1d[i_t]->GetParError(1);
+      chi2[i_t][i] = fit1d[i_t]->GetChisquare();
+      ndf[i_t][i] = fit1d[i_t]->GetNDF();
+      chiP[i_t][i] = TMath::Prob(chi2[i_t][i], ndf[i_t][i]);
+    }
+
+    // plotting everything
+    pHist[0][i]->SetTitle(Form("Signal extraction (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
+    pHist[0][i]->SetStats(0);
+    pHist[0][i]->SetLineColor(kViolet);
+    pHist[0][i]->SetMarkerColor(kViolet);
+    pHist[0][i]->SetMinimum(0);
+    pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.5);
+    pHist[0][i]->Draw("error");
+    fit1d[0]->SetLineColor(kViolet);
+    fit1d[0]->SetLineStyle(kDashed);
+    fit1d[0]->Draw("same");
+
+    pHist[1][i]->SetLineColor(kRed);
+    pHist[1][i]->SetMarkerColor(kRed);
+    pHist[1][i]->Draw("same");
+
+    pHist[2][i]->SetLineColor(kBlack);
+    pHist[2][i]->SetMarkerColor(kBlack);
+    pHist[2][i]->Draw("same");
+
+    pHist[4][i]->SetLineColor(kGreen);
+    pHist[4][i]->SetMarkerColor(kGreen);
+    pHist[4][i]->Draw("same");
+
+    pHist[3][i]->SetLineColor(kBlue);
+    pHist[3][i]->SetMarkerColor(kBlue);
+    pHist[3][i]->Draw("same");
+    fit1d[3]->SetLineColor(kBlue);
+    fit1d[3]->SetLineStyle(kDashed);
+    fit1d[3]->Draw("same");
+
+
+    TLatex lc;
+    lc.SetTextSize(0.03);
+    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{PR SR} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
+    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#theta}^{prompt J/#psi} = %.3f #pm %.3f", parL[3][i], eparL[3][i]));
     
-    cMaxVal[i] = cosMax->Integral(pMin, pMax)/(pMax-pMin);
-    double cR = floor(cMaxVal[i]*10.)/10.;
-    if(cMaxVal[i]-cR>0.05) cR += 0.05;
-    fit1d->SetRange(0, cR);
-    cMaxVal[i] = cR;
-    
-    pHist[i]->Fit(fit1d, "R");
-    parA[0][i] = fit1d->GetParameter(0);
-    parA[1][i] = fit1d->GetParError(0);
-    parL[0][i] = fit1d->GetParameter(1);
-    parL[1][i] = fit1d->GetParError(1);
-    chi2[i] = fit1d->GetChisquare();
-    ndf[i] = fit1d->GetNDF();
-    chiP[i] = TMath::Prob(chi2[i], ndf[i]);
-    bins[i] = (pMax+pMin)/2.;
-    ebins[i] = (pMax-pMin)/2.;    
-    pHist[i]->Write();
+    TLine *c_lim = new TLine(cR, 0, cR, pHist[0][i]->GetMaximum());
+    c_lim->SetLineStyle(kDashed);
+    c_lim->SetLineColor(kBlack);
+    c_lim->Draw();
+
+    TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+    leg->SetTextSize(0.03);
+    leg->AddEntry(pHist[0][i], "total", "pl");
+    leg->AddEntry(pHist[1][i], "NP contrib", "pl");
+    leg->AddEntry(pHist[2][i], "prompt", "pl");
+    leg->AddEntry(pHist[4][i], "SB contrib", "pl");
+    leg->AddEntry(pHist[3][i], "prompt J/#psi", "pl");
+    leg->Draw();
+
+    for(int i_t = 0; i_t < 5; i_t++)
+      pHist[i_t][i]->Write();
+ 
+    c->SaveAs(Form("plots/ratioFinal/bin_%d.pdf", i));
+    c->Clear();
+    cout << endl << endl;
   }
 
-  // make and save the TGraph with the fit results and max costh used
-  TGraphErrors *graphA = new TGraphErrors(nBinsY, bins, parA[0], ebins, parA[1]);
-  TGraphErrors *graphL = new TGraphErrors(nBinsY, bins, parL[0], ebins, parL[1]);
-  TGraph *graphC = new TGraph(nBinsY, bins, chi2);
-  TGraph *graphN = new TGraph(nBinsY, bins, ndf);
-  TGraph *graphP = new TGraph(nBinsY, bins, chiP);
-  TGraph *graphCM = new TGraph(nBinsY, bins, cMaxVal);
+  for(int i_t = 0; i_t < 4; i_t++) {
+    // make and save the TGraph with the fit results and max costh used
+    TGraphErrors *graphA = new TGraphErrors(nBinsY, pt, parA[i_t], ept, eparA[i_t]);
+    TGraphErrors *graphL = new TGraphErrors(nBinsY, pt, parL[i_t], ept, eparL[i_t]);
+    TGraph *graphC = new TGraph(nBinsY, pt, chi2[i_t]);
+    TGraph *graphN = new TGraph(nBinsY, pt, ndf[i_t]);
+    TGraph *graphP = new TGraph(nBinsY, pt, chiP[i_t]);
 
-  graphA->SetName(Form("graph_A"));
-  graphL->SetName(Form("graph_lambda"));
-  graphC->SetName(Form("graph_chisquare"));
-  graphN->SetName(Form("graph_NDF"));
-  graphP->SetName(Form("graph_chiP"));
-  graphCM->SetName(Form("graph_cosMax"));
+    graphA->SetName(Form("graph_A_%s", lbl[i_t].c_str()));
+    graphL->SetName(Form("graph_lambda_%s", lbl[i_t].c_str()));
+    graphC->SetName(Form("graph_chisquare_%s", lbl[i_t].c_str()));
+    graphN->SetName(Form("graph_NDF_%s", lbl[i_t].c_str()));
+    graphP->SetName(Form("graph_chiP_%s", lbl[i_t].c_str()));
  
-  graphA->Write();
-  graphL->Write();
-  graphC->Write();
-  graphN->Write();
-  graphP->Write();
-  graphCM->Write();
+    graphA->Write();
+    graphL->Write();
+    graphC->Write();
+    graphN->Write();
+    graphP->Write();
+  }
   outfile->Close();
 
   c->Destructor();

@@ -195,7 +195,7 @@ void plotLtPars()
   fl->SetParameters(5e-2, 2.);
   fl->SetLineColor(kBlue);
   fl->SetLineStyle(kDashed);
-  g_rat->Fit(fl);
+  //g_rat->Fit(fl);
   
   c->SaveAs(Form("plots/lifetime/par_sigRat.pdf"));
   c->Clear();
