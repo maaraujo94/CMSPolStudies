@@ -32,7 +32,7 @@ void getCuts_MC()
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
 
   // 2017 tree
-  TFile *fin7 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL17.root");
+  TFile *fin7 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-UL17-25_46v1.root");
   TTree *tree7 = (TTree*)fin7->Get("jpsitree");
 
   // setting branch address  
@@ -76,7 +76,7 @@ void getCuts_MC()
   fout7->Close();
 
   // 2018 tree
-  TFile *fin8 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18.root");
+  TFile *fin8 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-UL18-25_46v2.root");
   TTree *tree8 = (TTree*)fin8->Get("jpsitree");
 
   // setting branch address  

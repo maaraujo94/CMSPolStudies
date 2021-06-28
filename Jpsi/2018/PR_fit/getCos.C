@@ -81,7 +81,7 @@ void getCos()
   // save the fit results to a txt file
   ofstream outfile;
   outfile.open("text_output/cosMaxFitRes.txt");
-  outfile << "[a]*log([b]+[c]*pT/M)" << endl;
+  outfile << "[a]*log([b]+[c]*pT)" << endl;
   outfile << "a\t e_a\t b\t e_b\t c\t e_c\t chi2\t ndf" << endl;
   for(int i = 0; i < 3; i++)
     outfile << fitf->GetParameter(i) << "\t" << fitf->GetParError(i) << "\t";

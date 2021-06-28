@@ -6,7 +6,9 @@ void plotLtPars()
   int pt_bins = 7;
   double pt_min[pt_bins], pt_max[pt_bins], pt_avg[pt_bins], pt_err[pt_bins];
   double par[7][pt_bins], epar[7][pt_bins];
-  double chis[pt_bins], ndf[pt_bins], fNP[pt_bins], chiN[pt_bins], zero[pt_bins];
+  double par_f[7][pt_bins], epar_f[7][pt_bins];
+  double chis[pt_bins], ndf[pt_bins], zero[pt_bins];
+  double fNP[2][pt_bins], chiN[2][pt_bins];
 
   // read the fit results
   ifile.open("text_output/lt_fit.txt");
@@ -20,16 +22,34 @@ void plotLtPars()
       par[ip][i] *= mults[ip];
       epar[ip][i] *= mults[ip];
     }
-    ifile >> chis[i] >> ndf[i] >> fNP[i];
-    fNP[i]*=100;
+    ifile >> chis[i] >> ndf[i] >> fNP[0][i];
+    fNP[0][i]*=100;
 
     pt_avg[i] = 0.5*(pt_max[i]+pt_min[i]);
     pt_err[i] = 0.5*(pt_max[i]-pt_min[i]);
-    chiN[i] = chis[i]/ndf[i];
+    chiN[0][i] = chis[i]/ndf[i];
     zero[i] = 0;
   }
   ifile.close();
+ 
+  // read the fit results - free f
+  ifile.open("text_output/lt_fit_free.txt");
+  getline(ifile, data);
 
+  for(int i = 0; i < pt_bins; i++) {
+    ifile >> pt_min[i] >> pt_max[i];
+    for(int ip = 0; ip < 7; ip++) {
+      ifile >> par_f[ip][i] >> epar_f[ip][i];
+      par_f[ip][i] *= mults[ip];
+      epar_f[ip][i] *= mults[ip];
+    }
+    ifile >> chis[i] >> ndf[i] >> fNP[1][i];
+    fNP[1][i]*=100;
+
+    chiN[1][i] = chis[i]/ndf[i];
+  }
+  ifile.close();
+ 
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.11);
 
@@ -40,11 +60,14 @@ void plotLtPars()
   string par_unit[] = {" per 5 GeV", " per 5 GeV", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
   
   TGraphErrors **g_par = new TGraphErrors*[7];
+  TGraphErrors **g_par_f = new TGraphErrors*[7];
   TFile *fout = new TFile("files/ltfit.root", "recreate");
   
   for(int i = 0; i < 7; i++) {
     if(i==3) continue;
+
     g_par[i] = new TGraphErrors(pt_bins, pt_avg, par[i], pt_err, epar[i]);
+    g_par_f[i] = new TGraphErrors(pt_bins, pt_avg, par_f[i], pt_err, epar_f[i]);
 
     if(i < 2) c->SetLogy();
     else c->SetLogy(0);
@@ -56,11 +79,6 @@ void plotLtPars()
     fp->GetYaxis()->SetLabelOffset(0.01);
     fp->SetTitle(Form("%s vs p_{T}", par_name[i].c_str()));
 
-    if(i == 2) {
-      TF1 *fc = new TF1("fc", "[0]", pt_min[0], pt_max[pt_bins-1]);
-      //g_par[i]->Fit(fc);
-    }
-    
     g_par[i]->SetMarkerStyle(20);
     g_par[i]->SetMarkerSize(.75);
     g_par[i]->SetMarkerColor(kBlack);
@@ -70,12 +88,21 @@ void plotLtPars()
     g_par[i]->SetName(Form("fit_%s", par_tit[i].c_str()));
     g_par[i]->Write();
 
-    
+    g_par_f[i]->SetMarkerStyle(20);
+    g_par_f[i]->SetMarkerSize(.75);
+    g_par_f[i]->SetMarkerColor(kBlue);
+    g_par_f[i]->SetLineColor(kBlue);
+    g_par_f[i]->Draw("psame");
+
+    g_par_f[i]->SetName(Form("fit_f_%s", par_tit[i].c_str()));
+    g_par_f[i]->Write();
+
     c->SaveAs(Form("plots/lifetime/par_%s.pdf", par_tit[i].c_str()));
     c->Clear();
   }
   
-  TGraphErrors *g_chi = new TGraphErrors(pt_bins, pt_avg, chiN, pt_err, zero);
+  TGraphErrors *g_chi = new TGraphErrors(pt_bins, pt_avg, chiN[0], pt_err, zero);
+  TGraphErrors *g_chi_f = new TGraphErrors(pt_bins, pt_avg, chiN[1], pt_err, zero);
 
   TH1F *fchi = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 35);
   fchi->SetXTitle("p_{T} (GeV)");
@@ -90,6 +117,12 @@ void plotLtPars()
   g_chi->SetLineColor(kBlack);
   g_chi->Draw("psame");
 
+  g_chi_f->SetMarkerStyle(20);
+  g_chi_f->SetMarkerSize(.75);
+  g_chi_f->SetMarkerColor(kBlue);
+  g_chi_f->SetLineColor(kBlue);
+  g_chi_f->Draw("psame");
+
   TF1 *fc = new TF1("fc", "[0]", pt_min[0]-5, pt_max[pt_bins-1]+5);
   fc->SetParameter(0, 1.);
   fc->SetLineColor(kBlue);
@@ -99,7 +132,8 @@ void plotLtPars()
   c->SaveAs(Form("plots/lifetime/par_chiN.pdf"));
   c->Clear();
   
-  TGraphErrors *g_frac = new TGraphErrors(pt_bins, pt_avg, fNP, pt_err, zero);
+  TGraphErrors *g_frac = new TGraphErrors(pt_bins, pt_avg, fNP[0], pt_err, zero);
+  TGraphErrors *g_frac_f = new TGraphErrors(pt_bins, pt_avg, fNP[1], pt_err, zero);
 
   TH1F *ffr = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 50);
   ffr->SetXTitle("p_{T} (GeV)");
@@ -114,11 +148,18 @@ void plotLtPars()
   g_frac->SetLineColor(kBlack);
   g_frac->Draw("psame");
 
+  g_frac_f->SetMarkerStyle(20);
+  g_frac_f->SetMarkerSize(.75);
+  g_frac_f->SetMarkerColor(kBlue);
+  g_frac_f->SetLineColor(kBlue);
+  g_frac_f->Draw("psame");
+
   g_frac->SetName("fit_fNP");
   g_frac->Write();
+  g_frac_f->SetName("fit_f_fNP");
+  g_frac_f->Write();
   fout->Close();
 
-  
   c->SaveAs(Form("plots/lifetime/par_fNP.pdf"));
   c->Clear();
 

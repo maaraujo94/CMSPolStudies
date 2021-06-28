@@ -1,7 +1,9 @@
+// macro to plot the 2d |costh|:pT maps
+// peak data, mc, peak data/MC, NP data/MC, SB data/MC
 void plot2dHistos()
 {
   // first get the ratio plots
-  TFile *fin = new TFile("files/bkgSubRes.root");
+  TFile *fin = new TFile("../PR_fit/files/bkgSubRes.root");
   TH2D *h_Data = (TH2D*)fin->Get("h_Data");
   TH2D *h_NP = (TH2D*)fin->Get("h_NP");
   TH2D *h_SB = (TH2D*)fin->Get("h_SB");

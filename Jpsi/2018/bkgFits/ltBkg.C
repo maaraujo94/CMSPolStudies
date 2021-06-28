@@ -1,4 +1,5 @@
 #import "ltPerPt.C"
+#import "ltPerPt_free.C"
 #import "plotLtPars.C"
 
 int DO_FILL = 0;
@@ -75,9 +76,15 @@ void ltBkg()
     ftable.open("text_output/lt_fit.txt");
     ftable << "pt_min\t pt_max\t N_PR\t eN_PR\t N_NP\t eN_NP\t f\t ef\t mu\t emu\t sigma1\t esigma1\t sigma2\t esigma2\t lambda\t elambda\t chi2\t NDF\t f_NP\n";
     ftable.close();
-    
+
+    ofstream ftable2;
+    ftable2.open("text_output/lt_fit_free.txt");
+    ftable2 << "pt_min\t pt_max\t N_PR\t eN_PR\t N_NP\t eN_NP\t f\t ef\t mu\t emu\t sigma1\t esigma1\t sigma2\t esigma2\t lambda\t elambda\t chi2\t NDF\t f_NP\n";
+    ftable2.close();
+
     for(int i = 0; i < nPtBins; i++) {
       ltPerPt(ptBins[i], ptBins[i+1]);
+      ltPerPt_free(ptBins[i], ptBins[i+1]);
     }
     plotLtPars();
   }

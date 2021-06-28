@@ -78,7 +78,7 @@ void ang_MC()
   targ->SetPxPyPzE( 0., 0., -pbeam, Ebeam);
 
   // 2017 tree
-  TFile *fin7 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL17.root");
+  TFile *fin7 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-UL17-25_46v1.root");
   TTree *tree7 = (TTree*)fin7->Get("jpsitree");
   
   tree7->SetBranchAddress("muP_p4", &muP_p4);
@@ -108,7 +108,7 @@ void ang_MC()
 	abs(mumu_p4->Rapidity()) < 1.2  )
       {
 	mmPt = mumu_p4->Pt();
-	rap = abs(mumu_p4->Rapidity());
+	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
 	lt = ct;
 	lterr = ctErr;
@@ -127,7 +127,7 @@ void ang_MC()
   fin7->Close();
 
   // 2018 tree
-  TFile *fin8 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18.root");
+  TFile *fin8 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-UL18-25_46v2.root");
   TTree *tree8 = (TTree*)fin8->Get("jpsitree");
   
   tree8->SetBranchAddress("muP_p4", &muP_p4);
@@ -157,7 +157,7 @@ void ang_MC()
 	abs(mumu_p4->Rapidity()) < 1.2  )
       {
 	mmPt = mumu_p4->Pt();
-	rap = abs(mumu_p4->Rapidity());
+	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
 	lt = ct;
 	lterr = ctErr;
