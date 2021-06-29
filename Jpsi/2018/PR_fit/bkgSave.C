@@ -1,19 +1,21 @@
-int DO_LT = 1;
+int DO_LT = 0;
 int DO_MASS = 1;
 
 void bkgSave()
 {
-  // prepare binning and histograms for plots 
-  const int nPtBins = 7;
-  double ptBins[nPtBins+1];
-  for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
-  for(int i=0; i<4; i++) ptBins[i+3] = 46.+10.*i;
-  ptBins[7] = 100;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
-  cout << endl;
-
   // section for storing the lifetime histograms
   if(DO_LT == 1) {
+    // prepare binning and histograms for plots
+    const int nPtBins = 17;
+    double ptBins[nPtBins+1];
+    int yBins_c[nPtBins+1];
+    for(int i = 0; i < 7; i++) ptBins[i] = 25 + 3.*i;
+    for(int i = 0; i < 6; i++) ptBins[i+7] = 46 + 5.*i;
+    for(int i = 0; i < 3; i++) ptBins[i+13] = 76 + 8.*i;
+    for(int i = 0; i < 2; i++) ptBins[i+16] = 100 + 20.*i;
+    for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
+    cout << endl;
+    
     int tbins = 120;
     double lowt = -0.1, hit = 0.5;
     TH1D **ltHist = new TH1D*[nPtBins];
@@ -55,6 +57,15 @@ void bkgSave()
 
   // section for storing the mass histograms
   if(DO_MASS == 1) {
+
+    // prepare binning and histograms for plots
+    const int nPtBins = 7;
+    double ptBins[nPtBins+1];
+    for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
+    for(int i=0; i<4; i++) ptBins[i+3] = 46.+10.*i;
+    ptBins[7] = 120;
+    for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
+    cout << endl;
 
     // prepare mass histograms
     int mbins = 40;

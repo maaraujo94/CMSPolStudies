@@ -3,9 +3,9 @@
 void plotRes()
 {
   // get the histo limits
-  TFile *fIn = new TFile("files/histoStore.root");
+  TFile *fIn = new TFile("files/bkgSubRes.root");
   TH2D* rHist;
-  fIn->GetObject("h_Data_c", rHist);
+  fIn->GetObject("h_Data", rHist);
   
   int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
@@ -74,20 +74,23 @@ void plotRes()
   fl2->GetYaxis()->SetLabelOffset(0.01);
   fl2->SetTitle("2018 #lambda_{#theta} (prompt J/#psi)");
 
-  graph_lth[3]->SetLineColor(kBlue);
-  graph_lth[3]->SetMarkerColor(kBlue);
+  graph_lth[3]->SetLineColor(kBlack);
+  graph_lth[3]->SetMarkerColor(kBlack);
   graph_lth[3]->Draw("p same");
 
   TF1 *cons = new TF1("constant", "[0]", pTBins[0], pTBins[nBinspT]);
   cons->SetLineColor(kBlue);
+  cons->SetLineWidth(1);
+  cons->SetParameter(0, 0.1);
   graph_lth[3]->Fit(cons);
-  
+
   zero->Draw();
   trans1->Draw();
   trans2->Draw();
   
   TLatex lc;
   lc.SetTextSize(0.03);
+  lc.SetTextColor(kBlack);
   lc.DrawLatex(70, 0.85, Form("#lambda_{#theta}^{PR} = %.3f #pm %.3f", cons->GetParameter(0), cons->GetParError(0)));
   lc.DrawLatex(70, 0.7, Form("#chi^{2}/ndf = %.0f/%d", cons->GetChisquare(), cons->GetNDF()));
   lc.DrawLatex(70, 0.55, Form("P(#chi^{2},ndf) = %.1f%%", 100*TMath::Prob(cons->GetChisquare(), cons->GetNDF())));
@@ -97,7 +100,7 @@ void plotRes()
 
   // draw A(pT)
   c->SetLogy();
-  TH1F *fa = c->DrawFrame(pTBins[0], 2e-2, pTBins[nBinspT], 6);
+  TH1F *fa = c->DrawFrame(pTBins[0], 2e-2, pTBins[nBinspT], 6e-1);
   fa->SetXTitle("p_{T} (GeV)");
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
@@ -111,11 +114,11 @@ void plotRes()
     graph_A[i]->Draw("p same");
   }
 
-  TLine *trans1_A = new TLine(46, 2e-2, 46, 6);
+  TLine *trans1_A = new TLine(46, 2e-2, 46, 6e-1);
   trans1_A->SetLineColor(kBlack);
   trans1_A->SetLineStyle(kDashed);
   trans1_A->Draw();
-  TLine *trans2_A = new TLine(66, 2e-2, 66, 6);
+  TLine *trans2_A = new TLine(66, 2e-2, 66, 6e-1);
   trans2_A->SetLineColor(kBlack);
   trans2_A->SetLineStyle(kDashed);
   trans2_A->Draw();

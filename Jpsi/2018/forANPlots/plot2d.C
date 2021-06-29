@@ -9,7 +9,6 @@ void plot2d()
 
   int dEvt = treeD->GetEntries();
 
-
   // definitions to store data and MC events
   Double_t data_pt, data_lt, data_m, data_y;
   
@@ -36,7 +35,7 @@ void plot2d()
   hist->GetYaxis()->SetTitle("c#tau (cm)");
   hist->GetYaxis()->SetTitleOffset(1.5);
   hist->Draw("COL");
-  c->SaveAs("forCarlos2/massLtMap.pdf");
+  c->SaveAs("plots/massLtMap.pdf");
   c->Clear();
 
 }

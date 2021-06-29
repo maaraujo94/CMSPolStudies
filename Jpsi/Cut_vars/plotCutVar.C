@@ -16,7 +16,7 @@ void plotCutVar()
   double mup_cut = 5.6;
   double mue_range[2] = {0, 6e5};
   double mue_cut = 1.4;
-  double mass_range[2] = {0, 1.4e6};
+  double mass_range[2] = {0, 1.6e6};
   double dmp_range[2] = {1e2, 1e7};
   double dmp_cut[4][2] = {{25, 120}, {25, 46}, {46, 66}, {66, 120}};
   double dmy_range[2] = {0, 6e5};

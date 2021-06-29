@@ -1,3 +1,6 @@
+#import "../cosMax/imp_jumpF.C"
+#import "plotCosPars2d.C"
+
 //pt bins defined globally for access from functions
 const int nPtBins = 7;
 double ptBins[nPtBins+1];
@@ -17,11 +20,8 @@ double sum_func(double *xx, double *pp)
   
   double pMin = ptBins[pt_bin], pMax = ptBins[pt_bin+1];
   
-  double cMaxVal = cosMax->Integral(pMin, pMax)/(pMax-pMin);
-  double cR = floor(cMaxVal*10.)/10.;
-  if(cMaxVal-cR>0.05) cR += 0.05;
-
-  if(cos > cR)
+  double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
+  if(cos > cMaxVal)
     {
       TF2::RejectPoint();
       return 0;
@@ -30,7 +30,6 @@ double sum_func(double *xx, double *pp)
   double ld2 = pp[nPtBins], ld4 = pp[nPtBins+1];
   double N = pp[pt_bin];
 
-
   double func = N * (1 + ld2 * pow(cos,2) + ld4 * pow(cos,4));
   return func;
 }
@@ -38,20 +37,13 @@ double sum_func(double *xx, double *pp)
 // macro to fit the sideband/MC distributions
 void fitBkgCosth2d()
 {
-  TH2D **h_cth = new TH2D*[3];
-  string lbl[] = {"NP", "LSB", "RSB"};
-  string l2n[] = {"NP", "2", "2"};
-  double dev_min[] = {30, 30, 30};
-  double pull_min[] = {3, 3, 3};
+  string lbl[] = {"LSB", "RSB"};
+  double dev_min = 30, pull_min = 3;
 
-  double N_min[] = {3e-2, 5e-4, 5e-4};
-  double N_max[] = {5e0, 1e-1, 1e-1};
-  double l2_min[] = {0.5, 1, 1};
-  double l4_min[] = {0.5, 2, 2};
-  
   // get the SB/MC 2d maps from the repository
+  TH2D **h_cth = new TH2D*[2];
   TFile *fIn = new TFile("files/bkgHist.root");
-  for(int i = 0; i < 3; i++) {
+  for(int i = 0; i < 2; i++) {
     h_cth[i] = (TH2D*)fIn->Get(Form("ratioH%d_ab", i));
     h_cth[i]->SetDirectory(0);
   }
@@ -67,7 +59,7 @@ void fitBkgCosth2d()
   // get the fit range from our cosmax(pT)
   ifstream in;
   string dataS;
-  in.open("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/2018/PR_fit/text_output/cosMaxFitRes.txt");
+  in.open("../cosMax/cosMaxFitRes.txt");
   getline(in, dataS);
   getline(in, dataS);
   double maxPar[3], aux;
@@ -77,9 +69,9 @@ void fitBkgCosth2d()
   cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", yBins[0]-10, yBins[nBinsY]+10);
   cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
   
-  // cycle over 3 background types
+  // cycle over 2 background types
   TCanvas *c = new TCanvas("", "", 700, 700);
-  for(int i_inp = 0; i_inp < 3; i_inp++) {
+  for(int i_inp = 0; i_inp < 2; i_inp++) {
     
     // get the 1D bins
     TH1D *pHist[nBinsY];
@@ -95,11 +87,7 @@ void fitBkgCosth2d()
     f_fit->SetParName(nPtBins, "lambda_2");
     f_fit->SetParameter(nPtBins, 0.1);
     f_fit->SetParName(nPtBins+1, "lambda_4");
-    if(i_inp == 0) f_fit->FixParameter(nPtBins+1, 0);
-    else{
-      f_fit->ReleaseParameter(nPtBins+1);
-      f_fit->SetParameter(nPtBins+1, 0.1);
-    }
+    f_fit->SetParameter(nPtBins+1, 0.1);
     // define free parameters - N
     for(int i = 0; i < nPtBins; i++) {
       f_fit->SetParName(i, Form("N_%d", i));
@@ -129,12 +117,10 @@ void fitBkgCosth2d()
       double pMin = h_cth[i_inp]->GetYaxis()->GetBinLowEdge(i+1);
       double pMax = h_cth[i_inp]->GetYaxis()->GetBinUpEdge(i+1);
     
-      cMaxVal[i] = cosMax->Integral(pMin, pMax)/(pMax-pMin);
-      double cR = floor(cMaxVal[i]*10.)/10.;
-      if(cMaxVal[i]-cR>0.05) cR += 0.05;
+      cMaxVal[i] = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
 
       // initializing f_1d and plotting
-      f_1d->SetRange(0, cR);
+      f_1d->SetRange(0, cMaxVal[i]);
       f_1d->SetParameters(par[i], f_fit->GetParameter(nPtBins), f_fit->GetParameter(nPtBins+1));
       
       // plot the fit
@@ -161,7 +147,7 @@ void fitBkgCosth2d()
 	double fitv = f_1d->Eval(cv[i_cos]);
 	double datav = pHist[i]->GetBinContent(i_cos+1);
 	double datau = pHist[i]->GetBinError(i_cos+1);
-	if(cv[i_cos] < cR) {
+	if(cv[i_cos] < cMaxVal[i]) {
 	  pv[i_cos] = (datav-fitv)/datau;
 	  dv[i_cos] = (datav-fitv)/fitv * 100.;
 	}
@@ -172,7 +158,7 @@ void fitBkgCosth2d()
       }
 
       // plot the pulls
-      TH1F *fp = c->DrawFrame(minX, -pull_min[i_inp], maxX, pull_min[i_inp]);
+      TH1F *fp = c->DrawFrame(minX, -pull_min, maxX, pull_min);
       fp->SetXTitle("|cos#theta|");
       fp->SetYTitle("pulls");
       fp->GetYaxis()->SetTitleOffset(1.3);
@@ -185,7 +171,7 @@ void fitBkgCosth2d()
       g_pull->SetMarkerStyle(20);
       g_pull->Draw("p");
 
-      TLine *clim = new TLine(cR, -pull_min[i_inp], cR, pull_min[i_inp]);
+      TLine *clim = new TLine(cMaxVal[i], -pull_min, cMaxVal[i], pull_min);
       clim->SetLineColor(kRed);
       clim->SetLineStyle(kDashed);
       clim->Draw();
@@ -199,7 +185,7 @@ void fitBkgCosth2d()
       c->Clear();
 
       // plot the deviations
-      TH1F *fd = c->DrawFrame(minX, -dev_min[i_inp], maxX, dev_min[i_inp]);
+      TH1F *fd = c->DrawFrame(minX, -dev_min, maxX, dev_min);
       fd->SetXTitle("|cos#theta|");
       fd->SetYTitle("relative difference (%)");
       fd->GetYaxis()->SetTitleOffset(1.3);
@@ -212,7 +198,7 @@ void fitBkgCosth2d()
       g_dev->SetMarkerStyle(20);
       g_dev->Draw("p");
 		
-      TLine *climd = new TLine(cR, -dev_min[i_inp], cR, dev_min[i_inp]);
+      TLine *climd = new TLine(cMaxVal[i], -dev_min, cMaxVal[i], dev_min);
       climd->SetLineColor(kRed);
       climd->SetLineStyle(kDashed);
       climd->Draw();
@@ -247,6 +233,9 @@ void fitBkgCosth2d()
 	ct_pos++;
       }
     }
+    TLine *l_chi = new TLine(yBins[0], TMath::Prob(f_fit->GetChisquare(), f_fit->GetNDF()), yBins[nBinsY], TMath::Prob(f_fit->GetChisquare(), f_fit->GetNDF()));
+    l_chi->Write(Form("fit_chiP"));
+    
     fOut->Close();
  
     // storing the fit results in tex format
@@ -274,14 +263,8 @@ void fitBkgCosth2d()
  
     ofstream fout2;
     fout2.open(Form("text_output/cosA_%s2d.tex", lbl[i_inp].c_str()));
-    if(i_inp == 0) {
-      fout2 << "\\begin{tabular}{c||c}\n";
-      fout2 << "$\\lambda_{NP}$ & $\\chi^{2}$/ndf  \\\\\n";
-    }
-    else {
-      fout2 << "\\begin{tabular}{c|c||c}\n";
-      fout2 << "$\\lambda_{2}$ & $\\lambda_4$ & $\\chi^{2}$/ndf \\\\\n";
-    }
+    fout2 << "\\begin{tabular}{c|c||c}\n";
+    fout2 << "$\\lambda_{2}$ & $\\lambda_4$ & $\\chi^{2}$/ndf \\\\\n";
     fout2 << "\\hline\n";
     // lambda_2
     double val = f_fit->GetParameter(nPtBins);
@@ -290,13 +273,11 @@ void fitBkgCosth2d()
     if(unc < 1) p_norm = ceil(-log10(unc))+1;	
     fout2 <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
     // lambda_4
-    if(i_inp > 0) {
-    double val = f_fit->GetParameter(nPtBins+1);
-    double unc = f_fit->GetParError(nPtBins+1);
+    val = f_fit->GetParameter(nPtBins+1);
+    unc = f_fit->GetParError(nPtBins+1);
     p_norm = 1.;
     if(unc < 1) p_norm = ceil(-log10(unc))+1;	
     fout2 <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-    }
     // chi^2
     fout2 << setprecision(0) << f_fit->GetChisquare() << "/" << f_fit->GetNDF() << "\\\\\n";
     fout2 << "\\end{tabular}\n";
@@ -305,4 +286,6 @@ void fitBkgCosth2d()
     cout << endl << "finished fitting " << lbl[i_inp] << endl << endl;
   }
   c->Destructor();
+
+  plotCosPars2d();
 }

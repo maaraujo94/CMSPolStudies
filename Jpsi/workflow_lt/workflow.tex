@@ -10,7 +10,6 @@
 \usepackage{comment}
 \usepackage{braket}
 \usepackage{xcolor}
-
 \newcommand{\pt}{p_\text{T}}
 \newcommand{\cost}{\cos\theta}
 
@@ -32,20 +31,22 @@
 Initial storage
 \begin{enumerate}
 \item histoSave.C
-\item getCos.C
+\item (cosMax) histoSave.C + getCos.C
 \end{enumerate}
 
 Background subtraction
 \begin{enumerate}
 \item bkgSave.C
 \item MCmass\_[...].C (optional - illustrative of MC mass fit studies)
-\item ltBkg.C
-\item plotLtPars.C
-\item mBkg.C
-\item plotDMPars.C
+\item ltBkg.C $\rightarrow$ calls plotLtPars.C
+\item mBkg.C $\rightarrow$ calls plotDMPars.C
 \item bkgCosth.C
-\item fitBkgCosth.C / fitBkgCosth2d.C
-\item (only for 2d fit) plotCosPars.C
+\item fitBkgCosth...
+\begin{enumerate}
+\item fitBkgCosth.C $\rightarrow$ calls plotCosPars.C 
+\item fitBkgCosth2d.C $\rightarrow$ calls plotCosPars2d.C
+\end{enumerate}
+\item plotCosPars\_both.C
 \item getfL.C (optional - illustrative of $f_L$ fixing)
 \item genDist.C
 \item fitFrac.C
@@ -54,7 +55,6 @@ Background subtraction
 
 Final fit
 \begin{enumerate}
-\item saveCoarseBinned.C
 \item indFit.C
 \item plotRes.C
 \end{enumerate}
@@ -62,36 +62,7 @@ Final fit
 \pagebreak
 
 \section{PR SR $\pt$ vs $\cost$}
-\subsection{Cuts and binning} 
-
-Cuts on stored datafiles:
-\begin{itemize}
-\item $M(\mu\mu)\in[3.0,3.2]$ GeV
-\item $|y(\mu\mu)|<1.2$
-\item $|\ell|<0.01$ cm
-\end{itemize}
-
-Fine binning for data and MC (38 bins)
-\begin{itemize}
-\item $25-37$ GeV: 12 bins of 1 GeV
-\item $37-46$ GeV: 6 bins of 1.5 GeV
-\item $46-76$ GeV: 12 bins of 2.5 GeV
-\item $76-100$ GeV: 6 bins of 4 GeV
-\item $100-120$ GeV: 2 bins of 10 GeV
-\end{itemize}
-
-\subsection{Storing histograms}
-
-Run histoSave.C to store the 2d histos ($\pt$ vs $\cost$) in histoStore.root.
-
-\subsection{Limit $\cost$}
-
-Run getCos.C to get the limit $\cost$ in each $\pt$ and interpolate a function to get $\cost_{max}(\pt)$
-
-\pagebreak
-
-\section{Background fitting: Mass and Lifetime distributions}
-\subsection{Regions and binning} 
+\subsection{Regions} 
 
 The three mass regions and the two lifetime regions are defined according to fixed limits
 \begin{equation}\begin{cases}
@@ -105,17 +76,51 @@ m^{RSB}&\in[3.21, 3.28]  \text{ GeV}\\
 \end{cases}
 \end{equation}
 
-Coarse binning for background fitting (7 bins)
+\subsection{Cuts and binning} 
+
+Cuts on stored datafiles:
 \begin{itemize}
-\item $25-46$ GeV: 3 bins of 7 GeV
-\item $46-76$ GeV: 3 bins of 10 GeV
-\item $76-100$ GeV: 1 bin of 24 GeV
+\item $M(\mu\mu)\in[3.0,3.2]$ GeV
+\item $|y(\mu\mu)|<1.2$
+\item (PR) $|\ell|<0.01$ cm
+\item (NP) $0.014 < \ell < 0.05$ cm
+\end{itemize}
+
+Binning for SR data (PR and NP) and MC (17 bins)
+\begin{itemize}
+\item $25-46$ GeV: 7 bins of 3 GeV
+\item $46-76$ GeV: 6 bins of 5 GeV
+\item $76-100$ GeV: 3 bins of 8 GeV
+\item $100-120$ GeV: 1 bin of 20 GeV
 \end{itemize}
 
 \subsection{Storing histograms}
 
-Run bkgSave.C to store the 1d histos (mass in the prompt region and lifetime in the signal region) for all $\pt$ bins. Stores data, MC and data/MC ratio.
+Run histoSave.C to store the 2d histos ($\pt$ vs $\cost$) in histoStore.root.
 
+\subsection{Limit $\cost$}
+
+In folder cosMax, run histoSave.C and getCos.C to get the limit $\cost$ in each $\pt$ and interpolate a function to get $\cost_{max}(\pt)$, using a finer binning for precision.
+\begin{itemize}
+\item $25-40$ GeV: 15 bins of 1 GeV
+\item $40-100$ GeV: 30 bins of 2 GeV
+\item $100-120$ GeV: 4 bin of 5 GeV
+\end{itemize}
+
+\pagebreak
+
+\section{Background fitting: Lifetime and Mass distributions}
+
+\subsection{Storing histograms}
+
+Run bkgSave.C to store the 1d histos (mass in the prompt region and lifetime in the signal region) for all $\pt$ bins. Stores data, MC and data/MC ratio. The NP dimension uses the usual binning
+
+Coarse binning for the mass dimension fitting (7 bins):
+\begin{itemize}
+\item $25-46$ GeV: 3 bins of 7 GeV
+\item $46-76$ GeV: 3 bins of 10 GeV
+\item $76-120$ GeV: 1 bin of 44 GeV
+\end{itemize}
 
 \subsection{Lifetime fit}
 
@@ -130,11 +135,18 @@ L_{NP}=	\left[\exp(-\ell/\lambda)\cdot\mathcal{H}(\ell)\right]*L_{res}(\ell|\mu,
 \end{equation}
 where $\mathcal{H}$ is the Heaviside step function.
 
-Running a 2d fit with constant $f=0.14$ and $\mu=0$, free $\sigma_{1,2}$, $\lambda$, and normalizations $N_{PR}$, $N_{NP}$.
+Running a 1d fit with free $\sigma_{1,2}$, $\lambda$, and normalizations $N_{PR}$, $N_{NP}$. We consider three sets of conditions:
+\begin{itemize}
+\item Free $\mu$, $f$
+\item $\mu=0$, free $f$
+\item $\mu=0$, $f=14$ \%
+\end{itemize} 
 
 \subsubsection{Running the fit}
 
-Run ltBkg.C to run the 2d fit reading the histos from bkgSave.C and outputting all fit parameters as well as $\chi^2/$ndf and NP fraction per $\pt$ bin, $f_{NP}$. Plots distribution, pulls and relative difference.
+Run ltBkg.C to run the 1d fits reading the histos from histoSave.C and outputting all fit parameters as well as $\chi^2/$ndf and NP fraction per $\pt$ bin, $f_{NP}$. Plots distribution, pulls and relative difference.
+
+\pagebreak
 
 \subsection{Mass fit}
 
@@ -182,13 +194,6 @@ The mass fit parameters are plotted with plotDMPars.C. This plots:
 \section{Background fitting: $\cost$ distributions}
 \subsection{Background selection}
 
-NP background selection:
-\begin{itemize}
-\item $M(\mu\mu)\in[3.0,3.2]$ GeV
-\item $|y(\mu\mu)|<1.2$
-\item $0.014 < \ell < 0.05$ cm
-\end{itemize}
-
 LSB background selection:
 \begin{itemize}
 \item $M(\mu\mu)\in[2.92,2.95]$ GeV
@@ -205,32 +210,37 @@ RSB background selection:
 
 \subsection{Storing histograms}
 
-Run bkgHisto.C to store the 2d histos ($\pt$ vs $\cost$) of data/MC for the three background regions.
+Run bkgHisto.C to store the 2d histos ($\pt$ vs $\cost$) of data/MC for the two mass background regions.
 
 \subsection{$\cost$ fit}
 
 For each $\pt$ bin, fit the distribution with
 \begin{equation}
-f_{\cost} = N\left(1+\lambda_2(\cost)^2+\lambda_4(\cost)^4\right)
+f_{\cost}^{SB} = N\left(1+\lambda_2(\cost)^2+\lambda_4(\cost)^4\right),\hspace{0.5cm}f_{\cost}^{NP} = N\left(1+\lambda_{NP}(\cost)^2\right)
 \end{equation}
 
-For the NP case, $\lambda_2$ is redefined as $\lambda_{NP}$ and $\lambda_4=0$.
+\subsubsection{Sideband fit}
 
 Running a 1d fit with normalization $N$ free and $\lambda_2$, $\lambda_4$ successively fixed to their central values (considered constant in $\pt$).
 
 Also running a 2d fit with normalization $N$ free and $\lambda_2$, $\lambda_4$ constant in $\pt$.
 
-\subsubsection{Running the fit}
-
 Run fitBkgCosth.C to run the 1d fit or fitBkgCosth2d.C to run the 2d fit. Outputs all fit parameters per $\pt$ bin. Plots distributions, pulls and relative difference.
+
+\subsubsection{NP fit}
+
+Running a 1d fit with normalization $N$ and $\lambda_{NP}$ free.
+
+Run fitNPCosth.C to run the 1d fit. Outputs all fit parameters per $\pt$ bin. Plots distributions, pulls and relative difference.
 
 \subsection{Plotting the fit parameters}
 
-The 1d fit automatically plots the results. For the 2d fit, run plotCosPars.C. This plots:
+The sideband fit parameters are plotted with plotCosPars.C or plotCosPars2d.C. This plots 
 \begin{itemize}
-\item $N$ and $\lambda_{NP}$ for NP fit
-\item $N$, $\lambda_2$ and $\lambda_4$ for sideband fits
+\item Parameters $N$, $\lambda_2$ and $\lambda_4$ 
+\item For the 1d fit, $P(\chi^2)$
 \end{itemize}
+Can also call plotCosPars\_both.C to superimpose fit parameters from each model.
 
 \pagebreak
 
@@ -238,45 +248,31 @@ The 1d fit automatically plots the results. For the 2d fit, run plotCosPars.C. T
 
 \subsection{Getting the background distributions}
 
-Generate the background $\cost$ distributions using the above fit parameters, in the fine binning of the data. Done with genDist.C, with histos stored in bkgCosModel.root. Uses result of $\cost$ models and parameter $f_L = 53.3$ \% (currently fixed based on a prior test - code getfL.C).
+Generate the background $\cost$ distributions using the above fit parameters, in the binning of the data. Done with genDist.C, with histos stored in bkgCosModel.root. Uses result of $\cost$ models and parameter $f_L = 53.3$ \% (currently fixed based on a prior test - code getfL.C).
 
 \subsection{Interpolating the background fractions}
 
-Fit the background fractions with 
+Fit the mass background fraction with 
 \begin{equation}
 M\left(1-e^{-a\cdot(\pt-\mu)}\right)
 \end{equation}
-
-For $f_{NP}$, set $\mu=0$. For $f_{SB}$, set $M = \frac{0.029}{1-e^{-a\cdot(20-\mu)}}$, so that $f(20) = 0.029$. Code fitFrac.C. Plots the two background fractions an stores the graphs and the fit functions.
+where $M = \frac{0.029}{1-e^{-a\cdot(20-\mu)}}$, so that $f(20) = 0.029$. Code fitFrac.C. Plots the two background fractions and stores the graphs and the fit functions. $f_{NP}$ is also fitted, but the fit isn't used.
 
 \subsection{Running the subtraction}
 
-Running code bkgSub.C runs the subtraction over the fine $\pt$ bins. Plots data/MC $\cost$ dists for PR SR, NP SR, PR SB and background-subtracted prompt J/$\psi$. The PR SR and prompt J/$\psi$ dists are fited and the resuls shown on the plots. Stores
+Running code bkgSub.C runs the subtraction over the fine $\pt$ bins. Plots data/MC $\cost$ dists for PR SR, NP SR, PR SB and background-subtracted prompt J/$\psi$. Stores
 \begin{itemize}
 \item 2d $\cost$ distributions of the PR SR data/MC, NP SR data/MC, PR SB data/MC (interpolated to the signal region)
 \item 2d $\cost$ distributions of the NP-subtracted PR SR data/MC and the background-subtracted PR SR data/MC (the prompt J/$\psi$)
-\item $\lambda_\theta$ as a function of $\pt$ for all distributions except SB
 \end{itemize}
 
 \pagebreak
 
 \section{Final results}
 
-\subsection{Final binning}
-
-Final binning (17 bins)
-\begin{itemize}
-\item $25-46$ GeV: 7 bins of 3 GeV
-\item $46-76$ GeV: 6 bins of 5 GeV
-\item $76-100$ GeV: 3 bins of 8 GeV
-\item $100-120$ GeV: 1 bin of 20 GeV
-\end{itemize}
-
-Run code saveCoarseBinned.C to save all 5 coarse 2d maps in histoStore.root.
-
 \subsection{$\cost$ fit}
 
-Code indFit.C runs the fit on the coarse bins, for  Data, NP, prompt and prompt J/$\psi$. Plots the distributions with superimposed fit on data and prompt J/$\psi$ and $\lambda_\theta$ results. Stores the fit $A$, $\lambda_\theta$ and $\chi^2$, $ndf$ for all cases. 
+Code indFit.C runs the final fit, for  Data, NP, prompt and prompt J/$\psi$. Plots the distributions with superimposed fit on data and prompt J/$\psi$ and $\lambda_\theta$ results. Stores the fit $A$, $\lambda_\theta$ and $\chi^2$, $ndf$ for all cases. 
 
 \subsection{Plotting results}
 

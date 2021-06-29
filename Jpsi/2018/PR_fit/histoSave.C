@@ -5,21 +5,23 @@
 void histoSave()
 {
   // fine pT binning - to be rebinned after background subtraction
-  const int nPtBins = 38;
+  const int nPtBins = 17;
   double ptBins[nPtBins+1];
-  for(int i = 0; i < 12; i++) ptBins[i] = 25+i;
-  for(int i = 0; i < 6; i++) ptBins[i+12] = 37 + 1.5*i;
-  for(int i = 0; i < 12; i++) ptBins[i+18] = 46 + 2.5*i;
-  for(int i = 0; i < 6; i++) ptBins[i+30] = 76 + 4*i;
-  for(int i = 0; i < 3; i++) ptBins[i+36] = 100 + 10*i;
+  int yBins_c[nPtBins+1];
+  for(int i = 0; i < 7; i++) ptBins[i] = 25 + 3.*i;
+  for(int i = 0; i < 6; i++) ptBins[i+7] = 46 + 5.*i;
+  for(int i = 0; i < 3; i++) ptBins[i+13] = 76 + 8.*i;
+  for(int i = 0; i < 2; i++) ptBins[i+16] = 100 + 20.*i;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
-  // histograms for data and MC
+  // histograms for data (peak and NP) and MC
   TH2D *dataHist = new TH2D("dataH", "2018 Data (PR)", 40, -1., 1., nPtBins, ptBins);
+  TH2D *NPHist = new TH2D("NPH", "2018 Data (NP)", 40, -1., 1., nPtBins, ptBins);
   TH2D *mcHist = new TH2D("mcH", "2018 MC", 40, -1., 1., nPtBins, ptBins);
   
   TH2D *dataHist_ab = new TH2D("dataH_ab", "2018 Data (PR)", 20, 0, 1., nPtBins, ptBins);
+  TH2D *NPHist_ab = new TH2D("NPH_ab", "2018 Data (NP)", 20, 0, 1., nPtBins, ptBins);
   TH2D *mcHist_ab = new TH2D("mcH_ab", "2018 MC", 20, 0, 1., nPtBins, ptBins);
 
   // open files and read TTrees
@@ -57,11 +59,15 @@ void histoSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.01 && abs(data_y) < 1.2 && data_m > 3.0 && data_m < 3.2) {
-      
-	dataHist->Fill(cos(data_th), data_pt);
-	dataHist_ab->Fill(abs(cos(data_th)), data_pt);
-       
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m > 3.0 && data_m < 3.2) {
+	if(abs(data_lt) < 0.01 ) {
+	  dataHist->Fill(cos(data_th), data_pt);
+	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
+	}
+	else if(data_lt > 0.014 && data_lt < 0.05 ) {
+	  NPHist->Fill(cos(data_th), data_pt);
+	  NPHist_ab->Fill(abs(cos(data_th)), data_pt);
+	}
       }
     }
   
@@ -113,6 +119,10 @@ void histoSave()
   dataHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   dataHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
 
+  NPHist_ab->SetStats(0);
+  NPHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+  NPHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
+
   mcHist_ab->SetStats(0);
   mcHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   mcHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
@@ -122,24 +132,33 @@ void histoSave()
   ratioHist_ab->Sumw2();
   ratioHist_ab->Divide(mcHist_ab);
   ratioHist_ab->SetTitle("2018 Data/MC");
-    
+
+  TH2D *ratNPHist_ab = new TH2D("ratNPH_ab", "2018 NP/MC", 20, 0, 1., nPtBins, ptBins);
+  ratNPHist_ab = (TH2D*)NPHist_ab->Clone("ratNPH_ab");
+  ratNPHist_ab->Sumw2();
+  ratNPHist_ab->Divide(mcHist_ab);
+  ratNPHist_ab->SetTitle("2018 NP/MC");
+
   TFile *outfile = new TFile("files/histoStore.root", "recreate");
   dataHist->Write();
   dataHist_ab->Write();
+  NPHist->Write();
+  NPHist_ab->Write();
   mcHist->Write();
   mcHist_ab->Write();
   ratioHist_ab->Write();
+  ratNPHist_ab->Write();
   outfile->Close();
 
-  cout << dataHist->GetEntries() << " data events and " << mcHist->GetEntries() << " MC events" << endl;
+cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events", dataHist->GetEntries(), NPHist->GetEntries(), mcHist->GetEntries()) << endl;
 
   // split between pT ranges - must set by hand
-  cout << dataHist->GetYaxis()->GetBinLowEdge(1) << " " << dataHist->GetYaxis()->GetBinUpEdge(18) << endl;
-  cout << dataHist->GetYaxis()->GetBinLowEdge(19) << " " << dataHist->GetYaxis()->GetBinUpEdge(26) << endl;
-  cout << dataHist->GetYaxis()->GetBinLowEdge(27) << " " << dataHist->GetYaxis()->GetBinUpEdge(38) << endl;
+  cout << dataHist->GetYaxis()->GetBinLowEdge(1) << " " << dataHist->GetYaxis()->GetBinUpEdge(7) << endl;
+  cout << dataHist->GetYaxis()->GetBinLowEdge(8) << " " << dataHist->GetYaxis()->GetBinUpEdge(11) << endl;
+  cout << dataHist->GetYaxis()->GetBinLowEdge(12) << " " << dataHist->GetYaxis()->GetBinUpEdge(17) << endl;
   
-  cout << dataHist->Integral(1, 18) << " data events and " << mcHist->Integral(1, 18) << " MC events in pT range 1" << endl;
-  cout << dataHist->Integral(19, 26) << " data events and " << mcHist->Integral(19, 26) << " MC events in pT range 2" << endl;
-  cout << dataHist->Integral(27, 38) << " data events and " << mcHist->Integral(27, 38) << " MC events in pT range 3" << endl;  
+  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 1", dataHist->Integral(1, 40, 1, 7), NPHist->Integral(1, 40, 1, 7), mcHist->Integral(1, 40, 1, 7)) << endl;
+  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 2", dataHist->Integral(1, 40, 8, 11), NPHist->Integral(1, 40, 8, 11), mcHist->Integral(1, 40, 8, 11)) << endl;
+  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 3", dataHist->Integral(1, 40, 12, 17), NPHist->Integral(1, 40, 12, 17), mcHist->Integral(1, 40, 12, 17)) << endl;
 
 }

@@ -95,7 +95,7 @@ void plotCos()
   leg->AddEntry(dataHist[1], "NP", "pl");
   leg->Draw();
 
-  c->SaveAs("forCarlos/costh_data.pdf");
+  c->SaveAs("plots/costh_data.pdf");
   c->Clear();
 
   ratioHist[0]->SetTitle("Data/MC |cos#theta| (39 < p_{T} < 46 GeV)");
@@ -112,7 +112,7 @@ void plotCos()
 
   leg->Draw();
 
-  c->SaveAs("forCarlos/costh_ratio.pdf");
+  c->SaveAs("plots/costh_ratio.pdf");
   c->Clear();
 
 }

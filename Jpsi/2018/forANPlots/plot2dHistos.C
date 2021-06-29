@@ -9,7 +9,9 @@ void plot2dHistos()
   TH2D *h_SB = (TH2D*)fin->Get("h_SB");
 
   TCanvas *c = new TCanvas("", "", 900, 900);
-
+  c->SetLeftMargin(0.11);
+  c->SetRightMargin(0.13);
+  
   h_Data->SetStats(0);
   h_Data->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_Data->GetYaxis()->SetTitle("p_{T} (GeV)");
@@ -37,7 +39,7 @@ void plot2dHistos()
   fin->Close();
 
   // then get the data and mc plots
-  TFile *fin2 = new TFile("files/histoStore.root");
+  TFile *fin2 = new TFile("../PR_fit/files/histoStore.root");
   TH2D *h_Data2 = (TH2D*)fin2->Get("dataH_ab");
   TH2D *h_MC2 = (TH2D*)fin2->Get("mcH_ab");
 

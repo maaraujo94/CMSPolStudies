@@ -1,3 +1,5 @@
+#import "plotDMPars.C"
+
 double gPI = TMath::Pi();
 //pt bins defined globally for access from functions
 const int nPtBins = 7;
@@ -65,7 +67,7 @@ void mBkg()
   // prepare binning and histograms for plots
   for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
   for(int i=0; i<4; i++) ptBins[i+3] = 46.+10.*i;
-  ptBins[7] = 100;
+  ptBins[7] = 120;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -427,5 +429,6 @@ void mBkg()
   cout << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << endl;
 
   c->Destructor();
-  
+
+  plotDMPars();
 }

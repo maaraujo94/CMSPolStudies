@@ -11,7 +11,7 @@ void getfL()
 {
   // get the binning
   TH2D *h_pr = new TH2D();
-  TFile *inPR = new TFile("/home/mariana/Documents/2021_PhD_work/CERN/0618_plotMass/02_fitCosth/bkgHist.root");
+  TFile *inPR = new TFile("../PR_fit/files/bkgHist.root");
   inPR->GetObject("ratioH0_ab", h_pr);
   h_pr->SetDirectory(0);
 
@@ -28,7 +28,7 @@ void getfL()
   // define same function as above but *m
   TF1 *mMass = new TF1("mMass", "exp(-x/[0])*x", 2.9, 3.3);
   // get fMass parameters
-  TFile *inFMass = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/2018/bkgFits/files/mfit_data.root");
+  TFile *inFMass = new TFile("../PR_fit/files/mfit.root");
   TGraphErrors *m_ld = (TGraphErrors*)inFMass->Get("fit_lambda");
   inFMass->Close();
   
@@ -41,8 +41,8 @@ void getfL()
     zeros[i] = 1e-4;
     
     // set the parameters of the binned functions
-    fMass->SetParameter(0, m_ld->GetY()[i]*1e-3);
-    mMass->SetParameter(0, m_ld->GetY()[i]*1e-3);
+    fMass->SetParameter(0, m_ld->GetY()[i]);
+    mMass->SetParameter(0, m_ld->GetY()[i]);
     
     // get avg mass in sidebands, get f_LSB
     avg_LSB[i] = mMass->Integral(2.92, 2.95)/fMass->Integral(2.92, 2.95);
@@ -52,19 +52,16 @@ void getfL()
     fL[i] *= 100;
   }
 
-  
   TGraphErrors *g_mL = new TGraphErrors(nBinsY, pt_v, avg_LSB, pt_e, zeros); 
   TGraphErrors *g_mR = new TGraphErrors(nBinsY, pt_v, avg_RSB, pt_e, zeros); 
   TGraphErrors *g_fL = new TGraphErrors(nBinsY, pt_v, fL, pt_e, zeros);
-
   
   TCanvas *c2 =  new TCanvas("", "", 600, 800);
-
   
   c2->Divide(1, 3);
   c2->cd(1);
   
-  TH1F *fmL = gPad->DrawFrame(20, 2.92, 105, 2.95);
+  TH1F *fmL = gPad->DrawFrame(20, 2.92, 125, 2.95);
   fmL->SetXTitle("p_{T} (GeV)");
   fmL->SetYTitle("<m_{LSB}> (GeV)");
   fmL->GetYaxis()->SetTitleOffset(1.3);
@@ -79,7 +76,7 @@ void getfL()
 
   c2->cd(2);
   
-  TH1F *fmR = gPad->DrawFrame(20, 3.21, 105, 3.28);
+  TH1F *fmR = gPad->DrawFrame(20, 3.21, 125, 3.28);
   fmR->SetXTitle("p_{T} (GeV)");
   fmR->SetYTitle("<m_{RSB}> (GeV)");
   fmR->GetYaxis()->SetTitleOffset(1.3);
@@ -94,7 +91,7 @@ void getfL()
 
   c2->cd(3);
   
-  TH1F *ffL = gPad->DrawFrame(20, 50, 105, 55);
+  TH1F *ffL = gPad->DrawFrame(20, 50, 125, 55);
   ffL->SetXTitle("p_{T} (GeV)");
   ffL->SetYTitle("f_{L} (%)");
   ffL->GetYaxis()->SetTitleOffset(1.3);
@@ -106,12 +103,6 @@ void getfL()
   g_fL->SetMarkerSize(.75);
   g_fL->SetMarkerColor(kRed);
   g_fL->Draw("psame");
-
-  TF1 *fcons = new TF1("fcons", "[0]", yBins[0]-5, yBins[nBinsY]+5);
-  fcons->SetParameter(0,53.3);
-  fcons->SetLineColor(kBlack);
-  fcons->SetLineStyle(kDashed);
-  //fcons->Draw("same");
   
   c2->SaveAs(Form("plots/fL.pdf"));
   c2->Clear();

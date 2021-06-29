@@ -1,14 +1,16 @@
+#import "../cosMax/imp_jumpF.C"
+
 // code to do the individual fit (1d costheta maps)
 
 // main
 void indFit()
 {
-  // read the coarse histos in |costh|
-  TFile *infile = new TFile("files/histoStore.root");
+  // read the histos from subtraction
+  TFile *infile = new TFile("files/bkgSubRes.root");
   TH2D **h_fit = new TH2D*[5];
   string lbl[] = {"Data", "NP", "PR", "J", "SB"};
   for(int i = 0; i < 5; i++) {
-    infile->GetObject(Form("h_%s_c", lbl[i].c_str()), h_fit[i]);
+    infile->GetObject(Form("h_%s", lbl[i].c_str()), h_fit[i]);
     h_fit[i]->SetDirectory(0);
   }
   infile->Close();
@@ -36,7 +38,7 @@ void indFit()
   // get the fit range from our cosmax(pT)
   ifstream in;
   string dataS;
-  in.open("text_output/cosMaxFitRes.txt");
+  in.open("../cosMax/cosMaxFitRes.txt");
   getline(in, dataS);
   getline(in, dataS);
   double maxPar[3], aux;
@@ -63,13 +65,11 @@ void indFit()
     ept[i] = (pMax-pMin)/2.;
 
     // get max costheta
-    double cMaxVal = cosMax->Integral(pMin, pMax)/(pMax-pMin);
-    double cR = floor(cMaxVal*10.)/10.;
-    if(cMaxVal-cR>0.05) cR += 0.05;
+    double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
 
     // fit the 4 functions
     for(int i_t = 0; i_t < 4; i_t++) {
-      fit1d[i_t]->SetRange(0, cR);
+      fit1d[i_t]->SetRange(0, cMaxVal);
       fit1d[i_t]->SetParameters(pHist[i_t][i]->GetBinContent(1)*1.1, 0.1);
 
       pHist[i_t][i]->Fit(fit1d[i_t], "R0");
@@ -117,10 +117,10 @@ void indFit()
 
     TLatex lc;
     lc.SetTextSize(0.03);
-    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{PR SR} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
+    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{total} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
     lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#theta}^{prompt J/#psi} = %.3f #pm %.3f", parL[3][i], eparL[3][i]));
     
-    TLine *c_lim = new TLine(cR, 0, cR, pHist[0][i]->GetMaximum());
+    TLine *c_lim = new TLine(cMaxVal, 0, cMaxVal, pHist[0][i]->GetMaximum());
     c_lim->SetLineStyle(kDashed);
     c_lim->SetLineColor(kBlack);
     c_lim->Draw();
