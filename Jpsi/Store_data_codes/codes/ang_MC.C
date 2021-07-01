@@ -104,8 +104,7 @@ void ang_MC()
   for(int i = 0; i < mEvt; i++) {
     tree7->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
-	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
-	abs(mumu_p4->Rapidity()) < 1.2  )
+	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 )
       {
 	mmPt = mumu_p4->Pt();
 	rap = mumu_p4->Rapidity();
@@ -153,8 +152,7 @@ void ang_MC()
   for(int i = 0; i < mEvt; i++) {
     tree8->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
-	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
-	abs(mumu_p4->Rapidity()) < 1.2  )
+	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 )
       {
 	mmPt = mumu_p4->Pt();
 	rap = mumu_p4->Rapidity();

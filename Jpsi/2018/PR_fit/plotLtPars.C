@@ -46,10 +46,10 @@ void plotLtPars()
       par_f[ip][i] *= mults[ip];
       epar_f[ip][i] *= mults[ip];
     }
-    ifile >> chis[0][i] >> ndf[0][i] >> fNP[1][i];
+    ifile >> chis[1][i] >> ndf[1][i] >> fNP[1][i];
     fNP[1][i]*=100;
 
-    chiN[1][i] = chis[0][i]/ndf[0][i];
+    chiN[1][i] = chis[1][i]/ndf[1][i];
   }
   ifile.close();
 
@@ -64,10 +64,10 @@ void plotLtPars()
       par_b[ip][i] *= mults[ip];
       epar_b[ip][i] *= mults[ip];
     }
-    ifile >> chis[0][i] >> ndf[0][i] >> fNP[2][i];
+    ifile >> chis[2][i] >> ndf[2][i] >> fNP[2][i];
     fNP[2][i]*=100;
 
-    chiN[2][i] = chis[0][i]/ndf[0][i];
+    chiN[2][i] = chis[2][i]/ndf[2][i];
   }
   ifile.close();
 
@@ -76,8 +76,8 @@ void plotLtPars()
   string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma_{1}", "#sigma_{2}", "#lambda"};
   string par_unit[] = {" per 1 GeV", " per 1 GeV", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
 
-  double parmin[] = {4e1, 4e2, 0,  -0.3, 0,  0,  300};
-  double parmax[] = {2e5, 8e5, 30, 0.3, 20, 40, 400};
+  double parmin[] = {4e1, 4e2, 0,  -5., 0,  0,  300};
+  double parmax[] = {2e5, 8e5, 100, 5., 20, 40, 400};
 
   // initialize tgraphs for parameters
   TGraphErrors **g_par = new TGraphErrors*[n_p];
@@ -363,7 +363,7 @@ void plotLtPars()
   ofstream ftex;
   ftex.open(Form("text_output/tfit_res.tex"));
   ftex << "\\begin{tabular}{c||c|c|c|c|c|c|c||c|c}\n";
-  ftex << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m)$ & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $\\lambda$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
+  ftex << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $\\lambda$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
   ftex << "\\hline\n";
   for(int i = 0; i < pt_bins; i++) {
     // pT bin
@@ -377,7 +377,9 @@ void plotLtPars()
 	ftex << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
       }
       else {
-	int p_norm = 3.;
+	int p_norm = 1.; 
+	if(val < 1 ) 
+	  p_norm = ceil(-log10(val))+1;	
 	ftex << " & " <<  setprecision(p_norm) << fixed << val ;
       }
     }
@@ -406,7 +408,9 @@ void plotLtPars()
 	ftex_mf << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
       }
       else {
-	int p_norm = 3.;
+	int p_norm = 1.; 
+	if(val < 1 ) 
+	  p_norm = ceil(-log10(val))+2;	
 	ftex_mf << " & " <<  setprecision(p_norm) << fixed << val ;
       }
     }
@@ -435,7 +439,9 @@ void plotLtPars()
 	ftex_bf << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
       }
       else {
-	int p_norm = 3.;
+	int p_norm = 1.; 
+	if(val < 1 ) 
+	  p_norm = ceil(-log10(val))+2;	
 	ftex_bf << " & " <<  setprecision(p_norm) << fixed << val ;
       }
     }

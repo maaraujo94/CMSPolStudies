@@ -2,7 +2,7 @@
 // case where mu is fixed to zero
 
 // MAIN
-void ltPerPt_muFix(double binLow, double binHigh)
+void ltPerPt_muFix(double binLow, double binHigh, double mu_avg)
 {
   // PART 1 : GETTING THE HISTOS
   TH1D *ltHist = new TH1D();
@@ -28,7 +28,7 @@ void ltPerPt_muFix(double binLow, double binHigh)
   // PART 2 : FITTING THE HISTOS
   
   // define the resolution (=PR) function
-  fres = new TF1("fres", "[0]*((1-[1])*TMath::Gaus(x, [2],[3]) + [1]*TMath::Gaus(x, [2], [4]))", 5*lowt, 5*hit);
+  fres = new TF1("fres", "[0]*([1]*TMath::Gaus(x, [2],[3]) + (1.-[1])*TMath::Gaus(x, [2], [4]))", 5*lowt, 5*hit);
 
   // define the NP function by convolution
   TF1 *fexp = new TF1("fexp", "pos_exp(x,[0])", 5*lowt, 5*hit);
@@ -40,14 +40,10 @@ void ltPerPt_muFix(double binLow, double binHigh)
   // define the fit function as the sum of all contributions
   TF1 *fitS = new TF1("fitS", func_sum, lowt, hit, 7);
   fitS->SetParNames("N_PR", "N_NP", "f", "mu", "sigma1", "sigma2", "lambda");
-  fitS->SetParameters(ltHist->GetMaximum()/2., ltHist->GetMaximum()*5., 0.1, 0, 1e-2, 2e-2, 0.4);
-
-  cout << endl << ltHist->GetMaximum()/2. << " PR and " << ltHist->GetMaximum()*5. << " NP " << endl;
-  
-  fitS->FixParameter(3,0);
-  //fitS->FixParameter(2, 0.14);
+  fitS->SetParameters(ltHist->GetMaximum()/2., ltHist->GetMaximum()*5., 0.8, 0, 1e-2, 2e-2, 0.4);
+  fitS->FixParameter(3,mu_avg);
   fitS->SetLineColor(kBlue);
-  int fits = ltHist->Fit(fitS, "R");
+  int fits = ltHist->Fit(fitS, "RQ");
   
   // get the NP fraction in the signal region (+- 100 mum)
   fNP->SetParameters(fitS->GetParameter(1), fitS->GetParameter(2), fitS->GetParameter(3), fitS->GetParameter(4), fitS->GetParameter(5), fitS->GetParameter(6));

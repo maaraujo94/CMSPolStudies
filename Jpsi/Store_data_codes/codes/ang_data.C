@@ -110,11 +110,10 @@ void ang_data()
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
 	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
 	vProb > 0.01 &&
-	abs(mumu_p4->Rapidity()) < 1.2 &&
 	(trigger&16) == 16)
       {
 	mmPt = mumu_p4->Pt();
-	rap = abs(mumu_p4->Rapidity());
+	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
 	lt = ct;
 	lterr = ctErr;
@@ -165,11 +164,10 @@ void ang_data()
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
 	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
 	vProb > 0.01 &&
-	abs(mumu_p4->Rapidity()) < 1.2 &&
 	(trigger&16) == 16)
       {
 	mmPt = mumu_p4->Pt();
-	rap = abs(mumu_p4->Rapidity());
+	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
 	lt = ct;
 	lterr = ctErr;
