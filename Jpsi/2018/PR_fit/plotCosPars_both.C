@@ -61,7 +61,7 @@ void plotCosPars_both()
       fp->GetYaxis()->SetLabelOffset(0.01);
       fp->SetTitle(Form("2018 %s %s", lbl[i_inp].c_str(), partit[i].c_str()));
 
-      for(int i_f = 0; i_f < n_f; i_f++) {
+      for(int i_f = 0; i_f < 1; i_f++) {
 	g_par[i_f][i]->SetMarkerStyle(20);
 	g_par[i_f][i]->SetMarkerSize(.75);
 	g_par[i_f][i]->SetMarkerColor(col_s(i_f));
@@ -95,7 +95,7 @@ void plotCosPars_both()
     fp->GetYaxis()->SetLabelOffset(0.01);
     fp->SetTitle(Form("2018 %s %s", lbl[i_inp].c_str(), partit[n_p-1].c_str()));
 
-    for(int i_f = 0; i_f < n_f; i_f++) {
+    for(int i_f = 0; i_f < 1; i_f++) {
       g_chi[i_f]->SetMarkerStyle(20);
       g_chi[i_f]->SetMarkerSize(1.5);
       g_chi[i_f]->SetMarkerColor(col_s(i_f));

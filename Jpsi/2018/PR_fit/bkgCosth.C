@@ -40,31 +40,33 @@ void bkgCosth()
   TH2D *mcHist_ab = new TH2D("mcH_ab", "2018 MC", 20, 0, 1., nPtBins, ptBins);
   
   // definitions to store data and MC events
-  Double_t data_th, data_pt, data_lt, data_m;
-  Double_t mc_th, mc_pt, mc_lt, mc_m;
+  Double_t data_th, data_pt, data_lt, data_m, data_y;
+  Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y;
   
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
   treeD->SetBranchAddress("Mass", &data_m);
+  treeD->SetBranchAddress("Rap", &data_y);
   treeD->SetBranchAddress("lt", &data_lt);
   
   treeM1->SetBranchAddress("theta", &mc_th);
   treeM1->SetBranchAddress("dimPt", &mc_pt);
   treeM1->SetBranchAddress("Mass", &mc_m);
+  treeM1->SetBranchAddress("Rap", &mc_y);
   treeM1->SetBranchAddress("lt", &mc_lt);
   
   // cycle over data and MC, fill the costh histogram acc to binning
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins]) {
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2 && abs(data_lt) < 0.01) {
 	// LSB
-	if(abs(data_lt) < 0.01 && data_m < 2.95 && data_m > 2.92) {
+	if(data_m < 2.95 && data_m > 2.92) {
 	  dataHist[0]->Fill(cos(data_th), data_pt);
 	  dataHist_ab[0]->Fill(abs(cos(data_th)), data_pt);
 	}
 	// RSB
-	else if(abs(data_lt) < 0.01 && data_m < 3.28 && data_m > 3.21) {
+	else if(data_m < 3.28 && data_m > 3.21) {
 	  dataHist[1]->Fill(cos(data_th), data_pt);
 	  dataHist_ab[1]->Fill(abs(cos(data_th)), data_pt);
 	}
@@ -74,7 +76,7 @@ void bkgCosth()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.01 && mc_m < 3.2 && mc_m > 3.0) {
+      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.01 && mc_m < 3.2 && mc_m > 3.0 && abs(mc_y) < 1.2) {
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
@@ -83,12 +85,13 @@ void bkgCosth()
   treeM2->SetBranchAddress("theta", &mc_th);
   treeM2->SetBranchAddress("dimPt", &mc_pt);
   treeM2->SetBranchAddress("Mass", &mc_m);
+  treeM2->SetBranchAddress("Rap", &mc_y);
   treeM2->SetBranchAddress("lt", &mc_lt);
 
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.01 && mc_m < 3.2 && mc_m > 3.0) {
+      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.01 && mc_m < 3.2 && mc_m > 3.0 && abs(mc_y) < 1.2) {
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
@@ -98,12 +101,13 @@ void bkgCosth()
   treeM3->SetBranchAddress("theta", &mc_th);
   treeM3->SetBranchAddress("dimPt", &mc_pt);
   treeM3->SetBranchAddress("Mass", &mc_m);
+  treeM3->SetBranchAddress("Rap", &mc_y);
   treeM3->SetBranchAddress("lt", &mc_lt);
 
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.01 && mc_m < 3.2 && mc_m > 3.0) {
+      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.01 && mc_m < 3.2 && mc_m > 3.0 && abs(mc_y) < 1.2) {
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }

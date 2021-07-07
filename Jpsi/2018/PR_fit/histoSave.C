@@ -59,7 +59,7 @@ void histoSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m > 3.0 && data_m < 3.2) {
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2) {
 	if(abs(data_lt) < 0.01 ) {
 	  dataHist->Fill(cos(data_th), data_pt);
 	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
@@ -149,8 +149,8 @@ void histoSave()
   ratioHist_ab->Write();
   ratNPHist_ab->Write();
   outfile->Close();
-
-cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events", dataHist->GetEntries(), NPHist->GetEntries(), mcHist->GetEntries()) << endl;
+  
+  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events", dataHist->GetEntries(), NPHist->GetEntries(), mcHist->GetEntries()) << endl;
 
   // split between pT ranges - must set by hand
   cout << dataHist->GetYaxis()->GetBinLowEdge(1) << " " << dataHist->GetYaxis()->GetBinUpEdge(7) << endl;

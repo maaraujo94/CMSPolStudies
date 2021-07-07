@@ -1,4 +1,4 @@
-// macro to generate the bkg costh dists in the fine binning
+// macro to generate the sideband costh dists in the final binning
 
 // macro for rounding to integers
 int do_round(double val)
@@ -25,33 +25,18 @@ void genDist()
   double maxX = hist->GetXaxis()->GetBinUpEdge(nBinsX);
 
   // get fit parameters from storage
-  const double fL = 0.533;
+  TFile *infL = new TFile("../bkgFits/files/store_fL.root");
+  double fL = ((TGraphErrors*)infL->Get("g_fL"))->GetY()[0];
   // get LSB lambda2, lambda4
-  TFile *inLSB = new TFile("files/LSB_fitres.root");
-  double L_l2 = ((TGraphErrors*)inLSB->Get("fit_2_l2"))->GetY()[0];
-  double L_l4 = ((TGraphErrors*)inLSB->Get("fit_2_l4"))->GetY()[0];
+  TFile *inLSB = new TFile("files/LSB2d_fitres.root");
+  double L_l2 = ((TGraphErrors*)inLSB->Get("fit_l2"))->GetY()[0];
+  double L_l4 = ((TGraphErrors*)inLSB->Get("fit_l4"))->GetY()[0];
   inLSB->Close();
   // get RSB lambda2, lambda4
-  TFile *inRSB = new TFile("files/RSB_fitres.root");
-  double R_l2 = ((TGraphErrors*)inRSB->Get("fit_2_l2"))->GetY()[0];
-  double R_l4 = ((TGraphErrors*)inRSB->Get("fit_2_l4"))->GetY()[0];
+  TFile *inRSB = new TFile("files/RSB2d_fitres.root");
+  double R_l2 = ((TGraphErrors*)inRSB->Get("fit_l2"))->GetY()[0];
+  double R_l4 = ((TGraphErrors*)inRSB->Get("fit_l4"))->GetY()[0];
   inRSB->Close();
-  // get NP lambda
-  TFile *inNP = new TFile("files/NP_fitres.root");
-  double* NP_l2 = ((TGraphErrors*)inNP->Get("graph_l2"))->GetY();
-  inNP->Close();
-
-  // create the histograms - NP
-  TF1 *cthNP = new TF1("cthNP", "(1+[0]*x*x)", minX, maxX);
-  TH1D **h_NP = new TH1D*[nBinsY];
-  for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
-    cthNP->SetParameter(0, NP_l2[i_pt]);
-    h_NP[i_pt] = new TH1D(Form("h_NP_%d", i_pt), Form("NP cos#theta (%.0f < p_{T} < %.0f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
-    for(int i = 0; i < nGen; i++) {
-      h_NP[i_pt]->Fill(cthNP->GetRandom());
-    }
-  }
-  cout << "all NP histos filled" << endl;
 
   // create the histograms - SB
   TF1 *cthLSB = new TF1("cthLSB", "(1+[0]*x*x+[1]*pow(x,4))", minX, maxX);
@@ -75,7 +60,6 @@ void genDist()
   
   TFile *fout = new TFile("files/bkgCosModel.root", "recreate");
   for(int i = 0; i < nBinsY; i++) {
-    h_NP[i]->Write();
     h_SB[i]->Write();
   }
   fout->Close();

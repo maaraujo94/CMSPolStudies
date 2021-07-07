@@ -224,8 +224,8 @@ void mBkg()
     // get the bkg fraction in the signal region (3.0 - 3.2 GeV)
     double evt_bkg = fp3->Integral(m_min[1], m_max[1]);
     
-    double min_bin = h_d1d[i_pt]->GetXaxis()->FindBin(m_min[1]);
-    double max_bin = h_d1d[i_pt]->GetXaxis()->FindBin(m_max[1]);
+    double min_bin = h_d1d[i_pt]->GetXaxis()->FindBin(m_min[1]+1e-6);
+    double max_bin = h_d1d[i_pt]->GetXaxis()->FindBin(m_max[1]-1e-6);
     double evt_all = h_d1d[i_pt]->Integral(min_bin, max_bin, "width");
     fBkg[i_pt] = evt_bkg / evt_all;
     efz[i_pt] = 0;

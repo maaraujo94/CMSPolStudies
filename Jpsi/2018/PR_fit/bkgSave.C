@@ -1,4 +1,4 @@
-int DO_LT = 0;
+int DO_LT = 1;
 int DO_MASS = 1;
 
 void bkgSave()
@@ -17,7 +17,7 @@ void bkgSave()
     cout << endl;
     
     int tbins = 120;
-    double lowt = -0.1, hit = 0.5;
+    double lowt = -0.1, hit = 0.5; // plotting in mm, not cm
     TH1D **ltHist = new TH1D*[nPtBins];
     for(int ip = 0; ip < nPtBins; ip++) {
       ltHist[ip] = new TH1D(Form("ltH%.0f", ptBins[ip]), Form("2018 data c#tau (%.0f < p_{T} < %.0f GeV)", ptBins[ip], ptBins[ip+1]), tbins, lowt, hit);

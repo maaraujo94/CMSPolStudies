@@ -1,147 +1,156 @@
-// code to plot the cut variables for the MC Jpsi sample
+// code to plot the cut variables for the MC Jpsi low-pT samples
 /* variables to plot
-- single muon pT, eta
-- dimuon mass, pT, y, ct/cterr
+   - single muon pT, eta
+   - dimuon mass, pT, y, ct/cterr
 */
 
 void compVarMC()
 {
-  TFile *infile = new TFile("../Store_data_codes/Jpsi_MC_comp.root");
-  TH1D *h_muPpT_0 = (TH1D*)infile->Get("h_muPpT_0");
-  TH1D *h_muNpT_0 = (TH1D*)infile->Get("h_muNpT_0");
-  TH1D *h_muPEta_0 = (TH1D*)infile->Get("h_muPEta_0");
-  TH1D *h_muNEta_0 = (TH1D*)infile->Get("h_muNEta_0");
-  TH1D *h_JMass_0 = (TH1D*)infile->Get("h_JMass_0");
-  TH1D *h_JPt_0 = (TH1D*)infile->Get("h_JPt_0");
-  TH1D *h_Jy_0 = (TH1D*)infile->Get("h_Jy_0");
-  
-  TCanvas *c = new TCanvas("", "", 700, 700);
-  c->SetLogy();
+  string lbl[] = {"new", "old"};
   double norm;
 
-  norm = h_muPpT_0->Integral();
-  h_muPpT_0->Scale(1./norm);
-  h_muNpT_0->Scale(1./norm);
-  h_muPpT_0->GetYaxis()->SetRangeUser(1e-3, 1e-1);
-  h_muPpT_0->GetXaxis()->SetTitle("p_{T}(#mu) (GeV)");
-  h_muPpT_0->SetLineColor(kRed);
-  h_muPpT_0->SetTitle("Inclusive MC (low p_{T}) muon p_{T}");
-  h_muPpT_0->Draw("hist");
-  h_muNpT_0->SetLineColor(kBlue);
-  h_muNpT_0->Draw("hist same");
-  c->SaveAs("plots/MC_comp_muon_pt.pdf");
-  c->Clear();
+  TH1D **h_muPpT = new TH1D*[2];
+  TH1D **h_muNpT = new TH1D*[2];
+  TH1D **h_muPEta = new TH1D*[2];
+  TH1D **h_muNEta = new TH1D*[2];
+  TH1D **h_JMass = new TH1D*[2];
+  TH1D **h_JPt = new TH1D*[2];
+  TH1D **h_Jy = new TH1D*[2];
+  TH1D **h_Jlt = new TH1D*[2];
 
-  c->SetLogy(0);
-  norm = h_muPEta_0->Integral();
-  h_muPEta_0->Scale(1./norm);
-  h_muNEta_0->Scale(1./norm);
-  h_muPEta_0->GetYaxis()->SetRangeUser(0, 0.02);
-  h_muPEta_0->GetXaxis()->SetTitle("#eta(#mu)");
-  h_muPEta_0->SetLineColor(kRed);
-  h_muPEta_0->SetTitle("Inclusive MC (low p_{T}) muon #eta");
-  h_muPEta_0->Draw("hist");
-  h_muNEta_0->SetLineColor(kBlue);
-  h_muNEta_0->Draw("hist same");
-  c->SaveAs("plots/MC_comp_muon_eta.pdf");
-  c->Clear();
+  TFile *infile = new TFile("../Store_data_codes/Jpsi_MC_comp.root");
+  TCanvas *c = new TCanvas("", "", 700, 700);
+  // cycle over 2017, 2018
+  for(int i_y = 0; i_y < 2; i_y++) {
+    for(int i_s = 0; i_s < 2; i_s++) {
+      h_muPpT[i_s]  = (TH1D*)infile->Get(Form("h%d_muPpT_%s",  i_y+7, lbl[i_s].c_str()));
+      h_muNpT[i_s]  = (TH1D*)infile->Get(Form("h%d_muNpT_%s",  i_y+7, lbl[i_s].c_str()));
+      h_muPEta[i_s] = (TH1D*)infile->Get(Form("h%d_muPEta_%s", i_y+7, lbl[i_s].c_str()));
+      h_muNEta[i_s] = (TH1D*)infile->Get(Form("h%d_muNEta_%s", i_y+7, lbl[i_s].c_str()));
+      h_JMass[i_s]  = (TH1D*)infile->Get(Form("h%d_JMass_%s",  i_y+7, lbl[i_s].c_str()));
+      h_JPt[i_s]    = (TH1D*)infile->Get(Form("h%d_JPt_%s",    i_y+7, lbl[i_s].c_str()));
+      h_Jy[i_s]     = (TH1D*)infile->Get(Form("h%d_Jy_%s",     i_y+7, lbl[i_s].c_str()));
+      h_Jlt[i_s]    = (TH1D*)infile->Get(Form("h%d_Jlt_%s",    i_y+7, lbl[i_s].c_str()));
+    }
+    
+    c->SetLogy();
+    for(int i_s = 0; i_s < 2; i_s++) {
+      norm = h_muPpT[i_s]->Integral();
+      h_muPpT[i_s]->Scale(1./norm);
+      h_muNpT[i_s]->Scale(1./norm);
+      h_muPpT[i_s]->GetYaxis()->SetRangeUser(1e-5, 3e-2);
+      h_muPpT[i_s]->GetXaxis()->SetTitle("p_{T}(#mu) (GeV)");
+      h_muPpT[i_s]->SetLineColor(kRed);
+      h_muPpT[i_s]->SetStats(0);
+      h_muPpT[i_s]->SetTitle(Form("201%d MC (low p_{T}) muon p_{T}", i_y+7));
+      if(i_s==0) h_muPpT[i_s]->Draw("hist");
+      else {
+	h_muPpT[i_s]->SetLineStyle(kDashed);
+	h_muNpT[i_s]->SetLineStyle(kDashed);
+	h_muPpT[i_s]->Draw("hist same");
+      }
+      h_muNpT[i_s]->SetLineColor(kBlue);
+      h_muNpT[i_s]->Draw("hist same");
+    }
+    c->SaveAs(Form("plots_comp/MC%d_muon_pt.pdf", i_y+7));
+    c->Clear();
 
-  c->SetLogy(0);
-  norm = h_JMass_0->Integral();
-  h_JMass_0->Scale(1./norm);
-  h_JMass_0->GetYaxis()->SetRangeUser(0, 0.07);
-  h_JMass_0->GetXaxis()->SetTitle("M(J/#psi) (GeV)");
-  h_JMass_0->SetTitle("Inclusive MC (low p_{T}) J/#psi mass");
-  h_JMass_0->Draw("hist");
-  c->SaveAs("plots/MC_comp_jpsi_mass.pdf");
-  c->Clear();
+    c->SetLogy(0);
+    for(int i_s = 0; i_s < 2; i_s++) {
+      norm = h_muPEta[i_s]->Integral();
+      h_muPEta[i_s]->Scale(1./norm);
+      h_muNEta[i_s]->Scale(1./norm);
+      h_muPEta[i_s]->GetYaxis()->SetRangeUser(0, 0.016);
+      h_muPEta[i_s]->GetXaxis()->SetTitle("#eta(#mu)");
+      h_muPEta[i_s]->SetLineColor(kRed);
+      h_muPEta[i_s]->SetStats(0);
+      h_muPEta[i_s]->SetTitle(Form("201%d MC (low p_{T}) muon #eta", i_y+7));
+      if(i_s == 0) h_muPEta[i_s]->Draw("hist");
+      else {
+	h_muPEta[i_s]->SetLineStyle(kDashed);
+	h_muNEta[i_s]->SetLineStyle(kDashed);
+	h_muPEta[i_s]->Draw("hist same");
+      }
+      h_muNEta[i_s]->SetLineColor(kBlue);
+      h_muNEta[i_s]->Draw("hist same");
+    }
+    c->SaveAs(Form("plots_comp/MC%d_muon_eta.pdf", i_y+7));
+    c->Clear();
 
-  c->SetLogy();
-  norm = h_JPt_0->Integral();
-  h_JPt_0->Scale(1./norm);
-  h_JPt_0->GetYaxis()->SetRangeUser(1e-3, 1e-1);
-  h_JPt_0->GetXaxis()->SetTitle("p_{T}(J/#psi) (GeV)");
-  h_JPt_0->SetTitle("Inclusive MC (low p_{T}) J/#psi p_{T}");
-  h_JPt_0->Draw("hist");
-  c->SaveAs("plots/MC_comp_jpsi_pt.pdf");
-  c->Clear();
+    c->SetLogy(0);
+    for(int i_s = 0; i_s < 2; i_s++) {
+      norm = h_JMass[i_s]->Integral();
+      h_JMass[i_s]->Scale(1./norm);
+      h_JMass[i_s]->GetYaxis()->SetRangeUser(0, 0.05);
+      h_JMass[i_s]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
+      h_JMass[i_s]->SetStats(0);
+      h_JMass[i_s]->SetTitle(Form("201%d MC (low p_{T}) dimuon mass", i_y+7));
+      if(i_s == 0) h_JMass[i_s]->Draw("hist");
+      else {
+	//h_JMass[i_s]->SetLineStyle(kDashed);
+	h_JMass[i_s]->SetLineColor(kRed);
+	h_JMass[i_s]->Draw("hist same");
+      }
+    }
+    c->SaveAs(Form("plots_comp/MC%d_dimuon_mass.pdf", i_y+7));
+    c->Clear();
 
-  c->SetLogy(0);
-  norm = h_Jy_0->Integral();
-  h_Jy_0->Scale(1./norm);
-  h_Jy_0->GetYaxis()->SetRangeUser(0, 0.02);
-  h_Jy_0->GetXaxis()->SetTitle("y(J/#psi)");
-  h_Jy_0->SetTitle("Inclusive MC (low p_{T}) J/#psi y");
-  h_Jy_0->Draw("hist");
-  c->SaveAs("plots/MC_comp_jpsi_rap.pdf");
-  c->Clear();
+    c->SetLogy();
+    for(int i_s = 0; i_s < 2; i_s++) {
+      norm = h_JPt[i_s]->Integral();
+      h_JPt[i_s]->Scale(1./norm);
+      h_JPt[i_s]->GetYaxis()->SetRangeUser(1e-3, 5e-2);
+      h_JPt[i_s]->GetXaxis()->SetTitle("p_{T}(#mu#mu) (GeV)");
+      h_JPt[i_s]->SetStats(0);
+      h_JPt[i_s]->SetTitle(Form("201%d MC (low p_{T}) dimuon p_{T}", i_y+7));
+      if(i_s == 0) h_JPt[i_s]->Draw("hist");
+      else {
+	//h_JPt[i_s]->SetLineStyle(kDashed);
+	h_JPt[i_s]->SetLineColor(kRed);
+	h_JPt[i_s]->Draw("hist same");
+      }
+    }
+    c->SaveAs(Form("plots_comp/MC%d_dimuon_pt.pdf", i_y+7));
+    c->Clear();
+    
+    c->SetLogy(0);
+    for(int i_s = 0; i_s < 2; i_s++) {
+      norm = h_Jy[i_s]->Integral();
+      h_Jy[i_s]->Scale(1./norm);
+      h_Jy[i_s]->GetYaxis()->SetRangeUser(0, 0.016);
+      h_Jy[i_s]->GetXaxis()->SetTitle("y(#mu#mu)");
+      h_Jy[i_s]->SetStats(0);
+      h_Jy[i_s]->SetTitle(Form("201%d MC (low p_{T}) dimuon y", i_y+7));
+      if(i_s == 0) h_Jy[i_s]->Draw("hist");
+      else {
+	//h_Jy[i_s]->SetLineStyle(kDashed);
+	h_Jy[i_s]->SetLineColor(kRed);
+	h_Jy[i_s]->Draw("hist same");
+      }
+    }
+    c->SaveAs(Form("plots_comp/MC%d_dimuon_rap.pdf", i_y+7));
+    c->Clear();
 
-  TH1D *h_muPpT_1 = (TH1D*)infile->Get("h_muPpT_1");
-  TH1D *h_muNpT_1 = (TH1D*)infile->Get("h_muNpT_1");
-  TH1D *h_muPEta_1 = (TH1D*)infile->Get("h_muPEta_1");
-  TH1D *h_muNEta_1 = (TH1D*)infile->Get("h_muNEta_1");
-  TH1D *h_JMass_1 = (TH1D*)infile->Get("h_JMass_1");
-  TH1D *h_JPt_1 = (TH1D*)infile->Get("h_JPt_1");
-  TH1D *h_Jy_1 = (TH1D*)infile->Get("h_Jy_1");
+    c->SetLogy();
+    for(int i_s = 0; i_s < 2; i_s++) {
+      norm = h_Jlt[i_s]->Integral();
+      h_Jlt[i_s]->Scale(1./norm);
+      h_Jlt[i_s]->GetYaxis()->SetRangeUser(1e-6, 3e-1);
+      h_Jlt[i_s]->GetXaxis()->SetTitle("c#tau(#mu#mu) (cm)");
+      h_Jlt[i_s]->SetStats(0);
+      h_Jlt[i_s]->SetTitle(Form("201%d MC (low p_{T}) dimuon lifetime", i_y+7));
+      if(i_s == 0) h_Jlt[i_s]->Draw("hist");
+      else {
+	//h_Jlt[i_s]->SetLineStyle(kDashed);
+	h_Jlt[i_s]->SetLineColor(kRed);
+	h_Jlt[i_s]->Draw("hist same");
+      }
+    }
+    c->SaveAs(Form("plots_comp/MC%d_dimuon_lt.pdf", i_y+7));
+    c->Clear();
 
-  c->SetLogy();
-  norm = h_muPpT_1->Integral();
-  h_muPpT_1->Scale(1./norm);
-  h_muNpT_1->Scale(1./norm);
-  h_muPpT_1->GetYaxis()->SetRangeUser(1e-3, 1e-1);
-  h_muPpT_1->GetXaxis()->SetTitle("p_{T}(#mu) (GeV)");
-  h_muPpT_1->SetLineColor(kRed);
-  h_muPpT_1->SetTitle("Inclusive MC (high p_{T}) muon p_{T}");
-  h_muPpT_1->Draw("hist");
-  h_muNpT_1->SetLineColor(kBlue);
-  h_muNpT_1->Draw("hist same");
-  c->SaveAs("plots/MC_hpt_comp_muon_pt.pdf");
-  c->Clear();
-
-  c->SetLogy(0);
-  norm = h_muPEta_1->Integral();
-  h_muPEta_1->Scale(1./norm);
-  h_muNEta_1->Scale(1./norm);
-  h_muPEta_1->GetYaxis()->SetRangeUser(0, 0.02);
-  h_muPEta_1->GetXaxis()->SetTitle("#eta(#mu)");
-  h_muPEta_1->SetLineColor(kRed);
-  h_muPEta_1->SetTitle("Inclusive MC (high p_{T}) muon #eta");
-  h_muPEta_1->Draw("hist");
-  h_muNEta_1->SetLineColor(kBlue);
-  h_muNEta_1->Draw("hist same");
-  c->SaveAs("plots/MC_hpt_comp_muon_eta.pdf");
-  c->Clear();
-
-  c->SetLogy(0);
-  norm = h_JMass_1->Integral();
-  h_JMass_1->Scale(1./norm);
-  h_JMass_1->GetYaxis()->SetRangeUser(0, 0.07);
-  h_JMass_1->GetXaxis()->SetTitle("M(J/#psi) (GeV)");
-  h_JMass_1->SetTitle("Inclusive MC (high p_{T}) J/#psi mass");
-  h_JMass_1->Draw("hist");
-  c->SaveAs("plots/MC_hpt_comp_jpsi_mass.pdf");
-  c->Clear();
-
-  c->SetLogy();
-  norm = h_JPt_1->Integral();
-  h_JPt_1->Scale(1./norm);
-  h_JPt_1->GetYaxis()->SetRangeUser(1e-3, 1e-1);
-  h_JPt_1->GetXaxis()->SetTitle("p_{T}(J/#psi) (GeV)");
-  h_JPt_1->SetTitle("Inclusive MC (high p_{T}) J/#psi p_{T}");
-  h_JPt_1->Draw("hist");
-  c->SaveAs("plots/MC_hpt_comp_jpsi_pt.pdf");
-  c->Clear();
-
-  c->SetLogy(0);
-  norm = h_Jy_1->Integral();
-  h_Jy_1->Scale(1./norm);
-  h_Jy_1->GetYaxis()->SetRangeUser(0, 0.02);
-  h_Jy_1->GetXaxis()->SetTitle("y(J/#psi)");
-  h_Jy_1->SetTitle("Inclusive MC (high p_{T}) J/#psi y");
-  h_Jy_1->Draw("hist");
-  c->SaveAs("plots/MC_hpt_comp_jpsi_rap.pdf");
-  c->Clear();
-
+  }
   infile->Close();
-  
+  c->Destructor();
+     
 }
