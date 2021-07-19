@@ -1,6 +1,5 @@
-// code to get the 2d fine-binned data/mc ratio hist
-// plots data, mc and ratio
-// saves ratio (normal and |costh|), number of entries in each histo bin
+// code to get the 2d fine-binned data/mc ratio hist for |costh|max
+// saves ratio (|costh|)
 
 void histoSave()
 {
@@ -50,7 +49,7 @@ void histoSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.01 && data_m > 3.0 && data_m < 3.2) {      
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2) {      
 	dataHist_ab->Fill(abs(cos(data_th)), data_pt);
       }
     }
@@ -58,7 +57,7 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.01 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
@@ -71,7 +70,7 @@ void histoSave()
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.01 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
       }
     }
@@ -84,7 +83,7 @@ void histoSave()
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.01 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }

@@ -7,8 +7,8 @@ void plotCosPars2d()
 
   string parlab[] = {"N", "l2", "l4"};
   string partit[] = {"N", "#lambda_{2}", "#lambda_{4}"};
-  double parmin[] = {6e-4, -2, -2};
-  double parmax[] = {6e-3, 2, 2};
+  double parmin[] = {5e-4, -2, -2};
+  double parmax[] = {4e-3, 2, 2};
 
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.11);

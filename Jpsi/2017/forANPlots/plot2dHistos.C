@@ -3,7 +3,7 @@
 void plot2dHistos()
 {
   // first get the ratio plots
-  /* TFile *fin = new TFile("../PR_fit/files/bkgSubRes.root");
+  TFile *fin = new TFile("../PR_fit/files/bkgSubRes.root");
   TH2D *h_Data = (TH2D*)fin->Get("h_Data");
   TH2D *h_NP = (TH2D*)fin->Get("h_NP");
   TH2D *h_SB = (TH2D*)fin->Get("h_SB");
@@ -15,7 +15,7 @@ void plot2dHistos()
   h_Data->SetStats(0);
   h_Data->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_Data->GetYaxis()->SetTitle("p_{T} (GeV)");
-  h_Data->SetTitle("2018 Peak Data/MC");
+  h_Data->SetTitle("2017 Peak Data/MC");
   h_Data->Draw("COLZ");
   c->SaveAs("plots/ratio_Peak.pdf");
   c->Clear();
@@ -23,7 +23,7 @@ void plot2dHistos()
   h_NP->SetStats(0);
   h_NP->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_NP->GetYaxis()->SetTitle("p_{T} (GeV)");
-  h_NP->SetTitle("2018 NP Data/MC");
+  h_NP->SetTitle("2017 NP Data/MC");
   h_NP->Draw("COLZ");
   c->SaveAs("plots/ratio_NP.pdf");
   c->Clear();
@@ -31,21 +31,17 @@ void plot2dHistos()
   h_SB->SetStats(0);
   h_SB->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_SB->GetYaxis()->SetTitle("p_{T} (GeV)");
-  h_SB->SetTitle("2018 SB Data/MC");
+  h_SB->SetTitle("2017 SB Data/MC");
   h_SB->Draw("COLZ");
   c->SaveAs("plots/ratio_SB.pdf");
   c->Clear();
 
-  fin->Close();*/
+  fin->Close();
 
   // then get the data and mc plots
   TFile *fin2 = new TFile("../PR_fit/files/histoStore.root");
   TH2D *h_Data2 = (TH2D*)fin2->Get("dataH_ab");
   TH2D *h_MC2 = (TH2D*)fin2->Get("mcH_ab");
-
-  TCanvas *c = new TCanvas("", "", 900, 900);
-  c->SetLeftMargin(0.11);
-  c->SetRightMargin(0.13);
 
   c->SetLogz();
  

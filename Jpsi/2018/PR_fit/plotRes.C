@@ -100,7 +100,7 @@ void plotRes()
 
   // draw A(pT)
   c->SetLogy();
-  TH1F *fa = c->DrawFrame(pTBins[0], 2e-2, pTBins[nBinspT], 6e-1);
+  TH1F *fa = c->DrawFrame(pTBins[0], 1e-2, pTBins[nBinspT], 6e-1);
   fa->SetXTitle("p_{T} (GeV)");
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
@@ -114,11 +114,11 @@ void plotRes()
     graph_A[i]->Draw("p same");
   }
 
-  TLine *trans1_A = new TLine(46, 2e-2, 46, 6e-1);
+  TLine *trans1_A = new TLine(46, 1e-2, 46, 6e-1);
   trans1_A->SetLineColor(kBlack);
   trans1_A->SetLineStyle(kDashed);
   trans1_A->Draw();
-  TLine *trans2_A = new TLine(66, 2e-2, 66, 6e-1);
+  TLine *trans2_A = new TLine(66, 1e-2, 66, 6e-1);
   trans2_A->SetLineColor(kBlack);
   trans2_A->SetLineStyle(kDashed);
   trans2_A->Draw();
@@ -161,4 +161,3 @@ void plotRes()
 
 
 }
-

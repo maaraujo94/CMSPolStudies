@@ -11,7 +11,7 @@ void plotFracs()
   fin2->Close();
 
   // get the plateau fit for fBG
-  TF1 *f_fit1 = new TF1("f_fit1", "0.029*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
+  TF1 *f_fit1 = new TF1("f_fit1", "0.022*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
   f_fit1->SetParameters(0.02, -10);
   f_fit1->SetLineColor(kBlack);
   f_fit1->SetLineStyle(kDashed);
@@ -39,7 +39,7 @@ void plotFracs()
   fr1->SetYTitle("f");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("f comparison");
+  fr1->SetTitle("2017 f comparison");
 
   fNP->SetLineColor(kRed);
   fNP->SetMarkerColor(kRed);

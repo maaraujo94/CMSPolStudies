@@ -18,9 +18,9 @@ void ltPerPt_muFix(double binLow, double binHigh, double mu_avg)
   double hit = ltHist->GetXaxis()->GetBinUpEdge(tbins);
   double wbin = (hit-lowt)/(double)tbins;
 
-  double pr_lim = 0.1;
-  double np_lim = 0.14;
-  double lowPlot = -0.15;
+  double pr_lim = 0.05;
+  double np_lim = 0.1;
+  double lowPlot = -0.1;
   
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLogy();

@@ -21,7 +21,7 @@ void plot2d()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(data_pt > 25 && data_pt < 120)
+      if(data_pt > 25 && data_pt < 120 && abs(data_y) < 1.2)
 	hist->Fill(data_m, data_lt);
     }
   finD->Close();

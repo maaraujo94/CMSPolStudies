@@ -22,7 +22,7 @@ void plotCutVar()
   double dmy_range[2] = {0, 6e5};
   double dmy_cut = 1.2;
   double dml_range[2] = {1e4, 2e6};
-  double dml_cut[2] = {0.01, 0.014};
+  double dml_cut[2] = {0.005, 0.01};
   double vp_range[2] = {1.e5, 4e5};
   double vp_cut = 0.01;
   

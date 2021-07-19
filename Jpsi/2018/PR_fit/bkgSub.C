@@ -31,7 +31,6 @@ void bkgSub()
   const double *yBins = h_PR2d->GetYaxis()->GetXbins()->GetArray();
   double minX = h_PR2d->GetXaxis()->GetBinLowEdge(1);
   double maxX = h_PR2d->GetXaxis()->GetBinUpEdge(nBinsX);
-  double dX = (maxX-minX)/(double)nBinsX;
 
   // get the bkg model functions
   TH1D **h_SBr = new TH1D*[nBinsY]; // SB background 1d histos

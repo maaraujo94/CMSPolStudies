@@ -5,7 +5,7 @@ void plotPts()
   double ptBins[nPtBins+1];
   for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
   for(int i=0; i<4; i++) ptBins[i+3] = 46.+10.*i;
-  ptBins[7] = 100;
+  ptBins[7] = 120;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -33,19 +33,19 @@ void plotPts()
     {
       treeD->GetEntry(i);
       // PR SR
-      if(abs(data_lt) < 0.01  && data_m < 3.2 && data_m > 3.0) {
+      if(abs(data_lt) < 0.005  && data_m < 3.2 && data_m > 3.0) {
 	h_tot->Fill(data_pt);
       }
       // NP SR
-      else if(data_lt > 0.014 && data_lt < 0.05 && data_m < 3.2 && data_m > 3.0) {
+      else if(data_lt > 0.01 && data_lt < 0.05 && data_m < 3.2 && data_m > 3.0) {
 	h_NP->Fill(data_pt);
       }
       // LSB
-      else if(abs(data_lt) < 0.01 && data_m < 2.95 && data_m > 2.92) {
+      else if(abs(data_lt) < 0.005 && data_m < 2.95 && data_m > 2.92) {
 	h_LSB->Fill(data_pt);
       }
       // RSB
-      else if(abs(data_lt) < 0.01 && data_m < 3.28 && data_m > 3.21) {
+      else if(abs(data_lt) < 0.005 && data_m < 3.28 && data_m > 3.21) {
 	h_RSB->Fill(data_pt);
       }
     }
@@ -81,7 +81,7 @@ void plotPts()
   c->Clear();
   c->SetLogy(0);
   
-  TH1F *fr1 = c->DrawFrame(20, 0.4, 125, 0.8);
+  TH1F *fr1 = c->DrawFrame(20, 0., 125, 1.);
   fr1->SetXTitle("p_{T} (GeV)");
   fr1->SetYTitle("f_{NP}");
   fr1->GetYaxis()->SetTitleOffset(1.3);

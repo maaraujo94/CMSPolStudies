@@ -17,8 +17,8 @@ void plotCosPars_both()
 
   string parlab[] = {"N", "l2", "l4", "chiP"};
   string partit[] = {"N", "#lambda_{2}", "#lambda_{4}", "P(#chi^{2})"};
-  double parmin[] = {6e-4, -2, -2, 0};
-  double parmax[] = {6e-3, 2, 2, 1};
+  double parmin[] = {5e-4, -2, -2, 0};
+  double parmax[] = {4e-3, 2, 2, 1};
 
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.11);

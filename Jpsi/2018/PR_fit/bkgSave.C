@@ -16,8 +16,8 @@ void bkgSave()
     for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
     cout << endl;
     
-    int tbins = 120;
-    double lowt = -0.1, hit = 0.5; // plotting in mm, not cm
+    int tbins = 110;
+    double lowt = -0.05, hit = 0.5; // plotting in mm, not cm
     TH1D **ltHist = new TH1D*[nPtBins];
     for(int ip = 0; ip < nPtBins; ip++) {
       ltHist[ip] = new TH1D(Form("ltH%.0f", ptBins[ip]), Form("2018 data c#tau (%.0f < p_{T} < %.0f GeV)", ptBins[ip], ptBins[ip+1]), tbins, lowt, hit);
@@ -92,7 +92,7 @@ void bkgSave()
     for(int i = 0; i < dEvt; i++)
       {
 	tree1->GetEntry(i);
-	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.01 && abs(data_y) < 1.2) {
+	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
 	  for(int i_p = 0; i_p < nPtBins; i_p++)
 	    if(data_pt > ptBins[i_p] && data_pt < ptBins[i_p+1])
 	      h_d1d[i_p]->Fill(data_m);

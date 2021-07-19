@@ -8,8 +8,8 @@ void plotDMPars()
   string partit[] = {"f", "N_{SR}", "#mu", "#sigma_{1}", "#sigma_{2}", "n", "#alpha", "N_{BG}", "#lambda", "f_{bkg}"};
   string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "#lambda (MeV)", "f_{bkg} (%)"};
   
-  double parmin[] = {0,    8e0, 3093.4, 15, 30, 1.0, 2.0, 8e0, 800, 0.};
-  double parmax[] = {100., 1e4, 3094.4, 30, 45, 1.4, 2.3, 8e4, 2400, 15.};
+  double parmin[] = {0,    5e0, 3093.4, 15, 30, 1.0, 2.0, 3e0, 0, 0.};
+  double parmax[] = {100., 1e4, 3094.4, 30, 45, 1.4, 2.3, 2e4, 5000, 15.};
 
   // initialize tgraphs for parameters
   TGraphErrors **g_par = new TGraphErrors*[n_p];

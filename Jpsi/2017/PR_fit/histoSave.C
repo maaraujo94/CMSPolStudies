@@ -1,6 +1,5 @@
-// code to get the 2d fine-binned data/mc ratio hist
-// plots data, mc and ratio
-// saves ratio (normal and |costh|), number of entries in each histo bin
+// code to get the 2d data/mc ratio hist (pr, np)
+// saves data, mc, ratio (normal and |costh|)
 
 void histoSave()
 {
@@ -60,11 +59,11 @@ void histoSave()
     {
       treeD->GetEntry(i);
       if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2) {
-	if(abs(data_lt) < 0.01 ) {
+	if(abs(data_lt) < 0.005 ) {
 	  dataHist->Fill(cos(data_th), data_pt);
 	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
 	}
-	else if(data_lt > 0.014 && data_lt < 0.05 ) {
+	else if(data_lt > 0.01 && data_lt < 0.05 ) {
 	  NPHist->Fill(cos(data_th), data_pt);
 	  NPHist_ab->Fill(abs(cos(data_th)), data_pt);
 	}
@@ -74,7 +73,7 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.01 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
@@ -90,7 +89,7 @@ void histoSave()
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.01 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
@@ -107,7 +106,7 @@ void histoSave()
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.01 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);

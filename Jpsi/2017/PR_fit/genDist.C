@@ -45,7 +45,7 @@ void genDist()
   cthRSB->SetParameters(R_l2, R_l4);
   int genL = do_round(nGen*fL);
   int genR = nGen - genL;
-  TH1D *h_SB_base = new TH1D(Form("h_SB_base"), "Interpolated sideband cos#theta", nBinsX, minX, maxX);
+  TH1D *h_SB_base = new TH1D(Form("h_SB_base"), "2017 Interpolated sideband cos#theta", nBinsX, minX, maxX);
   for(int i = 0; i < genL; i++) {
     h_SB_base->Fill(cthLSB->GetRandom());
   }

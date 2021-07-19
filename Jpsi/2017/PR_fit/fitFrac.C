@@ -28,10 +28,10 @@ void fitFrac()
 
   TH1F *fr1 = c->DrawFrame(20., 0.0, 125, 0.08);
   fr1->SetXTitle("p_{T} (GeV)");
-  fr1->SetYTitle("f_{SB}");
+  fr1->SetYTitle("f_{bkg}");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("f_{SB}");
+  fr1->SetTitle("2017 f_{bkg}");
 
   fSB->SetLineColor(kBlack);
   fSB->SetMarkerColor(kBlack);
@@ -39,7 +39,7 @@ void fitFrac()
   fSB->Draw("p");
 
   // fit function - parameters M(a,mu), a, mu
-  TF1 *f_fit1 = new TF1("fit_SB", "0.029*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
+  TF1 *f_fit1 = new TF1("fit_SB", "0.022*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
   f_fit1->SetParNames("a", "mu");
   f_fit1->SetParameters(0.02, -10);
   f_fit1->SetLineColor(kBlue);
@@ -89,8 +89,8 @@ void fitFrac()
   fout_t << "\\begin{tabular}{c||c|c|c}\n";
   fout_t << " & $M$ & $a$ & $\\mu$  \\\\\n";
   fout_t << "\\hline\n";
-  fout_t << "$f_{SB}$ ";
-  double val = 0.029/(1-exp(-f_fit1->GetParameter(0)*(20-f_fit1->GetParameter(1))));
+  fout_t << "$f_{bkg}$ ";
+  double val = 0.022/(1-exp(-f_fit1->GetParameter(0)*(20-f_fit1->GetParameter(1))));
   int p_norm = 1;
   if(val > 0 && val < 1 ) 
     p_norm = ceil(-log10(val))+1;
@@ -103,15 +103,6 @@ void fitFrac()
     fout_t << " & " <<  setprecision(p_norm) << fixed << val;
   }
   fout_t << "\\\\\n";
-  /*fout_t << "$f_{NP}$ ";
-  for(int i = 0; i < 3; i++) {
-    double val = f_fit2->GetParameter(i);
-    int p_norm = 1.;
-    if(val > 0 && val < 1 ) 
-      p_norm = ceil(-log10(val))+1;
-    fout_t << " & " <<  setprecision(p_norm) << fixed << val;
-  }
-  fout_t << "\\\\\n";*/
   fout_t << "\\end{tabular}\n";
   fout_t.close();
 }

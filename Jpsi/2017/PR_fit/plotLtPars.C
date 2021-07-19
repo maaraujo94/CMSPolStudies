@@ -1,3 +1,22 @@
+double sig_m(double f, double sig1, double sig2)
+{
+  double sig1_s = pow(sig1, 2);
+  double sig2_s = pow(sig2, 2);
+  f /= 100.;
+
+  return sqrt(f*sig1_s + (1.-f)*sig2_s);
+}
+
+double esig_m(double f, double sig1, double sig2, double ef, double esig1, double esig2)
+{
+  double sig1_s = pow(sig1, 2);
+  double sig2_s = pow(sig2, 2);
+  f/= 100.;
+  ef /= 100.;
+
+  return sqrt(pow((sig1_s-sig2_s)*ef/2, 2) + pow(f * sig1 * esig1, 2) + pow((1.-f) * sig2 * esig2, 2))/sqrt(f*sig1_s + (1.-f)*sig2_s);
+}
+
 void plotLtPars()
 {
   const int n_p = 7;
@@ -72,8 +91,8 @@ void plotLtPars()
   ifile.close();
 
   // aux arrays
-  string parlab[] = {"N_PR", "N_NP", "f", "mu", "sig1", "sig2", "lambda"};
-  string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma_{1}", "#sigma_{2}", "#lambda"};
+  string parlab[] = {"N_PR", "N_NP", "f", "mu", "sig1", "sig2", "t"};
+  string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma_{1}", "#sigma_{2}", "t"};
   string par_unit[] = {" per 1 GeV", " per 1 GeV", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
 
   double parmin[] = {3e1, 1e2, 0,  -5., 0,  0,  300};
@@ -144,7 +163,7 @@ void plotLtPars()
   fchi->SetYTitle("#chi^{2}/ndf");
   fchi->GetYaxis()->SetTitleOffset(1.5);
   fchi->GetYaxis()->SetLabelOffset(0.01);
-  fchi->SetTitle("#chi^{2}/ndf vs p_{T}");
+  fchi->SetTitle("2017 #chi^{2}/ndf vs p_{T}");
   
   g_chi->SetMarkerStyle(20);
   g_chi->SetMarkerSize(.75);
@@ -182,7 +201,7 @@ void plotLtPars()
   ffr->SetYTitle("f_{NP} (%)");
   ffr->GetYaxis()->SetTitleOffset(1.3);
   ffr->GetYaxis()->SetLabelOffset(0.01);
-  ffr->SetTitle("f_{NP} vs p_{T}");
+  ffr->SetTitle("2017 f_{NP} vs p_{T}");
   
   g_frac->SetMarkerStyle(20);
   g_frac->SetMarkerSize(.75);
@@ -216,61 +235,47 @@ void plotLtPars()
   // do the sigma plots to compare with rms from previous ANs
   double sig_avg[3][pt_bins], esig_avg[3][pt_bins], rms[3][pt_bins], erms[3][pt_bins], sig_rat[3][pt_bins], esig_rat[3][pt_bins];
   for(int i_p = 0; i_p < pt_bins; i_p++){
-    double sig1_s = pow(par[4][i_p], 2);
-    double sig2_s = pow(par[5][i_p], 2);
-    sig_avg[0][i_p] = sqrt(sig1_s+sig2_s);
-
-    double esig1_s = pow(epar[4][i_p], 2);
-    double esig2_s = pow(epar[5][i_p], 2);
-    esig_avg[0][i_p] = sqrt(sig1_s*esig1_s+sig2_s*esig2_s)/sig_avg[0][i_p];
-
+    sig_avg[0][i_p] = sig_m(par[2][i_p], par[4][i_p], par[5][i_p]);
+    esig_avg[0][i_p] = esig_m(par[2][i_p], par[4][i_p], par[5][i_p], epar[2][i_p], epar[4][i_p], epar[5][i_p]);
+			      
     rms[0][i_p] = sig_avg[0][i_p] * pt_avg[i_p]/3.097;
     erms[0][i_p] = esig_avg[0][i_p] * pt_avg[i_p]/3.097;
-
+    
     sig_rat[0][i_p] = par[5][i_p]/par[4][i_p];
-    esig_rat[0][i_p] = sig_rat[0][i_p] * sqrt(esig1_s/sig1_s + esig2_s/sig2_s);
-
+    esig_rat[0][i_p] = sig_rat[0][i_p] * sqrt(pow(epar[4][i_p]/par[4][i_p], 2) + pow(epar[5][i_p]/par[5][i_p], 2));
+    
     // now for second set of pars
-    sig1_s = pow(par_f[4][i_p], 2);
-    sig2_s = pow(par_f[5][i_p], 2);
-    sig_avg[1][i_p] = sqrt(sig1_s+sig2_s);
-
-    esig1_s = pow(epar_f[4][i_p], 2);
-    esig2_s = pow(epar_f[5][i_p], 2);
-    esig_avg[1][i_p] = sqrt(sig1_s*esig1_s+sig2_s*esig2_s)/sig_avg[1][i_p];
-
+    sig_avg[1][i_p] = sig_m(par_f[2][i_p], par_f[4][i_p], par_f[5][i_p]);
+    esig_avg[1][i_p] = esig_m(par_f[2][i_p], par_f[4][i_p], par_f[5][i_p], epar_f[2][i_p], epar_f[4][i_p], epar_f[5][i_p]);
+			      
     rms[1][i_p] = sig_avg[1][i_p] * pt_avg[i_p]/3.097;
     erms[1][i_p] = esig_avg[1][i_p] * pt_avg[i_p]/3.097;
-
+    
     sig_rat[1][i_p] = par_f[5][i_p]/par_f[4][i_p];
-    esig_rat[1][i_p] = sig_rat[1][i_p] * sqrt(esig1_s/sig1_s + esig2_s/sig2_s);
+    esig_rat[1][i_p] = sig_rat[1][i_p] * sqrt(pow(epar_f[4][i_p]/par_f[4][i_p], 2) + pow(epar_f[5][i_p]/par_f[5][i_p], 2));
     
     // now for third set of pars
-    sig1_s = pow(par_b[4][i_p], 2);
-    sig2_s = pow(par_b[5][i_p], 2);
-    sig_avg[2][i_p] = sqrt(sig1_s+sig2_s);
-
-    esig1_s = pow(epar_b[4][i_p], 2);
-    esig2_s = pow(epar_b[5][i_p], 2);
-    esig_avg[2][i_p] = sqrt(sig1_s*esig1_s+sig2_s*esig2_s)/sig_avg[2][i_p];
-
+    sig_avg[2][i_p] = sig_m(par_b[2][i_p], par_b[4][i_p], par_b[5][i_p]);
+    esig_avg[2][i_p] = esig_m(par_b[2][i_p], par_b[4][i_p], par_b[5][i_p], epar_b[2][i_p], epar_b[4][i_p], epar_b[5][i_p]);
+			      
     rms[2][i_p] = sig_avg[2][i_p] * pt_avg[i_p]/3.097;
     erms[2][i_p] = esig_avg[2][i_p] * pt_avg[i_p]/3.097;
-
+    
     sig_rat[2][i_p] = par_b[5][i_p]/par_b[4][i_p];
-    esig_rat[2][i_p] = sig_rat[2][i_p] * sqrt(esig1_s/sig1_s + esig2_s/sig2_s);
-}
+    esig_rat[2][i_p] = sig_rat[2][i_p] * sqrt(pow(epar_b[4][i_p]/par_b[4][i_p], 2) + pow(epar_b[5][i_p]/par_b[5][i_p], 2));
+
+  }
 
   TGraphErrors *g_sig = new TGraphErrors(pt_bins, pt_avg, sig_avg[0], pt_err, esig_avg[0]);
   TGraphErrors *g_sig_f = new TGraphErrors(pt_bins, pt_avg, sig_avg[1], pt_err, esig_avg[1]);
   TGraphErrors *g_sig_b = new TGraphErrors(pt_bins, pt_avg, sig_avg[2], pt_err, esig_avg[2]);
 
-  TH1F *fsig = c->DrawFrame(pt_min[0]-5, 0., pt_max[pt_bins-1]+5, 50);
+  TH1F *fsig = c->DrawFrame(pt_min[0]-5, 0., pt_max[pt_bins-1]+5, 20);
   fsig->SetXTitle("p_{T} (GeV)");
   fsig->SetYTitle("#sigma (#mum)");
   fsig->GetYaxis()->SetTitleOffset(1.3);
   fsig->GetYaxis()->SetLabelOffset(0.01);
-  fsig->SetTitle("#sigma vs p_{T}");
+  fsig->SetTitle("2017 #sigma_{m} vs p_{T}");
   
   g_sig->SetMarkerStyle(20);
   g_sig->SetMarkerSize(.75);
@@ -297,12 +302,12 @@ void plotLtPars()
   TGraphErrors *g_rms_f = new TGraphErrors(pt_bins, pt_avg, rms[1], pt_err, erms[1]);
   TGraphErrors *g_rms_b = new TGraphErrors(pt_bins, pt_avg, rms[2], pt_err, erms[2]);
 
-  TH1F *frms = c->DrawFrame(pt_min[0]-5, 0., pt_max[pt_bins-1]+5, 1000);
+  TH1F *frms = c->DrawFrame(pt_min[0]-5, 0., pt_max[pt_bins-1]+5, 500);
   frms->SetXTitle("p_{T} (GeV)");
   frms->SetYTitle("rms (Lxy) (#mum)");
   frms->GetYaxis()->SetTitleOffset(1.3);
   frms->GetYaxis()->SetLabelOffset(0.01);
-  frms->SetTitle("rms (Lxy) vs p_{T}");
+  frms->SetTitle("2017 rms (Lxy) vs p_{T}");
   
   g_rms->SetMarkerStyle(20);
   g_rms->SetMarkerSize(.75);
@@ -334,7 +339,7 @@ void plotLtPars()
   frat->SetYTitle("#sigma_{2}/#sigma_{1}");
   frat->GetYaxis()->SetTitleOffset(1.3);
   frat->GetYaxis()->SetLabelOffset(0.01);
-  frat->SetTitle("#sigma_{2}/#sigma_{1} vs p_{T}");
+  frat->SetTitle("2017 #sigma_{2}/#sigma_{1} vs p_{T}");
   
   g_rat->SetMarkerStyle(20);
   g_rat->SetMarkerSize(.75);
@@ -363,7 +368,7 @@ void plotLtPars()
   ofstream ftex;
   ftex.open(Form("text_output/tfit_res.tex"));
   ftex << "\\begin{tabular}{c||c|c|c|c|c|c|c||c|c}\n";
-  ftex << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $\\lambda$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
+  ftex << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $t$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
   ftex << "\\hline\n";
   for(int i = 0; i < pt_bins; i++) {
     // pT bin
@@ -394,7 +399,7 @@ void plotLtPars()
   ofstream ftex_mf;
   ftex_mf.open(Form("text_output/tfit_mf_res.tex"));
   ftex_mf << "\\begin{tabular}{c||c|c|c|c|c|c|c||c|c}\n";
-  ftex_mf << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $\\lambda$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
+  ftex_mf << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $t$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
   ftex_mf << "\\hline\n";
   for(int i = 0; i < pt_bins; i++) {
     // pT bin
@@ -425,7 +430,7 @@ void plotLtPars()
   ofstream ftex_bf;
   ftex_bf.open(Form("text_output/tfit_bf_res.tex"));
   ftex_bf << "\\begin{tabular}{c||c|c|c|c|c|c|c||c|c}\n";
-  ftex_bf << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $\\lambda$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
+  ftex_bf << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $t$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
   ftex_bf << "\\hline\n";
   for(int i = 0; i < pt_bins; i++) {
     // pT bin

@@ -59,7 +59,7 @@ void bkgCosth()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2 && abs(data_lt) < 0.01) {
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2 && abs(data_lt) < 0.005) {
 	// LSB
 	if(data_m < 2.95 && data_m > 2.92) {
 	  dataHist[0]->Fill(cos(data_th), data_pt);
@@ -76,7 +76,7 @@ void bkgCosth()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.01 && mc_m < 3.2 && mc_m > 3.0 && abs(mc_y) < 1.2) {
+      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && mc_m < 3.2 && mc_m > 3.0 && abs(mc_y) < 1.2) {
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
@@ -91,7 +91,7 @@ void bkgCosth()
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.01 && mc_m < 3.2 && mc_m > 3.0 && abs(mc_y) < 1.2) {
+      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && mc_m < 3.2 && mc_m > 3.0 && abs(mc_y) < 1.2) {
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
@@ -107,7 +107,7 @@ void bkgCosth()
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.01 && mc_m < 3.2 && mc_m > 3.0 && abs(mc_y) < 1.2) {
+      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m < 3.2 && mc_m > 3.0 && abs(mc_y) < 1.2) {
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }

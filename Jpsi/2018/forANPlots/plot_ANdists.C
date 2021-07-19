@@ -116,16 +116,16 @@ void plot_ANdists()
     h_lt[i]->SetTitle(Form("lifetime (%s)", lbl_lt[i].c_str()));
     h_lt[i]->Draw("histo");
 
-    TLine *l_PRm = new TLine(-100, h_lt[i]->GetMinimum(), -100, h_lt[i]->GetMaximum());
+    TLine *l_PRm = new TLine(-50, h_lt[i]->GetMinimum(), -50, h_lt[i]->GetMaximum());
     l_PRm->SetLineStyle(kDashed);
     l_PRm->SetLineColor(kBlack);
     l_PRm->Draw();
-    TLine *l_PRp = new TLine(100, h_lt[i]->GetMinimum(), 100, h_lt[i]->GetMaximum());
+    TLine *l_PRp = new TLine(50, h_lt[i]->GetMinimum(), 50, h_lt[i]->GetMaximum());
     l_PRp->SetLineStyle(kDashed);
     l_PRp->SetLineColor(kBlack);
     l_PRp->Draw();
 
-    TLine *l_NPm = new TLine(140, h_lt[i]->GetMinimum(), 140, h_lt[i]->GetMaximum());
+    TLine *l_NPm = new TLine(100, h_lt[i]->GetMinimum(), 100, h_lt[i]->GetMaximum());
     l_NPm->SetLineStyle(kDashed);
     l_NPm->SetLineColor(kBlack);
     l_NPm->Draw();

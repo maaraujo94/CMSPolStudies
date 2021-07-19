@@ -1,6 +1,5 @@
-// code to get the 2d fine-binned data/mc ratio hist
-// plots data, mc and ratio
-// saves ratio (normal and |costh|), number of entries in each histo bin
+// code to get the 2d data/mc ratio hist (pr, np)
+// saves data, mc, ratio (normal and |costh|)
 
 void histoSave()
 {
@@ -60,11 +59,11 @@ void histoSave()
     {
       treeD->GetEntry(i);
       if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2) {
-	if(abs(data_lt) < 0.01 ) {
+	if(abs(data_lt) < 0.005 ) {
 	  dataHist->Fill(cos(data_th), data_pt);
 	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
 	}
-	else if(data_lt > 0.014 && data_lt < 0.05 ) {
+	else if(data_lt > 0.01 && data_lt < 0.05 ) {
 	  NPHist->Fill(cos(data_th), data_pt);
 	  NPHist_ab->Fill(abs(cos(data_th)), data_pt);
 	}
@@ -74,7 +73,7 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.01 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
@@ -90,7 +89,7 @@ void histoSave()
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.01 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
@@ -107,7 +106,7 @@ void histoSave()
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.01 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
@@ -153,12 +152,24 @@ void histoSave()
   cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events", dataHist->GetEntries(), NPHist->GetEntries(), mcHist->GetEntries()) << endl;
 
   // split between pT ranges - must set by hand
-  cout << dataHist->GetYaxis()->GetBinLowEdge(1) << " " << dataHist->GetYaxis()->GetBinUpEdge(7) << endl;
-  cout << dataHist->GetYaxis()->GetBinLowEdge(8) << " " << dataHist->GetYaxis()->GetBinUpEdge(11) << endl;
-  cout << dataHist->GetYaxis()->GetBinLowEdge(12) << " " << dataHist->GetYaxis()->GetBinUpEdge(17) << endl;
+  
+  double pt_min[] = {dataHist->GetYaxis()->GetBinLowEdge(1), dataHist->GetYaxis()->GetBinLowEdge(8), dataHist->GetYaxis()->GetBinLowEdge(12)};
+  double pt_max[] = {dataHist->GetYaxis()->GetBinUpEdge(7), dataHist->GetYaxis()->GetBinUpEdge(11), dataHist->GetYaxis()->GetBinUpEdge(18)};
   
   cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 1", dataHist->Integral(1, 40, 1, 7), NPHist->Integral(1, 40, 1, 7), mcHist->Integral(1, 40, 1, 7)) << endl;
   cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 2", dataHist->Integral(1, 40, 8, 11), NPHist->Integral(1, 40, 8, 11), mcHist->Integral(1, 40, 8, 11)) << endl;
   cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 3", dataHist->Integral(1, 40, 12, 17), NPHist->Integral(1, 40, 12, 17), mcHist->Integral(1, 40, 12, 17)) << endl;
+
+  ofstream ftex;
+  ftex.open(Form("text_output/data_mc_evts.tex"));
+  ftex << "\\begin{tabular}{c||c|c|c||c}\n";
+  ftex << Form(" $\\pt$ & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[0], pt_max[2]);
+  ftex << "\\hline\n";
+  ftex << Form("PR Data & %.0f & %.0f & %.0f & %.0f \\\\\n", dataHist->Integral(1, 40, 1, 7), dataHist->Integral(1, 40, 8, 11), dataHist->Integral(1, 40, 12, 17), dataHist->Integral(1, 40, 1, 17)); 
+  ftex << Form("NP Data & %.0f & %.0f & %.0f & %.0f \\\\\n", NPHist->Integral(1, 40, 1, 7), NPHist->Integral(1, 40, 8, 11), NPHist->Integral(1, 40, 12, 17), NPHist->Integral(1, 40, 1, 17)); 
+  ftex << Form("MC & %.0f & %.0f & %.0f & %.0f \\\\\n", mcHist->Integral(1, 40, 1, 7), mcHist->Integral(1, 40, 8, 11), mcHist->Integral(1, 40, 12, 17), mcHist->Integral(1, 40, 1, 17)); 
+  ftex << "\\end{tabular}\n";
+  ftex.close();
+
 
 }
