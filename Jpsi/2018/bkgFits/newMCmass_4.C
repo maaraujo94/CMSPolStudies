@@ -46,11 +46,11 @@ double cb_func(double *x, double *par)
   double f = par[nPtBins]; // f is constant in pt, only take the first value and use in all cases
 
   double mu = par[2*nPtBins]; // mu is constant in pt
-  double sig1 = par[3*nPtBins+pt_bin];
-  double sig2 = par[4*nPtBins+pt_bin];
+  double sig1 = par[3*nPtBins] * pt + par[3*nPtBins+1]; 
+  double sig2 = par[4*nPtBins] * pt + par[4*nPtBins+1]; // sigmas linear in pt
   
   double n = par[5*nPtBins]; // n is constant in pt
-  double alpha = par[6*nPtBins]; // alpha is constant in pt
+  double alpha = par[6*nPtBins+pt_bin];
   
   double func = f * cb_exp(m, N, sig1, mu, n, alpha) + (1.-f) * cb_exp(m, N, sig2, mu, n, alpha);
   return func;
@@ -196,8 +196,11 @@ void newMCmass_4()
     for(int j = 1; j < 7; j++) {
       f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
       f_cb->SetParameter(j*nPtBins+i, par_v[j]);
-      // fixing mu, n, alpha so only one value matters
-      if((j < 3 || j > 4 ) && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+      // fixing mu, n, f so only one value matters
+      if((j < 3 || j == 5 ) && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+      else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+      else if((j == 3 || j == 4) && i == 0) f_cb->SetParameter(j*nPtBins+i, par_v[j]/200.);
+
     }
   }
 
@@ -230,16 +233,19 @@ void newMCmass_4()
       pars[j][i_pt] = f_cb->GetParameter(j*nPtBins+i_pt);
       epars[j][i_pt] = f_cb->GetParError(j*nPtBins+i_pt);
     }
-    // parameters mu, n are always the value of the first pt bin
+    // parameters mu, f, n are always the value of the first pt bin
     pars[1][i_pt] = f_cb->GetParameter(nPtBins);
     epars[1][i_pt] = f_cb->GetParError(nPtBins);
     pars[2][i_pt] = f_cb->GetParameter(2*nPtBins);
     epars[2][i_pt] = f_cb->GetParError(2*nPtBins);
     pars[5][i_pt] = f_cb->GetParameter(5*nPtBins);
     epars[5][i_pt] = f_cb->GetParError(5*nPtBins);    
-    pars[6][i_pt] = f_cb->GetParameter(6*nPtBins);
-    epars[6][i_pt] = f_cb->GetParError(6*nPtBins);    
-    
+    // storing linear parameters sig1, sig2
+    for(int j = 3; j < 5; j++) {
+      pars[j][i_pt] = f_cb->GetParameter(j*nPtBins) * pt_val[i_pt] + f_cb->GetParameter(j*nPtBins+1);
+      epars[j][i_pt] = sqrt(pow(f_cb->GetParError(j*nPtBins) * pt_val[i_pt], 2) + pow(f_cb->GetParError(j*nPtBins+1), 2));
+    }
+
     c->SetLogy();
 	  
     h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.2);
@@ -373,14 +379,14 @@ void newMCmass_4()
     // pT bin
     ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
     for(int i_p = 0; i_p < 7; i_p++) {
-      if(i_p != 1 && i_p != 2 && i_p < 5) {
+      if(i_p != 1 && i_p != 2 && i_p != 5) {
 	double val = pars[i_p][i], unc = epars[i_p][i];
 	int p_norm = 1.; 
 	if(unc < 1 ) 
 	  p_norm = ceil(-log10(unc))+1;	
 	ftex << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
       }
-      else if((i_p == 1 || i_p == 2 || i_p > 4) && i == 0) {
+      else if((i_p == 1 || i_p == 2 || i_p == 5) && i == 0) {
 	double val = pars[i_p][i], unc = epars[i_p][i];
 	int p_norm = 1.; 
 	if(unc < 1 ) 
@@ -394,6 +400,29 @@ void newMCmass_4()
   }
   ftex << "\\end{tabular}\n";
   ftex.close();
+
+  // sigma parameters
+  ofstream ftex2;
+  ftex2.open("text_output/mfit_MC_4A.tex");
+  ftex2 << "\\begin{tabular}{cc|cc}\n";
+  ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} \\\\\n";
+  ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) \\\\\n";
+  ftex2 << "\\hline\n";
+
+  for(int j = 3; j < 5; j++) {
+    double val = f_cb->GetParameter(j*nPtBins)*1e5;
+    double unc = f_cb->GetParError(j*nPtBins)*1e5;
+    int p_norm = ceil(-log10(unc))+1;	
+    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
+    val = f_cb->GetParameter(j*nPtBins+1)*1e3;
+    unc = f_cb->GetParError(j*nPtBins+1)*1e3;
+    p_norm = ceil(-log10(unc))+1;	
+    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
+    if(j == 3) ftex2 << " & ";
+    else ftex2 << "\\\\\n";
+  }
+  ftex2 << "\\end{tabular}\n";
+  ftex2.close();
 
   fout->Close();
       

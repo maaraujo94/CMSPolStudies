@@ -238,7 +238,7 @@ void newMCmass_5()
     pars[5][i_pt] = f_cb->GetParameter(5*nPtBins);
     epars[5][i_pt] = f_cb->GetParError(5*nPtBins);    
     pars[6][i_pt] = f_cb->GetParameter(6*nPtBins);
-    epars[6][i_pt] = f_cb->GetParError(6*nPtBins);    
+    epars[6][i_pt] = f_cb->GetParError(6*nPtBins);
     // storing linear parameters sig1, sig2
     for(int j = 3; j < 5; j++) {
       pars[j][i_pt] = f_cb->GetParameter(j*nPtBins) * pt_val[i_pt] + f_cb->GetParameter(j*nPtBins+1);

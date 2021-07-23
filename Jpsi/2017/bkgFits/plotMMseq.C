@@ -10,7 +10,7 @@ void plotMMseq()
   string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha"};
   string parax[] = {"f (%)", "N per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha"};
   double parmin[] = {0,   3e1, 3090,   0.0, 30., 0.6, 1.8};
-  double parmax[] = {100, 2e3, 3100,   60., 55., 1.8, 2.5};
+  double parmax[] = {100, 3e3, 3100,   60., 55., 1.8, 2.5};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_p];
@@ -62,7 +62,7 @@ void plotMMseq()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("2018 %s", partit[i_p].c_str()));
+    fl->SetTitle(Form("2017 %s", partit[i_p].c_str()));
 
     if(i_p == 1) c->SetLogy();
     else c->SetLogy(0);
@@ -112,7 +112,7 @@ void plotMMseq()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("2018 %s (#mu constant)", partit[i_p].c_str()));
+    fl->SetTitle(Form("2017 %s (#mu constant)", partit[i_p].c_str()));
 
     c->SetLogy(0);
 
@@ -158,7 +158,7 @@ void plotMMseq()
   f2->SetYTitle(parax[3].c_str());
   f2->GetYaxis()->SetTitleOffset(1.8);
   f2->GetYaxis()->SetLabelOffset(0.01);
-  f2->SetTitle(Form("2018 %s (#mu, f constant)", partit[3].c_str()));
+  f2->SetTitle(Form("2017 %s (#mu, f constant)", partit[3].c_str()));
 
   c->SetLogy(0);
   
@@ -201,7 +201,7 @@ void plotMMseq()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("2018 %s (#mu, f constant, #sigma_{1,2} linear)", partit[i_p].c_str()));
+    fl->SetTitle(Form("2017 %s (#mu, f constant, #sigma_{1,2} linear)", partit[i_p].c_str()));
 
     c->SetLogy(0);
 
@@ -231,7 +231,7 @@ void plotMMseq()
   f4->SetYTitle(parax[6].c_str());
   f4->GetYaxis()->SetTitleOffset(1.8);
   f4->GetYaxis()->SetLabelOffset(0.01);
-  f4->SetTitle("2018 #alpha (#mu, n constant)");
+  f4->SetTitle("2017 #alpha (#mu, n constant)");
 
   c->SetLogy(0);
   
@@ -260,7 +260,7 @@ void plotMMseq()
   fc->SetYTitle("#chi^{2}/ndf");
   fc->GetYaxis()->SetTitleOffset(1.3);
   fc->GetYaxis()->SetLabelOffset(0.01);
-  fc->SetTitle(Form("2018 #chi^{2}/ndf for different fit models"));
+  fc->SetTitle(Form("2017 #chi^{2}/ndf for different fit models"));
 
   for(int i = 0; i < n_m; i++) {
     l_chiN[i]->SetLineColor(i+1);

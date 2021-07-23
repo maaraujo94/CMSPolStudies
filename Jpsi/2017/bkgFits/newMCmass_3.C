@@ -80,20 +80,20 @@ void newMCmass_3()
   double lowm = 2.9, him = 3.3;
   TH1D **h_m1d = new TH1D*[nPtBins];
   for(int ip = 0; ip < nPtBins; ip++)
-    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("2018 MC M(#mu#mu) (%.0f < p_{T} < %.0f)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
+    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("2017 MC M(#mu#mu) (%.0f < p_{T} < %.0f)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
   
-  TH2D *h_m2d = new TH2D("h_m2d", "2018 MC M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
+  TH2D *h_m2d = new TH2D("h_m2d", "2017 MC M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
  
   cout << "all MC mass histograms initialized" << endl;
 
   if(DO_FILL == 1) {
     // filling all the histos at once    
     // open and read the data tree
-    TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MC18_old_cos.root");
+    TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MC17_old_cos.root");
     TTree *tree1 = (TTree*)fin1->Get("MC_cos");
-    TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCh18_cos.root");
+    TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCh17_cos.root");
     TTree *tree2 = (TTree*)fin2->Get("MC_cos");
-    TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvh18_cos.root");
+    TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvh17_cos.root");
     TTree *tree3 = (TTree*)fin3->Get("MC_cos");
 
     // MC 1

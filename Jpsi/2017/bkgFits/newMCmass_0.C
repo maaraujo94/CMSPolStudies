@@ -43,11 +43,11 @@ double cb_func(double *x, double *par)
       pt_bin = i;
 
   double N = par[pt_bin];
-  double f = par[nPtBins]; // f is constant in pt
+  double f = par[nPtBins+pt_bin];
 
-  double mu = par[2*nPtBins]; // mu is constant in pt, only take the first value and use in all cases
-  double sig1 = par[3*nPtBins] * pt + par[3*nPtBins+1]; 
-  double sig2 = par[4*nPtBins] * pt + par[4*nPtBins+1]; // sigmas linear in pt
+  double mu = par[2*nPtBins+pt_bin];
+  double sig1 = par[3*nPtBins+pt_bin];
+  double sig2 = par[4*nPtBins+pt_bin];
   
   double n = par[5*nPtBins+pt_bin];
   double alpha = par[6*nPtBins+pt_bin];
@@ -64,7 +64,7 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 
 
 // MAIN
-void newMCmass_3()
+void newMCmass_0()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
@@ -80,20 +80,20 @@ void newMCmass_3()
   double lowm = 2.9, him = 3.3;
   TH1D **h_m1d = new TH1D*[nPtBins];
   for(int ip = 0; ip < nPtBins; ip++)
-    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("2018 MC M(#mu#mu) (%.0f < p_{T} < %.0f)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
+    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("2017 MC M(#mu#mu) (%.0f < p_{T} < %.0f)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
   
-  TH2D *h_m2d = new TH2D("h_m2d", "2018 MC M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
+  TH2D *h_m2d = new TH2D("h_m2d", "2017 MC M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
  
   cout << "all MC mass histograms initialized" << endl;
 
   if(DO_FILL == 1) {
     // filling all the histos at once    
     // open and read the data tree
-    TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MC18_old_cos.root");
+    TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MC17_old_cos.root");
     TTree *tree1 = (TTree*)fin1->Get("MC_cos");
-    TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCh18_cos.root");
+    TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCh17_cos.root");
     TTree *tree2 = (TTree*)fin2->Get("MC_cos");
-    TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvh18_cos.root");
+    TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvh17_cos.root");
     TTree *tree3 = (TTree*)fin3->Get("MC_cos");
 
     // MC 1
@@ -196,12 +196,9 @@ void newMCmass_3()
     for(int j = 1; j < 7; j++) {
       f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
       f_cb->SetParameter(j*nPtBins+i, par_v[j]);
-      // fixing mu, f, sigma so only one value matters
-      if((j < 3 ) && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-      else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-      else if((j == 3 || j == 4) && i == 0) f_cb->SetParameter(j*nPtBins+i, par_v[j]/200.);
     }
   }
+
 
   // tf1 for plotting in the 1D bins
   TF1 *f_1d = new TF1("f_1d", "[1]*cb_exp(x,[0],[3],[2],[5],[6]) + (1.-[1]) * cb_exp(x,[0],[4],[2], [5], [6])", fit_i, fit_f);
@@ -216,9 +213,9 @@ void newMCmass_3()
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
 
-  TFile *fout = new TFile("files/MCfit_3.root", "recreate");
+  TFile *fout = new TFile("files/MCfit_0.root", "recreate");
   h_m2d->Fit("f_cb", "R");
-
+  
   double pt_val[nPtBins], pt_err[nPtBins];
   double pars[7][nPtBins], epars[7][nPtBins];
       
@@ -232,17 +229,7 @@ void newMCmass_3()
       pars[j][i_pt] = f_cb->GetParameter(j*nPtBins+i_pt);
       epars[j][i_pt] = f_cb->GetParError(j*nPtBins+i_pt);
     }
-    // parameters mu, f are always the value of the first pt bin
-    pars[2][i_pt] = f_cb->GetParameter(2*nPtBins);
-    epars[2][i_pt] = f_cb->GetParError(2*nPtBins);
-    pars[1][i_pt] = f_cb->GetParameter(nPtBins);
-    epars[1][i_pt] = f_cb->GetParError(nPtBins); ;    
-    // storing linear parameters sig1, sig2
-    for(int j = 3; j < 5; j++) {
-      pars[j][i_pt] = f_cb->GetParameter(j*nPtBins) * pt_val[i_pt] + f_cb->GetParameter(j*nPtBins+1);
-      epars[j][i_pt] = sqrt(pow(f_cb->GetParError(j*nPtBins) * pt_val[i_pt], 2) + pow(f_cb->GetParError(j*nPtBins+1), 2));
-    }
-
+    
     c->SetLogy();
 	  
     h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.2);
@@ -357,7 +344,7 @@ void newMCmass_3()
     c->Clear();
   }
 
-   TLine *l_chiN = new TLine(ptBins[0], f_cb->GetChisquare()/f_cb->GetNDF(), ptBins[nPtBins], f_cb->GetChisquare()/f_cb->GetNDF());
+  TLine *l_chiN = new TLine(ptBins[0], f_cb->GetChisquare()/f_cb->GetNDF(), ptBins[nPtBins], f_cb->GetChisquare()/f_cb->GetNDF());
   l_chiN->Write(Form("fit_chiN"));
 
   TLine *l_chi = new TLine(ptBins[0], f_cb->GetChisquare(), ptBins[nPtBins], f_cb->GetChisquare());
@@ -367,7 +354,7 @@ void newMCmass_3()
 
   // output fit parameters as a table
   ofstream ftex;
-  ftex.open("text_output/mfit_MC_3.tex");
+  ftex.open("text_output/mfit_MC_0.tex");
   ftex << "\\begin{tabular}{c||c|c|c|c|c|c|c}\n";
   ftex << "$\\pt$ (GeV) & $N$ & $f$ (\\%) & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ & $\\alpha$ \\\\\n";
   ftex << "\\hline\n";
@@ -376,52 +363,17 @@ void newMCmass_3()
     // pT bin
     ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
     for(int i_p = 0; i_p < 7; i_p++) {
-      if(i_p == 0 || i_p > 2) {
-	double val = pars[i_p][i], unc = epars[i_p][i];
-	int p_norm = 1.; 
-	if(unc < 1 ) 
-	  p_norm = ceil(-log10(unc))+1;	
-	ftex << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
-      }
-      else if((i_p == 1 || i_p || 2 ) && i == 0) {
-	double val = pars[i_p][i], unc = epars[i_p][i];
-	int p_norm = 1.; 
-	if(unc < 1 ) 
-	  p_norm = ceil(-log10(unc))+1;	
-	ftex << " & \\multirow{" << nPtBins << "}{*}{" <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << "}" ;
-      }
-      else
-	ftex << " & ";
+      double val = pars[i_p][i], unc = epars[i_p][i];
+      int p_norm = 1.; 
+      if(unc < 1 ) 
+	p_norm = ceil(-log10(unc))+1;	
+      ftex << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
     }
     ftex <<  "\\\\\n";
   }
   ftex << "\\end{tabular}\n";
   ftex.close();
 
-  // sigma parameters
-  ofstream ftex2;
-  ftex2.open("text_output/mfit_MC_3A.tex");
-  ftex2 << "\\begin{tabular}{cc|cc}\n";
-  ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} \\\\\n";
-  ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) \\\\\n";
-  ftex2 << "\\hline\n";
-
-  for(int j = 3; j < 5; j++) {
-    double val = f_cb->GetParameter(j*nPtBins)*1e5;
-    double unc = f_cb->GetParError(j*nPtBins)*1e5;
-    int p_norm = ceil(-log10(unc))+1;	
-    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-    val = f_cb->GetParameter(j*nPtBins+1)*1e3;
-    unc = f_cb->GetParError(j*nPtBins+1)*1e3;
-    p_norm = ceil(-log10(unc))+1;	
-    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
-    if(j == 3) ftex2 << " & ";
-    else ftex2 << "\\\\\n";
-  }
-  ftex2 << "\\end{tabular}\n";
-  ftex2.close();
-
-  
   fout->Close();
       
   c->Destructor(); 

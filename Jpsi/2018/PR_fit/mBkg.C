@@ -28,7 +28,7 @@ double bkg_exp(double m, double p1, double p2)
 }
 
 // crystal ball function parser - called by TF2
-// parameters: f, N(per bin), mu, sig1(linear), sig2(linear), n(per bin), alpha (per bin), p1 (per bin), p2 (per bin)
+// parameters: NS, f, mu, sig1, sig2, n, alpha, NB, lambda
 double mmod_func(double *x, double *par)
 {
   // get m, pt and corresp pt bin
@@ -38,18 +38,20 @@ double mmod_func(double *x, double *par)
     if(ptBins[i] < pt && ptBins[i+1] > pt)
       pt_bin = i;
 
-  double f = par[0];
-  double mu = par[nPtBins+1];
-  double sig1 = par[nPtBins+2] * pt + par[nPtBins+3];
-  double sig2 = par[nPtBins+4] * pt + par[nPtBins+5];
+  double NS = par[pt_bin];
+  double f = par[nPtBins]; // f is constant in pt, only take the first value and use in all cases
+
+  double mu = par[2*nPtBins]; // mu is constant in pt
+  double sig1 = par[3*nPtBins] * pt + par[3*nPtBins+1]; 
+  double sig2 = par[4*nPtBins] * pt + par[4*nPtBins+1]; // sigmas linear in pt
   
-  double N = par[1+pt_bin];
-  double n = par[6+nPtBins+pt_bin];
-  double alpha = par[6+2*nPtBins+pt_bin];
-  double p1 = par[6+3*nPtBins+pt_bin];
-  double p2 = par[6+4*nPtBins+pt_bin];
+  double n = par[5*nPtBins]; // n is constant in pt
+  double alpha = par[6*nPtBins]; // alpha is constant in pt
+
+  double NB = par[7*nPtBins+pt_bin];
+  double ld = par[8*nPtBins+pt_bin];
   
-  double func = f * cb_exp(m, N, sig1, mu, n, alpha) + (1.-f) * cb_exp(m, N, sig2, mu, n, alpha) + bkg_exp(m, p1, p2);
+  double func = f * cb_exp(m, NS, sig1, mu, n, alpha) + (1.-f) * cb_exp(m, NS, sig2, mu, n, alpha) + bkg_exp(m, NB, ld);
   return func;
 }
 
@@ -100,57 +102,54 @@ void mBkg()
   } 
 
   // define 2d function for fitting
-  TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 5*nPtBins+6, 2);
-  // define constant parameters - f, mu
-  f_cb->SetParName(0, "f");
-  f_cb->SetParameter(0, 0.7);
-  f_cb->SetParName(nPtBins+1, "mu");
-  f_cb->SetParameter(nPtBins+1, 3.1);
-  // define linear parameters - sigma1, sigma2
-  f_cb->SetParName(nPtBins+2, "m_sig1");
-  f_cb->SetParameter(nPtBins+2, 1.e-4);
-  f_cb->SetParName(nPtBins+3, "b_sig1");
-  f_cb->SetParameter(nPtBins+3, 2.e-2);
-  f_cb->SetParName(nPtBins+4, "m_sig2");
-  f_cb->SetParameter(nPtBins+4, 1.e-4);
-  f_cb->SetParName(nPtBins+5, "b_sig2");
-  f_cb->SetParameter(nPtBins+5, 3.e-2);
-  // define free parameters - N, alpha, n
+  TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 9*nPtBins, 2);
+  string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda"};
+  double par_v[] = {1., 0.7, 3.1, 1e-4, 1e-4, 1., 2, 1., 1.5};
+  double par2_v[] = {1., 1., 1., 2e-2, 3e-2, 1., 1., 1., 1};
+  // define parameters
   for(int i = 0; i < nPtBins; i++) {
-    f_cb->SetParName(i+1, Form("NS_%d", i));
-    f_cb->SetParameter(i+1, h_d1d[i]->Integral()/100.);  
+    // normalizations
+    f_cb->SetParName(i, Form("NS_%d", i));
+    f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
+    f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
+    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/100.);
 
-    f_cb->SetParName(nPtBins+6+i, Form("n_%d", i));
-    f_cb->FixParameter(nPtBins+6+i, 1.2);
+    for(int j = 1; j < 7; j++) { // between NS, NB
+      f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
+      f_cb->SetParameter(j*nPtBins+i, par_v[j]);
+      // fixing mu, n, f, alpha so only one value matters
+      if((j < 3 || j > 4 ) && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+      // setting the sigma definitions
+      else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+      else if((j == 3 || j == 4) && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
+      // fixing n, alpha to MC value -- SETUP READING MC (1.18, 2.159)
+      if(j == 5 && i == 0) f_cb->FixParameter(j*nPtBins+i, 1.18);
+      //if(j == 6 && i == 0) f_cb->FixParameter(j*nPtBins+i, 2.159);
+    }
 
-    f_cb->SetParName(i+6+2*nPtBins, Form("alpha_%d", i));
-    f_cb->FixParameter(i+6+2*nPtBins, 2.15);
-
-    f_cb->SetParName(i+6+3*nPtBins, Form("NB_%d", i));
-    f_cb->SetParameter(i+6+3*nPtBins, h_d1d[i]->Integral()/2.);
-
-    f_cb->SetParName(i+6+4*nPtBins, Form("lambda_%d", i));
-    f_cb->SetParameter(i+6+4*nPtBins, 0.7);
+    // lambda parameter
+    f_cb->SetParName(8*nPtBins+i, Form("lambda_%d", i));
+    f_cb->SetParameter(8*nPtBins+i, par_v[8]);
   }
   
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
-  h_d2d->Fit("f_cb", "R");
+  h_d2d->Fit("f_cb", "RV");
 
   // tf1 for plotting in the 1D bins
-  TF1 *f_1d = new TF1("f_1d", "[0]*cb_exp(x,[1],[3],[2],[5],[6]) + (1.-[0]) * cb_exp(x,[1],[4],[2],[5],[6])+bkg_exp(x,[7],[8])", m_min[0], m_max[2]);
-  f_1d->SetParNames("f", "NS", "mu", "sigma1", "sigma2", "n", "alpha", "p1", "lambda");
+  TF1 *f_1d = new TF1("f_1d", "[1]*cb_exp(x,[0],[3],[2],[5],[6]) + (1.-[1]) * cb_exp(x,[0],[4],[2],[5],[6])+bkg_exp(x,[7],[8])", m_min[0], m_max[2]);
+  f_1d->SetParNames("NS", "f", "mu", "sigma1", "sigma2", "n", "alpha", "p1", "lambda");
 
   // separate parts of the fit function
-  TF1 *fp1 = new TF1("fp1", "[0]*cb_exp(x,[1],[3],[2],[4],[5])", m_min[0], m_max[2]);
-  fp1->SetParNames("f", "NS", "mu", "sigma1", "n", "alpha");
-  TF1 *fp2 = new TF1("fp2", "(1.-[0]) * cb_exp(x,[1],[3],[2],[4],[5])", m_min[0], m_max[2]);
-  fp2->SetParNames("f", "NS", "mu", "sigma2", "n", "alpha");
+  TF1 *fp1 = new TF1("fp1", "[1]*cb_exp(x,[0],[3],[2],[4],[5])", m_min[0], m_max[2]);
+  fp1->SetParNames("NS", "f", "mu", "sigma1", "n", "alpha");
+  TF1 *fp2 = new TF1("fp2", "(1.-[1]) * cb_exp(x,[0],[3],[2],[4],[5])", m_min[0], m_max[2]);
+  fp2->SetParNames("NS", "f", "mu", "sigma2", "n", "alpha");
   TF1 *fp3 = new TF1("fp3", "bkg_exp(x,[0],[1])", m_min[0], m_max[2]);
   fp3->SetParNames("NB", "lambda");
 
   double pt_val[nPtBins], pt_err[nPtBins];
-  double pars[5][nPtBins], epars[5][nPtBins];
+  double pars[9][nPtBins], epars[9][nPtBins];
   double fBkg[nPtBins], efz[nPtBins];
 
   // cycle over all pT bins
@@ -158,28 +157,36 @@ void mBkg()
     pt_val[i_pt] = 0.5*(ptBins[i_pt+1]+ptBins[i_pt]);
     pt_err[i_pt] = 0.5*(ptBins[i_pt+1]-ptBins[i_pt]);
 
-    // storing free parameters
-    pars[0][i_pt] = f_cb->GetParameter(i_pt+1);
-    pars[1][i_pt] = f_cb->GetParameter(i_pt+6+nPtBins);
-    pars[2][i_pt] = f_cb->GetParameter(i_pt+6+2*nPtBins);
-    pars[3][i_pt] = f_cb->GetParameter(i_pt+6+3*nPtBins);
-    pars[4][i_pt] = f_cb->GetParameter(i_pt+6+4*nPtBins);
-    epars[0][i_pt] = f_cb->GetParError(i_pt+1);
-    epars[1][i_pt] = f_cb->GetParError(i_pt+6+nPtBins);
-    epars[2][i_pt] = f_cb->GetParError(i_pt+6+2*nPtBins);
-    epars[3][i_pt] = f_cb->GetParError(i_pt+6+3*nPtBins);
-    epars[4][i_pt] = f_cb->GetParError(i_pt+6+4*nPtBins);
+    // storing parameters
+    for(int j = 0; j < 9; j++) {
+      pars[j][i_pt] = f_cb->GetParameter(j*nPtBins+i_pt);
+      epars[j][i_pt] = f_cb->GetParError(j*nPtBins+i_pt);
+    }
+    // parameters mu, f, n, alpha are always the value of the first pt bin
+    pars[1][i_pt] = f_cb->GetParameter(nPtBins);
+    epars[1][i_pt] = f_cb->GetParError(nPtBins);
+    pars[2][i_pt] = f_cb->GetParameter(2*nPtBins);
+    epars[2][i_pt] = f_cb->GetParError(2*nPtBins);
+    pars[5][i_pt] = f_cb->GetParameter(5*nPtBins);
+    epars[5][i_pt] = f_cb->GetParError(5*nPtBins);    
+    pars[6][i_pt] = f_cb->GetParameter(6*nPtBins);
+    epars[6][i_pt] = f_cb->GetParError(6*nPtBins);    
+    // storing linear parameters sig1, sig2
+    for(int j = 3; j < 5; j++) {
+      pars[j][i_pt] = f_cb->GetParameter(j*nPtBins) * pt_val[i_pt] + f_cb->GetParameter(j*nPtBins+1);
+      epars[j][i_pt] = sqrt(pow(f_cb->GetParError(j*nPtBins) * pt_val[i_pt], 2) + pow(f_cb->GetParError(j*nPtBins+1), 2));
+    }
 
     // initializing f_1d and plotting
-    f_1d->SetParameters(f_cb->GetParameter(0),
-			pars[0][i_pt],
-			f_cb->GetParameter(nPtBins+1),
-			f_cb->GetParameter(nPtBins+2) * pt_val[i_pt] + f_cb->GetParameter(nPtBins+3),
-			f_cb->GetParameter(nPtBins+4) * pt_val[i_pt] + f_cb->GetParameter(nPtBins+5),
+    f_1d->SetParameters(pars[0][i_pt],
 			pars[1][i_pt],
 			pars[2][i_pt],
 			pars[3][i_pt],
-			pars[4][i_pt]);
+			pars[4][i_pt],
+			pars[5][i_pt],
+			pars[6][i_pt],
+			pars[7][i_pt],
+			pars[8][i_pt]);
   
     h_d1d[i_pt]->SetMaximum(h_d1d[i_pt]->GetMaximum()*1.1);
     h_d1d[i_pt]->SetMinimum(0);
@@ -196,15 +203,15 @@ void mBkg()
     f_1d->Draw("lsame");
 
     // tf1 for plotting in the 1D bins
-    fp1->SetParameters(f_1d->GetParameter(0), f_1d->GetParameter(1), f_1d->GetParameter(2), f_1d->GetParameter(3), f_1d->GetParameter(5), f_1d->GetParameter(6));
+    fp1->SetParameters(pars[0][i_pt], pars[1][i_pt], pars[2][i_pt], pars[3][i_pt], pars[5][i_pt], pars[6][i_pt]);
     fp1->SetLineColor(kRed);
     fp1->SetLineStyle(kDashed);
     fp1->Draw("lsame");
-    fp2->SetParameters(f_1d->GetParameter(0), f_1d->GetParameter(1), f_1d->GetParameter(2), f_1d->GetParameter(4), f_1d->GetParameter(5), f_1d->GetParameter(6));
+    fp2->SetParameters(pars[0][i_pt], pars[1][i_pt], pars[2][i_pt], pars[4][i_pt], pars[5][i_pt], pars[6][i_pt]);
     fp2->SetLineColor(kGreen);
     fp2->SetLineStyle(kDashed);
     fp2->Draw("lsame");
-    fp3->SetParameters(pars[3][i_pt], pars[4][i_pt]);
+    fp3->SetParameters(pars[7][i_pt], pars[8][i_pt]);
     fp3->SetLineColor(kViolet);
     fp3->SetLineStyle(kDashed);
     fp3->Draw("lsame");
@@ -308,40 +315,13 @@ void mBkg()
   
   // storing the free parameters
   TFile *fout = new TFile("files/mfit.root", "recreate");
-  string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda"};
-  int ct_p = 0, ct_pos = 0;
-  int p_pos[] = {0, nPtBins+1};  
+  string parlab[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda"};
 
   for(int i_p = 0; i_p < 9; i_p++) {
-    // free parameters: N, n, alpha
-    if(i_p == 1 || i_p >= 5) {
-      TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, pars[ct_p], pt_err, epars[ct_p]);
-      g_par->Write(Form("fit_%s", parlab[i_p].c_str()));
-      ct_p++;
-    }
-    // linear parameters: sig1, sig2
-    else if(i_p == 3 || i_p == 4) {
-      double par_val[nPtBins], par_err[nPtBins];
-      int n_v = i_p - (i_p%2);
-      for(int i = 0; i < nPtBins; i++) {
-	par_val[i] = f_cb->GetParameter(nPtBins+n_v) * pt_val[i] + f_cb->GetParameter(nPtBins+n_v+1);
-	par_err[i] = sqrt(pow(f_cb->GetParError(nPtBins+n_v) * pt_val[i], 2) + pow(f_cb->GetParError(nPtBins+n_v+1), 2));
-      }
-      TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, par_val, pt_err, par_err);
-      g_par->Write(Form("fit_%s", parlab[i_p].c_str()));
-    }
-    // constant parameters: f, mu
-    else {
-      double par_val[nPtBins], par_err[nPtBins];
-      for(int i = 0; i < nPtBins; i++) {
-	par_val[i] = f_cb->GetParameter(p_pos[ct_pos]);
-	par_err[i] = f_cb->GetParError(p_pos[ct_pos]);
-      }
-      TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, par_val, pt_err, par_err);
-      g_par->Write(Form("fit_%s", parlab[i_p].c_str()));
-      ct_pos++;
-    }
+    TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, pars[i_p], pt_err, epars[i_p]);
+    g_par->Write(Form("fit_%s", parlab[i_p].c_str()));
   }
+
   TGraphErrors *g_fBG = new TGraphErrors(nPtBins, pt_val, fBkg, pt_err, efz);
   g_fBG->Write("fit_fBG");
   
@@ -351,27 +331,30 @@ void mBkg()
 
   ofstream ftex;
   ftex.open(Form("text_output/mfit_res.tex"));
-  ftex << "\\begin{tabular}{c||c|c|c|c|c||c}\n";
-  ftex << "$\\pt$ (GeV) & $N_{SR}$ & $n$ & $\\alpha$ & $N_{BG}$  & $\\lambda$ (MeV) & $f_{bkg}$ (\\%) \\\\\n";
+  ftex << "\\begin{tabular}{c||c|c|c||c}\n";
+  ftex << "$\\pt$ (GeV) & $N_{SR}$ & $N_{BG}$ & $\\lambda$ (MeV) & $f_{bkg}$ (\\%) \\\\\n";
   ftex << "\\hline\n";
 
   for(int i = 0; i < nPtBins; i++) {
     // pT bin
     ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
-    for(int i_p = 0; i_p < 5; i_p++) {
-      double mult = 1.;
-      if(i_p == 0 || i_p == 3) mult = 1./(ptBins[i+1]-ptBins[i]);
-      else if(i_p == 4) mult = 1e3;
-      double val = pars[i_p][i]*mult, unc = epars[i_p][i]*mult;
-      if (unc > 0) {
-	int p_norm = 1.; 
-	if(unc < 1 ) 
-	  p_norm = ceil(-log10(unc))+1;	
-	ftex << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
-      }
-      else {
-	int p_norm = 3.;
-	ftex << " & " <<  setprecision(p_norm) << fixed << val ;
+    for(int i_p = 0; i_p < 9; i_p++) {
+      if(i_p == 0 || i_p > 6) {
+	double mult = 1.;
+	if(i_p == 0 || i_p == 7) mult = 1./(ptBins[i+1]-ptBins[i]);
+	else  mult = 1e3;
+	
+	double val = pars[i_p][i]*mult, unc = epars[i_p][i]*mult;
+	if (unc > 0) {
+	  int p_norm = 1.; 
+	  if(unc < 1 ) 
+	    p_norm = ceil(-log10(unc))+1;	
+	  ftex << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
+	}
+	else {
+	  int p_norm = 3.;
+	  ftex << " & " <<  setprecision(p_norm) << fixed << val ;
+	}
       }
     }
     ftex << " & " << setprecision(2) << fixed << fBkg[i]*100.;
@@ -382,45 +365,42 @@ void mBkg()
 
   ofstream fout2;
   fout2.open(Form("text_output/mfit_resA.tex"));
-  fout2 << "\\begin{tabular}{c|c|cc|cc||c}\n";
-  fout2 << " \\multirow{2}{*}{$f$ $(\\%)$} & \\multirow{2}{*}{$\\mu$ $(MeV)$} & \\multicolumn{2}{|c|}{$\\sigma_1$} & \\multicolumn{2}{|c||}{$\\sigma_2$} & \\multirow{2}{*}{$\\chi^2/$ndf} \\\\\n";
-  fout2 << " & & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & \\\\\n";
+  fout2 << "\\begin{tabular}{c|c|cc|cc|c|c||c}\n";
+  fout2 << " \\multirow{2}{*}{$f$ $(\\%)$} & \\multirow{2}{*}{$\\mu$ $(MeV)$} & \\multicolumn{2}{|c|}{$\\sigma_1$} & \\multicolumn{2}{|c||}{$\\sigma_2$}  & \\multirow{2}{*}{$n$} & \\multirow{2}{*}{$\\alpha$} & \\multirow{2}{*}{$\\chi^2/$ndf} \\\\\n";
+  fout2 << " & & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & & & \\\\\n";
   fout2 << "\\hline\n";
 
-  // f
-  double val = f_cb->GetParameter(p_pos[0])*100.;
-  double unc = f_cb->GetParError(p_pos[0])*100.;
-  int p_norm = 1.;
-  if(unc < 1) p_norm = ceil(-log10(unc))+1;	
-  fout2 <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-  // mu
-  val = f_cb->GetParameter(p_pos[1])*1000.;
-  unc = f_cb->GetParError(p_pos[1])*1000.;
-  p_norm = 1.;
-  if(unc < 1) p_norm = ceil(-log10(unc))+1;	
-  fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-  // sigma_1
-  val = f_cb->GetParameter(nPtBins+2)*1e5;
-  unc = f_cb->GetParError(nPtBins+2)*1e5;
-  p_norm = 1.;
-  if(unc < 1) p_norm = ceil(-log10(unc))+1;	
-  fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-  val = f_cb->GetParameter(nPtBins+3)*1000.;
-  unc = f_cb->GetParError(nPtBins+3)*1000.;
-  p_norm = 1.;
-  if(unc < 1) p_norm = ceil(-log10(unc))+1;	
-  fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-  // sigma_2 
-  val = f_cb->GetParameter(nPtBins+4)*1e5;
-  unc = f_cb->GetParError(nPtBins+4)*1e5;
-  p_norm = 1.;
-  if(unc < 1) p_norm = ceil(-log10(unc))+1;	
-  fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-  val = f_cb->GetParameter(nPtBins+5)*1000.;
-  unc = f_cb->GetParError(nPtBins+5)*1000.;
-  p_norm = 1.;
-  if(unc < 1) p_norm = ceil(-log10(unc))+1;	
-  fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
+  // f, mu
+  for(int i = 1; i < 3; i++) {
+    double mult = 1e3;
+    if(i == 1) mult = 100;
+    double val = pars[i][0]*mult;
+    double unc = epars[i][0]*mult;
+    int p_norm = 1.;
+    if(unc < 1) p_norm = ceil(-log10(unc))+1;
+    fout2 <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
+  }
+  // sigma_1, 2
+  for(int i = 3; i < 5; i++) {
+    double val = f_cb->GetParameter(i*nPtBins)*1e5;
+    double unc = f_cb->GetParError(i*nPtBins)*1e5;
+    int p_norm = 1.;
+    if(unc < 1) p_norm = ceil(-log10(unc))+1;	
+    fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
+    val = f_cb->GetParameter(i*nPtBins+1)*1e3;
+    unc = f_cb->GetParError(i*nPtBins+1)*1e3;
+    p_norm = 1.;
+    if(unc < 1) p_norm = ceil(-log10(unc))+1;	
+    fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
+  }
+  // n, alpha
+  for(int i = 5; i < 7; i++) {
+    double val = pars[i][0];
+    double unc = epars[i][0];
+    int p_norm = 1.;
+    if(unc < 1) p_norm = ceil(-log10(unc))+1;
+    fout2 <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
+  }
   // chi^2
   fout2 << setprecision(0) << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << "\\\\\n";
   fout2 << "\\end{tabular}\n";
