@@ -3,16 +3,16 @@ void plotDMPars()
 {
   // aux arrays
   int pc[] = {kBlack, kBlue, kViolet};
-  const int n_p = 10, n_m = 1;
-  string modn[] = {""};
+  const int n_p = 10, n_m = 3;
+  string modn[] = {"f", "c", "l"};
   string legn[] = {"fixed", "constant", "linear"};
 
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fBG"};
   string partit[] = {"f", "N_{SR}", "#mu", "#sigma_{1}", "#sigma_{2}", "n", "#alpha", "N_{BG}", "#lambda", "f_{bkg}"};
   string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "#lambda (GeV)", "f_{bkg} (%)"};
   
-  double parmin[] = {0,    1e1, 3090, 18, 32, 1.0, 2.0,  5e0, 0, 0.};
-  double parmax[] = {100., 1e4, 3100, 30, 46, 1.4, 2.25, 2e4, 5, 15.};
+  double parmin[] = {0,    1e1, 3093.4, 18, 32, 1.0, 2.0,  3e0, 0,     0.};
+  double parmax[] = {100., 1e4, 3094.4, 30, 48, 1.4, 2.25, 2e4, 2e2, 15.};
 
   
   // initialize tgraphs for parameters
@@ -94,10 +94,10 @@ void plotDMPars()
       leg->AddEntry(g_par_s[i_m][i_p], Form("#alpha %s", legn[i_m].c_str()), "l");
     }
 
-    //leg->Draw();
+    leg->Draw();
 
     if(i_p == 2) {
-      TLine *pdg = new TLine(pt_min, 3096.9, pt_max, 3096.9);
+      TLine *pdg = new TLine(pt_min, 3097, pt_max, 3097);
       pdg->SetLineStyle(kDashed);
       pdg->Draw();
     }
@@ -107,5 +107,4 @@ void plotDMPars()
   }
   
   c->Destructor();
-
 }

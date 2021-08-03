@@ -233,7 +233,8 @@ void newMCmass_0()
     c->SetLogy();
 	  
     h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.2);
-    h_m1d[i_pt]->SetMinimum(h_m1d[i_pt]->GetMaximum()*1e-3);
+    //h_m1d[i_pt]->SetMinimum(h_m1d[i_pt]->GetMaximum()*1e-3);
+    h_m1d[i_pt]->SetMinimum(h_m1d[i_pt]->GetMaximum()*1e-5);
     h_m1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
     h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.4);
     h_m1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));

@@ -1,5 +1,3 @@
-#import "plotDMPars.C"
-
 double gPI = TMath::Pi();
 //pt bins defined globally for access from functions
 const int nPtBins = 7;
@@ -46,7 +44,7 @@ double mmod_func(double *x, double *par)
   double sig2 = par[4*nPtBins] * pt + par[4*nPtBins+1]; // sigmas linear in pt
   
   double n = par[5*nPtBins]; // n is constant in pt
-  double alpha = par[6*nPtBins]; // alpha is constant in pt
+  double alpha = par[6*nPtBins] * pt + par[6*nPtBins+1]; // alpha is linear in pt
 
   double NB = par[7*nPtBins+pt_bin];
   double ld = par[8*nPtBins+pt_bin];
@@ -63,7 +61,7 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 
 
 // MAIN
-void mBkg()
+void mBkg_alin()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
@@ -75,7 +73,7 @@ void mBkg()
 
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[nPtBins];
-  TFile *fin = new TFile("files/mStore.root");
+  TFile *fin = new TFile("../PR_fit/files/mStore.root");
   for(int ip = 0; ip < nPtBins; ip++) {
     fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
     h_d1d[ip]->SetDirectory(0);
@@ -104,27 +102,26 @@ void mBkg()
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 9*nPtBins, 2);
   string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda"};
-  double par_v[] = {1., 0.7, 3.1, 1e-4, 1e-4, 1., 2.15, 1., 0.7};
-  double par2_v[] = {1., 1., 1., 2e-2, 3e-2, 1., 1., 1., 1};
+  double par_v[] = {1., 0.7, 3.1, 1e-4, 1e-4, 1., 1e-3, 1., 1.5};
+  double par2_v[] = {1., 1., 1., 2e-2, 3e-2, 1., 2.1, 1., 1};
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
-    // normalizations
+    // normalizations - N_SR, N_BG
     f_cb->SetParName(i, Form("NS_%d", i));
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
     f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
-    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/2.);
+    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/100.);
 
     for(int j = 1; j < 7; j++) { // between NS, NB
       f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
       f_cb->SetParameter(j*nPtBins+i, par_v[j]);
-      // fixing mu, n, f, alpha so only one value matters
-      if((j < 3 || j > 4 ) && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-      // setting the linear parameters sigma
-      else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-      else if((j == 3 || j == 4) && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
+      // fixing mu, n, f so only one value matters
+      if((j < 3 || j == 5 ) && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+      // setting the linear parameters sigma, alpha
+      else if((j == 3 || j == 4 || j == 6) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+      else if((j == 3 || j == 4 || j == 6) && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
       // fixing n to MC value -- SETUP READING MC (1.18, 2.159)
       if(j == 5 && i == 0) f_cb->FixParameter(j*nPtBins+i, 1.18);
-      if(j == 6 && i == 0) f_cb->FixParameter(j*nPtBins+i, 2.159);
     }
 
     // lambda parameter
@@ -157,22 +154,22 @@ void mBkg()
     pt_val[i_pt] = 0.5*(ptBins[i_pt+1]+ptBins[i_pt]);
     pt_err[i_pt] = 0.5*(ptBins[i_pt+1]-ptBins[i_pt]);
 
-     // storing parameters
+    // storing parameters
     for(int j = 0; j < 9; j++) {
       if(j == 0 || j == 7 || j == 8) { // free parameters NS, NB, lambda
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins+i_pt);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins+i_pt);
       }
-      else if ( j == 1 || j == 2 || j == 5 || j == 6) { // constant parameters mu, f, n, alpha
+      else if ( j == 1 || j == 2 || j == 5) { // constant parameters mu, f, n
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins);
       }
-      else if ( j == 3 || j == 4) { // linear parameters sig1, sig2
+      else if ( j == 3 || j == 4 || j == 6) { // linear parameters sig1, sig2, alpha
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins) * pt_val[i_pt] + f_cb->GetParameter(j*nPtBins+1);
 	epars[j][i_pt] = sqrt(pow(f_cb->GetParError(j*nPtBins) * pt_val[i_pt], 2) + pow(f_cb->GetParError(j*nPtBins+1), 2));
       }
     }
-    
+
     // initializing f_1d and plotting
     f_1d->SetParameters(pars[0][i_pt],
 			pars[1][i_pt],
@@ -221,7 +218,7 @@ void mBkg()
       lims[j]->Draw();
     }
     
-    c->SaveAs(Form("plots/mass/fit_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/mass/fitl_pt%d.pdf", i_pt));
     c->Clear();
 
     // get the bkg fraction in the signal region (3.0 - 3.2 GeV)
@@ -276,7 +273,7 @@ void mBkg()
     }
 
     
-    c->SaveAs(Form("plots/mass/pulls_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/mass/pullsl_pt%d.pdf", i_pt));
     c->Clear();
 
     // plotting the devs
@@ -305,12 +302,12 @@ void mBkg()
       limd[j]->Draw();
     }
   
-    c->SaveAs(Form("plots/mass/devs_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/mass/devsl_pt%d.pdf", i_pt));
     c->Clear();
   }
   
   // storing the free parameters
-  TFile *fout = new TFile("files/mfit.root", "recreate");
+  TFile *fout = new TFile("files/mfitl.root", "recreate");
   string parlab[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda"};
 
   for(int i_p = 0; i_p < 9; i_p++) {
@@ -326,7 +323,7 @@ void mBkg()
   fout->Close();
 
   ofstream ftex;
-  ftex.open(Form("text_output/mfit_res.tex"));
+  ftex.open(Form("text_output/mfitl_res.tex"));
   ftex << "\\begin{tabular}{c||c|c|c||c}\n";
   ftex << "$\\pt$ (GeV) & $N_{SR}$ & $N_{BG}$ & $\\lambda$ (GeV) & $f_{bkg}$ (\\%) \\\\\n";
   ftex << "\\hline\n";
@@ -338,7 +335,7 @@ void mBkg()
       if(i_p == 0 || i_p > 6) {
 	double mult = 1.;
 	if(i_p == 0 || i_p == 7) mult = 1./(ptBins[i+1]-ptBins[i]);
-	else if(i_p != 8) mult = 1e3;
+	else if(i_p != 8)  mult = 1e3;
 	
 	double val = pars[i_p][i]*mult, unc = epars[i_p][i]*mult;
 	if (unc > 0) {
@@ -360,10 +357,10 @@ void mBkg()
   ftex.close();
 
   ofstream fout2;
-  fout2.open(Form("text_output/mfit_resA.tex"));
-  fout2 << "\\begin{tabular}{c|c|cc|cc|c|c||c}\n";
-  fout2 << " \\multirow{2}{*}{$f$ $(\\%)$} & \\multirow{2}{*}{$\\mu$ $(MeV)$} & \\multicolumn{2}{|c|}{$\\sigma_1$} & \\multicolumn{2}{|c|}{$\\sigma_2$}  & \\multirow{2}{*}{$n$} & \\multirow{2}{*}{$\\alpha$} & \\multirow{2}{*}{$\\chi^2/$ndf} \\\\\n";
-  fout2 << " & & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & & & \\\\\n";
+  fout2.open(Form("text_output/mfitl_resA.tex"));
+  fout2 << "\\begin{tabular}{c|c|cc|cc|c|cc||c}\n";
+  fout2 << " \\multirow{2}{*}{$f$ $(\\%)$} & \\multirow{2}{*}{$\\mu$ $(MeV)$} & \\multicolumn{2}{|c|}{$\\sigma_1$} & \\multicolumn{2}{|c|}{$\\sigma_2$}  & \\multirow{2}{*}{$n$} & \\multicolumn{2}{|c||}{$\\alpha$} & \\multirow{2}{*}{$\\chi^2/$ndf} \\\\\n";
+  fout2 << " & & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & & $m$ ($\\times1e4$) & $b$ & \\\\\n";
   fout2 << "\\hline\n";
 
   // f, mu
@@ -389,8 +386,8 @@ void mBkg()
     if(unc < 1) p_norm = ceil(-log10(unc))+1;	
     fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
   }
-  // n, alpha
-  for(int i = 5; i < 7; i++) {
+  // n
+  for(int i = 5; i < 6; i++) {
     double val = pars[i][0];
     double unc = epars[i][0];
     int p_norm = 1.;
@@ -403,6 +400,19 @@ void mBkg()
       fout2 <<  setprecision(p_norm) << fixed << val  << " & ";
     }
   }
+  // alpha
+  for(int i = 6; i < 7; i++) {
+    double val = f_cb->GetParameter(i*nPtBins)*1e4;
+    double unc = f_cb->GetParError(i*nPtBins)*1e4;
+    int p_norm = 1.;
+    if(unc < 1) p_norm = ceil(-log10(unc))+1;	
+    fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
+    val = f_cb->GetParameter(i*nPtBins+1);
+    unc = f_cb->GetParError(i*nPtBins+1);
+    p_norm = 1.;
+    if(unc < 1) p_norm = ceil(-log10(unc))+1;	
+    fout2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
+  }
   // chi^2
   fout2 << setprecision(0) << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << "\\\\\n";
   fout2 << "\\end{tabular}\n";
@@ -411,6 +421,4 @@ void mBkg()
   cout << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << endl;
 
   c->Destructor();
-
-  plotDMPars();
 }

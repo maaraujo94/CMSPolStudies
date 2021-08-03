@@ -1,5 +1,3 @@
-#import "plotDMPars.C"
-
 double gPI = TMath::Pi();
 //pt bins defined globally for access from functions
 const int nPtBins = 7;
@@ -63,7 +61,7 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 
 
 // MAIN
-void mBkg()
+void mBkg_afix()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
@@ -75,7 +73,7 @@ void mBkg()
 
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[nPtBins];
-  TFile *fin = new TFile("files/mStore.root");
+  TFile *fin = new TFile("../PR_fit/files/mStore.root");
   for(int ip = 0; ip < nPtBins; ip++) {
     fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
     h_d1d[ip]->SetDirectory(0);
@@ -221,7 +219,7 @@ void mBkg()
       lims[j]->Draw();
     }
     
-    c->SaveAs(Form("plots/mass/fit_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/mass/fitf_pt%d.pdf", i_pt));
     c->Clear();
 
     // get the bkg fraction in the signal region (3.0 - 3.2 GeV)
@@ -276,7 +274,7 @@ void mBkg()
     }
 
     
-    c->SaveAs(Form("plots/mass/pulls_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/mass/pullsf_pt%d.pdf", i_pt));
     c->Clear();
 
     // plotting the devs
@@ -305,12 +303,12 @@ void mBkg()
       limd[j]->Draw();
     }
   
-    c->SaveAs(Form("plots/mass/devs_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/mass/devsf_pt%d.pdf", i_pt));
     c->Clear();
   }
   
   // storing the free parameters
-  TFile *fout = new TFile("files/mfit.root", "recreate");
+  TFile *fout = new TFile("files/mfitf.root", "recreate");
   string parlab[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda"};
 
   for(int i_p = 0; i_p < 9; i_p++) {
@@ -326,7 +324,7 @@ void mBkg()
   fout->Close();
 
   ofstream ftex;
-  ftex.open(Form("text_output/mfit_res.tex"));
+  ftex.open(Form("text_output/mfitf_res.tex"));
   ftex << "\\begin{tabular}{c||c|c|c||c}\n";
   ftex << "$\\pt$ (GeV) & $N_{SR}$ & $N_{BG}$ & $\\lambda$ (GeV) & $f_{bkg}$ (\\%) \\\\\n";
   ftex << "\\hline\n";
@@ -360,7 +358,7 @@ void mBkg()
   ftex.close();
 
   ofstream fout2;
-  fout2.open(Form("text_output/mfit_resA.tex"));
+  fout2.open(Form("text_output/mfitf_resA.tex"));
   fout2 << "\\begin{tabular}{c|c|cc|cc|c|c||c}\n";
   fout2 << " \\multirow{2}{*}{$f$ $(\\%)$} & \\multirow{2}{*}{$\\mu$ $(MeV)$} & \\multicolumn{2}{|c|}{$\\sigma_1$} & \\multicolumn{2}{|c|}{$\\sigma_2$}  & \\multirow{2}{*}{$n$} & \\multirow{2}{*}{$\\alpha$} & \\multirow{2}{*}{$\\chi^2/$ndf} \\\\\n";
   fout2 << " & & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & & & \\\\\n";
@@ -411,6 +409,4 @@ void mBkg()
   cout << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << endl;
 
   c->Destructor();
-
-  plotDMPars();
 }
