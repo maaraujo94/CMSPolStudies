@@ -27,6 +27,7 @@ void genDist()
   // get fit parameters from storage
   TFile *infL = new TFile("../bkgFits/files/store_fL.root");
   double fL = ((TGraphErrors*)infL->Get("g_fL"))->GetY()[0];
+  infL->Close();
   // get LSB lambda2, lambda4
   TFile *inLSB = new TFile("files/LSB2d_fitres.root");
   double L_l2 = ((TGraphErrors*)inLSB->Get("fit_l2"))->GetY()[0];

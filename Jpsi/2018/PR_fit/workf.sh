@@ -29,7 +29,7 @@ echo
 # cd ../bkgFits
 # root -l -q getfL.C
 # cd ../PR_fit
-# root -l -q getDist.C
+# root -l -q genDist.C
 
 # echo "costh bkg subtraction\n"
 
