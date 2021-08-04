@@ -251,7 +251,7 @@ void newMCmass_G()
     c->SetLogy();
 	  
     h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.2);
-    h_m1d[i_pt]->SetMinimum(h_m1d[i_pt]->GetMaximum()*1e-7);
+    h_m1d[i_pt]->SetMinimum(h_m1d[i_pt]->GetMaximum()*1e-5);
     h_m1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
     h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.4);
     h_m1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
@@ -287,7 +287,7 @@ void newMCmass_G()
     fp3->SetLineStyle(kDashed);
     fp3->Draw("lsame");
 	  
-    c->SaveAs(Form("plots/MCMass/CB_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/CBG_pt%d.pdf", i_pt));
     c->Clear();
 	  
     // calculating pulls
@@ -327,7 +327,7 @@ void newMCmass_G()
     zero->SetLineStyle(kDashed);
     zero->Draw();
 	  
-    c->SaveAs(Form("plots/MCMass/pulls_pt%d_dep.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/pullsG_pt%d_dep.pdf", i_pt));
     c->Clear();
 
     // clean up parameters for plotting
@@ -383,25 +383,27 @@ void newMCmass_G()
   TLine *l_ndf = new TLine(ptBins[0], f_cb->GetNDF(), ptBins[nPtBins], f_cb->GetNDF());
   l_ndf->Write(Form("fit_ndf"));
 
-  // output fit parameters as a table - FIX LATER
+  // output fit parameters as a table
   ofstream ftex;
   ftex.open("text_output/mfit_MC_G.tex");
-  ftex << "\\begin{tabular}{c||c|c|c|c|c|c|c}\n";
-  ftex << "$\\pt$ (GeV) & $N$ & $f$ (\\%) & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ & $\\alpha$ \\\\\n";
+  ftex << "\\begin{tabular}{c||c|c|c|c|c|c|c|c|c}\n";
+  ftex << "$\\pt$ (GeV) & $N$ & $f_{CB1}$ (\\%)  & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ & $\\alpha$ & $f_G$ (\\%) & $\\sigma_G$ (MeV) \\\\\n";
   ftex << "\\hline\n";
 
   for(int i = 0; i < nPtBins; i++) {
     // pT bin
     ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
-    for(int i_p = 0; i_p < 7; i_p++) {
-      if(i_p != 1 && i_p != 2 && i_p < 5) {
+    for(int i_p = 0; i_p < 9; i_p++) {
+      // plot all pT values - N (0), sig1,2 (3,4), sigG (8)
+      if(i_p == 0 || i_p == 3 || i_p == 4 || i_p == 8) {
 	double val = pars[i_p][i], unc = epars[i_p][i];
 	int p_norm = 1.; 
 	if(unc < 1 ) 
 	  p_norm = ceil(-log10(unc))+1;	
 	ftex << " & " <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
       }
-      else if((i_p == 1 || i_p == 2 || i_p > 4) && i == 0) {
+      // plot single value: f (1), mu (2), n, alpha (5,6), fG (7)
+      else if((i_p == 1 || i_p == 2 || i_p == 5 || i_p == 6 || i_p == 7) && i == 0) {
 	double val = pars[i_p][i], unc = epars[i_p][i];
 	int p_norm = 1.; 
 	if(unc < 1 ) 
@@ -419,9 +421,9 @@ void newMCmass_G()
   // sigma parameters
   ofstream ftex2;
   ftex2.open("text_output/mfit_MC_GA.tex");
-  ftex2 << "\\begin{tabular}{cc|cc}\n";
-  ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} \\\\\n";
-  ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) \\\\\n";
+  ftex2 << "\\begin{tabular}{cc|cc|cc||c}\n";
+  ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} & \\multicolumn{2}{|c}{$\\sigma_G$}  & \\multirow{2}{*}{$\\chi^2/$ndf}\\\\\n";
+  ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & \\\\\n";
   ftex2 << "\\hline\n";
 
   for(int j = 3; j < 5; j++) {
@@ -433,9 +435,21 @@ void newMCmass_G()
     unc = f_cb->GetParError(j*nPtBins+1)*1e3;
     p_norm = ceil(-log10(unc))+1;	
     ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
-    if(j == 3) ftex2 << " & ";
-    else ftex2 << "\\\\\n";
+    ftex2 << " & ";
   }
+  for(int j = 8; j < 9; j++) {
+    double val = f_cb->GetParameter(j*nPtBins)*1e5;
+    double unc = f_cb->GetParError(j*nPtBins)*1e5;
+    int p_norm = ceil(-log10(unc))+1;	
+    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
+    val = f_cb->GetParameter(j*nPtBins+1)*1e3;
+    unc = f_cb->GetParError(j*nPtBins+1)*1e3;
+    p_norm = ceil(-log10(unc))+1;	
+    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
+    ftex2 << " & ";
+  }
+  // chi^2
+  ftex2 << setprecision(0) << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << "\\\\\n";
   ftex2 << "\\end{tabular}\n";
   ftex2.close();
 
