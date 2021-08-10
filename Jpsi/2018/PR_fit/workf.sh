@@ -20,15 +20,14 @@ echo
 
 # echo "fitting mass bkg costh dists\n"
 
+# root -l -q bkgCosth.C
 # root -l -q fitBkgCosth.C
 # root -l -q fitBkgCosth2d.C
 # root -l -q plotCosPars_both.C
 
 # echo "getting mass bkg fitted dists in reg binning\n"
 
-# cd ../bkgFits
 # root -l -q getfL.C
-# cd ../PR_fit
 # root -l -q genDist.C
 
 # echo "costh bkg subtraction\n"

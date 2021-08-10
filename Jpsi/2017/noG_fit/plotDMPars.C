@@ -4,7 +4,7 @@ void plotDMPars()
 {
   // aux arrays
   int pc[] = {kBlack, kBlue, kViolet};
-  const int n_p = 12, n_m = 1;
+  const int n_p = 10, n_m = 1;
   string modn[] = {"", "G"};
   string legn[] = {"no G", "with G"};
 
@@ -98,20 +98,6 @@ void plotDMPars()
       g_par_s[0][i_p]->SetFillColorAlpha(kBlue, 0.5);
       g_par_s[0][i_p]->Draw("ce3");
     }
-
-    // SPECIAL CASES - COMBINED PLOTS
-    // if we're plotting f, add fG
-    if( i_p == 0) {      
-      g_par_s[0][10]->SetMarkerStyle(22);
-      g_par_s[0][10]->SetLineColor(kBlack);
-      g_par_s[0][10]->SetMarkerColor(kBlack);
-      g_par_s[0][10]->SetFillColorAlpha(kBlack, 0.5);
-      g_par_s[0][10]->Draw("ce3");
-
-      leg->AddEntry(g_par_s[0][0], "f_{CB1}", "l");
-      leg->AddEntry(g_par_s[0][10], "f_{G}", "l");
-      leg->Draw();
-    }
  
     // if we're plotting par sig1, add sig2 and sigG
     else if( i_p == 3) {
@@ -128,15 +114,8 @@ void plotDMPars()
       g_par_s[0][4]->SetFillColorAlpha(kBlack, 0.5);
       g_par_s[0][4]->Draw("ce3");
 
-      g_par_s[0][11]->SetMarkerStyle(29);
-      g_par_s[0][11]->SetMarkerColor(kRed);
-      g_par_s[0][11]->SetLineColor(kRed);
-      g_par_s[0][11]->SetFillColorAlpha(kRed, 0.5);
-      g_par_s[0][11]->Draw("ce3");
-      
       leg->AddEntry(g_par_s[0][3], "#sigma_{1}", "l");
       leg->AddEntry(g_par_s[0][4], "#sigma_{2}", "l");
-      leg->AddEntry(g_par_s[0][11], "#sigma_{G}", "l");
       leg->Draw();
     }
 

@@ -13,7 +13,7 @@ void genDist()
   const double nGen = 1e7;
   
   // get binning from the stored data histos
-  TFile *infile = new TFile("files/histoStore.root");
+  TFile *infile = new TFile("../PR_fit/files/histoStore.root");
   TH2D *hist = new TH2D();
   infile->GetObject(Form("dataH_ab"), hist);
   hist->SetDirectory(0);
@@ -27,39 +27,40 @@ void genDist()
   // get fit parameters from storage
   TFile *infL = new TFile("files/store_fL.root");
   double fL = ((TGraphErrors*)infL->Get("g_fL"))->GetY()[0];
+  infL->Close();
   // get LSB lambda2, lambda4
-  TFile *inLSB = new TFile("files/LSB2d_fitres.root");
+  TFile *inLSB = new TFile("../PR_fit/files/LSB2d_fitres.root");
   double L_l2 = ((TGraphErrors*)inLSB->Get("fit_l2"))->GetY()[0];
   double L_l4 = ((TGraphErrors*)inLSB->Get("fit_l4"))->GetY()[0];
   inLSB->Close();
   // get RSB lambda2, lambda4
-  TFile *inRSB = new TFile("files/RSB2d_fitres.root");
+  TFile *inRSB = new TFile("../PR_fit/files/RSB2d_fitres.root");
   double R_l2 = ((TGraphErrors*)inRSB->Get("fit_l2"))->GetY()[0];
   double R_l4 = ((TGraphErrors*)inRSB->Get("fit_l4"))->GetY()[0];
   inRSB->Close();
 
-  // create the histogram - SB
+  // create the histograms - SB
   TF1 *cthLSB = new TF1("cthLSB", "(1+[0]*x*x+[1]*pow(x,4))", minX, maxX);
   TF1 *cthRSB = new TF1("cthRSB", "(1+[0]*x*x+[1]*pow(x,4))", minX, maxX);
   cthLSB->SetParameters(L_l2, L_l4);
   cthRSB->SetParameters(R_l2, R_l4);
   int genL = do_round(nGen*fL);
   int genR = nGen - genL;
-  TH1D *h_SB_base = new TH1D(Form("h_SB_base"), "2017 Interpolated sideband cos#theta", nBinsX, minX, maxX);
+    TH1D *h_SB_base = new TH1D(Form("h_SB_base"), "2017 Interpolated sideband cos#theta", nBinsX, minX, maxX);
   for(int i = 0; i < genL; i++) {
     h_SB_base->Fill(cthLSB->GetRandom());
   }
   for(int i = 0; i < genR; i++) {
     h_SB_base->Fill(cthRSB->GetRandom());
   }
-  
+
   TH1D **h_SB = new TH1D*[nBinsY];
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
-    h_SB[i_pt] = (TH1D*)h_SB_base->Clone(Form("h_SB_%d", i_pt));
+     h_SB[i_pt] = (TH1D*)h_SB_base->Clone(Form("h_SB_%d", i_pt));
     
     h_SB[i_pt]->SetTitle(Form("SB cos#theta (%.0f < p_{T} < %.0f GeV)", yBins[i_pt], yBins[i_pt+1]));
   }
-  
+
   cout << "all SB histos filled" << endl;
   
   TFile *fout = new TFile("files/bkgCosModel.root", "recreate");
@@ -93,4 +94,5 @@ void genDist()
   c->SaveAs("plots/SB_base.pdf");
   c->Clear();
   c->Destructor();
+
 }

@@ -1,11 +1,16 @@
 // macro to compare fit parameters w/ and w/o Gaussian
 // get relative position on an axis (pi, pf)
-void plotDMPars()
+double getPos(double pi, double pf, double mult, bool isLog) {
+  if(isLog) return pow(10, log10(pi)+mult*(log10(pf)-log10(pi)));
+  else return pi + mult*(pf-pi);
+}
+
+void plotDMG()
 {
   // aux arrays
   int pc[] = {kBlack, kBlue, kViolet};
-  const int n_p = 12, n_m = 1;
-  string modn[] = {"", "G"};
+  const int n_p = 12, n_m = 2;
+  string modn[] = {"", "../PR_fit/"};
   string legn[] = {"no G", "with G"};
 
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fBG", "fG", "sigG"};
@@ -19,10 +24,9 @@ void plotDMPars()
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
   for(int i_m = 0; i_m < n_m; i_m++) {
     g_par[i_m] = new TGraphErrors*[n_p];
-    TFile *fin = new TFile(Form("files/mfit%s.root", modn[i_m].c_str()));
-    //int n_pv = i_m == 0 ? 10 : 12;
-    int n_pv = n_p;
-    for(int i_p = 0; i_p < n_pv; i_p++) {
+    TFile *fin = new TFile(Form("%sfiles/mfit.root", modn[i_m].c_str()));
+    int n_pv = i_m == 0 ? 10 : 12;
+    for(int i_p = 0; i_p < n_p; i_p++) {
       fin->GetObject(Form("fit_%s", parlab[i_p].c_str()), g_par[i_m][i_p]);
     }
     fin->Close();
@@ -36,8 +40,7 @@ void plotDMPars()
   double mult[] = {100., 1., 1e3, 1e3, 1e3, 1., 1., 1., 1., 100., 100., 1e3};
   for(int i_m = 0; i_m < n_m; i_m++) {
     g_par_s[i_m] = new TGraphErrors*[n_p];
-    //int n_pv = i_m == 0 ? 10 : 12;
-    int n_pv = n_p;
+    int n_pv = i_m == 0 ? 10 : 12;
     for(int i = 0; i < n_pv; i++) {
       double *yv = g_par[i_m][i]->GetY();
       double *ye = g_par[i_m][i]->GetEY();
@@ -53,6 +56,7 @@ void plotDMPars()
 	}
       }
       g_par_s[i_m][i] = new TGraphErrors(n, xv, yv, xe, ye);
+      if(i == 10) cout << i_m << " " << parlab[i].c_str() << " " << g_par_s[i_m][i]->GetY()[0] << endl; 
     }
   }
 
@@ -80,63 +84,95 @@ void plotDMPars()
     leg->SetTextSize(0.03);
 
 
-    // drawing base+G model
+    // drawing base model
     // free pars
-    if(i_p == 1 || i_p == 7 || i_p == 8 || i_p == 9) {
+    if(i_p == 1 || i_p == 7 || i_p == 8) {
       g_par_s[0][i_p]->SetMarkerStyle(20);
       g_par_s[0][i_p]->SetMarkerSize(.75);
-      g_par_s[0][i_p]->SetLineColor(kBlue);
-      g_par_s[0][i_p]->SetMarkerColor(kBlue);
+      g_par_s[0][i_p]->SetLineColor(kBlack);
+      g_par_s[0][i_p]->SetMarkerColor(kBlack);
       g_par_s[0][i_p]->Draw("p");	
     }
     // linear or constant pars 
     else if(i_p != 3) {
       g_par_s[0][i_p]->SetMarkerStyle(20);
       g_par_s[0][i_p]->SetMarkerSize(.75);
-      g_par_s[0][i_p]->SetLineColor(kBlue);
-      g_par_s[0][i_p]->SetMarkerColor(kBlue);
-      g_par_s[0][i_p]->SetFillColorAlpha(kBlue, 0.5);
-      g_par_s[0][i_p]->Draw("ce3");
+      g_par_s[0][i_p]->SetMarkerColor(kBlack);
+      g_par_s[0][i_p]->SetLineColor(kBlack);
+      g_par_s[0][i_p]->SetFillColorAlpha(kBlack, 0.5);
+      g_par_s[0][i_p]->Draw("pce3");
+    }
+
+    // drawing base+G model
+    // free pars
+    if(i_p == 1 || i_p == 7 || i_p == 8) {
+      g_par_s[1][i_p]->SetMarkerStyle(20);
+      g_par_s[1][i_p]->SetMarkerSize(.75);
+      g_par_s[1][i_p]->SetLineColor(kBlue);
+      g_par_s[1][i_p]->SetMarkerColor(kBlue);
+      g_par_s[1][i_p]->Draw("p");	
+    }
+    // linear or constant pars 
+    else if(i_p != 3) {
+      g_par_s[1][i_p]->SetMarkerStyle(20);
+      g_par_s[1][i_p]->SetMarkerSize(.75);
+      g_par_s[1][i_p]->SetLineColor(kBlue);
+      g_par_s[1][i_p]->SetMarkerColor(kBlue);
+      g_par_s[1][i_p]->SetFillColorAlpha(kBlue, 0.5);
+      g_par_s[1][i_p]->Draw("pce3");
     }
 
     // SPECIAL CASES - COMBINED PLOTS
     // if we're plotting f, add fG
     if( i_p == 0) {      
-      g_par_s[0][10]->SetMarkerStyle(22);
-      g_par_s[0][10]->SetLineColor(kBlack);
-      g_par_s[0][10]->SetMarkerColor(kBlack);
-      g_par_s[0][10]->SetFillColorAlpha(kBlack, 0.5);
-      g_par_s[0][10]->Draw("ce3");
+      g_par_s[1][10]->SetMarkerStyle(22);
+      g_par_s[1][10]->SetLineColor(kBlue);
+      g_par_s[1][10]->SetMarkerColor(kBlue);
+      g_par_s[1][10]->SetFillColorAlpha(kBlue, 0.5);
+      g_par_s[1][10]->Draw("pce3");
 
-      leg->AddEntry(g_par_s[0][0], "f_{CB1}", "l");
-      leg->AddEntry(g_par_s[0][10], "f_{G}", "l");
+      leg->AddEntry(g_par_s[1][0], "f_{CB1}", "p");
+      leg->AddEntry(g_par_s[1][10], "f_{G}", "p");
       leg->Draw();
     }
- 
+
     // if we're plotting par sig1, add sig2 and sigG
     else if( i_p == 3) {
       g_par_s[0][i_p]->SetMarkerStyle(20);
       g_par_s[0][i_p]->SetMarkerSize(.75);
-      g_par_s[0][i_p]->SetMarkerColor(kBlue);
-      g_par_s[0][i_p]->SetLineColor(kBlue);
-      g_par_s[0][i_p]->SetFillColorAlpha(kBlue, 0.5);
-      g_par_s[0][i_p]->Draw("ce3");
+      g_par_s[0][i_p]->SetMarkerColor(kBlack);
+      g_par_s[0][i_p]->SetLineColor(kBlack);
+      g_par_s[0][i_p]->SetFillColorAlpha(kBlack, 0.5);
+      g_par_s[0][i_p]->Draw("pce3");
+
+      g_par_s[1][i_p]->SetMarkerStyle(20);
+      g_par_s[1][i_p]->SetMarkerSize(.75);
+      g_par_s[1][i_p]->SetMarkerColor(kBlue);
+      g_par_s[1][i_p]->SetLineColor(kBlue);
+      g_par_s[1][i_p]->SetFillColorAlpha(kBlue, 0.5);
+      g_par_s[1][i_p]->Draw("pce3");
 
       g_par_s[0][4]->SetMarkerStyle(22);
       g_par_s[0][4]->SetMarkerColor(kBlack);
       g_par_s[0][4]->SetLineColor(kBlack);
       g_par_s[0][4]->SetFillColorAlpha(kBlack, 0.5);
-      g_par_s[0][4]->Draw("ce3");
+      g_par_s[0][4]->Draw("pce3");
 
-      g_par_s[0][11]->SetMarkerStyle(29);
-      g_par_s[0][11]->SetMarkerColor(kRed);
-      g_par_s[0][11]->SetLineColor(kRed);
-      g_par_s[0][11]->SetFillColorAlpha(kRed, 0.5);
-      g_par_s[0][11]->Draw("ce3");
-      
-      leg->AddEntry(g_par_s[0][3], "#sigma_{1}", "l");
-      leg->AddEntry(g_par_s[0][4], "#sigma_{2}", "l");
-      leg->AddEntry(g_par_s[0][11], "#sigma_{G}", "l");
+      g_par_s[1][4]->SetMarkerStyle(22);
+      g_par_s[1][4]->SetMarkerColor(kBlue);
+      g_par_s[1][4]->SetLineColor(kBlue);
+      g_par_s[1][4]->SetFillColorAlpha(kBlue, 0.5);
+      g_par_s[1][4]->Draw("pce3");
+
+      g_par_s[1][11]->SetMarkerStyle(29);
+      g_par_s[1][11]->SetMarkerColor(kBlue);
+      g_par_s[1][11]->SetLineColor(kBlue);
+      g_par_s[1][11]->SetFillColorAlpha(kBlue, 0.5);
+      g_par_s[1][11]->Draw("pce3");
+
+      leg->AddEntry(g_par_s[1][3], "#sigma_{1}", "p");
+      leg->AddEntry(g_par_s[1][4], "#sigma_{2}", "p");
+      leg->AddEntry(g_par_s[1][11], "#sigma_{G}", "p");
       leg->Draw();
     }
 
@@ -150,7 +186,14 @@ void plotDMPars()
     int isLog = 0;
     if(i_p == 1 || i_p == 7 ) isLog = 1;
 
-    c->SaveAs(Form("plots/mass/par_%s.pdf", parlab[i_p].c_str()));
+    TLatex lc;
+    lc.SetTextSize(0.03);
+    lc.DrawLatex(70, getPos(parmin[i_p], parmax[i_p], 0.9, isLog), "no G");
+    lc.SetTextColor(kBlue);
+    lc.DrawLatex(70, getPos(parmin[i_p], parmax[i_p], 0.83, isLog), "with G");
+    
+    
+    c->SaveAs(Form("plots/mass/parG_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }
   

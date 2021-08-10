@@ -37,17 +37,15 @@ Initial storage
 Background subtraction
 \begin{enumerate}
 \item bkgSave.C
-\item MCmass\_[...].C (optional - illustrative of MC mass fit studies)
+\item (bkgFits) newMCmass\_G.C
 \item ltBkg.C $\rightarrow$ calls plotLtPars.C
+\begin{itemize}
+\item ltPerPt.C $\rightarrow$ ltPerPt\_muFix.C $\rightarrow$ ltPerPt\_bFix.C
+\end{itemize}
 \item mBkg.C $\rightarrow$ calls plotDMPars.C
 \item bkgCosth.C
-\item fitBkgCosth...
-\begin{enumerate}
-\item fitBkgCosth.C $\rightarrow$ calls plotCosPars.C 
 \item fitBkgCosth2d.C $\rightarrow$ calls plotCosPars2d.C
-\end{enumerate}
-\item plotCosPars\_both.C
-\item getfL.C (optional - illustrative of $f_L$ fixing)
+\item getfL.C
 \item genDist.C
 \item fitFrac.C
 \item bkgSub.C
@@ -71,8 +69,8 @@ m^{SR}&\in[3.0, 3.2]  \text{ GeV}\\
 m^{RSB}&\in[3.21, 3.28]  \text{ GeV}\\
 \end{cases}\hspace{0.5cm}\text{and}\hspace{0.5cm}
 \begin{cases}
-|\ell^{PR}| < 0.01\text{ cm} \\
-0.014 < \ell^{NP} < 0.05\text{ cm}
+|\ell^{PR}| < 0.005\text{ cm} \\
+0.01 < \ell^{NP} < 0.05\text{ cm}
 \end{cases}
 \end{equation}
 
@@ -82,8 +80,8 @@ Cuts on stored datafiles:
 \begin{itemize}
 \item $M(\mu\mu)\in[3.0,3.2]$ GeV
 \item $|y(\mu\mu)|<1.2$
-\item (PR) $|\ell|<0.01$ cm
-\item (NP) $0.014 < \ell < 0.05$ cm
+\item (PR) $|\ell|<0.005$ cm
+\item (NP) $0.01 < \ell < 0.05$ cm
 \end{itemize}
 
 Binning for SR data (PR and NP) and MC (17 bins)
@@ -124,7 +122,7 @@ Coarse binning for the mass dimension fitting (7 bins):
 
 \subsection{Lifetime fit}
 
-Fit the $\ell$ region $[-0.01,0.05]$ cm (mass in the signal region). For the PR contribution (equal to the resolution), consider a double Gaussian distribution:
+Fit the $\ell$ region $[-0.005,0.05]$ cm (mass in the signal region). For the PR contribution (equal to the resolution), consider a double Gaussian distribution:
 \begin{equation}
 L_{PR}=L_{res} = (1-f)\cdot g_{G_1}(\ell|\mu, \sigma_1)+f\cdot g_{G_2}(\ell|\mu, \sigma_2),
 \end{equation}
