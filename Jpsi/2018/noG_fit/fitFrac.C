@@ -7,7 +7,7 @@ void fitFrac()
   fin1->Close();
 
   // NP fraction is in %, need to fix that
-  TFile *fin2 = new TFile("files/ltfit.root");
+  TFile *fin2 = new TFile("../PR_fit/files/ltfit.root");
   TGraphErrors *fNP_p = (TGraphErrors*)fin2->Get("fit_b_fNP");
   fin2->Close();
 
@@ -39,7 +39,7 @@ void fitFrac()
   fSB->Draw("p");
 
   // fit function - parameters M(a,mu), a, mu
-  TF1 *f_fit1 = new TF1("fit_SB", "0.020*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
+  TF1 *f_fit1 = new TF1("fit_SB", "0.022*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
   f_fit1->SetParNames("a", "mu");
   f_fit1->SetParameters(0.02, -10);
   f_fit1->SetLineColor(kBlue);

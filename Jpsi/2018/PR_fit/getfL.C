@@ -11,7 +11,7 @@ void getfL()
 {
   // get the binning
   TH2D *h_pr = new TH2D();
-  TFile *inPR = new TFile("../PR_fit/files/bkgHist.root");
+  TFile *inPR = new TFile("files/bkgHist.root");
   inPR->GetObject("ratioH0_ab", h_pr);
   h_pr->SetDirectory(0);
 
@@ -28,7 +28,7 @@ void getfL()
   // define same function as above but *m
   TF1 *mMass = new TF1("mMass", "exp(-x/[0])*x", 2.9, 3.3);
   // get fMass parameters
-  TFile *inFMass = new TFile("../PR_fit/files/mfit.root");
+  TFile *inFMass = new TFile("files/mfit.root");
   TGraphErrors *m_ld = (TGraphErrors*)inFMass->Get("fit_lambda");
   inFMass->Close();
   
