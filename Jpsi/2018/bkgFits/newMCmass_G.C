@@ -377,7 +377,7 @@ void newMCmass_G()
   
   double sigV[2] = {f_cb->GetParameter(8*nPtBins), f_cb->GetParameter(8*nPtBins+1)};
 
-  TGraphErrors *g_s = new TGraphErrors(nPtBins, sigV, sigV, sigV, sigV);
+  TGraphErrors *g_s = new TGraphErrors(2, sigV, sigV, sigV, sigV);
   g_s->Write(Form("sigG_lin"));
   
   TLine *l_chiN = new TLine(ptBins[0], f_cb->GetChisquare()/f_cb->GetNDF(), ptBins[nPtBins], f_cb->GetChisquare()/f_cb->GetNDF());

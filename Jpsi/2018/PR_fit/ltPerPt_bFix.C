@@ -49,7 +49,7 @@ void ltPerPt_bFix(double binLow, double binHigh, double mu_avg, double f_avg)
   // get the NP fraction in the signal region (+- 100 mum)
   fNP->SetParameters(fitS->GetParameter(1), fitS->GetParameter(2), fitS->GetParameter(3), fitS->GetParameter(4), fitS->GetParameter(5), fitS->GetParameter(6));
   double evt_NP = fNP->Integral(-pr_lim, pr_lim);
-    
+     
   double min_bin = ltHist->GetXaxis()->FindBin(-(pr_lim-1e-6));
   double max_bin = ltHist->GetXaxis()->FindBin(pr_lim-1e-6);
   double evt_all = ltHist->Integral(min_bin, max_bin, "width");
