@@ -47,7 +47,7 @@ void plot_ANdists()
   }
 
   // store the lifetime dists
-  string lbl_lt[] = {"full", "lowPt", "midPt", "highPt"};
+  string lbl_lt[] = {"lowPt", "midPt", "highPt", "full"};
   for(int i = 0; i < 4; i++) {
     h_lt[i] = (TH1D*)fin->Get(Form("h_lt_%s", lbl_lt[i].c_str()));
   }
@@ -63,103 +63,240 @@ void plot_ANdists()
   // plot pT
   c->SetLogy();
   c->SetLeftMargin(0.11);
+  int colpt[] = {kBlack, kRed+1, kGreen+3, kBlue};
+  double ptlim[] = {46, 66, 300};
 
   for(int i = 0; i < 4; i++) {
 
     h_pT[i]->SetStats(0);
-    h_pT[i]->SetLineColor(i+1);
+    h_pT[i]->SetLineColor(colpt[i]);
     h_pT[i]->SetMinimum(1e2);
     h_pT[i]->SetMaximum(1e7);
     h_pT[i]->GetXaxis()->SetTitle("p_{T}(#mu#mu) (GeV)");
     h_pT[i]->GetXaxis()->SetTitleOffset(1.1);
     h_pT[i]->GetYaxis()->SetTitle("dN/dp_{T}");
     h_pT[i]->SetTitle(Form("p_{T} (%s)", lbl_pt[i].c_str()));
-    h_pT[i]->Draw("histo");
+    if(i == 0) h_pT[i]->Draw("histo");
+    else {
+      // set bins above pt_max to zero
+      int nb = h_pT[i]->GetNbinsX();
+      for(int ib = 0; ib < nb; ib++) {
+	double pt = h_pT[i]->GetXaxis()->GetBinUpEdge(ib+1);
+	if (pt > ptlim[i-1])
+	  h_pT[i]->SetBinContent(ib+1, 0);
+      }
     
-    c->SaveAs(Form("plots/ANdists/pt_%s.pdf", lbl_pt[i].c_str()));
-    c->Clear();
-  
+    h_pT[i]->Draw("histo same");
+    }
   }
+  
+  TLatex lcpt;
+  lcpt.SetTextSize(0.04);
+  lcpt.SetTextColor(colpt[0]);
+  lcpt.DrawLatex(120, 3.5e6, "Peak data");
+  lcpt.SetTextColor(colpt[1]);
+  lcpt.DrawLatex(120, 1.5e6, "MC low p_{T}");
+  lcpt.SetTextColor(colpt[2]);
+  lcpt.DrawLatex(120, 6e5, "MC mid p_{T}");
+  lcpt.SetTextColor(colpt[3]);
+  lcpt.DrawLatex(120, 2.5e5, "MC low p_{T}");
+
+  c->SaveAs(Form("plots/ANdists/pt_all.pdf"));
+  c->Clear();
 
   // plot y
   c->SetLogy();
-
+  int coly[] = {kRed+1, kGreen+3, kBlue};
   for(int i = 0; i < 6; i++) {
 
     h_y[i]->SetStats(0);
-    h_y[i]->SetLineColor(col_data(i));
+    h_y[i]->SetLineColor(coly[i%3]);
     h_y[i]->SetMinimum(1e3);
     h_y[i]->SetMaximum(6e5);
     h_y[i]->GetXaxis()->SetTitle("y(#mu#mu)");
     h_y[i]->GetXaxis()->SetTitleOffset(1.1);
     h_y[i]->GetYaxis()->SetTitle("dN/dy");
     h_y[i]->SetTitle(Form("y (%s)", lbl_y[i].c_str()));
-    h_y[i]->Draw("histo");
-    
-    c->SaveAs(Form("plots/ANdists/y_%s.pdf", lbl_y[i].c_str()));
-    c->Clear();
-  
+    if(i > 2) h_y[i]->SetLineStyle(kDashed);
+    if(i == 0) h_y[i]->Draw("histo");
+    else h_y[i]->Draw("histo same");  
   }
+
+  TLatex lcy;
+  lcy.SetTextSize(0.025);
+  lcy.SetTextColor(coly[0]);
+  lcy.DrawLatex(0.875, 2.5e5, "Low-p_{T}");
+  lcy.SetTextColor(coly[1]);
+  lcy.DrawLatex(0.875, 2e4, "Mid-p_{T}");
+  lcy.SetTextColor(coly[2]);
+  lcy.DrawLatex(0.875, 4e3, "High-p_{T}");
+  
+  c->SaveAs(Form("plots/ANdists/y_all.pdf"));
+  c->Clear();
+
+  // y scaling MC to data
+  for(int i = 0; i < 6; i++) {
+
+    h_y[i]->SetStats(0);
+    h_y[i]->SetLineColor(coly[i%3]);
+    h_y[i]->SetMinimum(1e3);
+    h_y[i]->SetMaximum(6e5);
+    h_y[i]->GetXaxis()->SetTitle("y(#mu#mu)");
+    h_y[i]->GetXaxis()->SetTitleOffset(1.1);
+    h_y[i]->GetYaxis()->SetTitle("dN/dy");
+    h_y[i]->SetTitle(Form("y (%s)", lbl_y[i].c_str()));
+    if(i > 2) {
+      h_y[i]->Scale(h_y[i-3]->Integral() / h_y[i]->Integral());
+      h_y[i]->SetLineStyle(kDashed);
+    }
+    if(i == 0) h_y[i]->Draw("histo");
+    else h_y[i]->Draw("histo same");  
+  }
+
+  TLatex lcys;
+  lcys.SetTextSize(0.025);
+  lcys.SetTextColor(coly[0]);
+  lcys.DrawLatex(0.875, 2.5e5, "Low-p_{T}");
+  lcys.SetTextColor(coly[1]);
+  lcys.DrawLatex(0.875, 2e4, "Mid-p_{T}");
+  lcys.SetTextColor(coly[2]);
+  lcys.DrawLatex(0.875, 4e3, "High-p_{T}");
+
+  lcys.SetTextSize(0.04);
+  lcys.SetTextColor(kBlack);
+  lcys.DrawLatex(-0.5, 3e5, "rescaled MC");
+  lcys.DrawLatex(-0.5, 1e5, "#minus Peak data");
+  lcys.DrawLatex(-0.5, 6e4, "--MC");
+  
+  
+  c->SaveAs(Form("plots/ANdists/y_scale.pdf"));
+  c->Clear();
 
   // plot lifetime
   c->SetLogy();
 
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 3; i++) {
 
     h_lt[i]->SetStats(0);
-    h_lt[i]->SetLineColor(i+1);
+    h_lt[i]->SetLineColor(coly[i]);
     h_lt[i]->SetMinimum(1e3);
     h_lt[i]->SetMaximum(3e6);
     h_lt[i]->GetXaxis()->SetTitle("c#tau (#mum)");
     h_lt[i]->GetXaxis()->SetTitleOffset(1.1);
     h_lt[i]->GetYaxis()->SetTitle("dN/dc#tau");
     h_lt[i]->SetTitle(Form("lifetime (%s)", lbl_lt[i].c_str()));
-    h_lt[i]->Draw("histo");
-
-    TLine *l_PRm = new TLine(-50, h_lt[i]->GetMinimum(), -50, h_lt[i]->GetMaximum());
-    l_PRm->SetLineStyle(kDashed);
-    l_PRm->SetLineColor(kBlack);
-    l_PRm->Draw();
-    TLine *l_PRp = new TLine(50, h_lt[i]->GetMinimum(), 50, h_lt[i]->GetMaximum());
-    l_PRp->SetLineStyle(kDashed);
-    l_PRp->SetLineColor(kBlack);
-    l_PRp->Draw();
-
-    TLine *l_NPm = new TLine(100, h_lt[i]->GetMinimum(), 100, h_lt[i]->GetMaximum());
-    l_NPm->SetLineStyle(kDashed);
-    l_NPm->SetLineColor(kBlack);
-    l_NPm->Draw();
-    TLine *l_NPp = new TLine(500, h_lt[i]->GetMinimum(), 500, h_lt[i]->GetMaximum());
-    l_NPp->SetLineStyle(kDashed);
-    l_NPp->SetLineColor(kBlack);
-    l_NPp->Draw();
-
-    c->SaveAs(Form("plots/ANdists/lt_%s.pdf", lbl_lt[i].c_str()));
-    c->Clear();
-  
+    if(i == 0) h_lt[i]->Draw("histo");
+    else h_lt[i]->Draw("histo same");  
   }
+
+  TLine *l_PRm = new TLine(-50, h_lt[0]->GetMinimum(), -50, h_lt[0]->GetMaximum());
+  l_PRm->SetLineStyle(kDashed);
+  l_PRm->SetLineColor(kBlack);
+  l_PRm->Draw();
+  TLine *l_PRp = new TLine(50, h_lt[0]->GetMinimum(), 50, h_lt[0]->GetMaximum());
+  l_PRp->SetLineStyle(kDashed);
+  l_PRp->SetLineColor(kBlack);
+  l_PRp->Draw();
+
+  TLine *l_NPm = new TLine(100, h_lt[0]->GetMinimum(), 100, h_lt[0]->GetMaximum());
+  l_NPm->SetLineStyle(kDotted);
+  l_NPm->SetLineColor(kBlack);
+  l_NPm->Draw();
+  TLine *l_NPp = new TLine(500, h_lt[0]->GetMinimum(), 500, h_lt[0]->GetMaximum());
+  l_NPp->SetLineStyle(kDotted);
+  l_NPp->SetLineColor(kBlack);
+  l_NPp->Draw();
+
+  TLatex lclt;
+  lclt.SetTextSize(0.04);
+  lclt.SetTextColor(colpt[0]);
+  lclt.DrawLatex(300, 1.5e6, "Data:");
+  lclt.SetTextColor(colpt[1]);
+  lclt.DrawLatex(300, 9e5, "low p_{T}");
+  lclt.SetTextColor(colpt[2]);
+  lclt.DrawLatex(300, 5e5, "mid p_{T}");
+  lclt.SetTextColor(colpt[3]);
+  lclt.DrawLatex(300, 2.7e5, "high p_{T}");
+
+  c->SaveAs(Form("plots/ANdists/lt_all.pdf"));
+  c->Clear();
+
+  // lifetime scaling to low pT
+  for(int i = 0; i < 3; i++) {
+    h_lt[i]->SetStats(0);
+    h_lt[i]->SetLineColor(coly[i]);
+    h_lt[i]->Scale(h_lt[0]->Integral()/h_lt[i]->Integral());
+    h_lt[i]->SetMinimum(1e3);
+    h_lt[i]->SetMaximum(3e6);
+    h_lt[i]->GetXaxis()->SetTitle("c#tau (#mum)");
+    h_lt[i]->GetXaxis()->SetTitleOffset(1.1);
+    h_lt[i]->GetYaxis()->SetTitle("dN/dc#tau (a.u.)");
+    h_lt[i]->SetTitle(Form("lifetime (%s)", lbl_lt[i].c_str()));
+    if(i == 0) h_lt[i]->Draw("histo");
+    else h_lt[i]->Draw("histo same");  
+  }
+
+  l_PRm->Draw();
+  l_PRp->Draw();
+  l_NPm->Draw();
+  l_NPp->Draw();
+
+  TLatex lclts;
+  lclts.SetTextSize(0.04);
+  lclts.SetTextColor(colpt[0]);
+  lclts.DrawLatex(300, 1.5e6, "Data:");
+  lclts.DrawLatex(-40, 2e3, "Peak");
+  lclts.DrawLatex(275, 2e3, "NP");
+  
+  lclts.SetTextColor(colpt[1]);
+  lclts.DrawLatex(300, 9e5, "low p_{T}");
+  lclts.SetTextColor(colpt[2]);
+  lclts.DrawLatex(300, 5e5, "mid p_{T}");
+  lclts.SetTextColor(colpt[3]);
+  lclts.DrawLatex(300, 2.7e5, "high p_{T}");
+  
+
+  c->SaveAs(Form("plots/ANdists/lt_scale.pdf"));
+  c->Clear();
 
   // plot M
   c->SetLogy(0);
   c->SetLeftMargin(0.12);
 
   for(int i = 0; i < 6; i++) {
-
     h_m[i]->SetStats(0);
     h_m[i]->Scale(1./h_m[i]->Integral());
-    h_m[i]->SetLineColor(col_data(i));
-    h_m[i]->SetMinimum(0);
-    h_m[i]->SetMaximum(0.085);
+    h_m[i]->Scale(h_m[i%3]->GetMaximum()/h_m[i]->GetMaximum());
+    h_m[i]->SetLineColor(coly[i%3]);
     h_m[i]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
     h_m[i]->GetXaxis()->SetTitleOffset(1.1);
     h_m[i]->GetYaxis()->SetTitle("dN/dM (normalized)");
     h_m[i]->SetTitle(Form("M (%s)", lbl_y[i].c_str()));
-    h_m[i]->Draw("histo");
-    
-    c->SaveAs(Form("plots/ANdists/m_%s.pdf", lbl_y[i].c_str()));
-    c->Clear();
-  
+    if(i > 2) h_m[i]->SetLineStyle(kDashed);
   }
+  
+  for(int i = 0; i < 6; i++) {  
+    if(i%3==1) continue;
+    
+    h_m[i]->SetMinimum(0);
+    h_m[i]->SetMaximum(0.085);
+    if(i==0) h_m[i]->Draw("histo");
+    else h_m[i]->Draw("histo same");
+  }
+
+  TLatex lcm;
+  lcm.SetTextSize(0.04);
+  lcm.SetTextColor(coly[0]);
+  lcm.DrawLatex(3.17, 0.069, "low-p_{T}");
+  lcm.SetTextColor(coly[2]);
+  lcm.DrawLatex(3.17, 0.062, "high-p_{T}");
+  lcm.SetTextColor(kBlack);
+  lcm.DrawLatex(2.925, 0.078, "#minus Data");
+  lcm.DrawLatex(2.925, 0.071, "--MC");
+
+  
+  c->SaveAs(Form("plots/ANdists/m_scale.pdf"));
+  c->Clear();
 
   // plot costh
   c->SetLogy(0);
