@@ -83,7 +83,7 @@ void newMCmass_G()
   double lowm = 2.9, him = 3.3;
   TH1D **h_m1d = new TH1D*[nPtBins];
   for(int ip = 0; ip < nPtBins; ip++)
-    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("2018 MC M(#mu#mu) (%.0f < p_{T} < %.0f)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
+    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("2018 MC M(#mu#mu) (%.0f < p_{T} < %.0f GeV)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
   
   TH2D *h_m2d = new TH2D("h_m2d", "2018 MC M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
  
@@ -220,7 +220,8 @@ void newMCmass_G()
 
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
-
+  c->SetLeftMargin(0.12);
+  
   TFile *fout = new TFile("files/MCfit_G.root", "recreate");
   h_m2d->Fit("f_cb", "R");
 
@@ -248,18 +249,24 @@ void newMCmass_G()
       }
     }
     
-    c->SetLogy();
+    //c->SetLogy();
 	  
-    h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.2);
-    h_m1d[i_pt]->SetMinimum(h_m1d[i_pt]->GetMaximum()*1e-5);
+    h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.1);
+    /*if(pt_val[i_pt] > 34 && pt_val[i_pt] < 37)
+      h_m1d[i_pt]->SetMaximum(18000);
+    if(pt_val[i_pt] > 76 && pt_val[i_pt] < 84)
+    h_m1d[i_pt]->SetMaximum(35000);*/
+    h_m1d[i_pt]->SetMinimum(0);//h_m1d[i_pt]->GetMaximum()*1e-5);
+    h_m1d[i_pt]->SetStats(0);
     h_m1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
-    h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.4);
+    h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.8);
     h_m1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
     h_m1d[i_pt]->SetMarkerStyle(20);
     h_m1d[i_pt]->SetMarkerSize(0.75);
     h_m1d[i_pt]->SetMarkerColor(kBlack);
     h_m1d[i_pt]->Draw("error");
     f_1d->SetLineColor(kBlue);
+    f_1d->SetNpx(1000);
     f_1d->Draw("lsame");
 
     // initializing f_1d and plotting
@@ -310,12 +317,12 @@ void newMCmass_G()
     double lowmp = fit_i, himp = fit_f;
 	  
     // plotting the pulls
-    TH1F *fl = c->DrawFrame(lowmp, -6, himp, 6);
+    TH1F *fl = c->DrawFrame(lowmp, -7, himp, 7);
     fl->SetXTitle("M(#mu#mu) (GeV)");
     fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("MC J/#psi Pulls (%.0f < p_{T} < %.0f)", ptBins[i_pt], ptBins[i_pt+1]));
+    fl->SetTitle(Form("MC mass fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 	  
     TGraph *g_pull = new TGraph(mbins, mv, pv);
     g_pull->SetLineColor(kBlack);
@@ -326,6 +333,20 @@ void newMCmass_G()
     TLine *zero = new TLine(lowmp, 0, himp, 0);
     zero->SetLineStyle(kDashed);
     zero->Draw();
+
+    TLine *plim1 = new TLine(lowmp, -5, himp, -5);
+    plim1->SetLineStyle(kDotted);
+    plim1->Draw("lsame");
+    TLine *plim2 = new TLine(lowmp, -3, himp, -3);
+    plim2->SetLineStyle(kDotted);
+    plim2->Draw("lsame");
+    TLine *plim3 = new TLine(lowmp, 3, himp, 3);
+    plim3->SetLineStyle(kDotted);
+    plim3->Draw("lsame");
+    TLine *plim4 = new TLine(lowmp, 5, himp, 5);
+    plim4->SetLineStyle(kDotted);
+    plim4->Draw("lsame");
+
 	  
     c->SaveAs(Form("plots/MCMass/pullsG_pt%d_dep.pdf", i_pt));
     c->Clear();

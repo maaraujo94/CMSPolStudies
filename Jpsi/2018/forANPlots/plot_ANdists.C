@@ -19,8 +19,8 @@ void plot_ANdists()
   TH1D **h_pT = new TH1D*[4]; 
   // 6 y dists: PRSR data + MC over 3 pT regions
   TH1D **h_y = new TH1D*[6]; 
-  // 6 M dists: PR data + MC over 3 pT regions
-  TH1D **h_m = new TH1D*[6]; 
+  // 7 M dists: PR data + MC over 3 pT regions + full pT data
+  TH1D **h_m = new TH1D*[7]; 
   // 4 lifetime dists: data in 4 pT regions
   TH1D **h_lt = new TH1D*[4];
   // 12 costh dists: PR data + NP data + MC over 4 pT regions
@@ -41,8 +41,8 @@ void plot_ANdists()
   }
 
   // store the M dists
-  string lbl_m[] = {"lowPtData", "midPtData", "highPtData", "lowPtMC", "midPtMC", "highPtMC"};
-  for(int i = 0; i < 6; i++) {
+  string lbl_m[] = {"lowPtData", "midPtData", "highPtData", "lowPtMC", "midPtMC", "highPtMC", "fullData"};
+  for(int i = 0; i < 7; i++) {
     h_m[i] = (TH1D*)fin->Get(Form("h_m_%s", lbl_m[i].c_str()));
   }
 
@@ -221,6 +221,30 @@ void plot_ANdists()
   c->SaveAs(Form("plots/ANdists/lt_all.pdf"));
   c->Clear();
 
+  // plot just full lt
+  h_lt[3]->SetStats(0);
+  h_lt[3]->SetLineColor(colpt[0]);
+  h_lt[3]->SetMinimum(1e3);
+  h_lt[3]->SetMaximum(3e6);
+  h_lt[3]->GetXaxis()->SetTitle("c#tau (#mum)");
+  h_lt[3]->GetXaxis()->SetTitleOffset(1.1);
+  h_lt[3]->GetYaxis()->SetTitle("dN/dc#tau");
+  h_lt[3]->SetTitle("");
+  h_lt[3]->Draw("histo");
+  
+  l_PRm->Draw();
+  l_PRp->Draw();
+  l_NPm->Draw();
+  l_NPp->Draw();
+
+  TLatex lcltf;
+  lcltf.SetTextSize(0.04);
+  lcltf.SetTextColor(colpt[0]);
+  lcltf.DrawLatex(300, 1.5e6, "2018 Data");
+
+  c->SaveAs(Form("plots/ANdists/lt_full.pdf"));
+  c->Clear();
+
   // lifetime scaling to low pT
   for(int i = 0; i < 3; i++) {
     h_lt[i]->SetStats(0);
@@ -296,6 +320,24 @@ void plot_ANdists()
 
   
   c->SaveAs(Form("plots/ANdists/m_scale.pdf"));
+  c->Clear();
+
+  h_m[6]->SetStats(0);
+  h_m[6]->SetLineColor(kBlack);
+  h_m[6]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
+  h_m[6]->GetXaxis()->SetTitleOffset(1.1);
+  h_m[6]->GetYaxis()->SetTitle("dN/dM");
+  h_m[6]->SetMaximum(720e3);
+  h_m[6]->SetTitle("");
+  h_m[6]->Draw("histo");  
+
+  TLatex lcmf;
+  lcmf.SetTextSize(0.04);
+  lcmf.SetTextColor(colpt[0]);
+  lcmf.DrawLatex(3.15, 6.5e5, "2018 Data");
+
+  
+  c->SaveAs(Form("plots/ANdists/m_full.pdf"));
   c->Clear();
 
   // plot costh

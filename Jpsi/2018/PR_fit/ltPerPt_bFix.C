@@ -23,6 +23,7 @@ void ltPerPt_bFix(double binLow, double binHigh, double mu_avg, double f_avg)
   double lowPlot = -0.1;
   
   TCanvas *c = new TCanvas("", "", 900, 900);
+  c->SetLeftMargin(0.11);
   c->SetLogy();
   
   // PART 2 : FITTING THE HISTOS
@@ -44,6 +45,7 @@ void ltPerPt_bFix(double binLow, double binHigh, double mu_avg, double f_avg)
   fitS->FixParameter(3,mu_avg);
   fitS->FixParameter(2, f_avg);
   fitS->SetLineColor(kBlue);
+  fitS->SetNpx(1000);
   int fits = ltHist->Fit(fitS, "RQ");
   
   // get the NP fraction in the signal region (+- 100 mum)
@@ -60,6 +62,8 @@ void ltPerPt_bFix(double binLow, double binHigh, double mu_avg, double f_avg)
   // draw results
   ltHist->SetMaximum(ltHist->GetMaximum()*1.2);
   ltHist->SetMinimum(ltHist->GetMaximum()*5e-4);
+  if(binLow > 33 && binLow < 35) ltHist->SetMinimum(2e3);
+  if(binLow > 75 && binLow < 77) ltHist->SetMinimum(2e1);
 
   TH1F *fh = c->DrawFrame(lowPlot, ltHist->GetMinimum(), hit, ltHist->GetMaximum());
   fh->SetXTitle("c#tau (mm)");
@@ -97,6 +101,44 @@ void ltPerPt_bFix(double binLow, double binHigh, double mu_avg, double f_avg)
 
   c->SaveAs(Form("plots/lifetime/fit_bf_pt%.0f.pdf", binLow));
   c->Clear();
+
+  if(binLow > 75 && binLow < 77) {
+    c->SetLogy(0);
+
+    ltHist->SetMinimum(0);
+    ltHist->SetMaximum(5000);
+    
+    TH1F *f76 = c->DrawFrame(lowPlot, ltHist->GetMinimum(), hit, ltHist->GetMaximum());
+    f76->SetXTitle("c#tau (mm)");
+    f76->SetYTitle(Form("Events per %.0f #mum", wbin*1000.));
+    f76->GetYaxis()->SetTitleOffset(1.6);
+    f76->GetYaxis()->SetLabelOffset(0.01);
+    f76->SetTitle("");
+
+    ltHist->SetMarkerStyle(20);
+    ltHist->SetLineColor(kBlack);
+    ltHist->SetMarkerColor(kBlack);
+    ltHist->SetMarkerSize(.75);
+    ltHist->Draw("error same");
+
+    // draw fit contributions
+    fNP->SetLineStyle(kSolid);
+    fNP->Draw("lsame");
+
+    // aux lines for the 2.5 sigma and 4 sigma limits
+    TLine *lsig1 = new TLine(-pr_lim, ltHist->GetMinimum(), -pr_lim, ltHist->GetMaximum());
+    lsig1->SetLineStyle(kDashed);
+    lsig1->Draw("lsame");
+    TLine *lsig2 = new TLine(pr_lim, ltHist->GetMinimum(), pr_lim, ltHist->GetMaximum());
+    lsig2->SetLineStyle(kDashed);
+    lsig2->Draw("lsame");
+    TLine *lsig3 = new TLine(np_lim, ltHist->GetMinimum(), np_lim, ltHist->GetMaximum());
+    lsig3->SetLineStyle(kDashed);
+    lsig3->Draw("lsame");
+
+    c->SaveAs(Form("plots/lifetime/fitL_bf_pt%.0f.pdf", binLow));
+    c->Clear();
+  }
   
   // get the pulls and rel dev distribution
   double xv[tbins], pv[tbins], dv[tbins];
@@ -114,7 +156,7 @@ void ltPerPt_bFix(double binLow, double binHigh, double mu_avg, double f_avg)
   // plotting the pulls
   c->SetLogy(0);
   
-  TH1F *fp = c->DrawFrame(lowPlot, -15, hit, 15);
+  TH1F *fp = c->DrawFrame(lowPlot, -7, hit, 7);
   fp->SetXTitle("c#tau (mm)");
   fp->SetYTitle("pulls");
   fp->GetYaxis()->SetTitleOffset(1.3);
@@ -134,16 +176,29 @@ void ltPerPt_bFix(double binLow, double binHigh, double mu_avg, double f_avg)
   fcons->SetLineColor(kBlack);
   fcons->Draw("lsame");
 
-  TLine *psig1 = new TLine(-pr_lim, -15, -pr_lim, 15);
+  TLine *psig1 = new TLine(-pr_lim, -7, -pr_lim, 7);
   psig1->SetLineStyle(kDashed);
   psig1->Draw("lsame");
-  TLine *psig2 = new TLine(pr_lim, -15, pr_lim, 15);
+  TLine *psig2 = new TLine(pr_lim, -7, pr_lim, 7);
   psig2->SetLineStyle(kDashed);
   psig2->Draw("lsame");
-  TLine *psig3 = new TLine(np_lim, -15, np_lim, 15);
+  TLine *psig3 = new TLine(np_lim, -7, np_lim, 7);
   psig3->SetLineStyle(kDashed);
   psig3->Draw("lsame");
-  
+
+  TLine *plim1 = new TLine(lowPlot, -5, hit, -5);
+  plim1->SetLineStyle(kDotted);
+  plim1->Draw("lsame");
+  TLine *plim2 = new TLine(lowPlot, -3, hit, -3);
+  plim2->SetLineStyle(kDotted);
+  plim2->Draw("lsame");
+  TLine *plim3 = new TLine(lowPlot, 3, hit, 3);
+  plim3->SetLineStyle(kDotted);
+  plim3->Draw("lsame");
+  TLine *plim4 = new TLine(lowPlot, 5, hit, 5);
+  plim4->SetLineStyle(kDotted);
+  plim4->Draw("lsame");
+
   c->SaveAs(Form("plots/lifetime/pulls_bf_%.0f.pdf", binLow));
   c->Clear();
 

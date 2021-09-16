@@ -50,6 +50,8 @@ void getfL()
     fL[i] = (3.1 - avg_LSB[i]) / (avg_RSB[i] - avg_LSB[i]);
     
     fL[i] *= 100;
+
+    cout << i << " " << fL[i] << endl;
   }
 
   TGraphErrors *g_mL = new TGraphErrors(nBinsY, pt_v, avg_LSB, pt_e, zeros); 

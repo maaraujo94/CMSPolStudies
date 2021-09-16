@@ -15,9 +15,9 @@ void store_ANdists()
   for(int i = 0; i < 6; i++)
     h_y[i] = new TH1D(Form("h_y%d", i), Form("y distributions"), 60, -1.5, 1.5);
 
-  // 6 M dists: PR data + MC over 3 pT regions
-  TH1D **h_m = new TH1D*[6]; 
-  for(int i = 0; i < 6; i++)
+  // 7 M dists: PR data + MC over 3 pT regions
+  TH1D **h_m = new TH1D*[7]; 
+  for(int i = 0; i < 7; i++)
     h_m[i] = new TH1D(Form("h_m%d", i), Form("M distributions"), 80, 2.9, 3.3);
 
   // 4 lifetime dists: data in 4 pT regions
@@ -96,6 +96,8 @@ void store_ANdists()
       
       // fill the M histo
       if(abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
+	if(data_pt > 25 && data_pt < 120)
+	  h_m[6]->Fill(data_m);
 	if(data_pt > 25 && data_pt < 46) 
 	  h_m[0]->Fill(data_m);
 	else if(data_pt > 46 && data_pt < 66) 
@@ -253,8 +255,8 @@ void store_ANdists()
   }
 
   // store the M dists
-  string lbl_m[] = {"lowPtData", "midPtData", "highPtData", "lowPtMC", "midPtMC", "highPtMC"};
-  for(int i = 0; i < 6; i++) {
+  string lbl_m[] = {"lowPtData", "midPtData", "highPtData", "lowPtMC", "midPtMC", "highPtMC", "fullData"};
+  for(int i = 0; i < 7; i++) {
     h_m[i]->Write(Form("h_m_%s", lbl_m[i].c_str()));
   }
 

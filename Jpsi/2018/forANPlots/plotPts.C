@@ -51,6 +51,7 @@ void plotPts()
     }
 
   TCanvas *c = new TCanvas("", "", 900, 900);
+  c->SetLeftMargin(0.11);
   c->SetLogy();
 
   h_tot->SetLineColor(kBlack);
@@ -83,10 +84,10 @@ void plotPts()
   
   TH1F *fr1 = c->DrawFrame(20, 0., 125, 1.);
   fr1->SetXTitle("p_{T} (GeV)");
-  fr1->SetYTitle("f_{NP}");
+  fr1->SetYTitle("Yield ratio (a.u.)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("2018 Data f_{NP}");
+  fr1->SetTitle("Yield (NP) / Yield (Peak)");
 
   TH1D* f_NP = (TH1D*)h_NP->Clone("f_NP");
   f_NP->Sumw2();
@@ -99,20 +100,20 @@ void plotPts()
   c->SaveAs("plots/ptcomp_fNP.pdf");
   c->Clear();
 
-  TH1F *fr2 = c->DrawFrame(20, 0., 125, 0.05);
+  TH1F *fr2 = c->DrawFrame(20, 0., 125, 0.1);
   fr2->SetXTitle("p_{T} (GeV)");
-  fr2->SetYTitle("f_{SB}");
-  fr2->GetYaxis()->SetTitleOffset(1.3);
+  fr2->SetYTitle("Yield ratio (a.u.)");
+  fr2->GetYaxis()->SetTitleOffset(1.5);
   fr2->GetYaxis()->SetLabelOffset(0.01);
-  fr2->SetTitle("2018 Data f_{SB}");
+  fr2->SetTitle("Yield (bkg) / Yield (Peak)");
 
   TH1D *f_SB = new TH1D("f_SB", "2018 Data f_{SB}", nPtBins, ptBins);
   f_SB->Sumw2();
   f_SB->Add(h_LSB, h_RSB, 1, 1);
   f_SB->Divide(h_tot);
   f_SB->SetStats(0);
-  f_SB->SetLineColor(kGreen);
-  f_SB->SetMarkerColor(kGreen);
+  f_SB->SetLineColor(kBlue);
+  f_SB->SetMarkerColor(kBlue);
   f_SB->Draw("error same");
   
   c->SaveAs("plots/ptcomp_fSB.pdf");

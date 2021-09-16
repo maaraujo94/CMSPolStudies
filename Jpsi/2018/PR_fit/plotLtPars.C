@@ -92,7 +92,7 @@ void plotLtPars()
 
   // aux arrays
   string parlab[] = {"N_PR", "N_NP", "f", "mu", "sig1", "sig2", "t"};
-  string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma_{1}", "#sigma_{2}", "t"};
+  string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma_{1}", "#sigma_{2}", "t_{NP}"};
   string par_unit[] = {" per 1 GeV", " per 1 GeV", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
 
   double parmin[] = {4e1, 4e2, 0,  -5., 0,  0,  300};
@@ -136,7 +136,7 @@ void plotLtPars()
     g_par_f[i]->SetMarkerSize(.75);
     g_par_f[i]->SetMarkerColor(kBlue);
     g_par_f[i]->SetLineColor(kBlue);
-    g_par_f[i]->Draw("psame");
+    //g_par_f[i]->Draw("psame");
 
     g_par_f[i]->SetName(Form("fit_mf_%s", parlab[i].c_str()));
     g_par_f[i]->Write();
@@ -149,6 +149,12 @@ void plotLtPars()
 
     g_par_b[i]->SetName(Form("fit_bf_%s", parlab[i].c_str()));
     g_par_b[i]->Write();
+
+    TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+    leg->SetTextSize(0.03);
+    leg->AddEntry(g_par[i], "all free", "pl");
+    leg->AddEntry(g_par_b[i], "#mu, f fixed", "pl");
+    //leg->Draw();
 
     c->SaveAs(Form("plots/lifetime/par_%s.pdf", parlab[i].c_str()));
     c->Clear();

@@ -74,6 +74,12 @@ void plotMMseq()
     g_par[i_p][0]->SetMarkerSize(.75);
     g_par[i_p][0]->Draw("p");
 
+    if(i_p == 2) {
+	g_par[i_p][1]->SetLineColor(kRed);
+	g_par[i_p][1]->SetFillColorAlpha(kRed, 0.5);
+	g_par[i_p][1]->Draw("ce3");
+    }
+
     // if we're plotting par 3, add par 4 (both sigmas in 1)
     if( i_p == 3) {      
       g_par[i_p+1][0]->SetLineColor(kBlue);
@@ -122,6 +128,12 @@ void plotMMseq()
     g_par[i_p][1]->SetMarkerStyle(20);
     g_par[i_p][1]->SetMarkerSize(.75);
     g_par[i_p][1]->Draw("p");
+
+    if(i_p == 0) {
+      g_par[i_p][2]->SetLineColor(kRed);
+      g_par[i_p][2]->SetFillColorAlpha(kRed, 0.5);
+      g_par[i_p][2]->Draw("ce3");
+    }
 
     // if we're plotting par 3, add par 4 (both sigmas in 1)
     if( i_p == 3) {      
@@ -174,7 +186,15 @@ void plotMMseq()
   g_par[3+1][2]->SetMarkerStyle(24);
   g_par[3+1][2]->SetMarkerSize(.75);
   g_par[3+1][2]->Draw("p");
-  
+
+  g_par[3][3]->SetLineColor(kRed);
+  g_par[3][3]->SetFillColorAlpha(kRed, 0.5);
+  g_par[3][3]->Draw("ce3");
+
+  g_par[3+1][3]->SetLineColor(kRed);
+  g_par[3+1][3]->SetFillColorAlpha(kRed, 0.5);
+  g_par[3+1][3]->Draw("ce3");
+
   TLegend *leg2 = new TLegend(0.75, 0.3, 0.9, 0.45);
   leg2->SetTextSize(0.03);
   leg2->AddEntry(g_par[3][2], "#sigma_{1}", "pl");
@@ -279,6 +299,38 @@ void plotMMseq()
   
   c->SaveAs(Form("plots/MCMass/par_chiN.pdf"));
   c->Clear();
+
+  // plot all n and alpha
+  for(int i_p = 5; i_p < 7; i_p++) {
+
+    TH1F *flna = c->DrawFrame(pt_min, parmin[i_p], pt_max, parmax[i_p]);
+    flna->SetXTitle("p_{T} (GeV)");
+    flna->SetYTitle(parax[i_p].c_str());
+    flna->GetYaxis()->SetTitleOffset(1.8);
+    flna->GetYaxis()->SetLabelOffset(0.01);
+    flna->SetTitle(Form("2018 %s", partit[i_p].c_str()));
+
+    int c_val = 1;
+    for(int i_m = 0; i_m < 4; i_m++) {
+      if(i_m !=1) {
+	g_par[i_p][i_m]->SetLineColor(c_val);
+	g_par[i_p][i_m]->SetMarkerColor(c_val);
+	g_par[i_p][i_m]->SetMarkerStyle(20);
+	g_par[i_p][i_m]->SetMarkerSize(.75);
+	g_par[i_p][i_m]->Draw("p");
+	c_val++;
+	if(c_val ==3) c_val++;
+      }
+    }
+
+    TLine *vl = new TLine(pt_min, g_par[i_p][i_p-1]->GetY()[0], pt_max, g_par[i_p][i_p-1]->GetY()[0]);
+    vl->SetLineStyle(kDashed);
+    vl->SetLineColor(kBlack);
+    vl->Draw();
+   
+    c->SaveAs(Form("plots/MCMass/na_%s.pdf", parlab[i_p].c_str()));
+    c->Clear();
+  }
 
   // also storing chi^2 as table
   ofstream ftex;

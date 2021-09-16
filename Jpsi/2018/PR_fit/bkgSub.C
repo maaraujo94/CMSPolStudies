@@ -153,22 +153,37 @@ void bkgSub()
   c->Destructor();
   
   // PART 6 - output
+  TH2D *h_DataB = new TH2D();
+  h_DataB = (TH2D*)h_Datas->Clone("h_DataB");
+  h_DataB->Write();
   h_Datas->Sumw2();
   h_Datas->Divide(h_MC2d);
   h_Datas->Write();
 
+  TH2D *h_NPB = new TH2D();
+  h_NPB = (TH2D*)h_NPs->Clone("h_NPB");
+  h_NPB->Write();
   h_NPs->Sumw2();
   h_NPs->Divide(h_MC2d);
   h_NPs->Write();
 
+  TH2D *h_SBB = new TH2D();
+  h_SBB = (TH2D*)h_SBs->Clone("h_SBB");
+  h_SBB->Write();
   h_SBs->Sumw2();
   h_SBs->Divide(h_MC2d);
   h_SBs->Write();
 
+  TH2D *h_PRB = new TH2D();
+  h_PRB = (TH2D*)h_PRs->Clone("h_PRB");
+  h_PRB->Write();
   h_PRs->Sumw2();
   h_PRs->Divide(h_MC2d);
   h_PRs->Write();
 
+  TH2D *h_JB = new TH2D();
+  h_JB = (TH2D*)h_Js->Clone("h_JB");
+  h_JB->Write();
   h_Js->Sumw2();
   h_Js->Divide(h_MC2d);
   h_Js->Write();

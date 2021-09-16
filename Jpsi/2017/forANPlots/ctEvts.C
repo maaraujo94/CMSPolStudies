@@ -16,7 +16,7 @@ void ctEvts()
   double n_MC[4];
 
   // open files and read TTrees
-  TFile *finD = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/data18_cos.root");
+  TFile *finD = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/data17_cos.root");
   TTree *tree = (TTree*)finD->Get("data_cos");
 
   for(int i_pt = 0; i_pt < 3; i_pt++) { // cycle in pt region
@@ -32,11 +32,11 @@ void ctEvts()
 
   finD->Close();
 
-  TFile *fin2 = new TFile("../../Store_data_codes/MC18_cos.root");
+  TFile *fin2 = new TFile("../../Store_data_codes/MC17_cos.root");
   TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
-  TFile *fin3 = new TFile("../../Store_data_codes/MCh18_cos.root");
+  TFile *fin3 = new TFile("../../Store_data_codes/MCh17_cos.root");
   TTree *treeM2 = (TTree*)fin3->Get("MC_cos");
-  TFile *fin4 = new TFile("../../Store_data_codes/MCvh18_cos.root");
+  TFile *fin4 = new TFile("../../Store_data_codes/MCvh17_cos.root");
   TTree *treeM3 = (TTree*)fin4->Get("MC_cos");
 
   n_MC[0] = treeM1->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[0], pt_max[0], lt_min[0], lt_max[0], m_min[1], m_max[1]));
@@ -53,7 +53,7 @@ void ctEvts()
   ofstream ftex;
   ftex.open(Form("data_mc_evts.tex"));
   ftex << "\\begin{tabular}{c|ccc|c}\n";
-  ftex << Form("2018 & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[0], pt_max[2]);
+  ftex << Form("2017 & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[0], pt_max[2]);
   ftex << "\\hline\n";
   
   ftex << Form("Peak & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_PRSR[0]/1e6, n_PRSR[1]/1e6, n_PRSR[2]/1e6, n_PRSR[3]/1e6);
@@ -61,7 +61,7 @@ void ctEvts()
   ftex << Form("LSB & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_LSB[0]/1e3, n_LSB[1]/1e3, n_LSB[2]/1e3, n_LSB[3]/1e3);
   ftex << Form("RSB & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_RSB[0]/1e3, n_RSB[1]/1e3, n_RSB[2]/1e3, n_RSB[3]/1e3);
   ftex << "\\hline\n";
-
+  
   ftex << Form("MC (only Peak) & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_MC[0]/1e6, n_MC[1]/1e6, n_MC[2]/1e6, n_MC[3]/1e6);
   
   ftex << "\\end{tabular}\n";

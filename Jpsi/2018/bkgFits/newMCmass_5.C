@@ -215,6 +215,7 @@ void newMCmass_5()
 
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetLeftMargin(0.12);
 
   TFile *fout = new TFile("files/MCfit_5.root", "recreate");
   h_m2d->Fit("f_cb", "R");
@@ -245,18 +246,22 @@ void newMCmass_5()
       epars[j][i_pt] = sqrt(pow(f_cb->GetParError(j*nPtBins) * pt_val[i_pt], 2) + pow(f_cb->GetParError(j*nPtBins+1), 2));
     }
     
-    c->SetLogy();
+    //c->SetLogy();
 	  
     h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.2);
-    h_m1d[i_pt]->SetMinimum(h_m1d[i_pt]->GetMaximum()*1e-5);
+    if(pt_val[i_pt] > 34 && pt_val[i_pt] < 37)
+      h_m1d[i_pt]->SetMaximum(18000);
+    h_m1d[i_pt]->SetMinimum(0);//h_m1d[i_pt]->GetMaximum()*1e-5);
+    h_m1d[i_pt]->SetStats(0);
     h_m1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
-    h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.4);
+    h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.8);
     h_m1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
     h_m1d[i_pt]->SetMarkerStyle(20);
     h_m1d[i_pt]->SetMarkerSize(0.75);
     h_m1d[i_pt]->SetMarkerColor(kBlack);
     h_m1d[i_pt]->Draw("error");
     f_1d->SetLineColor(kBlue);
+    f_1d->SetNpx(1000);
     f_1d->Draw("lsame");
 
     // initializing f_1d and plotting

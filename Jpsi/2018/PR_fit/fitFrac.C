@@ -39,9 +39,10 @@ void fitFrac()
   fSB->Draw("p");
 
   // fit function - parameters M(a,mu), a, mu
-  TF1 *f_fit1 = new TF1("fit_SB", "0.020*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
-  f_fit1->SetParNames("a", "mu");
-  f_fit1->SetParameters(0.02, -10);
+  TF1 *f_fit1 = new TF1("fit_SB", "[2]*0.020*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
+  f_fit1->SetParNames("a", "mu", "ph");
+  f_fit1->SetParameters(0.02, -10, 1);
+  f_fit1->FixParameter(2, 1);
   f_fit1->SetLineColor(kBlue);
   fSB->Fit("fit_SB");
   f_fit1->SetRange(0, 125);
@@ -75,14 +76,53 @@ void fitFrac()
 
   c->SaveAs("plots/fNP_fit.pdf");
   c->Clear();
+
+  // plot f_bkg pretty in %
+  int nSB = fSB->GetN();
+  double *xvSB = fSB->GetX();
+  double *xeSB = fSB->GetEX();
+  double *yvSB = fSB->GetY();
+  double *yeSB = fSB->GetEY();
+  // scale for fitting
+  for(int j = 0; j < nSB; j++) {
+    yvSB[j] *= 100.;
+    yeSB[j] = 0;
+  }
+  TGraphErrors *fSB_p = new TGraphErrors(nSB, xvSB, yvSB, xeSB, yeSB);
+
+  TH1F *fp = c->DrawFrame(20, 0, 125, 15);
+  fp->SetXTitle("p_{T} (GeV)");
+  fp->SetYTitle("f_{bkg} (%)");
+  fp->GetYaxis()->SetTitleOffset(1.5);
+  fp->GetYaxis()->SetLabelOffset(0.01);
+  fp->SetTitle(Form("2018 f_{bkg}"));
+  
+  fSB_p->SetMarkerStyle(20);
+  fSB_p->SetMarkerSize(.75);
+  fSB_p->SetLineColor(kBlue);
+  fSB_p->SetMarkerColor(kBlue);
+  fSB_p->Draw("p");	
+
+  f_fit1->SetParameter(2, 100);
+  f_fit1->SetLineColor(kBlack);
+  f_fit1->SetLineStyle(kDashed);
+  f_fit1->Draw("lsame");
+
+  c->SaveAs("plots/fSB_interp.pdf");
+  c->Clear();
   c->Destructor();
 
+  f_fit1->SetParameter(2,1);
+  cout << "still working here" << endl;
+  
   TFile *fout = new TFile("files/bkgFrac.root", "recreate");
   fSB->Write();
   f_fit1->Write();
   fNP->Write();
   f_fit2->Write();
   fout->Close();
+
+  cout << " still working after output" << endl;
 
   ofstream fout_t;
   fout_t.open("text_output/fit_frac.tex");

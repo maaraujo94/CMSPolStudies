@@ -38,7 +38,7 @@ double sum_func(double *xx, double *pp)
 void fitBkgCosth2d()
 {
   string lbl[] = {"LSB", "RSB"};
-  double dev_min = 30, pull_min = 3;
+  double dev_min = 30, pull_min = 7;
 
   // get the SB/MC 2d maps from the repository
   TH2D **h_cth = new TH2D*[2];
@@ -78,7 +78,7 @@ void fitBkgCosth2d()
     // getting the pT bin projections of Data/MC
     for(int i = 0; i < nPtBins; i++) {
       pHist[i] = h_cth[i_inp]->ProjectionX(Form("%s_bin%d_1d", lbl[i_inp].c_str(), i+1), i+1, i+1);
-      pHist[i]->SetTitle(Form("2018 %s/MC bin %d: [%.0f, %.0f] GeV", lbl[i_inp].c_str(), i+1, yBins[i], yBins[i+1]));
+      pHist[i]->SetTitle(Form("2018 %s/MC |cos#theta| (%.0f < p_{T} < %.0f GeV)", lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
     }
 
     // define the ratio fit function
@@ -163,12 +163,23 @@ void fitBkgCosth2d()
       fp->SetYTitle("pulls");
       fp->GetYaxis()->SetTitleOffset(1.3);
       fp->GetYaxis()->SetLabelOffset(0.01);
-      fp->SetTitle(Form("2018 %s pulls (%.0f < p_{T} < %.0f GeV)", lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
+      fp->SetTitle(Form("%s/MC |cos#theta| fit pulls (%.0f < p_{T} < %.0f GeV)", lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
 
       TGraph *g_pull = new TGraph(nBinsX, cv, pv);
       g_pull->SetLineColor(kBlack);
       g_pull->SetMarkerColor(kBlack);
       g_pull->SetMarkerStyle(20);
+
+      int p_lim = nBinsX;
+      for(int i = 0; i < nBinsX; i++) {
+	if(pv[i] == 0) {
+	  p_lim = i;
+	  break;
+	}
+      }
+      for(int i = p_lim; i < nBinsX; i++)
+	g_pull->RemovePoint(p_lim);
+      
       g_pull->Draw("p");
 
       TLine *clim = new TLine(cMaxVal[i], -pull_min, cMaxVal[i], pull_min);
@@ -180,6 +191,19 @@ void fitBkgCosth2d()
       zero->SetLineColor(kBlack);
       zero->SetLineStyle(kDashed);
       zero->Draw();
+
+      TLine *plim1 = new TLine(minX, -5, maxX, -5);
+      plim1->SetLineStyle(kDotted);
+      plim1->Draw("lsame");
+      TLine *plim2 = new TLine(minX, -3, maxX, -3);
+      plim2->SetLineStyle(kDotted);
+      plim2->Draw("lsame");
+      TLine *plim3 = new TLine(minX, 3, maxX, 3);
+      plim3->SetLineStyle(kDotted);
+      plim3->Draw("lsame");
+      TLine *plim4 = new TLine(minX, 5, maxX, 5);
+      plim4->SetLineStyle(kDotted);
+      plim4->Draw("lsame");
 	
       c->SaveAs(Form("plots/%s2d/pulls_pt%d.pdf", lbl[i_inp].c_str(), i));
       c->Clear();
@@ -264,7 +288,7 @@ void fitBkgCosth2d()
     ofstream fout2;
     fout2.open(Form("text_output/cosA_%s2d.tex", lbl[i_inp].c_str()));
     fout2 << "\\begin{tabular}{c|c||c}\n";
-    fout2 << "$\\lambda_{2}$ & $\\lambda_4$ & $\\chi^{2}$/ndf \\\\\n";
+    fout2 << Form("$\\lambda_{2}^{%s}$ & $\\lambda_4^{%s}$ & $\\chi^{2}$/ndf \\\\\n", lbl[i_inp].c_str(), lbl[i_inp].c_str());
     fout2 << "\\hline\n";
     // lambda_2
     double val = f_fit->GetParameter(nPtBins);
