@@ -22,7 +22,7 @@ void plotFracs()
   TGraphErrors *fSB = new TGraphErrors(nSB, xSB, ySB, exSB, eySB);
 
   // get the plateau fit for fBG
-  TF1 *f_fit1 = new TF1("f_fit1", "2.2*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
+  TF1 *f_fit1 = new TF1("f_fit1", "2.*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
   f_fit1->SetParameters(0.02, -10);
   f_fit1->SetLineColor(kBlack);
   f_fit1->SetLineStyle(kDashed);

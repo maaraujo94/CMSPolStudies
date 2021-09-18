@@ -159,17 +159,4 @@ void histoSave()
   cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 1", dataHist->Integral(1, 40, 1, 7), NPHist->Integral(1, 40, 1, 7), mcHist->Integral(1, 40, 1, 7)) << endl;
   cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 2", dataHist->Integral(1, 40, 8, 11), NPHist->Integral(1, 40, 8, 11), mcHist->Integral(1, 40, 8, 11)) << endl;
   cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 3", dataHist->Integral(1, 40, 12, 17), NPHist->Integral(1, 40, 12, 17), mcHist->Integral(1, 40, 12, 17)) << endl;
-
-  ofstream ftex;
-  ftex.open(Form("text_output/data_mc_evts.tex"));
-  ftex << "\\begin{tabular}{c||c|c|c||c}\n";
-  ftex << Form(" $\\pt$ & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[0], pt_max[2]);
-  ftex << "\\hline\n";
-  ftex << Form("PR Data & %.0f & %.0f & %.0f & %.0f \\\\\n", dataHist->Integral(1, 40, 1, 7), dataHist->Integral(1, 40, 8, 11), dataHist->Integral(1, 40, 12, 17), dataHist->Integral(1, 40, 1, 17)); 
-  ftex << Form("NP Data & %.0f & %.0f & %.0f & %.0f \\\\\n", NPHist->Integral(1, 40, 1, 7), NPHist->Integral(1, 40, 8, 11), NPHist->Integral(1, 40, 12, 17), NPHist->Integral(1, 40, 1, 17)); 
-  ftex << Form("MC & %.0f & %.0f & %.0f & %.0f \\\\\n", mcHist->Integral(1, 40, 1, 7), mcHist->Integral(1, 40, 8, 11), mcHist->Integral(1, 40, 12, 17), mcHist->Integral(1, 40, 1, 17)); 
-  ftex << "\\end{tabular}\n";
-  ftex.close();
-
-
 }

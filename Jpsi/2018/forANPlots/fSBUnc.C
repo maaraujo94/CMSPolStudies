@@ -107,5 +107,4 @@ void fSBUnc()
   }
   fout->Close();
   
-  // REPEAT THE PROCESS FOR F_NP
 }

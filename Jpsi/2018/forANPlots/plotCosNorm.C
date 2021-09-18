@@ -54,6 +54,7 @@ void plotCosNorm()
  
   // the cycle to plot each bin
   TCanvas *c = new TCanvas("", "", 700, 700);    
+  int cols[] = {kViolet-1, kRed, kBlack, kBlue, kGreen};
   
   for(int i = 0; i < nBinsY; i++) {
     // get pt vars
@@ -64,8 +65,8 @@ void plotCosNorm()
     // just peak costh
     h_base1d[0][i]->SetTitle("");
     h_base1d[0][i]->SetStats(0);
-    h_base1d[0][i]->SetLineColor(kBlack);
-    h_base1d[0][i]->SetMarkerColor(kBlack);
+    h_base1d[0][i]->SetLineColor(cols[0]);
+    h_base1d[0][i]->SetMarkerColor(cols[0]);
     h_base1d[0][i]->SetMinimum(0);
     h_base1d[0][i]->SetMaximum(h_base1d[0][i]->GetBinContent(1)*1.5);
     h_base1d[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
@@ -73,9 +74,10 @@ void plotCosNorm()
     
     TLatex lcb1;
     lcb1.SetTextSize(0.04);
-    lcb1.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
     lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "2018");
     lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
+    lcb1.SetTextColor(cols[0]);
+    lcb1.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
     
     c->SaveAs(Form("plots/ratioFinal/bin1B_%d.pdf", i));
     c->Clear();
@@ -85,16 +87,17 @@ void plotCosNorm()
     
     TLatex lcb2;
     lcb2.SetTextSize(0.04);
-    lcb2.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
     lcb2.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "2018");
     lcb2.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
-
+    lcb2.SetTextColor(cols[0]);
+    lcb2.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
+    
     h_nnb1d[1][i]->SetStats(0);
-    h_nnb1d[1][i]->SetLineColor(kBlue);
-    h_nnb1d[1][i]->SetMarkerColor(kBlue);
+    h_nnb1d[1][i]->SetLineColor(cols[1]);
+    h_nnb1d[1][i]->SetMarkerColor(cols[1]);
     h_nnb1d[1][i]->Draw("error same");
 
-    lcb2.SetTextColor(kBlue);
+    lcb2.SetTextColor(cols[1]);
     lcb2.DrawLatex(0.15, h_nnb1d[1][i]->GetMaximum()*0.8, "NP");
 
     c->SaveAs(Form("plots/ratioFinal/bin2B_%d.pdf", i));    
@@ -105,24 +108,25 @@ void plotCosNorm()
     
     TLatex lcb3;
     lcb3.SetTextSize(0.04);
-    lcb3.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
     lcb3.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "2018");
     lcb3.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
+    lcb3.SetTextColor(cols[0]);
+    lcb3.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
 
     h_base1d[1][i]->SetStats(0);
-    h_base1d[1][i]->SetLineColor(kBlue);
-    h_base1d[1][i]->SetMarkerColor(kBlue);
+    h_base1d[1][i]->SetLineColor(cols[1]);
+    h_base1d[1][i]->SetMarkerColor(cols[1]);
     h_base1d[1][i]->Draw("error same");
 
-    lcb3.SetTextColor(kBlue);
+    lcb3.SetTextColor(cols[1]);
     lcb3.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*1.1, "NP (scaled)");
 
     h_base1d[2][i]->SetStats(0);
-    h_base1d[2][i]->SetLineColor(kViolet);
-    h_base1d[2][i]->SetMarkerColor(kViolet);
+    h_base1d[2][i]->SetLineColor(cols[2]);
+    h_base1d[2][i]->SetMarkerColor(cols[2]);
     h_base1d[2][i]->Draw("error same");
 
-    lcb3.SetTextColor(kViolet);
+    lcb3.SetTextColor(cols[2]);
     lcb3.DrawLatex(0.15, h_base1d[2][i]->GetMaximum()*0.7, "PR");
 
     c->SaveAs(Form("plots/ratioFinal/bin3B_%d.pdf", i));    
@@ -133,34 +137,35 @@ void plotCosNorm()
     
     TLatex lcb4;
     lcb4.SetTextSize(0.04);
-    lcb4.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
     lcb4.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "2018");
     lcb4.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
+    lcb4.SetTextColor(cols[0]);
+    lcb4.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
 
     h_base1d[1][i]->Draw("error same");
 
-    lcb4.SetTextColor(kBlue);
+    lcb4.SetTextColor(cols[1]);
     lcb4.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*1.1, "NP (scaled)");
 
     h_base1d[2][i]->Draw("error same");
 
-    lcb4.SetTextColor(kViolet);
+    lcb4.SetTextColor(cols[2]);
     lcb4.DrawLatex(0.15, h_base1d[2][i]->GetMaximum()*1.0, "PR");
 
     h_base1d[3][i]->SetStats(0);
-    h_base1d[3][i]->SetLineColor(kRed);
-    h_base1d[3][i]->SetMarkerColor(kRed);
+    h_base1d[3][i]->SetLineColor(cols[3]);
+    h_base1d[3][i]->SetMarkerColor(cols[3]);
     h_base1d[3][i]->Draw("error same");
 
-    lcb4.SetTextColor(kRed);
+    lcb4.SetTextColor(cols[3]);
     lcb4.DrawLatex(0.15, h_base1d[3][i]->GetMaximum()*0.7, "J/#psi");
 
     h_base1d[4][i]->SetStats(0);
-    h_base1d[4][i]->SetLineColor(kGreen);
-    h_base1d[4][i]->SetMarkerColor(kGreen);
+    h_base1d[4][i]->SetLineColor(cols[4]);
+    h_base1d[4][i]->SetMarkerColor(cols[4]);
     h_base1d[4][i]->Draw("error same");
 
-    lcb4.SetTextColor(kGreen);
+    lcb4.SetTextColor(cols[4]);
     lcb4.DrawLatex(0.15, h_base1d[4][i]->GetMaximum()*1.1, "bkg (scaled)");
 
     c->SaveAs(Form("plots/ratioFinal/bin4B_%d.pdf", i));    

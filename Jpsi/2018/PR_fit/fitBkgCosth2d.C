@@ -133,7 +133,12 @@ void fitBkgCosth2d()
       pHist[i]->Draw();
       f_1d->SetLineColor(kBlue);
       f_1d->Draw("same");
-    
+
+      TLatex lfit;
+      lfit.SetTextSize(0.03);
+      lfit.DrawLatex(0.1, par[i]*2.2, Form("#lambda_{2}^{%s} = %.3f #pm %.3f", lbl[i_inp].c_str(), f_fit->GetParameter(nPtBins), f_fit->GetParError(nPtBins)));
+      lfit.DrawLatex(0.1, par[i]*2.0, Form("#lambda_{4}^{%s} = %.2f #pm %.2f", lbl[i_inp].c_str(), f_fit->GetParameter(nPtBins+1), f_fit->GetParError(nPtBins+1)));
+
       c->SaveAs(Form("plots/%s2d/fit_pt%d.pdf", lbl[i_inp].c_str(), i));
       c->Clear();
 

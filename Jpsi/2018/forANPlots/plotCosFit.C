@@ -48,7 +48,8 @@ void plotCosFit()
  
   // the cycle to plot each bin
   TCanvas *c = new TCanvas("", "", 700, 700);    
-  
+  int cols[] = {kViolet-1, kRed, kBlack, kBlue, kGreen};
+    
   for(int i = 0; i < nBinsY; i++) {
     // get pt vars
     double pMin = h_rat[0]->GetYaxis()->GetBinLowEdge(i+1);
@@ -68,21 +69,22 @@ void plotCosFit()
     // just peak/MC costh
     h_rat1d[0][i]->SetTitle("");
     h_rat1d[0][i]->SetStats(0);
-    h_rat1d[0][i]->SetLineColor(kBlack);
-    h_rat1d[0][i]->SetMarkerColor(kBlack);
+    h_rat1d[0][i]->SetLineColor(cols[0]);
+    h_rat1d[0][i]->SetMarkerColor(cols[0]);
     h_rat1d[0][i]->SetMinimum(0);
     h_rat1d[0][i]->SetMaximum(h_rat1d[0][i]->GetBinContent(1)*1.5);
     h_rat1d[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     h_rat1d[0][i]->Draw("error");
-    fit1d[0]->SetLineColor(kBlack);
+    fit1d[0]->SetLineColor(cols[0]);
     fit1d[0]->SetLineStyle(kDashed);
     fit1d[0]->Draw("same");
     
     TLatex lcr1;
     lcr1.SetTextSize(0.04);
-    lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.8, "Peak/MC");
     lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.9, "2018");
     lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
+    lcr1.SetTextColor(cols[0]);
+    lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.8, "Peak/MC");
     lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.75, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[0]->GetParameter(1), fit1d[0]->GetParError(1)));
 
     
@@ -96,16 +98,16 @@ void plotCosFit()
 
     // NP
     h_rat1d[1][i]->SetStats(0);
-    h_rat1d[1][i]->SetLineColor(kBlue);
-    h_rat1d[1][i]->SetMarkerColor(kBlue);
+    h_rat1d[1][i]->SetLineColor(cols[1]);
+    h_rat1d[1][i]->SetMarkerColor(cols[1]);
     h_rat1d[1][i]->Draw("error same");
  
     // PR
     h_rat1d[2][i]->SetStats(0);
-    h_rat1d[2][i]->SetLineColor(kViolet);
-    h_rat1d[2][i]->SetMarkerColor(kViolet);
+    h_rat1d[2][i]->SetLineColor(cols[2]);
+    h_rat1d[2][i]->SetMarkerColor(cols[2]);
     h_rat1d[2][i]->Draw("error same");
-    fit1d[2]->SetLineColor(kViolet);
+    fit1d[2]->SetLineColor(cols[2]);
     fit1d[2]->SetLineStyle(kDashed);
     fit1d[2]->Draw("same");
 
@@ -113,11 +115,15 @@ void plotCosFit()
     lcr2.SetTextSize(0.04);
     lcr2.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.9, "2018");
     lcr2.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
+
+    lcr2.SetTextColor(cols[0]);
     lcr2.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.8, "Peak/MC");
     lcr2.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.75, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[0]->GetParameter(1), fit1d[0]->GetParError(1)));
-    lcr2.SetTextColor(kBlue);
+
+    lcr2.SetTextColor(cols[1]);
     lcr2.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.1, "NP/MC (scaled)");
-    lcr2.SetTextColor(kViolet);
+
+    lcr2.SetTextColor(cols[2]);
     lcr2.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.7, "PR/MC");
     lcr2.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.6, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[2]->GetParameter(1), fit1d[2]->GetParError(1)));
 
@@ -140,17 +146,17 @@ void plotCosFit()
 
     // Jpsi
     h_rat1d[3][i]->SetStats(0);
-    h_rat1d[3][i]->SetLineColor(kRed);
-    h_rat1d[3][i]->SetMarkerColor(kRed);
+    h_rat1d[3][i]->SetLineColor(cols[3]);
+    h_rat1d[3][i]->SetMarkerColor(cols[3]);
     h_rat1d[3][i]->Draw("error same");
-    fit1d[3]->SetLineColor(kRed);
+    fit1d[3]->SetLineColor(cols[3]);
     fit1d[3]->SetLineStyle(kDashed);
     fit1d[3]->Draw("same");
 
     // bkg
     h_rat1d[4][i]->SetStats(0);
-    h_rat1d[4][i]->SetLineColor(kGreen);
-    h_rat1d[4][i]->SetMarkerColor(kGreen);
+    h_rat1d[4][i]->SetLineColor(cols[4]);
+    h_rat1d[4][i]->SetMarkerColor(cols[4]);
     h_rat1d[4][i]->Draw("error same");
  
 
@@ -158,22 +164,23 @@ void plotCosFit()
     lcr3.SetTextSize(0.04);
     lcr3.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.9, "2018");
     lcr3.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
-    
+
+    lcr3.SetTextColor(cols[0]);
     lcr3.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.8, "Peak/MC");
     lcr3.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.75, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[0]->GetParameter(1), fit1d[0]->GetParError(1)));
     
-    lcr3.SetTextColor(kBlue);
+    lcr3.SetTextColor(cols[1]);
     lcr3.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.1, "NP/MC (scaled)");
     
-    lcr3.SetTextColor(kViolet);
+    lcr3.SetTextColor(cols[2]);
     lcr3.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*1.0, "PR/MC");
     lcr3.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.93, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[2]->GetParameter(1), fit1d[2]->GetParError(1)));
 
-    lcr3.SetTextColor(kRed);
+    lcr3.SetTextColor(cols[3]);
     lcr3.DrawLatex(0.15, h_rat1d[3][i]->GetMaximum()*0.7, "J/#psi/MC");
     lcr3.DrawLatex(0.15, h_rat1d[3][i]->GetMaximum()*0.6, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[3]->GetParameter(1), fit1d[3]->GetParError(1)));
 
-    lcr3.SetTextColor(kGreen);
+    lcr3.SetTextColor(cols[4]);
     lcr3.DrawLatex(0.15, h_rat1d[4][i]->GetMaximum()*1.1, "bkg/MC (scaled)");
 
     c->SaveAs(Form("plots/ratioFinal/bin3F_%d.pdf", i));

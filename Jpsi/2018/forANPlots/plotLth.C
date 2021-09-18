@@ -22,6 +22,7 @@ void plotLth()
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
+  int cols[] = {kViolet-1, kRed, kBlack, kBlue, kGreen};
 
   // draw lambda_th(pT) - just peak
   TH1F *fl1 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
@@ -31,8 +32,8 @@ void plotLth()
   fl1->GetYaxis()->SetLabelOffset(0.01);
   fl1->SetTitle("2018 #lambda_{#theta}");
 
-  graph_lth[0]->SetLineColor(kBlack);
-  graph_lth[0]->SetMarkerColor(kBlack);
+  graph_lth[0]->SetLineColor(cols[0]);
+  graph_lth[0]->SetMarkerColor(cols[0]);
   graph_lth[0]->Draw("p same");
 
   TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
@@ -40,7 +41,7 @@ void plotLth()
   zero->SetLineStyle(kDashed);
   zero->Draw();
   
-  c->SaveAs("plots/ratioFinal/lth1.pdf");
+  c->SaveAs("plots/ratioFinal/lth1_2018.pdf");
   c->Clear();
 
   // draw lambda_th(pT) - peak + np + pr
@@ -51,20 +52,20 @@ void plotLth()
   fl2->GetYaxis()->SetLabelOffset(0.01);
   fl2->SetTitle("2018 #lambda_{#theta}");
 
-  graph_lth[0]->SetLineColor(kBlack);
-  graph_lth[0]->SetMarkerColor(kBlack);
+  graph_lth[0]->SetLineColor(cols[0]);
+  graph_lth[0]->SetMarkerColor(cols[0]);
   graph_lth[0]->Draw("p same");
 
-  graph_lth[2]->SetLineColor(kViolet);
-  graph_lth[2]->SetMarkerColor(kViolet);
+  graph_lth[2]->SetLineColor(cols[2]);
+  graph_lth[2]->SetMarkerColor(cols[2]);
   graph_lth[2]->Draw("p same");
 
   zero->Draw();
   
-  c->SaveAs("plots/ratioFinal/lth2.pdf");
+  c->SaveAs("plots/ratioFinal/lth2_2018.pdf");
   
-  graph_lth[1]->SetLineColor(kBlue);
-  graph_lth[1]->SetMarkerColor(kBlue);
+  graph_lth[1]->SetLineColor(cols[1]);
+  graph_lth[1]->SetMarkerColor(cols[1]);
   graph_lth[1]->Draw("p same");
   
   c->SaveAs("plots/ratioFinal/lth2_np.pdf");
@@ -78,21 +79,21 @@ void plotLth()
   fl3->GetYaxis()->SetLabelOffset(0.01);
   fl3->SetTitle("2018 #lambda_{#theta}");
 
-  graph_lth[0]->SetLineColor(kBlack);
-  graph_lth[0]->SetMarkerColor(kBlack);
+  graph_lth[0]->SetLineColor(cols[0]);
+  graph_lth[0]->SetMarkerColor(cols[0]);
   graph_lth[0]->Draw("p same");
 
-  graph_lth[2]->SetLineColor(kViolet);
-  graph_lth[2]->SetMarkerColor(kViolet);
+  graph_lth[2]->SetLineColor(cols[2]);
+  graph_lth[2]->SetMarkerColor(cols[2]);
   graph_lth[2]->Draw("p same");
   
-  graph_lth[3]->SetLineColor(kRed);
-  graph_lth[3]->SetMarkerColor(kRed);
+  graph_lth[3]->SetLineColor(cols[3]);
+  graph_lth[3]->SetMarkerColor(cols[3]);
   graph_lth[3]->Draw("p same");
 
   zero->Draw();
   
-  c->SaveAs("plots/ratioFinal/lth3.pdf");
+  c->SaveAs("plots/ratioFinal/lth3_2018.pdf");
   c->Clear();
 
   c->Destructor();

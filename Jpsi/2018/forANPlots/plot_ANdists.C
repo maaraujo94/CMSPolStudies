@@ -101,6 +101,10 @@ void plot_ANdists()
   lcpt.SetTextColor(colpt[3]);
   lcpt.DrawLatex(120, 2.5e5, "MC low p_{T}");
 
+  TLine *ptL = new TLine(120, 0, 120,  exp(0.5*(log(h_pT[0]->GetMaximum())+log(h_pT[0]->GetMinimum()))));
+  ptL->SetLineStyle(kDashed);
+  ptL->Draw();
+
   c->SaveAs(Form("plots/ANdists/pt_all.pdf"));
   c->Clear();
 
@@ -343,7 +347,7 @@ void plot_ANdists()
   // plot costh
   c->SetLogy(0);
 
-  for(int i = 0; i < 12; i++) {
+  /* for(int i = 0; i < 12; i++) {
 
     h_cos[i]->SetStats(0);
     h_cos[i]->Scale(1./h_cos[i]->Integral());
@@ -359,7 +363,67 @@ void plot_ANdists()
     c->SaveAs(Form("plots/ANdists/cos_%s.pdf", lbl_cos[i].c_str()));
     c->Clear();
   
+    }*/
+
+  for(int i = 9; i < 12; i++) {
+
+    h_cos[i]->SetStats(0);
+    h_cos[i]->Scale(0.06/h_cos[i]->GetBinContent(1));
+    h_cos[i]->SetLineColor(coly[i-9]);
+    h_cos[i]->SetMinimum(0);
+    h_cos[i]->SetMaximum(0.09);
+    h_cos[i]->GetXaxis()->SetTitle("|cos#theta|");
+    h_cos[i]->GetXaxis()->SetTitleOffset(1.);
+    h_cos[i]->GetYaxis()->SetTitle("dN/d|cos#theta| (a.u.)");
+    if(i == 9) h_cos[i]->Draw("histo");
+    else h_cos[i]->Draw("histo same"); 
   }
+
+  TLatex lcc;
+  lcc.SetTextSize(0.04);
+  lcc.SetTextColor(coly[0]);
+  lcc.DrawLatex(0.05, 0.03, "MC low p_{T}");
+  lcc.SetTextColor(coly[1]);
+  lcc.DrawLatex(0.05, 0.023, "MC mid p_{T}");
+  lcc.SetTextColor(coly[2]);
+  lcc.DrawLatex(0.05, 0.016, "MC high p_{T}");
+  
+  c->SaveAs(Form("plots/ANdists/cos_MC.pdf"));
+  c->Clear();
+
+  int colc[] = {kViolet-1, kRed, kBlack};
+
+  for(int i = 0; i < 3; i++) {
+
+    int j = i*4;
+    
+    h_cos[j]->SetStats(0);
+    h_cos[j]->Scale(0.075/h_cos[j]->GetBinContent(1));
+    h_cos[j]->SetLineColor(colc[i]);
+    h_cos[j]->SetMinimum(0);
+    h_cos[j]->SetMaximum(0.09);
+    h_cos[j]->GetXaxis()->SetTitle("|cos#theta|");
+    h_cos[j]->GetXaxis()->SetTitleOffset(1.);
+    h_cos[j]->GetYaxis()->SetTitle("dN/d|cos#theta| (a.u.)");
+    if(i == 0) h_cos[j]->Draw("histo");
+    else h_cos[j]->Draw("histo same"); 
+  }
+
+  TLatex lccf;
+  lccf.SetTextSize(0.04);
+  lccf.SetTextColor(colc[0]);
+  lccf.DrawLatex(0.1, 0.04, "Data Peak");
+  lccf.SetTextColor(colc[2]);
+  lccf.DrawLatex(0.1, 0.033, "MC");
+  lccf.SetTextColor(colc[1]);
+  lccf.DrawLatex(0.1, 0.026, "Data NP");
+
+  lccf.SetTextColor(colc[2]);
+  lccf.SetTextSize(0.03);
+  lccf.DrawLatex(0.08, 0.01, "25<p_{T}<120 GeV");
+
+  c->SaveAs(Form("plots/ANdists/cos_full.pdf"));
+  c->Clear();
 
   fin->Close();
 }

@@ -8,20 +8,17 @@ void fitFrac()
 
   // NP fraction is in %, need to fix that
   TFile *fin2 = new TFile("files/ltfit.root");
-  TGraphErrors *fNP_p = (TGraphErrors*)fin2->Get("fit_b_fNP");
+  TGraphErrors *fNP = (TGraphErrors*)fin2->Get("fit_b_fNP");
   fin2->Close();
 
-  int n = fNP_p->GetN();
-  double *xv = fNP_p->GetX();
-  double *xe = fNP_p->GetEX();
-  double *yv = fNP_p->GetY();
-  double *ye = fNP_p->GetEY();
+  int n = fNP->GetN();
+  double *yv = fNP->GetY();
+  double *ye = fNP->GetEY();
   // scale for fitting
   for(int j = 0; j < n; j++) {
     yv[j] /= 100.;
-    ye[j] = xv[j]*1e-4;
+    ye[j] = fNP->GetX()[j]*1e-4;
   }
-  TGraphErrors *fNP = new TGraphErrors(n, xv, yv, xe, ye);
 
   // fit and plot f_SB
   TCanvas *c = new TCanvas("", "", 900, 900);
@@ -81,11 +78,10 @@ void fitFrac()
   int nSB = fSB->GetN();
   double *xvSB = fSB->GetX();
   double *xeSB = fSB->GetEX();
-  double *yvSB = fSB->GetY();
-  double *yeSB = fSB->GetEY();
+  double yvSB[nSB], yeSB[nSB];
   // scale for fitting
   for(int j = 0; j < nSB; j++) {
-    yvSB[j] *= 100.;
+    yvSB[j] = fSB->GetY()[j]*100;
     yeSB[j] = 0;
   }
   TGraphErrors *fSB_p = new TGraphErrors(nSB, xvSB, yvSB, xeSB, yeSB);
@@ -113,7 +109,6 @@ void fitFrac()
   c->Destructor();
 
   f_fit1->SetParameter(2,1);
-  cout << "still working here" << endl;
   
   TFile *fout = new TFile("files/bkgFrac.root", "recreate");
   fSB->Write();
@@ -122,7 +117,6 @@ void fitFrac()
   f_fit2->Write();
   fout->Close();
 
-  cout << " still working after output" << endl;
 
   ofstream fout_t;
   fout_t.open("text_output/fit_frac.tex");

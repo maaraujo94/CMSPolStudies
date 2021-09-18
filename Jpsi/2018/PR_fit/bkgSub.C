@@ -94,7 +94,7 @@ void bkgSub()
     // scale NP dist to unity integral;
     h_NP->Scale(1. / h_NP->Integral());
     
-    // multiply analytical function by MC - SB
+    // multiply analytical SB/MC function by MC
     TH1D *h_SB = new TH1D();
     h_SB = (TH1D*)h_SBr[i]->Clone(Form("h_PRSB_%d", i));
     h_SB->Sumw2();
