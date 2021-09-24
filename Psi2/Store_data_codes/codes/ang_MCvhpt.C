@@ -1,5 +1,5 @@
-// code that runs over data, applies all cuts and saves a root file with Psi2 pT, y, mass and lts + costheta_HX
-// current cuts: based on trigger and distributions; no mass/lts cut
+// code that runs over MC, applies all cuts and saves a root file with Jpsi pT, y and mass + costheta_HX
+// current cuts: based on trigger and distributions; no mass/ cut
 
 const double gPI = TMath::Pi();
 const double Mprot = 0.9382720;
@@ -61,13 +61,12 @@ double *cos_B(TLorentzVector *B, TLorentzVector *psi, TLorentzVector *beam, TLor
   return ang;
 }
 
-
-void ang_data()
+void ang_MCvhpt()
 {
-  Double_t mmPt, ct, ctErr, vProb, th, phi, lt, lterr, mass, rap;
+  Double_t mmPt, th, phi, mass, rap, lt, lterr;
   double *ang;
+  Float_t ct, ctErr;
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
-  UInt_t trigger;
 
   // beam and target vectors (always the same)
   double pbeam = sqrts/2.;
@@ -79,24 +78,21 @@ void ang_data()
   targ->SetPxPyPzE( 0., 0., -pbeam, Ebeam);
 
   // 2017 tree
-  TFile *fin7 = new TFile("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-UL17.root");
+  TFile *fin7 = new TFile("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-mc-LOCAL17-highpt.root");
   TTree *tree7 = (TTree*)fin7->Get("psi2stree");
-  
-  // setting branch address  
+
   tree7->SetBranchAddress("muP_p4", &muP_p4);
   tree7->SetBranchAddress("muM_p4", &muM_p4);
   tree7->SetBranchAddress("mumu_p4", &mumu_p4);
-  tree7->SetBranchAddress("vProb", &vProb);
-  tree7->SetBranchAddress("trigger", &trigger);
   tree7->SetBranchAddress("ctpv", &ct);
   tree7->SetBranchAddress("ctpv_error", &ctErr);
-  
-  int dEvt = tree7->GetEntries();
-  int perc = dEvt / 100;
+ 
+  int mEvt = tree7->GetEntries();
+  int perc = mEvt / 100;
 
-  TFile *fout7 = new TFile("data17_cos.root", "recreate");
-  TTree *newtree7 = new TTree("data_cos", "");
-  
+  TFile *fout7 = new TFile("MCvh17_cos.root", "recreate");
+  TTree *newtree7 = new TTree("MC_cos", "");
+
   newtree7->Branch("theta", &th);
   newtree7->Branch("phi", &phi);
   newtree7->Branch("dimPt", &mmPt);
@@ -105,52 +101,46 @@ void ang_data()
   newtree7->Branch("Mass", &mass);
   newtree7->Branch("Rap", &rap);
 
-  for(int i = 0; i < dEvt; i++) {
+  for(int i = 0; i < mEvt; i++) {
     tree7->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
-	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
-	vProb > 0.01 &&
-	(trigger&8) == 8)
+	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4  )
       {
 	mmPt = mumu_p4->Pt();
 	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
 	lt = ct;
 	lterr = ctErr;
-
+	
 	ang = cos_B(mumu_p4, muP_p4, beam, targ);
 	th = ang[0];
 	phi = ang[1];
-	
+
 	newtree7->Fill();
-	
       }
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2017 data" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2017 MC" << endl; 
   }
-  
+
   fout7->Write();
   fout7->Close();
   fin7->Close();
   
   // 2018 tree
-  TFile *fin8 = new TFile("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-UL18.root");
+  TFile *fin8 = new TFile("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-mc-LOCAL18-highpt.root");
   TTree *tree8 = (TTree*)fin8->Get("psi2stree");
-  
-  // setting branch address  
+
   tree8->SetBranchAddress("muP_p4", &muP_p4);
   tree8->SetBranchAddress("muM_p4", &muM_p4);
   tree8->SetBranchAddress("mumu_p4", &mumu_p4);
-  tree8->SetBranchAddress("vProb", &vProb);
-  tree8->SetBranchAddress("trigger", &trigger);
   tree8->SetBranchAddress("ctpv", &ct);
   tree8->SetBranchAddress("ctpv_error", &ctErr);
-  
-  dEvt = tree8->GetEntries();
-  perc = dEvt / 100;
+ 
+  mEvt = tree8->GetEntries();
+  perc = mEvt / 100;
 
-  TFile *fout8 = new TFile("data18_cos.root", "recreate");
-  TTree *newtree8 = new TTree("data_cos", "");
-  
+  TFile *fout8 = new TFile("MCvh18_cos.root", "recreate");
+  TTree *newtree8 = new TTree("MC_cos", "");
+
   newtree8->Branch("theta", &th);
   newtree8->Branch("phi", &phi);
   newtree8->Branch("dimPt", &mmPt);
@@ -159,30 +149,28 @@ void ang_data()
   newtree8->Branch("Mass", &mass);
   newtree8->Branch("Rap", &rap);
 
-  for(int i = 0; i < dEvt; i++) {
+  for(int i = 0; i < mEvt; i++) {
     tree8->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
-	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
-	vProb > 0.01 &&
-	(trigger&8) == 8)
+	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4  )
       {
 	mmPt = mumu_p4->Pt();
 	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
 	lt = ct;
 	lterr = ctErr;
-
+	
 	ang = cos_B(mumu_p4, muP_p4, beam, targ);
 	th = ang[0];
 	phi = ang[1];
-	
+
 	newtree8->Fill();
-	
       }
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2018 data" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2018 MC" << endl; 
   }
-  
+
   fout8->Write();
   fout8->Close();
   fin8->Close();
+  
 }

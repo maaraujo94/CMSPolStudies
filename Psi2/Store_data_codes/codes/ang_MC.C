@@ -63,7 +63,7 @@ double *cos_B(TLorentzVector *B, TLorentzVector *psi, TLorentzVector *beam, TLor
 
 void ang_MC()
 {
-  Double_t mmPt, th, phi, mass, rap, lts;
+  Double_t mmPt, th, phi, mass, rap, lt, lterr;
   double *ang;
   Float_t ct, ctErr;
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
@@ -96,20 +96,21 @@ void ang_MC()
   newtree7->Branch("theta", &th);
   newtree7->Branch("phi", &phi);
   newtree7->Branch("dimPt", &mmPt);
-  newtree7->Branch("lts", &lts);
+  newtree7->Branch("lt", &lt);
+  newtree7->Branch("lterr", &lterr);
   newtree7->Branch("Mass", &mass);
   newtree7->Branch("Rap", &rap);
 
   for(int i = 0; i < mEvt; i++) {
     tree7->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
-	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
-	abs(mumu_p4->Rapidity()) < 1.2  )
+	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4  )
       {
 	mmPt = mumu_p4->Pt();
-	rap = abs(mumu_p4->Rapidity());
+	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
-	lts = ct/ctErr;
+	lt = ct;
+	lterr = ctErr;
 	
 	ang = cos_B(mumu_p4, muP_p4, beam, targ);
 	th = ang[0];
@@ -143,20 +144,21 @@ void ang_MC()
   newtree8->Branch("theta", &th);
   newtree8->Branch("phi", &phi);
   newtree8->Branch("dimPt", &mmPt);
-  newtree8->Branch("lts", &lts);
+  newtree8->Branch("lt", &lt);
+  newtree8->Branch("lterr", &lterr);
   newtree8->Branch("Mass", &mass);
   newtree8->Branch("Rap", &rap);
 
   for(int i = 0; i < mEvt; i++) {
     tree8->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
-	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 &&
-	abs(mumu_p4->Rapidity()) < 1.2  )
+	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4  )
       {
 	mmPt = mumu_p4->Pt();
-	rap = abs(mumu_p4->Rapidity());
+	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
-	lts = ct/ctErr;
+	lt = ct;
+	lterr = ctErr;
 	
 	ang = cos_B(mumu_p4, muP_p4, beam, targ);
 	th = ang[0];
