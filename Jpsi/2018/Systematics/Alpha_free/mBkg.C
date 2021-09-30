@@ -99,7 +99,7 @@ void mBkg()
 
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[nPtBins];
-  TFile *fin = new TFile("files/mStore.root");
+  TFile *fin = new TFile("../../PR_fit/files/mStore.root");
   for(int ip = 0; ip < nPtBins; ip++) {
     fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
     h_d1d[ip]->SetDirectory(0);
@@ -126,7 +126,7 @@ void mBkg()
   } 
 
   // get the MC n and alpha values for fixing
-  TFile *inMC = new TFile("../bkgFits/files/MCfit_G.root");
+  TFile *inMC = new TFile("../../bkgFits/files/MCfit_G.root");
   double n_v = ((TGraphErrors*)inMC->Get("fit_n"))->GetY()[0];
   double alpha_v = ((TGraphErrors*)inMC->Get("fit_alpha"))->GetY()[0]; 
   double fG_v = ((TGraphErrors*)inMC->Get("fit_fG"))->GetY()[0]/100.;
@@ -145,6 +145,8 @@ void mBkg()
   sigG_v1 = do_round(sigG_v1*pow(10, nm))/pow(10, nm);
   nm = ceil(-log10(sigG_v2))+3;	
   sigG_v2 = do_round(sigG_v2*pow(10, nm))/pow(10, nm);
+
+  alpha_v = 2.0;
   
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
@@ -163,11 +165,10 @@ void mBkg()
       if(j != 7) {
 	f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
 	f_cb->SetParameter(j*nPtBins+i, par_v[j]);
-	// fixing mu, f so only one value matters
-	if(j < 3  && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-	// fixing n, alpha, fG to MC value
-	else if((j == 5 || j == 6 || j == 9)) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-	//else if((j == 5 || j == 9)) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+	// fixing mu, f, alpha so only one value matters
+	if((j < 3 || j == 6)  && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+	// fixing n, fG to MC value
+	else if((j == 5 || j == 9)) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 
 	// setting the linear parameters sigma_1,2
 	else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);

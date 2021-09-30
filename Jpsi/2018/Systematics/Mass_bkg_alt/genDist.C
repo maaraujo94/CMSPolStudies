@@ -13,7 +13,7 @@ void genDist()
   const double nGen = 1e7;
   
   // get binning from the stored data histos
-  TFile *infile = new TFile("files/histoStore.root");
+  TFile *infile = new TFile("../../PR_fit/files/histoStore.root");
   TH2D *hist = new TH2D();
   infile->GetObject(Form("dataH_ab"), hist);
   hist->SetDirectory(0);
@@ -25,16 +25,16 @@ void genDist()
   double maxX = hist->GetXaxis()->GetBinUpEdge(nBinsX);
 
   // get fit parameters from storage
-  TFile *infL = new TFile("files/store_fL.root");
+  TFile *infL = new TFile("../../PR_fit/files/store_fL.root");
   double fL = ((TGraphErrors*)infL->Get("g_fL"))->GetY()[0];
   infL->Close();
   // get LSB lambda2, lambda4
-  TFile *inLSB = new TFile("files/LSB2d_fitres.root");
+  TFile *inLSB = new TFile("../../PR_fit/files/LSB2d_fitres.root");
   double L_l2 = ((TGraphErrors*)inLSB->Get("fit_l2"))->GetY()[0];
   double L_l4 = ((TGraphErrors*)inLSB->Get("fit_l4"))->GetY()[0];
   inLSB->Close();
   // get RSB lambda2, lambda4
-  TFile *inRSB = new TFile("files/RSB2d_fitres.root");
+  TFile *inRSB = new TFile("../../PR_fit/files/RSB2d_fitres.root");
   double R_l2 = ((TGraphErrors*)inRSB->Get("fit_l2"))->GetY()[0];
   double R_l4 = ((TGraphErrors*)inRSB->Get("fit_l4"))->GetY()[0];
   inRSB->Close();

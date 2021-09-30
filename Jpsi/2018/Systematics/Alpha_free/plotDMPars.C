@@ -6,15 +6,13 @@ void plotDMPars()
   int pc[] = {kBlack, kBlue, kViolet};
   const int n_p = 12, n_m = 1;
   string modn[] = {"", "G"};
-  string legn[] = {"no G", "with G"};
-
+  
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fBG", "fG", "sigG"};
   string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "#lambda", "f_{bkg}", "f_{G}", "#sigma_{G}"};
   string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "#lambda (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
-  double parmin[] = {0,    1e1, 3090, 0,   32, 1.0, 2.0,  5e0, 0, 0.,  0,   0};
-  double parmax[] = {100., 1e4, 3100, 100, 46, 1.4, 2.25, 3e4, 5, 15., 100, 100};
-  //double parmax[] = {100., 1e4, 3100, 100, 46, 1.4, 2.25, 3e4, 50, 15., 100, 100};
+  double parmin[] = {0,    1e1, 3090, 0,   32, 1.0, 2.0,  3e0, 0, 0.,  0,   0};
+  double parmax[] = {100., 1e4, 3100, 100, 46, 1.4, 2.25, 5e3, 60, 15., 100, 100};
  
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];

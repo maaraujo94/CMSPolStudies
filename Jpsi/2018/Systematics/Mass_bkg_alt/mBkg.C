@@ -45,7 +45,7 @@ double g_exp(double m, double N, double sig, double m0)
 }
 double bkg_exp(double m, double p1, double p2)
 {
-  return p1 * exp( - m / p2 );
+  return p2 * ( - p1 * m + 1.);
 }
 
 // crystal ball function parser - called by TF2
@@ -69,13 +69,13 @@ double mmod_func(double *x, double *par)
   double n = par[5*nPtBins]; // n is constant in pt
   double alpha = par[6*nPtBins]; // alpha is constant in pt
 
-  double NB = par[7*nPtBins+pt_bin];
-  double ld = par[8*nPtBins+pt_bin];
+  double m_bkg = par[7*nPtBins+pt_bin];
+  double b_bkg = par[8*nPtBins+pt_bin];
 
   double fG = par[9*nPtBins]; // fG constant in pT
   double sigG = par[10*nPtBins] * pt + par[10*nPtBins+1]; // sigG linear in pT
   
-  double func = f * cb_exp(m, NS, sig1, mu, n, alpha) + (1.-f-fG) * cb_exp(m, NS, sig2, mu, n, alpha) + fG * g_exp(m, NS, sigG, mu) + bkg_exp(m, NB, ld);
+  double func = f * cb_exp(m, NS, sig1, mu, n, alpha) + (1.-f-fG) * cb_exp(m, NS, sig2, mu, n, alpha) + fG * g_exp(m, NS, sigG, mu) + bkg_exp(m, m_bkg, b_bkg);
   return func;
 }
 
@@ -99,7 +99,7 @@ void mBkg()
 
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[nPtBins];
-  TFile *fin = new TFile("files/mStore.root");
+  TFile *fin = new TFile("../../PR_fit/files/mStore.root");
   for(int ip = 0; ip < nPtBins; ip++) {
     fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
     h_d1d[ip]->SetDirectory(0);
@@ -126,7 +126,7 @@ void mBkg()
   } 
 
   // get the MC n and alpha values for fixing
-  TFile *inMC = new TFile("../bkgFits/files/MCfit_G.root");
+  TFile *inMC = new TFile("../../bkgFits/files/MCfit_G.root");
   double n_v = ((TGraphErrors*)inMC->Get("fit_n"))->GetY()[0];
   double alpha_v = ((TGraphErrors*)inMC->Get("fit_alpha"))->GetY()[0]; 
   double fG_v = ((TGraphErrors*)inMC->Get("fit_fG"))->GetY()[0]/100.;
@@ -148,26 +148,25 @@ void mBkg()
   
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
-  string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
-  double par_v[] =  {1., 0.5, 3.1, 1e-4, 1e-4, n_v, alpha_v, 1., 0.7, fG_v, sigG_v1};
+  string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fG", "sigG"};
+  double par_v[] =  {1., 0.5, 3.1, 1e-4, 1e-4, n_v, alpha_v, 0.1, 1., fG_v, sigG_v1};
   double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1.,      1., 1.,  1.,   sigG_v2};
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
     // normalizations
     f_cb->SetParName(i, Form("NS_%d", i));
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
-    f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
-    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/2.);
+    f_cb->SetParName(8*nPtBins+i, Form("b_bkg_%d", i));
+    f_cb->SetParameter(8*nPtBins+i, h_d1d[i]->GetBinContent(4));
 
     for(int j = 1; j < 11; j++) { // between NS, NB
-      if(j != 7) {
+      if(j != 8) {
 	f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
 	f_cb->SetParameter(j*nPtBins+i, par_v[j]);
 	// fixing mu, f so only one value matters
 	if(j < 3  && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	// fixing n, alpha, fG to MC value
 	else if((j == 5 || j == 6 || j == 9)) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-	//else if((j == 5 || j == 9)) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 
 	// setting the linear parameters sigma_1,2
 	else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
@@ -187,7 +186,7 @@ void mBkg()
 
   // tf1 for plotting in the 1D bins
   TF1 *f_1d = new TF1("f_1d", "[1]*cb_exp(x,[0],[3],[2],[5],[6]) + (1.-[1]-[9]) * cb_exp(x,[0],[4],[2],[5],[6]) + [9]*g_exp(x, [0], [10], [2])+bkg_exp(x,[7],[8])", m_min[0], m_max[2]);
-  f_1d->SetParNames("NS", "f", "mu", "sigma1", "sigma2", "n", "alpha", "p1", "lambda", "fG", "sigG");
+  f_1d->SetParNames("NS", "f", "mu", "sigma1", "sigma2", "n", "alpha", "m_bkg", "b_bkg", "fG", "sigG");
 
   // separate parts of the fit function
   TF1 *fp1 = new TF1("fp1", "[1]*cb_exp(x,[0],[3],[2],[4],[5])", m_min[0], m_max[2]);
@@ -195,7 +194,7 @@ void mBkg()
   TF1 *fp2 = new TF1("fp2", "(1.-[1]-[6]) * cb_exp(x,[0],[3],[2],[4],[5])", m_min[0], m_max[2]);
   fp2->SetParNames("NS", "f", "mu", "sigma2", "n", "alpha", "fG");
   TF1 *fp3 = new TF1("fp3", "bkg_exp(x,[0],[1])", m_min[0], m_max[2]);
-  fp3->SetParNames("NB", "lambda");
+  fp3->SetParNames("m_bkg", "b_bkg");
   TF1 *fp4 = new TF1("fp4", "[1]*g_exp(x,[0],[3],[2])", m_min[0], m_max[2]);
   fp4->SetParNames("NS", "fG", "mu", "sigmaG");
 
@@ -210,7 +209,7 @@ void mBkg()
 
      // storing parameters
     for(int j = 0; j < 11; j++) {
-      if(j == 0 || j == 7 || j == 8) { // free parameters NS, NB, lambda
+      if(j == 0 || j == 7 || j == 8) { // free parameters NS, m_bkg, b_bkg
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins+i_pt);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins+i_pt);
       }
@@ -383,7 +382,7 @@ void mBkg()
   
   // storing the free parameters
   TFile *fout = new TFile("files/mfit.root", "recreate");
-  string parlab[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
+  string parlab[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fG", "sigG"};
 
   for(int i_p = 0; i_p < 11; i_p++) {
     TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, pars[i_p], pt_err, epars[i_p]);
@@ -403,7 +402,7 @@ void mBkg()
   ofstream ftex;
   ftex.open(Form("text_output/mfit_res.tex"));
   ftex << "\\begin{tabular}{c||c|c|c|c|c|c|c|c|c|c|c||c}\n";
-  ftex << "$\\pt$ (GeV) & $N_{SR}$ & $f_{CB1}$ (\\%) & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ & $\\alpha$ & $N_{BG}$ & $\\lambda$ (GeV) & $f_G$ (\\%) & $\\sigma_G$ (MeV) & $f_{bkg}$ (\\%) \\\\\n";
+  ftex << "$\\pt$ (GeV) & $N_{SR}$ & $f_{CB1}$ (\\%) & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ & $\\alpha$ & $m_{bkg}$ (GeV$^{-1}$) & $b_{bkg}$ & $f_G$ (\\%) & $\\sigma_G$ (MeV) & $f_{bkg}$ (\\%) \\\\\n";
   ftex << "\\hline\n";
 
   for(int i = 0; i < nPtBins; i++) {

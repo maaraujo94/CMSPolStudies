@@ -213,6 +213,47 @@ void plotMMseq()
   c->SaveAs("plots/MCMass/par_2.pdf");
   c->Clear();
 
+  // also draw n, alpha
+  TH1F *f2na = c->DrawFrame(pt_min, parmin[5], pt_max, parmax[6]);
+  f2na->SetXTitle("p_{T} (GeV)");
+  f2na->SetYTitle("n, #alpha");
+  f2na->GetYaxis()->SetTitleOffset(1.8);
+  f2na->GetYaxis()->SetLabelOffset(0.01);
+  f2na->SetTitle(Form("2018 n, #alpha (#mu, f constant)"));
+
+  c->SetLogy(0);
+  
+  // free mode always plots points
+  g_par[5][2]->SetLineColor(kBlack);
+  g_par[5][2]->SetMarkerColor(kBlack);
+  g_par[5][2]->SetMarkerStyle(20);
+  g_par[5][2]->SetMarkerSize(.75);
+  g_par[5][2]->Draw("p");
+
+  g_par[5+1][2]->SetLineColor(kBlue);
+  g_par[5+1][2]->SetMarkerColor(kBlue);
+  g_par[5+1][2]->SetMarkerStyle(24);
+  g_par[5+1][2]->SetMarkerSize(.75);
+  g_par[5+1][2]->Draw("p");
+
+  TLegend *leg2na = new TLegend(0.75, 0.5, 0.9, 0.65);
+  leg2na->SetTextSize(0.03);
+  leg2na->AddEntry(g_par[5][2], "n", "pl");
+  leg2na->AddEntry(g_par[5+1][2], "#alpha", "pl");
+  leg2na->Draw();
+  
+  TLine *lna21 = new TLine(46, parmin[5], 46, parmax[6]);
+  lna21->SetLineColor(kBlack);
+  lna21->SetLineStyle(kDashed);
+  lna21->Draw();
+  TLine *lna22 = new TLine(66, parmin[5], 66, parmax[6]);
+  lna22->SetLineColor(kBlack);
+  lna22->SetLineStyle(kDashed);
+  lna22->Draw();
+    
+  c->SaveAs("plots/MCMass/par_2_na.pdf");
+  c->Clear();
+
   // do the plotting - n, alpha for fixed mu, f, sigmas (MODEL 3)
   for(int i_p = 5; i_p < n_p; i_p++) {
 
@@ -323,7 +364,7 @@ void plotMMseq()
       }
     }
 
-    TLine *vl = new TLine(pt_min, g_par[i_p][i_p-1]->GetY()[0], pt_max, g_par[i_p][i_p-1]->GetY()[0]);
+    TLine *vl = new TLine(pt_min, g_par[i_p][5]->GetY()[0], pt_max, g_par[i_p][5]->GetY()[0]);
     vl->SetLineStyle(kDashed);
     vl->SetLineColor(kBlack);
     vl->Draw();

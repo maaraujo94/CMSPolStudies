@@ -1,5 +1,4 @@
-// macro to compare fit parameters w/ and w/o Gaussian
-// get relative position on an axis (pi, pf)
+// macro to plot fit parameters
 void plotDMPars()
 {
   // aux arrays
@@ -8,13 +7,12 @@ void plotDMPars()
   string modn[] = {"", "G"};
   string legn[] = {"no G", "with G"};
 
-  string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fBG", "fG", "sigG"};
-  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "#lambda", "f_{bkg}", "f_{G}", "#sigma_{G}"};
-  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "#lambda (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
+  string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fBG", "fG", "sigG"};
+  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "m_{bkg}", "b_{bkg}", "f_{bkg}", "f_{G}", "#sigma_{G}"};
+  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "m_{bkg} (GeV^{-1})", "b_{bkg} per 1 GeV", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
-  double parmin[] = {0,    1e1, 3090, 0,   32, 1.0, 2.0,  5e0, 0, 0.,  0,   0};
-  double parmax[] = {100., 1e4, 3100, 100, 46, 1.4, 2.25, 3e4, 5, 15., 100, 100};
-  //double parmax[] = {100., 1e4, 3100, 100, 46, 1.4, 2.25, 3e4, 50, 15., 100, 100};
+  double parmin[] = {0,    1e1, 3090, 0,   32, 1.0, 2.0,  0, 5e0, 0.,  0,   0};
+  double parmax[] = {100., 1e4, 3100, 100, 46, 1.4, 2.25, 0.3, 5e3, 15., 100, 100};
  
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
@@ -44,7 +42,7 @@ void plotDMPars()
       double *ye = g_par[i_m][i]->GetEY();
 
       for(int j = 0; j < n; j++) {
-	if(i == 1 || i == 7) {
+	if(i == 1 || i == 8) {
 	  yv[j] /= (2.*xe[j]);
 	  ye[j] /= (2.*xe[j]);
 	}
@@ -67,7 +65,7 @@ void plotDMPars()
 
     if(i_p == 4) continue;
 
-    if(i_p == 1 || i_p == 7) c->SetLogy();
+    if(i_p == 1 || i_p == 8) c->SetLogy();
     else c->SetLogy(0);
     
     TH1F *fl = c->DrawFrame(pt_min, parmin[i_p], pt_max, parmax[i_p]);
@@ -149,7 +147,7 @@ void plotDMPars()
     }
 
     int isLog = 0;
-    if(i_p == 1 || i_p == 7 ) isLog = 1;
+    if(i_p == 1 || i_p == 9 ) isLog = 1;
 
     c->SaveAs(Form("plots/mass/par_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
