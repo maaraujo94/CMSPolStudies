@@ -1,12 +1,4 @@
-// macro to generate the sideband costh dists in the final binning
-
-// macro for rounding to integers
-int do_round(double val)
-{
-  int valR = (int)val;
-  if (val-valR > 0.5) return valR+1;
-  else return valR;
-}
+// macro to generate the sideband costh dists in the final binning, with unc
 
 // the SB/MC model function
 double fit_model(double x, double l2, double l4) {
@@ -15,8 +7,6 @@ double fit_model(double x, double l2, double l4) {
 
 void genDist()
 {
-  const double nGen = 1e7;
-  
   // get binning from the stored data histos
   TFile *infile = new TFile("../../PR_fit/files/histoStore.root");
   TH2D *hist = new TH2D();
@@ -54,18 +44,20 @@ void genDist()
 
   // create the histograms - SB
   TH2D *h_LSB = new TH2D(Form("h_LSB"), "2018 LSB/MC", nBinsX, minX, maxX, nBinsY, yBins);
-  //h_LSB->Sumw2();
   TH2D *h_RSB = new TH2D(Form("h_RSB"), "2018 RSB/MC", nBinsX, minX, maxX, nBinsY, yBins);
-  //h_RSB->Sumw2();
+
+  // determine the uncertainty band at each pT and cost value
   double ln = 10000;
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
     for(int i_c = 0; i_c < nBinsX; i_c++) {
       double cost = minX + (i_c+0.5) * dX;
+      // LSB calculations
       h_LSB->SetBinContent(i_c+1, i_pt+1, fit_model(cost, L_l2, L_l4));
       double d2 = (fit_model(cost, L_l2 + L_el2/ln, L_l4) - fit_model(cost, L_l2, L_l4))/(L_el2/ln);
       double d4 = (fit_model(cost, L_l2, L_l4 + L_el4/ln) - fit_model(cost, L_l2, L_l4))/(L_el4/ln);
       h_LSB->SetBinError(i_c+1, i_pt+1, sqrt( pow(d2 * L_el2, 2) + pow(d4 * L_el4, 2) + 2*d2*d4*L_cov ));
 
+      // RSB calculations
       h_RSB->SetBinContent(i_c+1, i_pt+1, fit_model(cost, R_l2, R_l4));
       d2 = (fit_model(cost, R_l2 + R_el2/ln, R_l4) - fit_model(cost, R_l2, R_l4))/(R_el2/ln);
       d4 = (fit_model(cost, R_l2, R_l4 + R_el4/ln) - fit_model(cost, R_l2, R_l4))/(R_el4/ln);
@@ -73,21 +65,17 @@ void genDist()
     }
   }
 
+  // define the final bkg/MC dist as the weighted sum using fL
   TH2D *h_SB = new TH2D(Form("h_SB"), "2018 bkg/MC", nBinsX, minX, maxX, nBinsY, yBins);
   h_SB->Add(h_LSB, h_RSB, fL, 1.-fL);
   
   cout << "bkg/MC fully filled" << endl;
-
-  cout << fL << endl;
-  for(int i_c = 0; i_c < nBinsX; i_c++) {
-    cout << h_LSB->GetBinError(i_c+1,1) << " "<< h_RSB->GetBinError(i_c+1, 1) << " "<< h_SB->GetBinError(i_c+1, 1) << endl;
-  }
-  
   
   TFile *fout = new TFile("files/bkgCosModel.root", "recreate");
   h_SB->Write();
   fout->Close();
 
+  // plot the 1d projection of the result (there's no pT dependence)
   TH1D *h_LSB1d = h_LSB->ProjectionX("h_LSB_1d", 1, 1);
   TH1D *h_RSB1d = h_RSB->ProjectionX("h_RSB_1d", 1, 1);
   TH1D *h_SB1d = h_SB->ProjectionX("h_SB_1d", 1, 1);

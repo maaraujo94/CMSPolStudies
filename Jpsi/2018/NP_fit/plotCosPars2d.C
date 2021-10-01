@@ -86,7 +86,6 @@ void plotCosPars2d()
 
       // constant pars
       if( i > 0) {
-	cout << i_inp << " " << i << " " << i+i_inp*(n_p-1) << endl;
 	g_par[i]->SetLineColor(i+i_inp*(n_p-1));
 	g_par[i]->SetFillColorAlpha(i+i_inp*(n_p-1), 0.5);
 	g_par[i]->Draw("ce3 same");

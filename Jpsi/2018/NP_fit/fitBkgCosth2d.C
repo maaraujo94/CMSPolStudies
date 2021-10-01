@@ -94,8 +94,8 @@ void fitBkgCosth2d()
       f_fit->SetParameter(i, pHist[i]->GetBinContent(1)*1.1);
     }
     // fit the 2d function to the costh:pT map
-    h_cth[i_inp]->Fit("f_fit");
-
+    TFitResultPtr fitres = h_cth[i_inp]->Fit("f_fit", "S");
+    
     // tf1 for plotting in the 1D bins
     TF1 *f_1d = new TF1("f_1d", "[0]*(1+[1]*x*x+[2]*pow(x,4))", minX, maxX);
     f_1d->SetParNames("N", "l_2", "l_4");
@@ -264,7 +264,10 @@ void fitBkgCosth2d()
     }
     TLine *l_chi = new TLine(yBins[0], TMath::Prob(f_fit->GetChisquare(), f_fit->GetNDF()), yBins[nBinsY], TMath::Prob(f_fit->GetChisquare(), f_fit->GetNDF()));
     l_chi->Write(Form("fit_chiP"));
-    
+
+    fitres->SetName("fitres");
+    fitres->Write();
+
     fOut->Close();
  
     // storing the fit results in tex format

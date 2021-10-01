@@ -1,14 +1,6 @@
-#import "../../cosMax/imp_jumpF.C"
-
 // macro to subtract background for pol correction
 
-// macro for rounding to integers
-int do_round(double val)
-{
-  int valR = (int)val;
-  if (val-valR > 0.5) return valR+1;
-  else return valR;
-}
+#import "../../cosMax/imp_jumpF.C"
 
 void bkgSub()
 {
@@ -38,7 +30,7 @@ void bkgSub()
   inBkg->GetObject("h_SB", h_SB2dr);
   h_SB2dr->SetDirectory(0);
   inBkg->Close();
-  // already got the bkg/MC * MC version
+  // get the bkg/MC * MC version right away
   TH2D *h_SB2d = new TH2D();
   h_SB2d = (TH2D*)h_SB2dr->Clone("h_bkg");
   h_SB2d->Sumw2();
@@ -64,6 +56,7 @@ void bkgSub()
   h_fb2d->SetDirectory(0);
   inFracS->Close();
 
+  // NP fraction - still need to add uncertainties
   TGraphErrors *g_fNP = new TGraphErrors();
   TFile *inFracN = new TFile("../../PR_fit/files/ltfit.root");
   inFracN->GetObject("fit_b_fNP", g_fNP);
@@ -90,30 +83,26 @@ void bkgSub()
     // getting the max costh value for the fit, cR
     double cMaxVal = jumpF(cosMax->Integral(pt_min, pt_max)/(pt_max-pt_min));
     
-    // get the base data and MC 1d projections
+    // get the data and MC 1d projections
     TH1D *h_PR = h_PR2d->ProjectionX(Form("h_PRSR_%d", i), i+1, i+1);
     TH1D *h_NP = h_NP2d->ProjectionX(Form("h_NP_%d", i), i+1, i+1);
     TH1D *h_MC = h_MC2d->ProjectionX(Form("h_MC_%d", i), i+1, i+1);
     TH1D *h_SB = h_SB2d->ProjectionX(Form("h_SB_%d", i), i+1, i+1);
+    // get the fbkg 1d projections - easier to propagate unc
     TH1D *h_fbkg = h_fb2d->ProjectionX(Form("h_fbkg_%d", i), i+1, i+1);
     
-    // scale NP dist to unity integral;
+    // scale background dists to unity integral;
     h_NP->Scale(1. / h_NP->Integral());
-    
-    // scale SB dist to unity integral;
     h_SB->Scale(1. / h_SB->Integral());
 
     // PART 3 - scaling background
-    // get the proper scaling factor out of the f_bkg
+    // get the proper scaling factor out of the f_NP
     double f_NP = g_fNP->GetY()[i]/100.;
     double scFac = f_NP * N_sig;
-    // scale the background dist
     h_NP->Scale(scFac);
 
     // get the proper scaling factor out of the f_bkg
-    // first the f_bkg with uncertainty
-    h_SB->Multiply(h_fbkg);
-    // then scale by PRSR events
+    h_SB->Multiply(h_fbkg); // propagating unc
     h_SB->Scale(N_sig);
 
     // PART 4 - signal extraction

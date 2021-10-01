@@ -1,4 +1,4 @@
-double gPI = TMath::Pi();
+// macro to generate distribution plots for f_bkg, to then get the uncertainty
 
 // background function
 double bkg_exp(double m, double p1, double p2)
@@ -7,13 +7,11 @@ double bkg_exp(double m, double p1, double p2)
 }
 
 
-void fSBUnc()
+void fbkgGen()
 {
   int ngen = 1e5; // nr of iterations for generation
   gRandom = new TRandom3(0);
   
-  // PART 1 : the f_bg unc
-
   // define aux vals for plotting
   double m_min[] = {2.94, 3.0, 3.21};
   double m_max[] = {2.95, 3.2, 3.26};
@@ -22,7 +20,7 @@ void fSBUnc()
   fp3->SetParNames("NB", "lambda");
   
   // get fit parameters
-  TFile *inBG = new TFile("../../PR_fit/files/mfit.root");
+  TFile *inBG = new TFile("files/mfit.root");
   int n_par = 2;
   TGraphErrors** g_par = new TGraphErrors*[n_par];
   for(int i = 0; i < n_par; i++) {
@@ -30,6 +28,7 @@ void fSBUnc()
   }
   inBG->Close();
 
+  // get pT binning from the fit pars
   int n_pt = g_par[0]->GetN();
   double ptBins[n_pt+1];
   for(int i = 0; i < n_pt; i++) {
@@ -39,7 +38,7 @@ void fSBUnc()
   
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[n_pt];
-  TFile *fin = new TFile("../../PR_fit/files/mStore.root");
+  TFile *fin = new TFile("files/mStore.root");
   for(int ip = 0; ip < n_pt; ip++) {
     fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
     h_d1d[ip]->SetDirectory(0);
@@ -49,10 +48,10 @@ void fSBUnc()
   // cycle over all pt bins
   TH1F **h_fbg = new TH1F*[n_pt];
   double a_par[n_par];
-  TFile *fout = new TFile("fbg_gen.root", "recreate");
+  TFile *fout = new TFile("files/fbgDists.root", "recreate");
   for(int i_pt = 0; i_pt < n_pt; i_pt++) {
     cout << "running pt bin " << ptBins[i_pt] << " - " << ptBins[i_pt+1] << endl;
-    h_fbg[i_pt] = new TH1F(Form("h_fbg_%d", i_pt), "f_BG", 100, 0, 0.1);
+    h_fbg[i_pt] = new TH1F(Form("h_fbg_%d", i_pt), "f_BG", 300, -0.04, 0.26);
     for(int i_gen = 0; i_gen < ngen; i_gen++) {
       for(int i_par = 0; i_par < n_par; i_par++) {
 	// generate acc'd to gaussian

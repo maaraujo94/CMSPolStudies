@@ -10,18 +10,16 @@
 \contentsline {subsubsection}{\numberline {3.2.1}Running the fit}{4}{subsubsection.3.2.1}
 \contentsline {subsection}{\numberline {3.3}Mass fit}{5}{subsection.3.3}
 \contentsline {subsubsection}{\numberline {3.3.1}Running the fit}{5}{subsubsection.3.3.1}
-\contentsline {subsection}{\numberline {3.4}Plotting the fit parameters}{5}{subsection.3.4}
-\contentsline {section}{\numberline {4}Background fitting: $\qopname \relax o{cos}\theta $ distributions}{6}{section.4}
-\contentsline {subsection}{\numberline {4.1}Background selection}{6}{subsection.4.1}
-\contentsline {subsection}{\numberline {4.2}Storing histograms}{6}{subsection.4.2}
-\contentsline {subsection}{\numberline {4.3}$\qopname \relax o{cos}\theta $ fit}{6}{subsection.4.3}
-\contentsline {subsubsection}{\numberline {4.3.1}Sideband fit}{6}{subsubsection.4.3.1}
-\contentsline {subsubsection}{\numberline {4.3.2}NP fit}{6}{subsubsection.4.3.2}
-\contentsline {subsection}{\numberline {4.4}Plotting the fit parameters}{6}{subsection.4.4}
-\contentsline {section}{\numberline {5}Background subtraction}{7}{section.5}
-\contentsline {subsection}{\numberline {5.1}Getting the background distributions}{7}{subsection.5.1}
-\contentsline {subsection}{\numberline {5.2}Interpolating the background fractions}{7}{subsection.5.2}
-\contentsline {subsection}{\numberline {5.3}Running the subtraction}{7}{subsection.5.3}
-\contentsline {section}{\numberline {6}Final results}{8}{section.6}
-\contentsline {subsection}{\numberline {6.1}$\qopname \relax o{cos}\theta $ fit}{8}{subsection.6.1}
-\contentsline {subsection}{\numberline {6.2}Plotting results}{8}{subsection.6.2}
+\contentsline {subsection}{\numberline {3.4}Plotting the fit parameters}{6}{subsection.3.4}
+\contentsline {section}{\numberline {4}Background fitting: $\qopname \relax o{cos}\theta $ distributions}{7}{section.4}
+\contentsline {subsection}{\numberline {4.1}Background selection}{7}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Storing histograms}{7}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}$\qopname \relax o{cos}\theta $ fit}{7}{subsection.4.3}
+\contentsline {subsubsection}{\numberline {4.3.1}Sideband fit}{7}{subsubsection.4.3.1}
+\contentsline {section}{\numberline {5}Background subtraction}{8}{section.5}
+\contentsline {subsection}{\numberline {5.1}Getting the mass background distributions}{8}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}Interpolating the background fractions}{8}{subsection.5.2}
+\contentsline {section}{\numberline {6}Final results}{9}{section.6}
+\contentsline {subsection}{\numberline {6.1}Running the subtraction}{9}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}$\qopname \relax o{cos}\theta $ fit}{9}{subsection.6.2}
+\contentsline {subsection}{\numberline {6.3}Plotting results}{9}{subsection.6.3}

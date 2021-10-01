@@ -28,31 +28,36 @@
 \section{Cheat sheet: code order}
 
 
-Initial storage
+\textbf{Initial storage}
 \begin{enumerate}
 \item histoSave.C
 \item (cosMax) histoSave.C + getCos.C
+\item bkgSave.C
 \end{enumerate}
 
-Background subtraction
+\textbf{Background subtraction - NP}
 \begin{enumerate}
-\item bkgSave.C
-\item (bkgFits) newMCmass\_G.C
 \item ltBkg.C $\rightarrow$ calls plotLtPars.C
 \begin{itemize}
 \item ltPerPt.C $\rightarrow$ ltPerPt\_muFix.C $\rightarrow$ ltPerPt\_bFix.C
 \end{itemize}
+\end{enumerate}
+
+\textbf{Background subtraction - mass bkg}
+\begin{enumerate}
+\item (bkgFits) newMCmass\_G.C
 \item mBkg.C $\rightarrow$ calls plotDMPars.C
 \item bkgCosth.C
 \item fitBkgCosth2d.C $\rightarrow$ calls plotCosPars2d.C
 \item getfL.C
 \item genDist.C
+\item fbkgGen.C
 \item fitFrac.C
-\item bkgSub.C
 \end{enumerate}
 
-Final fit
+\textbf{Final fit}
 \begin{enumerate}
+\item bkgSub.C
 \item indFit.C
 \item plotRes.C
 \end{enumerate}
@@ -136,8 +141,8 @@ where $\mathcal{H}$ is the Heaviside step function.
 Running a 1d fit with free $\sigma_{1,2}$, $\lambda$, and normalizations $N_{PR}$, $N_{NP}$. We consider three sets of conditions:
 \begin{itemize}
 \item Free $\mu$, $f$
-\item $\mu=0$, free $f$
-\item $\mu=0$, $f=14$ \%
+\item $\mu$ fixed to results of previous fit, free $f$
+\item $\mu$ as above, $f$ fixed to results of previous fit
 \end{itemize} 
 
 \subsubsection{Running the fit}
@@ -148,27 +153,33 @@ Run ltBkg.C to run the 1d fits reading the histos from histoSave.C and outputtin
 
 \subsection{Mass fit}
 
-Fit the mass region $[2.94, 3.26]$ GeV (lifetime in the prompt region). For each $\pt$ bin, fit the signal with a double crystal ball function:
+Fit the mass region $[2.94, 3.26]$ GeV (lifetime in the prompt region). For each $\pt$ bin, fit the signal with a double crystal ball function and a Gaussian:
 \begin{equation}
-f\cdot g_{CB_1}(m_{\mu^+\mu^-})+(1-f)\cdot g_{CB_2}(m_{\mu^+\mu^-}),
+f_{CB1}\cdot g_{CB_1}(m_{\mu^+\mu^-})+(1-f_{CB1}-f_G)\cdot g_{CB_2}(m_{\mu^+\mu^-})+f_G\cdot g_G(m_{\mu^+\mu^-}),
 \end{equation}
 where a crystal ball function $g_{CB}(m_{\mu^+\mu^-})$ is defined by
 \begin{equation}
 g_{CB}(m) = \begin{cases}
 \frac{N_{SR}}{\sqrt{2\pi}\sigma_{CB}}\exp\left(-\frac{(m-\mu)^2}{2\sigma^2_{CB}}\right), & \text{for }\frac{m-\mu}{\sigma_{CB}} > -\alpha \\
 \frac{N_{SR}}{\sqrt{2\pi}\sigma_{CB}}\left(\frac{n}{|\alpha|}\right)^n\exp\left(-\frac{|\alpha|^2}{2}\right)\left(\frac{n}{|\alpha|}-|\alpha|-\frac{m-\mu}{\sigma_{CB}}\right)^{-n}, & \text{for }\frac{m-\mu}{\sigma_{CB}}\leq-\alpha
-\end{cases}.
+\end{cases}
 \end{equation}
-Both CB functions share a common $N_{SR}$, $\mu$, $n$ and $\alpha$, and have independent $\sigma_{1,2}$. The background is modeled with a negative exponential
+and a Gaussian $g_{G}(m_{\mu^+\mu^⁻})$ is defined by
+\begin{equation}
+g_{G}(m) = \frac{N_{SR}}{\sqrt{2\pi}\sigma_{G}}	\exp\left(-\frac{(m-\mu)^2}{2\sigma^2_{G}}\right).
+\end{equation}
+All functions share a common $N_{SR}$, $\mu$ and have independent $\sigma_{1,2,G}$. The CB share $n$ and $\alpha$. The background is modeled with a negative exponential
 \begin{equation}
 N_{BG} \text{e}^{- m / \lambda}
 \end{equation}
 
-Running a 2d fit with constant $f$ and $\mu$, linear $\sigma_{1,2}$ and free $\lambda$ and normalizations $N_{SR}$, $N_{BG}$. The tail parameters $n$ and $\alpha$ are fixed to results of the MC studies (1.2 and 2.15, respectively). 
+Running a 2d fit with constant $f$ and $\mu$, linear $\sigma_{1,2}$ and free $\lambda$ and normalizations $N_{SR}$, $N_{BG}$. The tail parameters $n$ and $\alpha$ are fixed to results of the MC studies, as well as the Gaussian parameters $f_G$ (constant) and $\sigma_G$ (linear in $\pt$). 
 
 \subsubsection{Running the fit}
 
-Run ltBkg.C to run the 2d fit reading the histos from bkgSave.C and outputting all fit parameters as well as $\chi^2/$ndf and mass background fraction per $\pt$ bin, $f_{BG}$. Plots distribution, pulls and relative difference.
+Run mBkg.C to run the 2d fit reading the histos from bkgSave.C and outputting all fit parameters as well as $\chi^2/$ndf and mass background fraction per $\pt$ bin, $f_{bkg}$. Plots distribution, pulls and relative difference.
+
+\pagebreak
 
 \subsection{Plotting the fit parameters}
 
@@ -196,14 +207,14 @@ LSB background selection:
 \begin{itemize}
 \item $M(\mu\mu)\in[2.92,2.95]$ GeV
 \item $|y(\mu\mu)|<1.2$
-\item $|\ell| < 0.01$ cm
+\item $|c\tau| < 0.005$ cm
 \end{itemize}
 
 RSB background selection:
 \begin{itemize}
 \item $M(\mu\mu)\in[3.21,3.28]$ GeV
 \item $|y(\mu\mu)|<1.2$
-\item $|\ell| < 0.01$ cm
+\item $|c\tau| < 0.005$ cm
 \end{itemize}
 
 \subsection{Storing histograms}
@@ -214,63 +225,50 @@ Run bkgHisto.C to store the 2d histos ($\pt$ vs $\cost$) of data/MC for the two 
 
 For each $\pt$ bin, fit the distribution with
 \begin{equation}
-f_{\cost}^{SB} = N\left(1+\lambda_2(\cost)^2+\lambda_4(\cost)^4\right),\hspace{0.5cm}f_{\cost}^{NP} = N\left(1+\lambda_{NP}(\cost)^2\right)
+f_{\cost}^{SB} = N\left(1+\lambda_2(\cost)^2+\lambda_4(\cost)^4\right)
 \end{equation}
 
 \subsubsection{Sideband fit}
 
-Running a 1d fit with normalization $N$ free and $\lambda_2$, $\lambda_4$ successively fixed to their central values (considered constant in $\pt$).
+Running a 2d fit with normalization $N$ free and $\lambda_2$, $\lambda_4$ constant in $\pt$. Outputs all fit parameters per $\pt$ bin. Plots distributions, pulls and relative difference.
 
-Also running a 2d fit with normalization $N$ free and $\lambda_2$, $\lambda_4$ constant in $\pt$.
-
-Run fitBkgCosth.C to run the 1d fit or fitBkgCosth2d.C to run the 2d fit. Outputs all fit parameters per $\pt$ bin. Plots distributions, pulls and relative difference.
-
-\subsubsection{NP fit}
-
-Running a 1d fit with normalization $N$ and $\lambda_{NP}$ free.
-
-Run fitNPCosth.C to run the 1d fit. Outputs all fit parameters per $\pt$ bin. Plots distributions, pulls and relative difference.
-
-\subsection{Plotting the fit parameters}
-
-The sideband fit parameters are plotted with plotCosPars.C or plotCosPars2d.C. This plots 
-\begin{itemize}
-\item Parameters $N$, $\lambda_2$ and $\lambda_4$ 
-\item For the 1d fit, $P(\chi^2)$
-\end{itemize}
-Can also call plotCosPars\_both.C to superimpose fit parameters from each model.
+The sideband fit parameters are plotted with plotCosPars2d.C
 
 \pagebreak
 
 \section{Background subtraction}
 
-\subsection{Getting the background distributions}
+\subsection{Getting the mass background distributions}
 
-Generate the background $\cost$ distributions using the above fit parameters, in the binning of the data. Done with genDist.C, with histos stored in bkgCosModel.root. Uses result of $\cost$ models and parameter $f_L = 53.3$ \% (currently fixed based on a prior test - code getfL.C).
+Generate the background $\cost$ distributions using the above fit parameters, according to the relative proportion given by $f_L$. This parameter is determined with getfL.C, and fixed to its central value (around 53.3\%). The distributions are obtained with their associated uncertainty, obtained by error propagation of the fit results.
+
+The distributions are obtained in the 17 $\pt$ bins of the data. Done with genDist.C, with histos stored in bkgCosModel.root.
 
 \subsection{Interpolating the background fractions}
 
-Fit the mass background fraction with 
+For each of the 7 $\pt$ bins of the mass background framework, generate 1e5 pairs of mass bkg function parameters $N_{BG}$, $\lambda$, according to a Gaussian with mean value and standard deviation given by the fit result and uncertainty. For each event, determine the resulting $f_{bkg}$. This is done with fbkgGen.C
+
+Taking the resulting distributions, define $f_{bkg}$ at each $\pt$ bin as the mean value, and its uncertainty as the standard deviation. Fit the mass background fraction, now with propagated uncertainties, with 
 \begin{equation}
 M\left(1-e^{-a\cdot(\pt-\mu)}\right)
 \end{equation}
-where $M = \frac{0.029}{1-e^{-a\cdot(20-\mu)}}$, so that $f(20) = 0.029$. Code fitFrac.C. Plots the two background fractions and stores the graphs and the fit functions. $f_{NP}$ is also fitted, but the fit isn't used.
-
-\subsection{Running the subtraction}
-
-Running code bkgSub.C runs the subtraction over the fine $\pt$ bins. Plots data/MC $\cost$ dists for PR SR, NP SR, PR SB and background-subtracted prompt J/$\psi$. Stores
-\begin{itemize}
-\item 2d $\cost$ distributions of the PR SR data/MC, NP SR data/MC, PR SB data/MC (interpolated to the signal region)
-\item 2d $\cost$ distributions of the NP-subtracted PR SR data/MC and the background-subtracted PR SR data/MC (the prompt J/$\psi$)
-\end{itemize}
+with $\mu=0$ for current tests. Code fitFrac.C. Plots $f_{bkg}$ and stores the graph and the fit function, as well as the histogram with propagated uncertainties to be used in the background subtraction.
 
 \pagebreak
 
 \section{Final results}
 
+\subsection{Running the subtraction}
+
+Running code bkgSub.C runs the subtraction over the fine $\pt$ bins. Stores
+\begin{itemize}
+\item 2d $\cost$ distributions of the PR SR data/MC, NP SR data/MC, PR SB data/MC (interpolated to the signal region)
+\item 2d $\cost$ distributions of the NP-subtracted PR SR data/MC and the background-subtracted PR SR data/MC (the prompt J/$\psi$)
+\end{itemize}
+
 \subsection{$\cost$ fit}
 
-Code indFit.C runs the final fit, for  Data, NP, prompt and prompt J/$\psi$. Plots the distributions with superimposed fit on data and prompt J/$\psi$ and $\lambda_\theta$ results. Stores the fit $A$, $\lambda_\theta$ and $\chi^2$, $ndf$ for all cases. 
+Code indFit.C runs the final fit, for  Data, NP, prompt and prompt J/$\psi$ $|\cost|$ distributions. Plots the distributions with superimposed fit on Peal, Prompt dimuon, and prompt J/$\psi$ and $\lambda_\theta$ results. Stores the fit $A$, $\lambda_\theta$ and $\chi^2$, $ndf$ for all cases. 
 
 \subsection{Plotting results}
 

@@ -1,8 +1,8 @@
-// macro to fit the background fractions fNP and fSB
+// macro to fit the background fraction f_bkg
 void fitFrac()
 { 
-  // get background fractions
-  TFile *fin1 = new TFile("files/fbkg_unc.root");
+  // get background fraction
+  TFile *fin1 = new TFile("files/fbkgUnc.root");
   TGraphErrors *fSB = (TGraphErrors*)fin1->Get("f_bkg");
   fin1->Close();
 
@@ -21,6 +21,7 @@ void fitFrac()
   fSB->SetMarkerStyle(20);
   fSB->Draw("p");
 
+  // the fit function
   TF1 *f_fit1 = new TF1("fit_SB", "[0]*(1-exp(-[1]*(x-[2])))", 0, 125);
   f_fit1->SetParNames("M", "a", "mu");
   f_fit1->SetParameters(10, 0.01, 1.);
@@ -32,9 +33,6 @@ void fitFrac()
 
   c->SaveAs("fSB_fit.pdf");
   c->Clear();
-
-
-  //f_fit1->SetParameter(0, f_fit1->GetParameter(0)/100.);
 
   // now to generate an uncertainty band over the 17 pT bins
   double M_v = f_fit1->GetParameter(0), a_v = f_fit1->GetParameter(1);
@@ -54,7 +52,8 @@ void fitFrac()
   double minX = hist->GetXaxis()->GetBinLowEdge(1);
   double maxX = hist->GetXaxis()->GetBinUpEdge(nBinsX);
   double dX = (maxX-minX)/nBinsX;
-    
+
+  // f_bkg(pT) but generating 2d map so it's easier to apply uncertainties
   TH2D *h_fbkg = new TH2D("h_fbkg", "2018 f_{bkg}", nBinsX, minX, maxX, nBinsY, yBins);
   double ln = 10000;
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
@@ -72,6 +71,7 @@ void fitFrac()
     }
   }
 
+  // plotting the 1d projection into pT
   TH1D* h_fbkgpt = h_fbkg->ProjectionY("h_fbkgpd", 1, 1);
   
   h_fbkgpt->SetStats(0);
@@ -80,11 +80,12 @@ void fitFrac()
   f_fit1->Draw("same");
   fSB->Draw("p");
 
-  c->SaveAs("band_comp.pdf");
+  c->SaveAs("plots/fBG_band.pdf");
   c->Clear();
   
   c->Destructor();
 
+  // scale f_bkg down from percentage
   f_fit1->SetParameter(0, f_fit1->GetParameter(0)/100.);
   h_fbkg->Scale(1./100.);
   
