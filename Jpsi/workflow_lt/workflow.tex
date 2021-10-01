@@ -12,6 +12,7 @@
 \usepackage{xcolor}
 \newcommand{\pt}{p_\text{T}}
 \newcommand{\cost}{\cos\theta}
+\newcommand{\jpsi}{\text{J}/\psi}
 
 \newcommand{\loc}{/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/2018/bkgFits}
 
@@ -35,7 +36,7 @@
 \item bkgSave.C
 \end{enumerate}
 
-\textbf{Background subtraction - NP}
+\textbf{Background fits - NP}
 \begin{enumerate}
 \item ltBkg.C $\rightarrow$ calls plotLtPars.C
 \begin{itemize}
@@ -43,7 +44,7 @@
 \end{itemize}
 \end{enumerate}
 
-\textbf{Background subtraction - mass bkg}
+\textbf{Background fits - mass bkg}
 \begin{enumerate}
 \item (bkgFits) newMCmass\_G.C
 \item mBkg.C $\rightarrow$ calls plotDMPars.C
@@ -51,8 +52,14 @@
 \item fitBkgCosth2d.C $\rightarrow$ calls plotCosPars2d.C
 \item getfL.C
 \item genDist.C
+\end{enumerate}
+
+\textbf{Background functions}
+\begin{enumerate}
 \item fbkgGen.C
+\item fNPGen.C
 \item fitFrac.C
+\item fNPcorr.C (this point onwards requires running the NP\_fit framework)
 \end{enumerate}
 
 \textbf{Final fit}
@@ -244,15 +251,27 @@ Generate the background $\cost$ distributions using the above fit parameters, ac
 
 The distributions are obtained in the 17 $\pt$ bins of the data. Done with genDist.C, with histos stored in bkgCosModel.root.
 
-\subsection{Interpolating the background fractions}
+\subsection{The background fractions}
 
-For each of the 7 $\pt$ bins of the mass background framework, generate 1e5 pairs of mass bkg function parameters $N_{BG}$, $\lambda$, according to a Gaussian with mean value and standard deviation given by the fit result and uncertainty. For each event, determine the resulting $f_{bkg}$. This is done with fbkgGen.C
+For each of the 7 (or 17) $\pt$ bins used in the associated fit, generate 1e5 sets of fit parameters, according to a Gaussian with mean value and standard deviation given by the fit result and uncertainty. For each event, determine the resulting $f_{bkg}$ or $f_{NP}$. This is done with fbkgGen.C for $f_{bkg}$ and fNPGen.C for $f_{NP}$.
 
-Taking the resulting distributions, define $f_{bkg}$ at each $\pt$ bin as the mean value, and its uncertainty as the standard deviation. Fit the mass background fraction, now with propagated uncertainties, with 
+Taking the resulting distributions, define the fraction at each $\pt$ bin as the mean value, and its uncertainty as the standard deviation. 
+
+\subsubsection{Mass background fit}
+
+Fit the mass background fraction, now with propagated uncertainties, with 
 \begin{equation}
 M\left(1-e^{-a\cdot(\pt-\mu)}\right)
 \end{equation}
-with $\mu=0$ for current tests. Code fitFrac.C. Plots $f_{bkg}$ and stores the graph and the fit function, as well as the histogram with propagated uncertainties to be used in the background subtraction.
+with $\mu=0$ for current tests. Code fitFrac.C. Plots $f_{bkg}$ and stores the graph and the fit function, as well as the histogram with propagated uncertainties to be used in the background subtraction. Also plots $f_{NP}$ and stores the histogram with the uncertainties obtained.
+
+\subsubsection{NP fraction correction}
+
+Run NPcorr.C to correct $f_{NP}$ for the mass bkg contamination of the NP distributions,
+\begin{equation}
+f_{NP}^c = f_{NP}\cdot\left(1-f_{bkg}^{NP}\right).
+\end{equation}
+Also plots the comparison $f_{NP}$ vs $f_{NP}^c$.
 
 \pagebreak
 
@@ -260,10 +279,10 @@ with $\mu=0$ for current tests. Code fitFrac.C. Plots $f_{bkg}$ and stores the g
 
 \subsection{Running the subtraction}
 
-Running code bkgSub.C runs the subtraction over the fine $\pt$ bins. Stores
+Running code bkgSub.C runs the subtraction over the fine $\pt$ bins. Uses bkg/MC as determined through fits, NP/MC as determined by mass bkg correction of the NP distribution, fitted $f_{bkg}$ and $f_{NP}^c$. Stores
 \begin{itemize}
-\item 2d $\cost$ distributions of the PR SR data/MC, NP SR data/MC, PR SB data/MC (interpolated to the signal region)
-\item 2d $\cost$ distributions of the NP-subtracted PR SR data/MC and the background-subtracted PR SR data/MC (the prompt J/$\psi$)
+\item 2d $\cost$ distributions of Peak/MC and scaled NP/MC, bkg/MC
+\item 2d $\cost$ distributions of prompt/MC and prompt $\jpsi$/MC
 \end{itemize}
 
 \subsection{$\cost$ fit}

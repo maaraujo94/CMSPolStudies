@@ -17,7 +17,7 @@ void plot2dHistos()
   h_Data->GetYaxis()->SetTitle("p_{T} (GeV)");
   h_Data->SetTitle("2018 Peak Data/MC");
   h_Data->Draw("COLZ");
-  c->SaveAs("plots/ratio_Peak.pdf");
+  c->SaveAs("plots/2dMaps/ratio_Peak.pdf");
   c->Clear();
 
   h_NP->SetStats(0);
@@ -25,7 +25,7 @@ void plot2dHistos()
   h_NP->GetYaxis()->SetTitle("p_{T} (GeV)");
   h_NP->SetTitle("2018 NP Data/MC");
   h_NP->Draw("COLZ");
-  c->SaveAs("plots/ratio_NP.pdf");
+  c->SaveAs("plots/2dMaps/ratio_NP.pdf");
   c->Clear();
 
   h_SB->SetStats(0);
@@ -33,7 +33,7 @@ void plot2dHistos()
   h_SB->GetYaxis()->SetTitle("p_{T} (GeV)");
   h_SB->SetTitle("2018 SB Data/MC");
   h_SB->Draw("COLZ");
-  c->SaveAs("plots/ratio_SB.pdf");
+  c->SaveAs("plots/2dMaps/ratio_SB.pdf");
   c->Clear();
 
   fin->Close();
@@ -50,7 +50,7 @@ void plot2dHistos()
   h_Data2->GetYaxis()->SetTitle("p_{T} (GeV)");
   h_Data2->SetTitle("2018 Peak Data");
   h_Data2->Draw("COLZ");
-  c->SaveAs("plots/data_2d_plot.pdf");
+  c->SaveAs("plots/2dMaps/data_2d_plot.pdf");
   c->Clear();
 
   h_MC2->SetStats(0);
@@ -58,7 +58,7 @@ void plot2dHistos()
   h_MC2->GetYaxis()->SetTitle("p_{T} (GeV)");
   h_MC2->SetTitle("2018 Peak MC");
   h_MC2->Draw("COLZ");
-  c->SaveAs("plots/mc_2d_plot.pdf");
+  c->SaveAs("plots/2dMaps/mc_2d_plot.pdf");
   c->Clear();
 
   c->Destructor();  

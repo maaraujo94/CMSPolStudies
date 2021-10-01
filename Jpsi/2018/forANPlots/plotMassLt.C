@@ -1,5 +1,5 @@
 // macro to plot a mass:lifetime 2d histo for all data
-void plot2d()
+void plotMassLt()
 {
   TH2D *hist = new TH2D("name", "2018 Data", 36, 2.92, 3.28, 120, -0.01, 0.05);
 
@@ -35,7 +35,7 @@ void plot2d()
   hist->GetYaxis()->SetTitle("c#tau (cm)");
   hist->GetYaxis()->SetTitleOffset(1.5);
   hist->Draw("COL");
-  c->SaveAs("plots/massLtMap.pdf");
+  c->SaveAs("plots/2dMaps/massLtMap.pdf");
   c->Clear();
 
 }

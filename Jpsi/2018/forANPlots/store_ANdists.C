@@ -240,7 +240,7 @@ void store_ANdists()
   fin3->Close();
   fin4->Close();
 
-  TFile *fout = new TFile("store_ANdists.root", "recreate");
+  TFile *fout = new TFile("files/store_ANdists.root", "recreate");
 
   // store the pT dists
   string lbl_pt[] = {"Data", "lowPtMC", "midPtMC", "highPtMC"};

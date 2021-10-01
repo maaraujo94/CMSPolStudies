@@ -94,20 +94,17 @@ void fitBkgCosthLin()
       f_fit->SetParameter(i, pHist[i]->GetBinContent(1)*1.1);
     }
     // define linear parameters - lambda_2, lambda_4
-    /*f_fit->SetParName(nPtBins, "m_ld_2");
-    f_fit->SetParameter(nPtBins, 0.01);
-    f_fit->SetParName(nPtBins+1, "b_ld_2");
-    f_fit->SetParameter(nPtBins+1, 0.1);*/
     f_fit->SetParName(nPtBins, "ld_2");
     f_fit->SetParameter(nPtBins, 0.1);
     f_fit->SetParName(nPtBins+1, "m_ld_2");
     f_fit->FixParameter(nPtBins+1, 0.);
+
     f_fit->SetParName(nPtBins+2, "m_ld_4");
     f_fit->SetParameter(nPtBins+2, 0.01);
     f_fit->SetParName(nPtBins+3, "b_ld_4");
     f_fit->SetParameter(nPtBins+3, 0.1);
     // fit the 2d function to the costh:pT map
-    h_cth[i_inp]->Fit("f_fit");
+    h_cth[i_inp]->Fit("f_fit", "S");
 
     // tf1 for plotting in the 1D bins
     TF1 *f_1d = new TF1("f_1d", "[0]*(1+[1]*x*x+[2]*pow(x,4))", minX, maxX);
@@ -125,8 +122,6 @@ void fitBkgCosthLin()
       // storing parameters
       par[0][i] = f_fit->GetParameter(i);
       epar[0][i] = f_fit->GetParError(i);
-      //par[1][i] = f_fit->GetParameter(nPtBins) * pt[i] + f_fit->GetParameter(nPtBins+1);
-      //epar[1][i] = sqrt(pow(f_fit->GetParError(nPtBins) * pt[i], 2) + pow(f_fit->GetParError(nPtBins+1), 2));
       par[1][i] = f_fit->GetParameter(nPtBins);
       epar[1][i] = f_fit->GetParError(nPtBins);
       par[2][i] = f_fit->GetParameter(nPtBins+2) * pt[i] + f_fit->GetParameter(nPtBins+3);
@@ -241,59 +236,11 @@ void fitBkgCosthLin()
     l_chi->Write(Form("fit_chiP"));
 
     // parameters of linear function for lambdas
-    //double lv2[2] = {f_fit->GetParameter(nPtBins), f_fit->GetParameter(nPtBins+1)};
     double lv4[2] = {f_fit->GetParameter(nPtBins+2), f_fit->GetParameter(nPtBins+3)};
-    //TGraphErrors *l_l2 = new TGraphErrors(2, lv2, lv2, lv2, lv2);
     TGraphErrors *l_l4 = new TGraphErrors(2, lv4, lv4, lv4, lv4);
-    //l_l2->Write(Form("ld2_lin"));
     l_l4->Write(Form("ld4_lin"));
-    
+
     fOut->Close();
- 
-    // storing the fit results in tex format
-    /* ofstream fout;
-    fout.open(Form("text_output/cos_%s2d.tex", lbl[i_inp].c_str()));
-    fout << "\\begin{tabular}{c||c}\n";
-    fout << "$\\pt$ (GeV) & $N$  \\\\\n";
-    fout << "\\hline\n";
-    for(int i = 0; i < nBinsY; i++) {
-      double pMin = h_cth[i_inp]->GetYaxis()->GetBinLowEdge(i+1);
-      double pMax = h_cth[i_inp]->GetYaxis()->GetBinUpEdge(i+1);
-      fout << Form("$[%.0f, %.0f]$", pMin, pMax);
-      if(epar[0][i] > 0) {
-	int p_norm = 1.;
-	if(epar[0][i] < 1 ) 
-	  p_norm = ceil(-log10(epar[0][i]))+1;
-	fout << " & " <<  setprecision(p_norm) << fixed << par[0][i] << " $\\pm$ " << epar[0][i];
-	  }
-	else
-	  fout << " & " <<  setprecision(2) << fixed << par[0][i];
-      fout  << "\\\\\n";
-    }
-    fout << "\\end{tabular}\n";
-    fout.close();
- 
-    ofstream fout2;
-    fout2.open(Form("text_output/cosA_%s2d.tex", lbl[i_inp].c_str()));
-    fout2 << "\\begin{tabular}{c|c||c}\n";
-    fout2 << "$\\lambda_{2}$ & $\\lambda_4$ & $\\chi^{2}$/ndf \\\\\n";
-    fout2 << "\\hline\n";
-    // lambda_2
-    double val = f_fit->GetParameter(nPtBins);
-    double unc = f_fit->GetParError(nPtBins);
-    int p_norm = 1.;
-    if(unc < 1) p_norm = ceil(-log10(unc))+1;	
-    fout2 <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-    // lambda_4
-    val = f_fit->GetParameter(nPtBins+1);
-    unc = f_fit->GetParError(nPtBins+1);
-    p_norm = 1.;
-    if(unc < 1) p_norm = ceil(-log10(unc))+1;	
-    fout2 <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-    // chi^2
-    fout2 << setprecision(0) << f_fit->GetChisquare() << "/" << f_fit->GetNDF() << "\\\\\n";
-    fout2 << "\\end{tabular}\n";
-    fout2.close(); */
 
     cout<< endl << "finished fitting " << lbl[i_inp] << endl << endl;
   }

@@ -1,4 +1,4 @@
-double gPI = TMath::Pi();
+// macro to generate distribution plots for f_NP, to then get the uncertainty
 
 // define negative exponential only for positive x
 double pos_exp(double x, double ld)
@@ -7,14 +7,11 @@ double pos_exp(double x, double ld)
   else return 0;
 }
 
-
-void fNPUnc()
+void fNPGen()
 {
   int ngen = 1e5; // nr of iterations for generation
   gRandom = new TRandom3(0);
   
-  // PART 1 : the f_bg unc
-
   // define aux vals for plotting
   double lowPlot = -0.1;
   double pr_lim = 0.05;
@@ -40,8 +37,8 @@ void fNPUnc()
     inNP->GetObject(Form("fit_bf_%s", fNP->GetParName(i)), g_par[i]);
   }
   inNP->Close();
-  double mults[] = {1, 100., 1e3, 1e3, 1e3, 1e3};
 
+  // get pt binning
   int n_pt = g_par[0]->GetN();
   double ptBins[n_pt+1];
   for(int i = 0; i < n_pt; i++) {
@@ -49,7 +46,7 @@ void fNPUnc()
   }
   ptBins[n_pt] = g_par[0]->GetX()[n_pt-1]+g_par[0]->GetEX()[n_pt-1];
   
-  // prepare mass histograms
+  // prepare lt histograms
   TH1D **h_d1d = new TH1D*[n_pt];
   TFile *fin = new TFile("../PR_fit/files/ltStore.root");
   for(int ip = 0; ip < n_pt; ip++) {
@@ -60,15 +57,16 @@ void fNPUnc()
 
   // cycle over all pt bins
   double epsrel = 1e-6, error = 0;
+  double mults[] = {1, 100., 1e3, 1e3, 1e3, 1e3};
   TH1F **h_fnp = new TH1F*[n_pt];
   double a_par[n_par];
-  TFile *fout = new TFile("fnp_gen.root", "recreate");
+  TFile *fout = new TFile("files/fNPDists.root", "recreate");
   for(int i_pt = 0; i_pt < n_pt; i_pt++) {
     cout << "running pt bin " << ptBins[i_pt] << " - " << ptBins[i_pt+1] << endl;
     h_fnp[i_pt] = new TH1F(Form("h_fnp_%d", i_pt), "f_NP", 100, 0.15, 0.3);
-
+    
     // get total events in PR region for that pT bin
-    double min_bin = h_d1d[i_pt]->GetXaxis()->FindBin(-(pr_lim-1e-6));
+    double min_bin = h_d1d[i_pt]->GetXaxis()->FindBin(-pr_lim+1e-6);
     double max_bin = h_d1d[i_pt]->GetXaxis()->FindBin(pr_lim-1e-6);
     double evt_all = h_d1d[i_pt]->Integral(min_bin, max_bin, "width");
 
@@ -79,15 +77,16 @@ void fNPUnc()
 	double mean = g_par[i_par]->GetY()[i_pt];
 	double sigma = g_par[i_par]->GetEY()[i_pt];
 	a_par[i_par] = gRandom->Gaus(mean, sigma);
+
 	if(i_par == 0) a_par[i_par] *= (ptBins[i_pt+1]-ptBins[i_pt]);
 	a_par[i_par] /= mults[i_par];
+
 	// fill tf1 value with generated par
-	fNP->SetParameter(i_par, a_par[i_par]);      
+	fNP->SetParameter(i_par, a_par[i_par]);
       }
-      
       // get the bkg fraction in the pr region
       double evt_bkg = fNP->IntegralOneDim(-pr_lim, pr_lim, epsrel, 1., error);
-      h_fnp[i_pt]->Fill(evt_bkg/evt_all);
+      h_fnp[i_pt]->Fill(evt_bkg/evt_all);  
     }
     h_fnp[i_pt]->Write();
   }

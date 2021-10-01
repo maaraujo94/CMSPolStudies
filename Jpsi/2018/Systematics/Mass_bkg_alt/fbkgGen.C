@@ -3,7 +3,7 @@
 // background function
 double bkg_exp(double m, double p1, double p2)
 {
-  return p1 * exp( - m / p2 );
+  return p2 * ( - p1 * m + 1.);
 }
 
 void fbkgGen()
@@ -16,7 +16,7 @@ void fbkgGen()
   double m_max[] = {2.95, 3.2, 3.26};
   
   TF1 *fp3 = new TF1("fp3", "bkg_exp(x,[0],[1])", m_min[0], m_max[2]);
-  fp3->SetParNames("NB", "lambda");
+  fp3->SetParNames("m_bkg", "b_bkg");
   
   // get fit parameters
   TFile *inBG = new TFile("files/mfit.root");
@@ -37,7 +37,7 @@ void fbkgGen()
   
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[n_pt];
-  TFile *fin = new TFile("files/mStore.root");
+  TFile *fin = new TFile("../../PR_fit/files/mStore.root");
   for(int ip = 0; ip < n_pt; ip++) {
     fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
     h_d1d[ip]->SetDirectory(0);

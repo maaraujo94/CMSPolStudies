@@ -5,18 +5,22 @@
 void bkgSub()
 {
   // PART 1 - all the inputs
-  // PR SR data distribution over all pT bins
+  // PR SR data and MC distribution over all pT bins
   TH2D *h_PR2d = new TH2D(); // base PR SR 2d map
-  TH2D *h_NP2d = new TH2D(); // base NP SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
   TFile *inHist = new TFile("files/histoStore.root");
   inHist->GetObject("dataH_ab", h_PR2d);
   h_PR2d->SetDirectory(0);
-  inHist->GetObject("NPH_ab", h_NP2d);
-  h_NP2d->SetDirectory(0);
   inHist->GetObject("mcH_ab", h_MC2d);
   h_MC2d->SetDirectory(0);
   inHist->Close();
+
+  // NP distribution corrected for mass bkg contamination
+  TH2D *h_NP2d = new TH2D(); // base NP SR 2d map
+  TFile *inNP = new TFile("../NP_fit/files/bkgSubRes.root");
+  inNP->GetObject("h_NPcB", h_NP2d);
+  h_NP2d->SetDirectory(0);
+  inNP->Close();
   
   // get the binning
   int nBinsX = h_PR2d->GetNbinsX(), nBinsY = h_PR2d->GetNbinsY();
@@ -24,7 +28,7 @@ void bkgSub()
   double minX = h_PR2d->GetXaxis()->GetBinLowEdge(1);
   double maxX = h_PR2d->GetXaxis()->GetBinUpEdge(nBinsX);
 
-  // get the bkg model functions
+  // get the bkg/MC model
   TH2D *h_SB2dr = new TH2D();
   TFile *inBkg = new TFile("files/bkgCosModel.root");
   inBkg->GetObject("h_SB", h_SB2dr);
@@ -50,18 +54,17 @@ void bkgSub()
   cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
   
   // bkg fraction in PR SR
+  // NP fraction in NP SR - corrected for mass bkg contamination
   TH2D *h_fb2d = new TH2D();
+  TH2D *h_fnp2d = new TH2D();
   TFile *inFracS = new TFile("files/bkgFrac.root");
   inFracS->GetObject("h_fbkg", h_fb2d);
+  inFracS->GetObject("h_fNPc", h_fnp2d);
   h_fb2d->SetDirectory(0);
+  h_fnp2d->SetDirectory(0);
   inFracS->Close();
 
-  // NP fraction - still need to add uncertainties
-  TGraphErrors *g_fNP = new TGraphErrors();
-  TFile *inFracN = new TFile("files/ltfit.root");
-  inFracN->GetObject("fit_b_fNP", g_fNP);
-  inFracN->Close();
-  
+  // prepare output
   TFile *fout = new TFile("files/bkgSubRes.root", "recreate");
   TCanvas *c =  new TCanvas("", "", 900, 900);
   
@@ -90,18 +93,15 @@ void bkgSub()
     TH1D *h_SB = h_SB2d->ProjectionX(Form("h_SB_%d", i), i+1, i+1);
     // get the fbkg 1d projections - easier to propagate unc
     TH1D *h_fbkg = h_fb2d->ProjectionX(Form("h_fbkg_%d", i), i+1, i+1);
+    TH1D *h_fNP = h_fnp2d->ProjectionX(Form("h_fNP_%d", i), i+1, i+1);
     
     // scale background dists to unity integral;
     h_NP->Scale(1. / h_NP->Integral());
     h_SB->Scale(1. / h_SB->Integral());
 
     // PART 3 - scaling background
-    // get the proper scaling factor out of the f_NP
-    double f_NP = g_fNP->GetY()[i]/100.;
-    double scFac = f_NP * N_sig;
-    h_NP->Scale(scFac);
-
-    // get the proper scaling factor out of the f_bkg
+    h_NP->Multiply(h_fNP); // propagating unc
+    h_NP->Scale(N_sig);
     h_SB->Multiply(h_fbkg); // propagating unc
     h_SB->Scale(N_sig);
 

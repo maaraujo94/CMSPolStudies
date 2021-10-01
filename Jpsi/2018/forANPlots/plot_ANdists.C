@@ -26,7 +26,7 @@ void plot_ANdists()
   // 12 costh dists: PR data + NP data + MC over 4 pT regions
   TH1D **h_cos = new TH1D*[12]; 
   
-  TFile *fin = new TFile("store_ANdists.root");
+  TFile *fin = new TFile("files/store_ANdists.root");
  
   // read the pT dists
   string lbl_pt[] = {"Data", "lowPtMC", "midPtMC", "highPtMC"};

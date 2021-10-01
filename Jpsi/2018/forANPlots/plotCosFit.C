@@ -86,16 +86,10 @@ void plotCosFit()
     lcr1.SetTextColor(cols[0]);
     lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.8, "Peak/MC");
     lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.75, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[0]->GetParameter(1), fit1d[0]->GetParError(1)));
-
     
-    c->SaveAs(Form("plots/ratioFinal/bin1F_%d.pdf", i));
-    c->Clear();
+    c->SaveAs(Form("plots/ratioFinal/fits/bin1F_%d.pdf", i));
 
     // peak/MC, NP/MC, PR/MC costh
-    // peak
-    h_rat1d[0][i]->Draw("error");
-    fit1d[0]->Draw("same");
-
     // NP
     h_rat1d[1][i]->SetStats(0);
     h_rat1d[1][i]->SetLineColor(cols[1]);
@@ -111,24 +105,15 @@ void plotCosFit()
     fit1d[2]->SetLineStyle(kDashed);
     fit1d[2]->Draw("same");
 
-    TLatex lcr2;
-    lcr2.SetTextSize(0.04);
-    lcr2.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.9, "2018");
-    lcr2.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
+    lcr1.SetTextColor(cols[1]);
+    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.1, "NP/MC (scaled)");
 
-    lcr2.SetTextColor(cols[0]);
-    lcr2.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.8, "Peak/MC");
-    lcr2.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.75, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[0]->GetParameter(1), fit1d[0]->GetParError(1)));
-
-    lcr2.SetTextColor(cols[1]);
-    lcr2.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.1, "NP/MC (scaled)");
-
-    lcr2.SetTextColor(cols[2]);
-    lcr2.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.7, "PR/MC");
-    lcr2.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.6, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[2]->GetParameter(1), fit1d[2]->GetParError(1)));
+    lcr1.SetTextColor(cols[2]);
+    lcr1.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.7, "PR/MC");
+    lcr1.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.6, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[2]->GetParameter(1), fit1d[2]->GetParError(1)));
 
         
-    c->SaveAs(Form("plots/ratioFinal/bin2F_%d.pdf", i));
+    c->SaveAs(Form("plots/ratioFinal/fits/bin2F_%d.pdf", i));
     c->Clear();
 
 
@@ -183,7 +168,7 @@ void plotCosFit()
     lcr3.SetTextColor(cols[4]);
     lcr3.DrawLatex(0.15, h_rat1d[4][i]->GetMaximum()*1.1, "bkg/MC (scaled)");
 
-    c->SaveAs(Form("plots/ratioFinal/bin3F_%d.pdf", i));
+    c->SaveAs(Form("plots/ratioFinal/fits/bin3F_%d.pdf", i));
     c->Clear();
 
     cout << endl;

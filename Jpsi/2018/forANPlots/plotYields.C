@@ -1,5 +1,5 @@
 // plot the pT dists of peak, NP and SB data
-void plotPts()
+void plotYields()
 {
   const int nPtBins = 7;
   double ptBins[nPtBins+1];
