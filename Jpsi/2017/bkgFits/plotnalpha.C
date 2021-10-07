@@ -1,4 +1,4 @@
-// macro to draw all the fit parameters
+// macro to draw n vs alpha for each subsequent fit
 void plotnalpha()
 {
   // aux arrays
@@ -8,8 +8,8 @@ void plotnalpha()
   string parlab[] = {"n", "alpha"};
   string partit[] = {"n", "#alpha"};
   string parax[] = {"n", "#alpha"};
-  double parmin[] = {0.6, 1.9};
-  double parmax[] = {1.8, 2.5};
+  double parmin[] = {0.7, 1.95};
+  double parmax[] = {1.7, 2.4};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_p];
@@ -49,17 +49,14 @@ void plotnalpha()
   int col[] = {kBlack, kBlue, kViolet, kRed};
   string cond[] = {"free", "#mu", "#mu, f", "#mu, f, #sigma_{1,2}"};
 
-  TH1F *fl = c->DrawFrame(parmin[0], parmin[1], parmax[0], parmax[1]);
-  fl->SetXTitle(parax[0].c_str());
-  fl->SetYTitle(parax[1].c_str());
-  fl->GetYaxis()->SetTitleOffset(1.8);
-  fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle(Form("2017 %s vs %s", partit[0].c_str(), partit[1].c_str()));
-
-  TLegend *leg = new TLegend(0.65, 0.7, 0.9, 0.9);
-  leg->SetTextSize(0.03);
   for(int i_m = 0; i_m < n_m; i_m++) {
-
+    TH1F *fl = c->DrawFrame(parmin[0], parmin[1], parmax[0], parmax[1]);
+    fl->SetXTitle(parax[0].c_str());
+    fl->SetYTitle(parax[1].c_str());
+    fl->GetYaxis()->SetTitleOffset(1.8);
+    fl->GetYaxis()->SetLabelOffset(0.01);
+    fl->SetTitle(Form("2017 %s vs %s", partit[0].c_str(), partit[1].c_str()));
+   
     // free mode always plots points
     g_both[i_m]->SetLineColor(col[i_m]);
     g_both[i_m]->SetMarkerColor(col[i_m]);
@@ -67,12 +64,28 @@ void plotnalpha()
     g_both[i_m]->SetMarkerSize(.75);
     g_both[i_m]->Draw("p");
 
-    leg->AddEntry(g_both[i_m], cond[i_m].c_str(), "pl");
+    c->SaveAs(Form("plots/MCMass/na_comp_%d.pdf", i_m));
+    c->Clear();
+  }
 
-    TF1 *fc = new TF1("fc", "[0]*x+[1]", 0.6, 1.8);
-    fc->SetParameters(-1, 5);
-    fc->SetLineColor(col[i_m]);
-    //g_both[i_m]->Fit(fc);
+  TH1F *fl = c->DrawFrame(parmin[0], parmin[1], parmax[0], parmax[1]);
+  fl->SetXTitle(parax[0].c_str());
+  fl->SetYTitle(parax[1].c_str());
+  fl->GetYaxis()->SetTitleOffset(1.8);
+  fl->GetYaxis()->SetLabelOffset(0.01);
+  fl->SetTitle(Form("2017 %s vs %s", partit[0].c_str(), partit[1].c_str()));
+  
+  TLegend *leg = new TLegend(0.65, 0.7, 0.9, 0.9);
+  leg->SetTextSize(0.03);
+  
+  // free mode always plots points
+  for(int i_m = 0; i_m < n_m; i_m++) {
+    g_both[i_m]->SetLineColor(col[i_m]);
+    g_both[i_m]->SetMarkerColor(col[i_m]);
+    g_both[i_m]->SetMarkerStyle(20);
+    g_both[i_m]->SetMarkerSize(.75);
+    g_both[i_m]->Draw("p");
+    leg->AddEntry(g_both[i_m], cond[i_m].c_str(), "pl");
   }
   leg->Draw();
   

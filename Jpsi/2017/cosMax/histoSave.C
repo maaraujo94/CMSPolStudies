@@ -3,7 +3,7 @@
 
 void histoSave()
 {
-  // fine pT binning - to be rebinned after background subtraction
+  // fine pT binning
   const int nPtBins = 49;
   double ptBins[nPtBins+1];
   for(int i = 0; i < 15; i++) ptBins[i] = 25+i;

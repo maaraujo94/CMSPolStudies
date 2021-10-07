@@ -42,60 +42,20 @@ void plotLth()
   zero->Draw();
   
   c->SaveAs("plots/ratioFinal/lth1_2017.pdf");
-  c->Clear();
 
-  // draw lambda_th(pT) - peak + np + pr
-  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
-  fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("#lambda_{#theta}");
-  fl2->GetYaxis()->SetTitleOffset(1.3);
-  fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("2017 #lambda_{#theta}");
-
-  graph_lth[0]->SetLineColor(cols[0]);
-  graph_lth[0]->SetMarkerColor(cols[0]);
-  graph_lth[0]->Draw("p same");
-
+  // add pr lambda_th
   graph_lth[2]->SetLineColor(cols[2]);
   graph_lth[2]->SetMarkerColor(cols[2]);
   graph_lth[2]->Draw("p same");
 
-  zero->Draw();
-  
   c->SaveAs("plots/ratioFinal/lth2_2017.pdf");
   
-  graph_lth[1]->SetLineColor(cols[1]);
-  graph_lth[1]->SetMarkerColor(cols[1]);
-  graph_lth[1]->Draw("p same");
-  
-  c->SaveAs("plots/ratioFinal/lth2_np.pdf");
-  c->Clear();
-
-  // draw lambda_th(pT) - peak + pr + jpsi
-  TH1F *fl3 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
-  fl3->SetXTitle("p_{T} (GeV)");
-  fl3->SetYTitle("#lambda_{#theta}");
-  fl3->GetYaxis()->SetTitleOffset(1.3);
-  fl3->GetYaxis()->SetLabelOffset(0.01);
-  fl3->SetTitle("2017 #lambda_{#theta}");
-
-  graph_lth[0]->SetLineColor(cols[0]);
-  graph_lth[0]->SetMarkerColor(cols[0]);
-  graph_lth[0]->Draw("p same");
-
-  graph_lth[2]->SetLineColor(cols[2]);
-  graph_lth[2]->SetMarkerColor(cols[2]);
-  graph_lth[2]->Draw("p same");
-  
+  // add prompt jpsi lambda_th
   graph_lth[3]->SetLineColor(cols[3]);
   graph_lth[3]->SetMarkerColor(cols[3]);
   graph_lth[3]->Draw("p same");
-
-  zero->Draw();
   
   c->SaveAs("plots/ratioFinal/lth3_2017.pdf");
-  c->Clear();
-
   c->Destructor();
   
   fIn->Close();

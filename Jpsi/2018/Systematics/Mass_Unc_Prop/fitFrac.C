@@ -25,7 +25,7 @@ void fitFrac()
   TF1 *f_fit1 = new TF1("fit_SB", "[0]*(1-exp(-[1]*(x-[2])))", 0, 125);
   f_fit1->SetParNames("M", "a", "mu");
   f_fit1->SetParameters(10, 0.01, 1.);
-  f_fit1->FixParameter(2, 0);
+  //f_fit1->FixParameter(2, 0);
   f_fit1->SetLineColor(kBlue);
   TFitResultPtr fitres = fSB->Fit("fit_SB", "VS");
   f_fit1->SetRange(0, 125);

@@ -144,6 +144,5 @@ void bkgCosth()
   }
 
   outfile->Close();
-  int nBinsX = dataHist_ab[0]->GetNbinsX();
-
+ 
 }

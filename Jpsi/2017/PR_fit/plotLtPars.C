@@ -92,11 +92,11 @@ void plotLtPars()
 
   // aux arrays
   string parlab[] = {"N_PR", "N_NP", "f", "mu", "sig1", "sig2", "t"};
-  string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma_{1}", "#sigma_{2}", "t"};
+  string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma_{1}", "#sigma_{2}", "t_{NP}"};
   string par_unit[] = {" per 1 GeV", " per 1 GeV", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
 
-  double parmin[] = {3e1, 1e2, 0,  -5., 0,  0,  300};
-  double parmax[] = {2e5, 8e5, 100, 5., 20, 40, 400};
+  double parmin[] = {4e1, 3e2, 0,  -5., 0,  0,  300};
+  double parmax[] = {1e5, 5e5, 100, 5., 20, 40, 400};
 
   // initialize tgraphs for parameters
   TGraphErrors **g_par = new TGraphErrors*[n_p];
@@ -136,7 +136,7 @@ void plotLtPars()
     g_par_f[i]->SetMarkerSize(.75);
     g_par_f[i]->SetMarkerColor(kBlue);
     g_par_f[i]->SetLineColor(kBlue);
-    g_par_f[i]->Draw("psame");
+    //g_par_f[i]->Draw("psame");
 
     g_par_f[i]->SetName(Form("fit_mf_%s", parlab[i].c_str()));
     g_par_f[i]->Write();
@@ -150,6 +150,12 @@ void plotLtPars()
     g_par_b[i]->SetName(Form("fit_bf_%s", parlab[i].c_str()));
     g_par_b[i]->Write();
 
+    TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+    leg->SetTextSize(0.03);
+    leg->AddEntry(g_par[i], "all free", "pl");
+    leg->AddEntry(g_par_b[i], "#mu, f fixed", "pl");
+    //leg->Draw();
+
     c->SaveAs(Form("plots/lifetime/par_%s.pdf", parlab[i].c_str()));
     c->Clear();
   }
@@ -158,7 +164,7 @@ void plotLtPars()
   TGraphErrors *g_chi_f = new TGraphErrors(pt_bins, pt_avg, chiN[1], pt_err, zero);
   TGraphErrors *g_chi_b = new TGraphErrors(pt_bins, pt_avg, chiN[2], pt_err, zero);
 
-  TH1F *fchi = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 14);
+  TH1F *fchi = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 3);
   fchi->SetXTitle("p_{T} (GeV)");
   fchi->SetYTitle("#chi^{2}/ndf");
   fchi->GetYaxis()->SetTitleOffset(1.5);
@@ -235,6 +241,7 @@ void plotLtPars()
   // do the sigma plots to compare with rms from previous ANs
   double sig_avg[3][pt_bins], esig_avg[3][pt_bins], rms[3][pt_bins], erms[3][pt_bins], sig_rat[3][pt_bins], esig_rat[3][pt_bins];
   for(int i_p = 0; i_p < pt_bins; i_p++){
+
     sig_avg[0][i_p] = sig_m(par[2][i_p], par[4][i_p], par[5][i_p]);
     esig_avg[0][i_p] = esig_m(par[2][i_p], par[4][i_p], par[5][i_p], epar[2][i_p], epar[4][i_p], epar[5][i_p]);
 			      

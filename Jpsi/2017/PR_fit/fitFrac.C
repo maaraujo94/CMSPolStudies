@@ -1,34 +1,68 @@
-// macro to fit the background fractions fNP and fSB
+// macro to get the f_bkg and f_NP uncertainty and compare to direct fit results
+// then fit the background fraction f_bkg
 void fitFrac()
 {
-  // get background fractions
-  TFile *fin1 = new TFile("files/mfit.root");
-  TGraphErrors *fSB = (TGraphErrors*)fin1->Get("fit_fBG");
-  fin1->Close();
+  // PART 1: get f_bkg w unc and compare to direct results
+  
+  // get the fractions obtained directly from the fits
+  TFile *inSBo = new TFile("files/mfit.root");
+  TGraphErrors *fit_fBG = (TGraphErrors*)inSBo->Get("fit_fBG");
+  inSBo->Close();
 
-  // NP fraction is in %, need to fix that
-  TFile *fin2 = new TFile("files/ltfit.root");
-  TGraphErrors *fNP_p = (TGraphErrors*)fin2->Get("fit_b_fNP");
-  fin2->Close();
-
-  int n = fNP_p->GetN();
-  double *xv = fNP_p->GetX();
-  double *xe = fNP_p->GetEX();
-  double *yv = fNP_p->GetY();
-  double *ye = fNP_p->GetEY();
-  // scale for fitting
-  for(int j = 0; j < n; j++) {
-    yv[j] /= 100.;
-    ye[j] = xv[j]*1e-4;
+  // fix f_SB to span 0 to 100
+  int nbg = fit_fBG->GetN();
+  double *fy = fit_fBG->GetY();
+  double *fey = fit_fBG->GetEY();
+  for(int i = 0; i < nbg; i++) {
+    fy[i] *= 100.;
+    fey[i] *= 100.;
   }
-  TGraphErrors *fNP = new TGraphErrors(n, xv, yv, xe, ye);
 
-  // fit and plot f_SB
+  // get the histos from the generation and obtain mean, std dev
+  TH1F **h_fbg = new TH1F*[nbg];
+  double bgy[nbg], bgey[nbg];
+  TFile *inSB = new TFile("files/fbgDists.root");
+  for(int i = 0; i < nbg; i++) {
+    inSB->GetObject(Form("h_fbg_%d", i), h_fbg[i]);
+    bgy[i] = h_fbg[i]->GetMean() * 100.;
+    bgey[i] = h_fbg[i]->GetStdDev() * 100.;
+  }
+  inSB->Close();
+  TGraphErrors *fSB = new TGraphErrors(nbg, fit_fBG->GetX(), bgy, fit_fBG->GetEX(), bgey);
+
+  // plotting the comparison
   TCanvas *c = new TCanvas("", "", 900, 900);
 
-  TH1F *fr1 = c->DrawFrame(20., 0.0, 125, 0.08);
+  double x_min = fit_fBG->GetX()[0]-fit_fBG->GetEX()[0]-5;
+  double x_max = fit_fBG->GetX()[nbg-1]+fit_fBG->GetEX()[nbg-1]+5;
+  TH1F *ffbg = c->DrawFrame(x_min, 0, x_max, 15);
+  ffbg->SetXTitle("p_{T} (GeV)");
+  ffbg->SetYTitle("f_{bkg} (%)");
+  ffbg->GetYaxis()->SetTitleOffset(1.3);
+  ffbg->GetYaxis()->SetLabelOffset(0.01);
+  ffbg->SetTitle("2017 f_{bkg} vs p_{T}");
+  
+  fit_fBG->SetMarkerStyle(20);
+  fit_fBG->SetMarkerSize(.75);
+  fit_fBG->SetMarkerColor(kBlack);
+  fit_fBG->SetLineColor(kBlack);
+  fit_fBG->Draw("psame");
+
+  fSB->SetMarkerStyle(24);
+  fSB->SetMarkerSize(.75);
+  fSB->SetMarkerColor(kBlue);
+  fSB->SetLineColor(kBlue);
+  fSB->Draw("psame");
+
+  c->SaveAs(Form("plots/fBG_comp.pdf"));
+  c->Clear();
+
+  // PART 2: fitting f_bkg
+
+  // fit and plot f_SB
+  TH1F *fr1 = c->DrawFrame(20., 0, 125, 15);
   fr1->SetXTitle("p_{T} (GeV)");
-  fr1->SetYTitle("f_{bkg}");
+  fr1->SetYTitle("f_{bkg} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
   fr1->SetTitle("2017 f_{bkg}");
@@ -38,71 +72,182 @@ void fitFrac()
   fSB->SetMarkerStyle(20);
   fSB->Draw("p");
 
-  // fit function - parameters M(a,mu), a, mu
-  TF1 *f_fit1 = new TF1("fit_SB", "0.022*(1-exp(-[0]*(x-[1])))/(1-exp(-[0]*(20-[1])))", 0, 125);
-  f_fit1->SetParNames("a", "mu");
-  f_fit1->SetParameters(0.02, -10);
+  // the fit function
+  TF1 *f_fit1 = new TF1("fit_SB", "[0]*(1-exp(-[1]*(x-[2])))", 0, 125);
+  f_fit1->SetParNames("M", "a", "mu");
+  f_fit1->SetParameters(10, 0.01, 1.);
+  //f_fit1->FixParameter(2, 0);
   f_fit1->SetLineColor(kBlue);
-  fSB->Fit("fit_SB");
+  TFitResultPtr fitres = fSB->Fit("fit_SB", "S0");
   f_fit1->SetRange(0, 125);
   f_fit1->Draw("same");
 
-  c->SaveAs("plots/fSB_fit.pdf");
+  c->SaveAs("plots/fBG_fit.pdf");
   c->Clear();
 
-  // fit and plot f_NP
-  TH1F *fr2 = c->DrawFrame(0., 0., 125, 0.4);
-  fr2->SetXTitle("p_{T} (GeV)");
-  fr2->SetYTitle("f_{NP}");
-  fr2->GetYaxis()->SetTitleOffset(1.3);
-  fr2->GetYaxis()->SetLabelOffset(0.01);
-  fr2->SetTitle("f_{NP}");
+  // PART 3: generate f_bkg histo
 
-  fNP->SetLineColor(kBlack);
-  fNP->SetMarkerColor(kBlack);
-  fNP->SetMarkerStyle(20);
+  // now to generate an uncertainty band over the 17 pT bins
+  const int n_p = 3;
+  double fit_v[3];
+  double cov[3][3];
+  for(int i = 0; i < 3; i++) {
+    fit_v[i] = f_fit1->GetParameter(i);
+    for(int j = 0; j < 3; j++) {
+      cov[i][j] = fitres->GetCovarianceMatrix()[i][j];
+    }
+  }
+
+  // get binning from the stored data histos
+  TFile *infile = new TFile("files/histoStore.root");
+  TH2D *hist = new TH2D();
+  infile->GetObject(Form("dataH_ab"), hist);
+  hist->SetDirectory(0);
+  infile->Close();
+
+  // get the binning
+  int nBinsX = hist->GetNbinsX(), nBinsY = hist->GetNbinsY();
+  const double *yBins = hist->GetYaxis()->GetXbins()->GetArray();
+  double minX = hist->GetXaxis()->GetBinLowEdge(1);
+  double maxX = hist->GetXaxis()->GetBinUpEdge(nBinsX);
+  double dX = (maxX-minX)/nBinsX;
+
+  // f_bkg(pT) but generating 2d map so it's easier to apply uncertainties
+  TH2D *h_fbkg = new TH2D("h_fbkg", "2017 f_{bkg}", nBinsX, minX, maxX, nBinsY, yBins);
+  double ln = 10000;
+  double dpar[n_p];
+  for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
+    double pt = 0.5*(yBins[i_pt+1]+yBins[i_pt]);
+    double xpar[] = {pt};
+    double fv = f_fit1->Eval(pt), fe = 0;
+    
+    // get the function deviation for each parameter
+    for(int i = 0; i < n_p; i++) {
+      fit_v[i]+=sqrt(cov[i][i])/ln;
+      dpar[i] = (f_fit1->EvalPar(xpar, fit_v)-fv)/(sqrt(cov[i][i])/ln);
+      fit_v[i]-=sqrt(cov[i][i])/ln;
+    }
+
+    for(int i = 0; i < n_p; i++) 
+      for(int j = 0; j < n_p; j++) {
+	fe += dpar[i]*dpar[j]*cov[i][j];
+      }
+    fe = sqrt(fe);
+    
+    // same result for all costh bins
+    for(int i_cos = 0; i_cos < nBinsX; i_cos++) {
+      h_fbkg->SetBinContent(i_cos+1, i_pt+1, fv);
+      h_fbkg->SetBinError(i_cos+1, i_pt+1, fe);
+    }
+  }
+
+  // plotting the 1d projection into pT
+  TH1D* h_fbkgpt = h_fbkg->ProjectionY("h_fbkgpd", 1, 1);
+
+  h_fbkgpt->SetMinimum(0);
+  h_fbkgpt->SetMaximum(15);
+  h_fbkgpt->GetXaxis()->SetTitle("p_{T} (GeV)");
+  h_fbkgpt->GetYaxis()->SetTitle("f_{bkg} (%)");
+  h_fbkgpt->GetYaxis()->SetTitleOffset(1.3);
+  h_fbkgpt->GetYaxis()->SetLabelOffset(0.01);
+  h_fbkgpt->SetTitle("2017 f_{bkg}");
+  h_fbkgpt->SetStats(0);
+  h_fbkgpt->SetFillColorAlpha(kBlue, 0.5);
+  h_fbkgpt->Draw("e3");
+  f_fit1->Draw("same");
+  fSB->Draw("p");
+
+  c->SaveAs("plots/fBG_band.pdf");
+  c->Clear();
+
+  // PART 4: get f_NP w unc and compare to direct results
+  
+  // get the fractions obtained directly from the fits
+  TFile *inNPo = new TFile("files/ltfit.root");
+  TGraphErrors *fit_fNP = (TGraphErrors*)inNPo->Get("fit_b_fNP");
+  inNPo->Close();
+
+  // get the histos from the generation and obtain mean, std dev
+  int nnp = fit_fNP->GetN();
+  TH1F **h_fnp_gen = new TH1F*[nnp];
+  double npy[nnp], npey[nnp];
+  TFile *inNP = new TFile("files/fNPDists.root");
+  for(int i = 0; i < nnp; i++) {
+    inNP->GetObject(Form("h_fnp_%d", i), h_fnp_gen[i]);
+    npy[i] = h_fnp_gen[i]->GetMean() * 100.;
+    npey[i] = h_fnp_gen[i]->GetStdDev() * 100.;
+  }
+  inNP->Close();
+  TGraphErrors *fNP = new TGraphErrors(nnp, fit_fNP->GetX(), npy, fit_fNP->GetEX(), npey);
+
+  // plotting the comparisons
+  x_min = fit_fNP->GetX()[0]-fit_fNP->GetEX()[0]-5;
+  x_max = fit_fNP->GetX()[nnp-1]+fit_fNP->GetEX()[nnp-1]+5;
+  TH1F *ffnp = c->DrawFrame(x_min, 0, x_max, 50);
+  ffnp->SetXTitle("p_{T} (GeV)");
+  ffnp->SetYTitle("f_{NP} (%)");
+  ffnp->GetYaxis()->SetTitleOffset(1.3);
+  ffnp->GetYaxis()->SetLabelOffset(0.01);
+  ffnp->SetTitle("2017 f_{NP} vs p_{T}");
+  
+  fit_fNP->SetMarkerStyle(20);
+  fit_fNP->SetMarkerSize(.75);
+  fit_fNP->SetMarkerColor(kBlack);
+  fit_fNP->SetLineColor(kBlack);
+  fit_fNP->Draw("psame");
+
+  fNP->SetMarkerStyle(24);
+  fNP->SetMarkerSize(.75);
+  fNP->SetMarkerColor(kBlue);
+  fNP->SetLineColor(kBlue);
+  fNP->Draw("psame");
+
+  c->SaveAs(Form("plots/fNP_comp.pdf"));
+  c->Clear();
+
+  // PART 5: getting the f_NP histo
+
+  // f_NP(pT) but generating 2d map so it's easier to apply uncertainties
+  TH2D *h_fnp = new TH2D("h_fnp", "2017 f_{np}", nBinsX, minX, maxX, nBinsY, yBins);
+  for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
+    for(int i_cos = 0; i_cos < nBinsX; i_cos++) {
+      h_fnp->SetBinContent(i_cos+1, i_pt+1, fNP->GetY()[i_pt]);
+      h_fnp->SetBinError(i_cos+1, i_pt+1, fNP->GetEY()[i_pt]);
+    }
+  }
+
+  // plotting the 1d projection into pT
+  TH1D* h_fnppt = h_fnp->ProjectionY("h_fnppt", 1, 1);
+
+  h_fnppt->SetStats(0);
+  h_fnppt->SetMinimum(0);
+  h_fnppt->SetMaximum(50);
+  h_fnppt->GetXaxis()->SetTitle("p_{T} (GeV)");
+  h_fnppt->GetYaxis()->SetTitle("f_{NP} (%)");
+  h_fnppt->GetYaxis()->SetTitleOffset(1.3);
+  h_fnppt->GetYaxis()->SetLabelOffset(0.01);
+  h_fnppt->SetTitle("2017 f_{NP}");
+  h_fnppt->SetFillColorAlpha(kBlue, 0.5);
+  h_fnppt->Draw("e3");
   fNP->Draw("p");
 
-  // fit function - parameters M, a (mu = 0)
-  TF1 *f_fit2 = new TF1("fit_NP", "[0]*(1-exp(-[1]*(x-[2])))", 0, 125);
-  f_fit2->SetParNames("M", "a", "mu");
-  f_fit2->SetParameters(0.3, 0.05, 10);
-  f_fit2->FixParameter(2,0);
-  f_fit2->SetLineColor(kBlue);
-  fNP->Fit("fit_NP");
-  f_fit2->SetRange(0, 125);
-  f_fit2->Draw("same");
-
-  c->SaveAs("plots/fNP_fit.pdf");
+  c->SaveAs("plots/fNP_band.pdf");
   c->Clear();
+  
   c->Destructor();
 
+  // scale fractions down from percentage
+  h_fnp->Scale(1./100.);
+  f_fit1->SetParameter(0, f_fit1->GetParameter(0)/100.);
+  h_fbkg->Scale(1./100.);
+
   TFile *fout = new TFile("files/bkgFrac.root", "recreate");
+  fSB->SetName("graph_fSB");
   fSB->Write();
   f_fit1->Write();
+  h_fbkg->Write();
+  fNP->SetName("graph_fNP");
   fNP->Write();
-  f_fit2->Write();
+  h_fnp->Write();
   fout->Close();
-
-  ofstream fout_t;
-  fout_t.open("text_output/fit_frac.tex");
-  fout_t << "\\begin{tabular}{c||c|c|c}\n";
-  fout_t << " & $M$ & $a$ & $\\mu$  \\\\\n";
-  fout_t << "\\hline\n";
-  fout_t << "$f_{bkg}$ ";
-  double val = 0.022/(1-exp(-f_fit1->GetParameter(0)*(20-f_fit1->GetParameter(1))));
-  int p_norm = 1;
-  if(val > 0 && val < 1 ) 
-    p_norm = ceil(-log10(val))+1;
-  fout_t << " & " <<  setprecision(p_norm) << fixed << val;
-  for(int i = 0; i < 2; i++) {
-    val = f_fit1->GetParameter(i);
-    p_norm = 1.;
-    if(val > 0 && val < 1 ) 
-      p_norm = ceil(-log10(val))+1;
-    fout_t << " & " <<  setprecision(p_norm) << fixed << val;
-  }
-  fout_t << "\\\\\n";
-  fout_t << "\\end{tabular}\n";
-  fout_t.close();
 }

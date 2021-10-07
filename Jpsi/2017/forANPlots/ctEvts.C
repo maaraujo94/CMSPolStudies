@@ -51,18 +51,20 @@ void ctEvts()
 
   // output results into a .tex table
   ofstream ftex;
-  ftex.open(Form("data_mc_evts.tex"));
-  ftex << "\\begin{tabular}{c|ccc|c}\n";
-  ftex << Form("2017 & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[0], pt_max[2]);
+  ftex.open(Form("text_output/data_mc_evts_2017.tex"));
+  ftex << "\\begin{tabular}{cc|ccc|c}\n";
+  ftex << "\\hline\n";
+  ftex << Form("\\multicolumn{2}{c}{2017} & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[0], pt_max[2]);
   ftex << "\\hline\n";
   
-  ftex << Form("Peak & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_PRSR[0]/1e6, n_PRSR[1]/1e6, n_PRSR[2]/1e6, n_PRSR[3]/1e6);
-  ftex << Form("NP & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_NP[0]/1e6, n_NP[1]/1e6, n_NP[2]/1e6, n_NP[3]/1e6);
-  ftex << Form("LSB & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_LSB[0]/1e3, n_LSB[1]/1e3, n_LSB[2]/1e3, n_LSB[3]/1e3);
-  ftex << Form("RSB & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_RSB[0]/1e3, n_RSB[1]/1e3, n_RSB[2]/1e3, n_RSB[3]/1e3);
+  ftex << Form("\\multirow{4}{*}{\\rotatebox[origin=c]{90}{Data}} & Peak & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_PRSR[0]/1e6, n_PRSR[1]/1e6, n_PRSR[2]/1e6, n_PRSR[3]/1e6);
+  ftex << Form("& NP & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_NP[0]/1e6, n_NP[1]/1e6, n_NP[2]/1e6, n_NP[3]/1e6);
+  ftex << Form("& LSB & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_LSB[0]/1e3, n_LSB[1]/1e3, n_LSB[2]/1e3, n_LSB[3]/1e3);
+  ftex << Form("& RSB & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_RSB[0]/1e3, n_RSB[1]/1e3, n_RSB[2]/1e3, n_RSB[3]/1e3);
   ftex << "\\hline\n";
-  
-  ftex << Form("MC (only Peak) & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_MC[0]/1e6, n_MC[1]/1e6, n_MC[2]/1e6, n_MC[3]/1e6);
+
+  ftex << Form("MC & (only Peak) & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_MC[0]/1e6, n_MC[1]/1e6, n_MC[2]/1e6, n_MC[3]/1e6);
+  ftex << "\\hline\n";
   
   ftex << "\\end{tabular}\n";
   ftex.close();

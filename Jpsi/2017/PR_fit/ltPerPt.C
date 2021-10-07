@@ -1,4 +1,4 @@
-// macro to plot and fit the 2018 J/psi lifetime distribution
+// macro to plot and fit the 2017 J/psi lifetime distribution
 
 TF1 *fres;
 TF1 *fNP;

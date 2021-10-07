@@ -77,6 +77,8 @@ void ltBkg()
   int nm = ceil(-log10(mu_avg))+2;	
   mu_avg = do_round(mu_avg*pow(10, nm))/pow(10, nm);
 
+  cout << endl << endl << nm << " " << mu_avg << endl << endl;
+  
   // run lifetime fit with mu fixed to above value
   for(int i = 0; i < nPtBins; i++) {
     ltPerPt_muFix(ptBins[i], ptBins[i+1], mu_avg);
@@ -108,6 +110,8 @@ void ltBkg()
   double f_avg = fc->GetParameter(0);
   nm = ceil(-log10(f_avg))+2;	
   f_avg = do_round(f_avg*pow(10, nm))/pow(10, nm);
+
+  cout << endl << endl << nm << " " << f_avg << endl << endl;
   
   for(int i = 0; i < nPtBins; i++) {
     ltPerPt_bFix(ptBins[i], ptBins[i+1], mu_avg, f_avg);

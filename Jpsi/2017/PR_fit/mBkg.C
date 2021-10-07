@@ -180,6 +180,8 @@ void mBkg()
   
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetLeftMargin(0.12);
+  f_cb->SetNpx(1000);
   h_d2d->Fit("f_cb", "R");
 
   // tf1 for plotting in the 1D bins
@@ -238,7 +240,7 @@ void mBkg()
     h_d1d[i_pt]->SetMinimum(0);
     h_d1d[i_pt]->SetStats(0);
     h_d1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
-    h_d1d[i_pt]->GetYaxis()->SetTitleOffset(1.4);
+    h_d1d[i_pt]->GetYaxis()->SetTitleOffset(1.8);
     h_d1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
     h_d1d[i_pt]->GetXaxis()->SetRangeUser(m_min[0], m_max[2]);
     h_d1d[i_pt]->SetMarkerStyle(20);
@@ -258,11 +260,11 @@ void mBkg()
     fp2->SetLineStyle(kDashed);
     fp2->Draw("lsame");
     fp3->SetParameters(pars[7][i_pt], pars[8][i_pt]);
-    fp3->SetLineColor(kViolet);
+    fp3->SetLineColor(kOrange+4);
     fp3->SetLineStyle(kDashDotted);
     fp3->Draw("lsame");
     fp4->SetParameters(pars[0][i_pt], pars[9][i_pt], pars[2][i_pt], pars[10][i_pt]);
-    fp4->SetLineColor(9);
+    fp4->SetLineColor(kViolet);
     fp4->SetLineStyle(kDashed);
     fp4->Draw("lsame");
 
@@ -272,7 +274,7 @@ void mBkg()
     for(int j = 0; j < 2; j++) {
       lims[j]->SetLineColor(kRed);
       lims[j]->SetLineStyle(kDashed);
-      lims[j]->Draw();
+      //lims[j]->Draw();
     }
     
     c->SaveAs(Form("plots/mass/fit_pt%d.pdf", i_pt));
@@ -303,12 +305,12 @@ void mBkg()
     c->SetLogy(0);
     
     // plotting the pulls
-    TH1F *fl = c->DrawFrame(m_min[0], -20, m_max[2], 20);
+    TH1F *fl = c->DrawFrame(m_min[0], -9, m_max[2], 9);
     fl->SetXTitle("M(#mu#mu) (GeV)");
     fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Data J/#psi Pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fl->SetTitle(Form("Data mass fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 
     TGraph *g_pull = new TGraph(mbins, mv, pv);
     g_pull->SetLineColor(kBlack);
@@ -320,14 +322,18 @@ void mBkg()
     zero->SetLineStyle(kDashed);
     zero->Draw();
 
-    TLine **limp = new TLine*[2];
-    limp[0] = new TLine(m_min[1], -20, m_min[1], 20);
-    limp[1] = new TLine(m_max[1], -20, m_max[1], 20);
-    for(int j = 0; j < 2; j++) {
-      limp[j]->SetLineColor(kRed);
-      limp[j]->SetLineStyle(kDashed);
-      limp[j]->Draw();
-    }
+    TLine *plim1 = new TLine(m_min[0], -5, m_max[2], -5);
+    plim1->SetLineStyle(kDotted);
+    plim1->Draw("lsame");
+    TLine *plim2 = new TLine(m_min[0], -3, m_max[2], -3);
+    plim2->SetLineStyle(kDotted);
+    plim2->Draw("lsame");
+    TLine *plim3 = new TLine(m_min[0], 3, m_max[2], 3);
+    plim3->SetLineStyle(kDotted);
+    plim3->Draw("lsame");
+    TLine *plim4 = new TLine(m_min[0], 5, m_max[2], 5);
+    plim4->SetLineStyle(kDotted);
+    plim4->Draw("lsame");
 
     
     c->SaveAs(Form("plots/mass/pulls_pt%d.pdf", i_pt));

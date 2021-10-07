@@ -76,7 +76,7 @@ void fitFrac()
   TF1 *f_fit1 = new TF1("fit_SB", "[0]*(1-exp(-[1]*(x-[2])))", 0, 125);
   f_fit1->SetParNames("M", "a", "mu");
   f_fit1->SetParameters(10, 0.01, 1.);
-  f_fit1->FixParameter(2, 0);
+  //f_fit1->FixParameter(2, 0);
   f_fit1->SetLineColor(kBlue);
   TFitResultPtr fitres = fSB->Fit("fit_SB", "S0");
   f_fit1->SetRange(0, 125);
@@ -88,9 +88,15 @@ void fitFrac()
   // PART 3: generate f_bkg histo
 
   // now to generate an uncertainty band over the 17 pT bins
-  double M_v = f_fit1->GetParameter(0), a_v = f_fit1->GetParameter(1);
-  double M_e = f_fit1->GetParError(0), a_e = f_fit1->GetParError(1);
-  double cov = fitres->GetCovarianceMatrix()[0][1];
+  const int n_p = 3;
+  double fit_v[3];
+  double cov[3][3];
+  for(int i = 0; i < 3; i++) {
+    fit_v[i] = f_fit1->GetParameter(i);
+    for(int j = 0; j < 3; j++) {
+      cov[i][j] = fitres->GetCovarianceMatrix()[i][j];
+    }
+  }
 
   // get binning from the stored data histos
   TFile *infile = new TFile("../../PR_fit/files/histoStore.root");
@@ -109,18 +115,29 @@ void fitFrac()
   // f_bkg(pT) but generating 2d map so it's easier to apply uncertainties
   TH2D *h_fbkg = new TH2D("h_fbkg", "2018 f_{bkg}", nBinsX, minX, maxX, nBinsY, yBins);
   double ln = 10000;
+  double dpar[n_p];
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
     double pt = 0.5*(yBins[i_pt+1]+yBins[i_pt]);
     double xpar[] = {pt};
+    double fv = f_fit1->Eval(pt), fe = 0;
     
-    double par_M[] = {M_v+M_e/ln, a_v, 0};
-    double par_a[] = {M_v, a_v+a_e/ln, 0};
-    double dM = (f_fit1->EvalPar(xpar, par_M)-f_fit1->Eval(pt))/(M_e/ln);
-    double da = (f_fit1->EvalPar(xpar, par_a)-f_fit1->Eval(pt))/(a_e/ln);
+    // get the function deviation for each parameter
+    for(int i = 0; i < n_p; i++) {
+      fit_v[i]+=sqrt(cov[i][i])/ln;
+      dpar[i] = (f_fit1->EvalPar(xpar, fit_v)-fv)/(sqrt(cov[i][i])/ln);
+      fit_v[i]-=sqrt(cov[i][i])/ln;
+    }
 
+    for(int i = 0; i < n_p; i++) 
+      for(int j = 0; j < n_p; j++) {
+	fe += dpar[i]*dpar[j]*cov[i][j];
+      }
+    fe = sqrt(fe);
+    
+    // same result for all costh bins
     for(int i_cos = 0; i_cos < nBinsX; i_cos++) {
-      h_fbkg->SetBinContent(i_cos+1, i_pt+1, f_fit1->Eval(pt));
-      h_fbkg->SetBinError(i_cos+1, i_pt+1, sqrt( pow(dM * M_e, 2) + pow(da * a_e, 2) + 2*dM*da*cov ));
+      h_fbkg->SetBinContent(i_cos+1, i_pt+1, fv);
+      h_fbkg->SetBinError(i_cos+1, i_pt+1, fe);
     }
   }
 

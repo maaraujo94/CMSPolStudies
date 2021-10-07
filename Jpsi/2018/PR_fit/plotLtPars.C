@@ -164,7 +164,7 @@ void plotLtPars()
   TGraphErrors *g_chi_f = new TGraphErrors(pt_bins, pt_avg, chiN[1], pt_err, zero);
   TGraphErrors *g_chi_b = new TGraphErrors(pt_bins, pt_avg, chiN[2], pt_err, zero);
 
-  TH1F *fchi = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 20);
+  TH1F *fchi = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 3);
   fchi->SetXTitle("p_{T} (GeV)");
   fchi->SetYTitle("#chi^{2}/ndf");
   fchi->GetYaxis()->SetTitleOffset(1.5);
