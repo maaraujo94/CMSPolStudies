@@ -112,7 +112,10 @@ void ltBkg()
   f_avg = do_round(f_avg*pow(10, nm))/pow(10, nm);
 
   cout << endl << endl << nm << " " << f_avg << endl << endl;
-  
+
+  TFile *fout = new TFile("files/ltfitres.root", "recreate");
+  fout->Close();
+
   for(int i = 0; i < nPtBins; i++) {
     ltPerPt_bFix(ptBins[i], ptBins[i+1], mu_avg, f_avg);
     cout << endl;

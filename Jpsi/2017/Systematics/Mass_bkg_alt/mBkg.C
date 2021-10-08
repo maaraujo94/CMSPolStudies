@@ -182,7 +182,7 @@ void mBkg()
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.12);
   f_cb->SetNpx(1000);
-  h_d2d->Fit("f_cb", "R");
+  TFitResultPtr fitres = h_d2d->Fit("f_cb", "RS");
 
   // tf1 for plotting in the 1D bins
   TF1 *f_1d = new TF1("f_1d", "[1]*cb_exp(x,[0],[3],[2],[5],[6]) + (1.-[1]-[9]) * cb_exp(x,[0],[4],[2],[5],[6]) + [9]*g_exp(x, [0], [10], [2])+bkg_exp(x,[7],[8])", m_min[0], m_max[2]);
@@ -394,6 +394,10 @@ void mBkg()
   
   TLine *l_chi = new TLine(ptBins[0], f_cb->GetChisquare()/f_cb->GetNDF(), ptBins[nPtBins], f_cb->GetChisquare()/f_cb->GetNDF());
   l_chi->Write("fit_chiN");
+
+  fitres->SetName("fitres");
+  fitres->Write();
+  
   fout->Close();
 
   double mult[] = {1., 1e2, 1e3, 1e3, 1e3, 1., 1., 1., 1., 1e2, 1e3};

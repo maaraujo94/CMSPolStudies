@@ -57,12 +57,14 @@ void bkgSubL()
   // NP fraction in NP SR - corrected for mass bkg contamination
   TH2D *h_fb2d = new TH2D();
   TH2D *h_fnp2d = new TH2D();
-  TFile *inFracS = new TFile("../../PR_fit/files/bkgFrac.root");
-  inFracS->GetObject("h_fbkg", h_fb2d);
-  inFracS->GetObject("h_fNPc", h_fnp2d);
+  TFile *inFracSB = new TFile("../../PR_fit/files/bkgFrac.root");
+  inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
+  inFracSB->Close();
+  TFile *inFracNP = new TFile("../../PR_fit/files/NPFrac.root");
+  inFracNP->GetObject("h_fNPc", h_fnp2d);
   h_fnp2d->SetDirectory(0);
-  inFracS->Close();
+  inFracNP->Close();
   
   TFile *fout = new TFile("files/bkgSubRes.root", "recreate");
   TCanvas *c =  new TCanvas("", "", 900, 900);

@@ -56,9 +56,8 @@
 
 \textbf{Background functions}
 \begin{enumerate}
-\item fbkgGen.C
-\item fNPGen.C
-\item fitFrac.C
+\item fbkgProp.C
+\item fnpProp.C
 \item fNPcorr.C (this point onwards requires running the NP\_fit framework)
 \end{enumerate}
 
@@ -253,9 +252,7 @@ The distributions are obtained in the 17 $\pt$ bins of the data. Done with genDi
 
 \subsection{The background fractions}
 
-For each of the 7 (or 17) $\pt$ bins used in the associated fit, generate 1e5 sets of fit parameters, according to a Gaussian with mean value and standard deviation given by the fit result and uncertainty. For each event, determine the resulting $f_{bkg}$ or $f_{NP}$. This is done with fbkgGen.C for $f_{bkg}$ and fNPGen.C for $f_{NP}$.
-
-Taking the resulting distributions, define the fraction at each $\pt$ bin as the mean value, and its uncertainty as the standard deviation. 
+For each of the 7 (or 17) $\pt$ bins used in the associated fit, determine the resulting $f_{bkg}$ or $f_{NP}$ and propagate the error with the fit uncertainty and covariance of each input parameter. This is done with fbkgProp.C for $f_{bkg}$ and fNPProp.C for $f_{NP}$.
 
 \subsubsection{Mass background fit}
 
@@ -263,7 +260,7 @@ Fit the mass background fraction, now with propagated uncertainties, with
 \begin{equation}
 M\left(1-e^{-a\cdot(\pt-\mu)}\right)
 \end{equation}
-with $\mu=0$ for current tests. Code fitFrac.C. Plots $f_{bkg}$ and stores the graph and the fit function, as well as the histogram with propagated uncertainties to be used in the background subtraction. Also plots $f_{NP}$ and stores the histogram with the uncertainties obtained.
+Also part of fbkgProp.C. Plots $f_{bkg}$ and stores the graph and the fit function, as well as the histogram with propagated uncertainties to be used in the background subtraction.
 
 \subsubsection{NP fraction correction}
 

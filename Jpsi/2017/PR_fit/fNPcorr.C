@@ -1,8 +1,8 @@
 void fNPcorr()
 {
   // get the base f_NP
-  TFile *inNP = new TFile("files/bkgFrac.root");
-  TH2D *h_fnp = (TH2D*)inNP->Get("h_fnp");
+   TFile *inNP = new TFile("files/NPFrac.root");
+   TH2D *h_fnp = (TH2D*)inNP->Get("h_fnp");
   h_fnp->SetDirectory(0);
   inNP->Close();
   
@@ -62,7 +62,7 @@ void fNPcorr()
   c->SaveAs("plots/f_NP_corr.pdf");
   c->Destructor();
   
-  TFile *fout = new TFile("files/bkgFrac.root", "update");
+  TFile *fout = new TFile("files/NPFrac.root", "update");
   h_fNPc->Write(0, TObject::kOverwrite);
   fout->Close();
 }
