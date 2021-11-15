@@ -1,30 +1,8 @@
-// macro to plot and fit the 2018 psi(2S) lifetime distribution
-
-TF1 *fres;
-TF1 *fNP;
-TF1 *fbkL, *fbkR, *fbkD;
-
-// define negative exponential only for positive x
-double pos_exp(double x, double ld)
-{
-  if(x > 0) return exp(-x/ld);
-  else return 0;
-}
-
-// define final fit function summing the PR and NP contributions
-double func_sum(double *xx, double *pp)
-{
-  double lt = xx[0];
-  double N_PR = pp[0], N_NP = pp[1], f2 = pp[2], mu = pp[3], sig1 = pp[4], sig2 = pp[5], ld = pp[6];
-
-  fres->SetParameters(N_PR, f2, mu, sig1, sig2);
-  fNP->SetParameters(N_NP, f2, mu, sig1, sig2, ld);
-
-  return fres->Eval(lt) + fNP->Eval(lt);
-}
+// macro to plot and fit the 2017 psi(2S) lifetime distribution
+// case where mu is fixed to zero
 
 // MAIN
-void ltPerPt(double binLow, double binHigh)
+void ltPerPt_muFix(double binLow, double binHigh, double mu_avg)
 {
   // PART 1 : GETTING THE HISTOS
   TH1D *ltHist = new TH1D();
@@ -62,7 +40,8 @@ void ltPerPt(double binLow, double binHigh)
   // define the fit function as the sum of all contributions
   TF1 *fitS = new TF1("fitS", func_sum, lowt, hit, 7);
   fitS->SetParNames("N_PR", "N_NP", "f", "mu", "sigma1", "sigma2", "lambda");
-  fitS->SetParameters(ltHist->GetMaximum(), ltHist->GetMaximum()*5., 0.8, 0, 1e-2, 3e-2, 0.35);
+  fitS->SetParameters(ltHist->GetMaximum()/2., ltHist->GetMaximum()*5., 0.8, 0, 1e-2, 2e-2, 0.4);
+  fitS->FixParameter(3,mu_avg);
   fitS->SetLineColor(kBlue);
   int fits = ltHist->Fit(fitS, "RQ");
   
@@ -115,7 +94,7 @@ void ltPerPt(double binLow, double binHigh)
   lsig3->SetLineStyle(kDashed);
   lsig3->Draw("lsame");
 
-  c->SaveAs(Form("plots/lifetime/fit_pt%.0f.pdf", binLow));
+  c->SaveAs(Form("plots/lifetime/fit_mf_pt%.0f.pdf", binLow));
   c->Clear();
   
   // get the pulls and rel dev distribution
@@ -164,7 +143,7 @@ void ltPerPt(double binLow, double binHigh)
   psig3->SetLineStyle(kDashed);
   psig3->Draw("lsame");
   
-  c->SaveAs(Form("plots/lifetime/pulls_%.0f.pdf", binLow));
+  c->SaveAs(Form("plots/lifetime/pulls_mf_%.0f.pdf", binLow));
   c->Clear();
 
   // plotting the devs
@@ -194,11 +173,11 @@ void ltPerPt(double binLow, double binHigh)
   dsig3->SetLineStyle(kDashed);
   dsig3->Draw("lsame");
   
-  c->SaveAs(Form("plots/lifetime/devs_%.0f.pdf", binLow));
+  c->SaveAs(Form("plots/lifetime/devs_mf_%.0f.pdf", binLow));
   c->Clear();
   
   ofstream ftable;
-  ftable.open("text_output/lt_fit.txt", std::ios::app);
+  ftable.open("text_output/lt_fit_mf.txt", std::ios::app);
   ftable << binLow << "\t " << binHigh << "\t ";
   for(int i = 0; i < 7; i++) {
     if(i < 2)

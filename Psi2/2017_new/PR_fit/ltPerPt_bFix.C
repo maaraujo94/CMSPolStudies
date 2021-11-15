@@ -1,30 +1,8 @@
-// macro to plot and fit the 2018 psi(2S) lifetime distribution
-
-TF1 *fres;
-TF1 *fNP;
-TF1 *fbkL, *fbkR, *fbkD;
-
-// define negative exponential only for positive x
-double pos_exp(double x, double ld)
-{
-  if(x > 0) return exp(-x/ld);
-  else return 0;
-}
-
-// define final fit function summing the PR and NP contributions
-double func_sum(double *xx, double *pp)
-{
-  double lt = xx[0];
-  double N_PR = pp[0], N_NP = pp[1], f2 = pp[2], mu = pp[3], sig1 = pp[4], sig2 = pp[5], ld = pp[6];
-
-  fres->SetParameters(N_PR, f2, mu, sig1, sig2);
-  fNP->SetParameters(N_NP, f2, mu, sig1, sig2, ld);
-
-  return fres->Eval(lt) + fNP->Eval(lt);
-}
+// macro to plot and fit the 2017 Psi(2S) lifetime distribution
+// case where mu is fixed to zero
 
 // MAIN
-void ltPerPt(double binLow, double binHigh)
+void ltPerPt_bFix(double binLow, double binHigh, double mu_avg, double f_avg)
 {
   // PART 1 : GETTING THE HISTOS
   TH1D *ltHist = new TH1D();
@@ -45,6 +23,7 @@ void ltPerPt(double binLow, double binHigh)
   double lowPlot = -0.1;
   
   TCanvas *c = new TCanvas("", "", 900, 900);
+  c->SetLeftMargin(0.11);
   c->SetLogy();
   
   // PART 2 : FITTING THE HISTOS
@@ -62,14 +41,17 @@ void ltPerPt(double binLow, double binHigh)
   // define the fit function as the sum of all contributions
   TF1 *fitS = new TF1("fitS", func_sum, lowt, hit, 7);
   fitS->SetParNames("N_PR", "N_NP", "f", "mu", "sigma1", "sigma2", "lambda");
-  fitS->SetParameters(ltHist->GetMaximum(), ltHist->GetMaximum()*5., 0.8, 0, 1e-2, 3e-2, 0.35);
+  fitS->SetParameters(ltHist->GetMaximum()/2., ltHist->GetMaximum()*5., 0.8, 0, 1e-2, 2e-2, 0.4);
+  fitS->FixParameter(3,mu_avg);
+  fitS->FixParameter(2, f_avg);
   fitS->SetLineColor(kBlue);
-  int fits = ltHist->Fit(fitS, "RQ");
+  fitS->SetNpx(1000);
+  TFitResultPtr fits = ltHist->Fit(fitS, "RQS");
   
   // get the NP fraction in the signal region (+- 100 mum)
   fNP->SetParameters(fitS->GetParameter(1), fitS->GetParameter(2), fitS->GetParameter(3), fitS->GetParameter(4), fitS->GetParameter(5), fitS->GetParameter(6));
   double evt_NP = fNP->Integral(-pr_lim, pr_lim);
-    
+     
   double min_bin = ltHist->GetXaxis()->FindBin(-(pr_lim-1e-6));
   double max_bin = ltHist->GetXaxis()->FindBin(pr_lim-1e-6);
   double evt_all = ltHist->Integral(min_bin, max_bin, "width");
@@ -80,6 +62,8 @@ void ltPerPt(double binLow, double binHigh)
   // draw results
   ltHist->SetMaximum(ltHist->GetMaximum()*1.2);
   ltHist->SetMinimum(ltHist->GetMaximum()*5e-4);
+  if(binLow > 33 && binLow < 35) ltHist->SetMinimum(2e3);
+  if(binLow > 75 && binLow < 77) ltHist->SetMinimum(2e1);
 
   TH1F *fh = c->DrawFrame(lowPlot, ltHist->GetMinimum(), hit, ltHist->GetMaximum());
   fh->SetXTitle("c#tau (mm)");
@@ -115,8 +99,46 @@ void ltPerPt(double binLow, double binHigh)
   lsig3->SetLineStyle(kDashed);
   lsig3->Draw("lsame");
 
-  c->SaveAs(Form("plots/lifetime/fit_pt%.0f.pdf", binLow));
+  c->SaveAs(Form("plots/lifetime/fit_bf_pt%.0f.pdf", binLow));
   c->Clear();
+
+  if(binLow > 75 && binLow < 77) {
+    c->SetLogy(0);
+
+    ltHist->SetMinimum(0);
+    ltHist->SetMaximum(5000);
+    
+    TH1F *f76 = c->DrawFrame(lowPlot, ltHist->GetMinimum(), hit, ltHist->GetMaximum());
+    f76->SetXTitle("c#tau (mm)");
+    f76->SetYTitle(Form("Events per %.0f #mum", wbin*1000.));
+    f76->GetYaxis()->SetTitleOffset(1.6);
+    f76->GetYaxis()->SetLabelOffset(0.01);
+    f76->SetTitle("");
+
+    ltHist->SetMarkerStyle(20);
+    ltHist->SetLineColor(kBlack);
+    ltHist->SetMarkerColor(kBlack);
+    ltHist->SetMarkerSize(.75);
+    ltHist->Draw("error same");
+
+    // draw fit contributions
+    fNP->SetLineStyle(kSolid);
+    fNP->Draw("lsame");
+
+    // aux lines for the 2.5 sigma and 4 sigma limits
+    TLine *lsig1 = new TLine(-pr_lim, ltHist->GetMinimum(), -pr_lim, ltHist->GetMaximum());
+    lsig1->SetLineStyle(kDashed);
+    lsig1->Draw("lsame");
+    TLine *lsig2 = new TLine(pr_lim, ltHist->GetMinimum(), pr_lim, ltHist->GetMaximum());
+    lsig2->SetLineStyle(kDashed);
+    lsig2->Draw("lsame");
+    TLine *lsig3 = new TLine(np_lim, ltHist->GetMinimum(), np_lim, ltHist->GetMaximum());
+    lsig3->SetLineStyle(kDashed);
+    lsig3->Draw("lsame");
+
+    c->SaveAs(Form("plots/lifetime/fitL_bf_pt%.0f.pdf", binLow));
+    c->Clear();
+  }
   
   // get the pulls and rel dev distribution
   double xv[tbins], pv[tbins], dv[tbins];
@@ -134,7 +156,7 @@ void ltPerPt(double binLow, double binHigh)
   // plotting the pulls
   c->SetLogy(0);
   
-  TH1F *fp = c->DrawFrame(lowPlot, -15, hit, 15);
+  TH1F *fp = c->DrawFrame(lowPlot, -7, hit, 7);
   fp->SetXTitle("c#tau (mm)");
   fp->SetYTitle("pulls");
   fp->GetYaxis()->SetTitleOffset(1.3);
@@ -154,17 +176,30 @@ void ltPerPt(double binLow, double binHigh)
   fcons->SetLineColor(kBlack);
   fcons->Draw("lsame");
 
-  TLine *psig1 = new TLine(-pr_lim, -15, -pr_lim, 15);
+  TLine *psig1 = new TLine(-pr_lim, -7, -pr_lim, 7);
   psig1->SetLineStyle(kDashed);
   psig1->Draw("lsame");
-  TLine *psig2 = new TLine(pr_lim, -15, pr_lim, 15);
+  TLine *psig2 = new TLine(pr_lim, -7, pr_lim, 7);
   psig2->SetLineStyle(kDashed);
   psig2->Draw("lsame");
-  TLine *psig3 = new TLine(np_lim, -15, np_lim, 15);
+  TLine *psig3 = new TLine(np_lim, -7, np_lim, 7);
   psig3->SetLineStyle(kDashed);
   psig3->Draw("lsame");
-  
-  c->SaveAs(Form("plots/lifetime/pulls_%.0f.pdf", binLow));
+
+  TLine *plim1 = new TLine(lowPlot, -5, hit, -5);
+  plim1->SetLineStyle(kDotted);
+  plim1->Draw("lsame");
+  TLine *plim2 = new TLine(lowPlot, -3, hit, -3);
+  plim2->SetLineStyle(kDotted);
+  plim2->Draw("lsame");
+  TLine *plim3 = new TLine(lowPlot, 3, hit, 3);
+  plim3->SetLineStyle(kDotted);
+  plim3->Draw("lsame");
+  TLine *plim4 = new TLine(lowPlot, 5, hit, 5);
+  plim4->SetLineStyle(kDotted);
+  plim4->Draw("lsame");
+
+  c->SaveAs(Form("plots/lifetime/pulls_bf_%.0f.pdf", binLow));
   c->Clear();
 
   // plotting the devs
@@ -194,11 +229,11 @@ void ltPerPt(double binLow, double binHigh)
   dsig3->SetLineStyle(kDashed);
   dsig3->Draw("lsame");
   
-  c->SaveAs(Form("plots/lifetime/devs_%.0f.pdf", binLow));
+  c->SaveAs(Form("plots/lifetime/devs_bf_%.0f.pdf", binLow));
   c->Clear();
   
   ofstream ftable;
-  ftable.open("text_output/lt_fit.txt", std::ios::app);
+  ftable.open("text_output/lt_fit_bf.txt", std::ios::app);
   ftable << binLow << "\t " << binHigh << "\t ";
   for(int i = 0; i < 7; i++) {
     if(i < 2)
@@ -209,6 +244,11 @@ void ltPerPt(double binLow, double binHigh)
   ftable << fitS->GetChisquare() << "\t " << fitS->GetNDF() << "\t " << fracNP << "\n";
   ftable.close();
 
+  TFile *fout = new TFile("files/ltfitres.root", "update");
+  fits->SetName(Form("fitres_%.0f", binLow));
+  fits->Write(0, TObject::kOverwrite);
+  fout->Close();
+  
   c->Destructor();
 
 }

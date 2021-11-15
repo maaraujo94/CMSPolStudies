@@ -87,7 +87,7 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 
 
 // MAIN
-void mBkg_d()
+void mBkg()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
@@ -115,7 +115,7 @@ void mBkg_d()
   double m_max[] = {3.52, 3.81, 4.0};
 
   // Fill 2d histo
-  TH2D *h_d2d = new TH2D("h_d2d", "2018 data M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
+  TH2D *h_d2d = new TH2D("h_d2d", "2017 data M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
 
   // scale 1d histos and fill 2d histo
   for(int i = 0; i < nPtBins; i++) {
@@ -125,11 +125,32 @@ void mBkg_d()
     }
   } 
 
+  // get the MC n and alpha values for fixing
+  TFile *inMC = new TFile("../bkgFits/files/MCfit_G.root");
+  double n_v = ((TGraphErrors*)inMC->Get("fit_n"))->GetY()[0];
+  double alpha_v = ((TGraphErrors*)inMC->Get("fit_alpha"))->GetY()[0]; 
+  double fG_v = ((TGraphErrors*)inMC->Get("fit_fG"))->GetY()[0]/100.;
+  double sigG_v1 = ((TGraphErrors*)inMC->Get("sigG_lin"))->GetY()[0];
+  double sigG_v2 = ((TGraphErrors*)inMC->Get("sigG_lin"))->GetY()[1];
+  inMC->Close();
+
+  // fix with 3 decimal cases
+  int nm = ceil(-log10(n_v))+3;	
+  n_v = do_round(n_v*pow(10, nm))/pow(10, nm);
+  nm = ceil(-log10(alpha_v))+3;	
+  alpha_v = do_round(alpha_v*pow(10, nm))/pow(10, nm);
+  nm = ceil(-log10(fG_v))+3;	
+  fG_v = do_round(fG_v*pow(10, nm))/pow(10, nm);
+  nm = ceil(-log10(sigG_v1))+3;	
+  sigG_v1 = do_round(sigG_v1*pow(10, nm))/pow(10, nm);
+  nm = ceil(-log10(sigG_v2))+3;	
+  sigG_v2 = do_round(sigG_v2*pow(10, nm))/pow(10, nm);
+  
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
   string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
-  double par_v[] =  {1., 0.6, 3.69, 1e-4, 1e-4, 1.9, 1.840, 1., 1., 0, 1e-4};
-  double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1.,      1., 1.,  1.,   8e-2};
+  double par_v[] =  {1., 0.5, 3.7, 1e-4, 1e-4, n_v, alpha_v, 1., 0.7, fG_v, sigG_v1};
+  double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1.,      1., 1.,  1.,   sigG_v2};
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
     // normalizations
@@ -143,20 +164,16 @@ void mBkg_d()
 	f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
 	f_cb->SetParameter(j*nPtBins+i, par_v[j]);
 	// fixing mu, f so only one value matters
-	if((j < 3)  && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+	if(j < 3  && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+	// fixing n, alpha, fG to MC value
+	else if((j == 5 || j == 6 || j == 9)) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+
 	// setting the linear parameters sigma_1,2
 	else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	else if((j == 3 || j == 4) && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
-	// fixing n, fG to stated value
-	else if (j == 5 || j == 9) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-
-	// fixing alpha to MC value (or leaving pT-constant free)
-	//else if(j == 6) f_cb->FixParameter(j*nPtBins+i, par_v[j]); // MC value
-	else if(j == 6 && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]); // pT-constant free
-	
-	// setting the linear parameter sigma_G to stated values - meaningless
-	else if(j == 10 && i != 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-	else if(j == 10 && i == 1) f_cb->FixParameter(j*nPtBins+i, par2_v[j]);
+	// setting sigma_G from MC
+	else if((j == 10) && i != 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+	else if((j == 10) && i == 1) f_cb->FixParameter(j*nPtBins+i, par2_v[j]);
       }
     }
   }
@@ -339,7 +356,7 @@ void mBkg_d()
     fd->SetYTitle("relative difference (%)");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Data #psi(2S) rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Data J/#psi rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_dev = new TGraph(mbins, mv, dv);
     g_dev->SetLineColor(kBlack);
@@ -380,7 +397,7 @@ void mBkg_d()
 
   fitres->SetName("fitres");
   fitres->Write();
-
+  
   fout->Close();
 
   double mult[] = {1., 1e2, 1e3, 1e3, 1e3, 1., 1., 1., 1., 1e2, 1e3};
@@ -396,8 +413,8 @@ void mBkg_d()
     // pT bin
     ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
     for(int i_p = 0; i_p < 11; i_p++) {
-      // plot all pT values - N (0), sig1,2 (3,4), N_BG (7), lambda (8), NOT sigG (10)
-      if(i_p == 0 || i_p == 3 || i_p == 4 || i_p == 7 || i_p == 8 ) {//|| i_p == 10) {
+      // plot all pT values - N (0), sig1,2 (3,4), N_BG (7), lambda (8), sigG (10)
+      if(i_p == 0 || i_p == 3 || i_p == 4 || i_p == 7 || i_p == 8 || i_p == 10) {
 	double val = pars[i_p][i]*mult[i_p], unc = epars[i_p][i]*mult[i_p];
 	if(i_p == 0 || i_p == 7) {
 	  val /= (ptBins[i+1]-ptBins[i]);
@@ -413,8 +430,8 @@ void mBkg_d()
 	  ftex << " & " <<  setprecision(p_norm) << fixed << val ;
 	}
       }
-      // plot single value: f (1), mu (2), n, alpha (5,6), fG (9), NOW sigG (10)
-      else if((i_p == 1 || i_p == 2 || i_p == 5 || i_p == 6 || i_p == 9 || i_p == 10) && i == 0) {
+      // plot single value: f (1), mu (2), n, alpha (5,6), fG (9)
+      else if((i_p == 1 || i_p == 2 || i_p == 5 || i_p == 6 || i_p == 9) && i == 0) {
 	double val = pars[i_p][i]*mult[i_p], unc = epars[i_p][i]*mult[i_p];
 	if(unc > 0) {
 	  int p_norm = 1.; 
@@ -435,10 +452,10 @@ void mBkg_d()
   ftex << "\\end{tabular}\n";
   ftex.close();
   
-  // sigma parameters - ONLY 1 and 2
+  // sigma parameters
   ofstream ftex2;
   ftex2.open("text_output/mfit_resA.tex");
-  /*ftex2 << "\\begin{tabular}{cc|cc|cc||c}\n";
+  ftex2 << "\\begin{tabular}{cc|cc|cc||c}\n";
   ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} & \\multicolumn{2}{|c}{$\\sigma_G$}  & \\multirow{2}{*}{$\\chi^2/$ndf}\\\\\n";
   ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & \\\\\n";
   ftex2 << "\\hline\n";
@@ -461,24 +478,7 @@ void mBkg_d()
     val = f_cb->GetParameter(j*nPtBins+1)*1e3;
     p_norm = ceil(-log10(val))+3;	
     ftex2 << setprecision(p_norm) << fixed << val << " & ";
-    }*/
-  ftex2 << "\\begin{tabular}{cc|cc||c}\n";
-  ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$}  & \\multirow{2}{*}{$\\chi^2/$ndf}\\\\\n";
-  ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV)  & \\\\\n";
-  ftex2 << "\\hline\n";
-
-  for(int j = 3; j < 5; j++) {
-    double val = f_cb->GetParameter(j*nPtBins)*1e5;
-    double unc = f_cb->GetParError(j*nPtBins)*1e5;
-    int p_norm = ceil(-log10(unc))+1;	
-    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-    val = f_cb->GetParameter(j*nPtBins+1)*1e3;
-    unc = f_cb->GetParError(j*nPtBins+1)*1e3;
-    p_norm = ceil(-log10(unc))+1;	
-    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
-    ftex2 << " & ";
   }
-
   // chi^2
   ftex2 << setprecision(0) << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << "\\\\\n";
   ftex2 << "\\end{tabular}\n";

@@ -7,9 +7,9 @@ void indFit()
 {
   // read the histos from subtraction
   TFile *infile = new TFile("files/bkgSubRes.root");
-  TH2D **h_fit = new TH2D*[5];
-  string lbl[] = {"Data", "NP", "PR", "J", "SB"};
-  for(int i = 0; i < 5; i++) {
+  TH2D **h_fit = new TH2D*[3];
+  string lbl[] = {"NP", "NPc", "SB"};
+  for(int i = 0; i < 3; i++) {
     infile->GetObject(Form("h_%s", lbl[i].c_str()), h_fit[i]);
     h_fit[i]->SetDirectory(0);
   }
@@ -20,8 +20,8 @@ void indFit()
   const double *yBins = h_fit[0]->GetYaxis()->GetXbins()->GetArray();
 
   // get the 1d plots
-  TH1D *pHist[5][nBinsY];
-  for(int i_t = 0; i_t < 5; i_t++) {
+  TH1D *pHist[3][nBinsY];
+  for(int i_t = 0; i_t < 3; i_t++) {
     for(int i = 1; i <= nBinsY; i++) {
       pHist[i_t][i-1] = h_fit[i_t]->ProjectionX(Form("bin%d_%d", i, i_t+1), i, i);
       pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.0f, %.0f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
@@ -29,8 +29,8 @@ void indFit()
   }
   
   // the fit function to be used
-  TF1 **fit1d = new TF1*[4];
-  for(int i = 0; i < 4; i++) {
+  TF1 **fit1d = new TF1*[2];
+  for(int i = 0; i < 2; i++) {
     fit1d[i] = new TF1(Form("fit_%d", i), "[0]*(1+[1]*x*x)", 0, 1);
     fit1d[i]->SetParNames("A", "l_th");
   }
@@ -52,9 +52,9 @@ void indFit()
   TCanvas *c = new TCanvas("", "", 700, 700);    
   TFile *outfile = new TFile("files/finalFitRes.root", "recreate");
 
-  double parA[4][nBinsY], eparA[4][nBinsY];
-  double parL[4][nBinsY], eparL[4][nBinsY];
-  double chi2[4][nBinsY], ndf[4][nBinsY], chiP[4][nBinsY];
+  double parA[2][nBinsY], eparA[2][nBinsY];
+  double parL[2][nBinsY], eparL[2][nBinsY];
+  double chi2[2][nBinsY], ndf[2][nBinsY], chiP[2][nBinsY];
   double pt[nBinsY], ept[nBinsY];
   
   for(int i = 0; i < nBinsY; i++) {
@@ -67,10 +67,10 @@ void indFit()
     // get max costheta
     double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin))-0.05;
 
-    // fit the 4 functions
-    for(int i_t = 0; i_t < 4; i_t++) {
+    // fit the 2 functions
+    for(int i_t = 0; i_t < 2; i_t++) {
       fit1d[i_t]->SetRange(0, cMaxVal);
-      fit1d[i_t]->SetParameters(pHist[i_t][i]->GetBinContent(1)*1.1, 0.01);
+      fit1d[i_t]->SetParameters(pHist[i_t][i]->GetBinContent(1)*1.1, 0.1);
 
       pHist[i_t][i]->Fit(fit1d[i_t], "R0");
 
@@ -86,55 +86,44 @@ void indFit()
     // plotting everything
     pHist[0][i]->SetTitle(Form("Signal extraction (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
     pHist[0][i]->SetStats(0);
-    pHist[0][i]->SetLineColor(kViolet);
-    pHist[0][i]->SetMarkerColor(kViolet);
+    pHist[0][i]->SetLineColor(kRed);
+    pHist[0][i]->SetMarkerColor(kRed);
     pHist[0][i]->SetMinimum(0);
-    pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*2.0);
+    pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.5);
     pHist[0][i]->Draw("error");
-    fit1d[0]->SetLineColor(kViolet);
+    fit1d[0]->SetLineColor(kRed);
     fit1d[0]->SetLineStyle(kDashed);
     fit1d[0]->Draw("same");
 
-    pHist[1][i]->SetLineColor(kRed);
-    pHist[1][i]->SetMarkerColor(kRed);
+    pHist[1][i]->SetLineColor(kRed+3);
+    pHist[1][i]->SetMarkerColor(kRed+3);
     pHist[1][i]->Draw("same");
+    fit1d[1]->SetLineColor(kRed+3);
+    fit1d[1]->SetLineStyle(kDashed);
+    fit1d[1]->Draw("same");
 
-    pHist[2][i]->SetLineColor(kBlack);
-    pHist[2][i]->SetMarkerColor(kBlack);
+    pHist[2][i]->SetLineColor(kGreen);
+    pHist[2][i]->SetMarkerColor(kGreen);
     pHist[2][i]->Draw("same");
-
-    pHist[4][i]->SetLineColor(kGreen);
-    pHist[4][i]->SetMarkerColor(kGreen);
-    pHist[4][i]->Draw("same");
-
-    pHist[3][i]->SetLineColor(kBlue);
-    pHist[3][i]->SetMarkerColor(kBlue);
-    pHist[3][i]->Draw("same");
-    fit1d[3]->SetLineColor(kBlue);
-    fit1d[3]->SetLineStyle(kDashed);
-    fit1d[3]->Draw("same");
-
-
+    
     TLatex lc;
     lc.SetTextSize(0.03);
-    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{total} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
-    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#theta}^{prompt #psi(2S)} = %.3f #pm %.3f", parL[3][i], eparL[3][i]));
+    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{NP} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
+    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#theta}^{pure NP} = %.3f #pm %.3f", parL[1][i], eparL[1][i]));
     
     TLine *c_lim = new TLine(cMaxVal, 0, cMaxVal, pHist[0][i]->GetMaximum());
     c_lim->SetLineStyle(kDashed);
     c_lim->SetLineColor(kBlack);
     c_lim->Draw();
 
-    TLegend *leg = new TLegend(0.675, 0.7, 0.9, 0.9);
+    TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
     leg->SetTextSize(0.03);
-    leg->AddEntry(pHist[0][i], "total", "pl");
-    leg->AddEntry(pHist[1][i], "NP contrib", "pl");
-    leg->AddEntry(pHist[2][i], "prompt", "pl");
-    leg->AddEntry(pHist[4][i], "SB contrib", "pl");
-    leg->AddEntry(pHist[3][i], "prompt #psi(2S)", "pl");
+    leg->AddEntry(pHist[0][i], "NP", "pl");
+    leg->AddEntry(pHist[2][i], "SB contrib", "pl");
+    leg->AddEntry(pHist[1][i], "pure NP", "pl");
     leg->Draw();
 
-    for(int i_t = 0; i_t < 5; i_t++)
+    for(int i_t = 0; i_t < 3; i_t++)
       pHist[i_t][i]->Write();
  
     c->SaveAs(Form("plots/ratioFinal/bin_%d.pdf", i));
@@ -142,7 +131,7 @@ void indFit()
     cout << endl << endl;
   }
 
-  for(int i_t = 0; i_t < 4; i_t++) {
+  for(int i_t = 0; i_t < 2; i_t++) {
     // make and save the TGraph with the fit results and max costh used
     TGraphErrors *graphA = new TGraphErrors(nBinsY, pt, parA[i_t], ept, eparA[i_t]);
     TGraphErrors *graphL = new TGraphErrors(nBinsY, pt, parL[i_t], ept, eparL[i_t]);

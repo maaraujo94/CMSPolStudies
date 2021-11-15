@@ -1,4 +1,4 @@
-// macro to plot and fit the 2018 psi(2S) lifetime distribution
+// macro to plot and fit the 2017 psi(2S) lifetime distribution
 
 TF1 *fres;
 TF1 *fNP;
@@ -48,7 +48,6 @@ void ltPerPt(double binLow, double binHigh)
   c->SetLogy();
   
   // PART 2 : FITTING THE HISTOS
-  
   // define the resolution (=PR) function
   fres = new TF1("fres", "[0]*([1]*TMath::Gaus(x, [2],[3]) + (1.-[1])*TMath::Gaus(x, [2], [4]))", 5*lowt, 5*hit);
 

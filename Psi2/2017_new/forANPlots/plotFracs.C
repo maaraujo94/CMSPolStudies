@@ -39,7 +39,7 @@ void plotFracs()
   fr1->SetYTitle("f (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("2018 f comparison");
+  fr1->SetTitle("2017 f comparison");
 
   h_fNP->SetLineColor(kRed);
   h_fNP->SetMarkerColor(kRed);

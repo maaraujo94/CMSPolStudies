@@ -87,7 +87,7 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 
 
 // MAIN
-void mBkg_d()
+void mBkg()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
@@ -125,11 +125,30 @@ void mBkg_d()
     }
   } 
 
+  // get the MC n and alpha values for fixing
+  TFile *inMC = new TFile("../../2018_new/bkgFits/files/MCNPfit.root");
+  TGraphErrors *g_pars_MC = (TGraphErrors*)inMC->Get("g_pars");
+  
+  double n_v = g_pars_MC->GetY()[5];
+  double alpha_v = g_pars_MC->GetY()[6]; 
+  double fG_v = g_pars_MC->GetY()[7];
+  double sigG_v2 = g_pars_MC->GetY()[8];
+  double sigG_v1 = 0;
+  inMC->Close();
+
+  // fix with 3 decimal cases
+  int nm = ceil(-log10(n_v))+3;	
+  n_v = do_round(n_v*pow(10, nm))/pow(10, nm);
+  nm = ceil(-log10(alpha_v))+3;	
+  alpha_v = do_round(alpha_v*pow(10, nm))/pow(10, nm);
+  nm = ceil(-log10(sigG_v2))+3;	
+  sigG_v2 = do_round(sigG_v2*pow(10, nm))/pow(10, nm);
+
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
   string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
-  double par_v[] =  {1., 0.6, 3.69, 1e-4, 1e-4, 1.9, 1.840, 1., 1., 0, 1e-4};
-  double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1.,      1., 1.,  1.,   8e-2};
+  double par_v[] =  {1., 0.4, 3.69, 1e-4, 1e-4, n_v, alpha_v, 1., 0.5, fG_v, sigG_v1};
+  double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1.,      1., 1.,  1.,   sigG_v2};
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
     // normalizations
@@ -147,14 +166,14 @@ void mBkg_d()
 	// setting the linear parameters sigma_1,2
 	else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	else if((j == 3 || j == 4) && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
-	// fixing n, fG to stated value
+	// fixing n, fG to MC value
 	else if (j == 5 || j == 9) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 
 	// fixing alpha to MC value (or leaving pT-constant free)
 	//else if(j == 6) f_cb->FixParameter(j*nPtBins+i, par_v[j]); // MC value
 	else if(j == 6 && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]); // pT-constant free
 	
-	// setting the linear parameter sigma_G to stated values - meaningless
+	// setting the linear parameter sigma_G to MC values
 	else if(j == 10 && i != 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	else if(j == 10 && i == 1) f_cb->FixParameter(j*nPtBins+i, par2_v[j]);
       }
@@ -339,7 +358,7 @@ void mBkg_d()
     fd->SetYTitle("relative difference (%)");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Data #psi(2S) rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Data J/#psi rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_dev = new TGraph(mbins, mv, dv);
     g_dev->SetLineColor(kBlack);

@@ -33,7 +33,7 @@ void plotRes()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("2018 #lambda_{#theta}");
+  fl->SetTitle("2017 #lambda_{#theta}");
 
   int col[] = {kViolet, kRed, kBlack, kBlue};
   for(int i = 0; i < 4; i++) {
@@ -68,7 +68,7 @@ void plotRes()
   fl2->SetYTitle("#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("2018 #lambda_{#theta} (prompt #psi(2S))");
+  fl2->SetTitle("2017 #lambda_{#theta} (prompt #psi(2S))");
 
   graph_lth[3]->SetLineColor(kBlack);
   graph_lth[3]->SetMarkerColor(kBlack);
@@ -87,7 +87,7 @@ void plotRes()
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
   fa->GetYaxis()->SetLabelOffset(0.01);
-  fa->SetTitle("2018 A");
+  fa->SetTitle("2017 A");
 
   // combine both lambda_th distributions
   for(int i = 0; i < 4; i++) {
@@ -111,7 +111,7 @@ void plotRes()
   fc->SetYTitle("P(#chi^{2}, ndf)");
   fc->GetYaxis()->SetTitleOffset(1.3);
   fc->GetYaxis()->SetLabelOffset(0.01);
-  fc->SetTitle("2018 P(#chi^{2}, ndf)");
+  fc->SetTitle("2017 P(#chi^{2}, ndf)");
 
   // combine both lambda_th distributions
   for(int i = 0; i < 4; i++) {

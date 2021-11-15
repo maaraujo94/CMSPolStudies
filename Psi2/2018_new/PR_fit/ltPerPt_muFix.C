@@ -1,4 +1,4 @@
-// macro to plot and fit the 2018 J/psi lifetime distribution
+// macro to plot and fit the 2018 psi(2S) lifetime distribution
 // case where mu is fixed to zero
 
 // MAIN
