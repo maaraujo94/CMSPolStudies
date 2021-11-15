@@ -403,9 +403,9 @@ void newMCmass_5()
   // sigma parameters
   ofstream ftex2;
   ftex2.open("text_output/mfit_MC_5A.tex");
-  ftex2 << "\\begin{tabular}{cc|cc}\n";
-  ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} \\\\\n";
-  ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) \\\\\n";
+  ftex2 << "\\begin{tabular}{cc|cc||c}\n";
+  ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} & \\multirow{2}{*}{$\\chi^2/$ndf} \\\\\n";
+  ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & \\\\\n";
   ftex2 << "\\hline\n";
 
   for(int j = 3; j < 5; j++) {
@@ -417,9 +417,10 @@ void newMCmass_5()
     unc = f_cb->GetParError(j*nPtBins+1)*1e3;
     p_norm = ceil(-log10(unc))+1;	
     ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
-    if(j == 3) ftex2 << " & ";
-    else ftex2 << "\\\\\n";
+    ftex2 << " & ";
   }
+  // chi^2
+  ftex2 << setprecision(0) << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << "\\\\\n";
   ftex2 << "\\end{tabular}\n";
   ftex2.close();
 

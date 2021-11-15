@@ -32,19 +32,29 @@ void cosPlot()
 
   TCanvas *c = new TCanvas("", "", 900, 900);
   for(int i = 0; i < nBinsY; i++) {
-    h_NP1d[0][i]->SetTitle(Form("%.0f < p_{T} < %.0f GeV", yBins[i], yBins[i+1]));
+    h_NP1d[0][i]->SetTitle(Form("2018 %.0f < p_{T} < %.0f GeV", yBins[i], yBins[i+1]));
     h_NP1d[0][i]->SetStats(0);
     h_NP1d[0][i]->SetLineColor(kBlack);
     h_NP1d[0][i]->SetMarkerColor(kBlack);
+    h_NP1d[0][i]->SetMarkerStyle(20);
+    h_NP1d[0][i]->SetMarkerSize(0.5);
     h_NP1d[0][i]->SetMinimum(0);
-    h_NP1d[0][i]->SetMaximum(h_NP1d[0][i]->GetBinContent(1)*1.3);
+    h_NP1d[0][i]->SetMaximum(h_NP1d[0][i]->GetBinContent(1)*1.8);
     h_NP1d[0][i]->Draw("error");
 
     h_NP1d[1][i]->SetStats(0);
     h_NP1d[1][i]->Scale(h_NP1d[0][i]->Integral()/h_NP1d[1][i]->Integral());
     h_NP1d[1][i]->SetLineColor(kBlue);
     h_NP1d[1][i]->SetMarkerColor(kBlue);
+    h_NP1d[1][i]->SetMarkerStyle(20);
+    h_NP1d[1][i]->SetMarkerSize(0.5);
     h_NP1d[1][i]->Draw("error same");
+
+    TLegend *leg = new TLegend(0.65, 0.7, 0.9, 0.9);
+    leg->SetTextSize(0.03);
+    leg->AddEntry(h_NP1d[0][i], "[100,200] #mum", "pl");
+    leg->AddEntry(h_NP1d[1][i], "[300,500] #mum", "pl");
+    leg->Draw();
 
     c->SaveAs(Form("plots/NPcos_%d.pdf", i));
     c->Clear();

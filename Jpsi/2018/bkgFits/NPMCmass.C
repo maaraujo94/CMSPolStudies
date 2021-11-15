@@ -191,7 +191,11 @@ void NPMCmass()
   fp3->SetLineColor(kViolet);
   fp3->SetLineStyle(kDashed);
   fp3->Draw("lsame");
-	  
+
+  TLatex lc;
+  lc.SetTextSize(0.04);
+  lc.DrawLatex(3.15, 700, Form("Free n=%.2f", pars[5]));
+
   c->SaveAs("plots/NPMCmass/NP_fit.pdf");
   c->Clear();
   
@@ -299,7 +303,12 @@ void NPMCmass()
   fp3->SetLineColor(kViolet);
   fp3->SetLineStyle(kDashed);
   fp3->Draw("lsame");
-	  
+
+  TLatex lcR;
+  lcR.SetTextSize(0.04);
+  lcR.DrawLatex(3.15, 6000, Form("Free n=%.2f", pars[5]));
+  lcR.DrawLatex(3.15, 5500, Form("#chi^{2}/ndf = %.0f/%d", f_cb->GetChisquare(), f_cb->GetNDF()));
+
   c->SaveAs("plots/NPMCmass/NPR_fit.pdf");
   c->Clear();
   
@@ -355,4 +364,15 @@ void NPMCmass()
   ftableNP << f_cb->GetChisquare() << "\t " << f_cb->GetNDF() << "\n";
   ftableNP.close();
 
+  // storing the fit parameters
+  // x,ex = n_par and 0.5
+  double vx[9], ex[9];
+  for(int i = 0; i < 9; i++) {
+    vx[i] = i+1;
+    ex[i] = 0.5;
+  }
+  TGraphErrors *g_par = new TGraphErrors(9, vx, pars, ex, epars);
+  g_par->SetName("g_pars");
+  g_par->Write();
+  fout->Close();
 }

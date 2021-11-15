@@ -74,12 +74,6 @@ void plotMMseq()
     g_par[i_p][0]->SetMarkerSize(.75);
     g_par[i_p][0]->Draw("p");
 
-    if(i_p == 2) {
-	g_par[i_p][1]->SetLineColor(kRed);
-	g_par[i_p][1]->SetFillColorAlpha(kRed, 0.5);
-	g_par[i_p][1]->Draw("ce3");
-    }
-
     // if we're plotting par 3, add par 4 (both sigmas in 1)
     if( i_p == 3) {      
       g_par[i_p+1][0]->SetLineColor(kBlue);
@@ -106,6 +100,15 @@ void plotMMseq()
     l2->Draw();
     
     c->SaveAs(Form("plots/MCMass/par_%s.pdf", parlab[i_p].c_str()));
+
+    if(i_p == 2) {
+      g_par[i_p][1]->SetLineColor(kRed);
+      g_par[i_p][1]->SetFillColorAlpha(kRed, 0.5);
+      g_par[i_p][1]->Draw("ce3");
+ 
+      c->SaveAs(Form("plots/MCMass/par_%s_next.pdf", parlab[i_p].c_str()));
+    }
+   
     c->Clear();
   }
   
@@ -273,6 +276,12 @@ void plotMMseq()
     g_par[i_p][3]->SetMarkerSize(.75);
     g_par[i_p][3]->Draw("p");
 
+    if(i_p == 5) {
+      g_par[i_p][4]->SetLineColor(kRed);
+      g_par[i_p][4]->SetFillColorAlpha(kRed, 0.5);
+      g_par[i_p][4]->Draw("ce3");
+    }
+
     TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
     l1->SetLineColor(kBlack);
     l1->SetLineStyle(kDashed);
@@ -292,7 +301,7 @@ void plotMMseq()
   f4->SetYTitle(parax[6].c_str());
   f4->GetYaxis()->SetTitleOffset(1.8);
   f4->GetYaxis()->SetLabelOffset(0.01);
-  f4->SetTitle("2018 #alpha (#mu, n constant)");
+  f4->SetTitle("2018 #alpha (#mu, f, n constant, #sigma_{1,2} linear)");
 
   c->SetLogy(0);
   
@@ -303,6 +312,10 @@ void plotMMseq()
   g_par[6][4]->SetMarkerSize(.75);
   g_par[6][4]->Draw("p");
   
+  g_par[6][5]->SetLineColor(kRed);
+  g_par[6][5]->SetFillColorAlpha(kRed, 0.5);
+  g_par[6][5]->Draw("ce3");
+
   TLine *l41 = new TLine(46, parmin[6], 46, parmax[6]);
   l41->SetLineColor(kBlack);
   l41->SetLineStyle(kDashed);

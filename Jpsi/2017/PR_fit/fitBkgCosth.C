@@ -6,7 +6,7 @@ void fitBkgCosth()
 {
   // define plotting lims and labels
   string lbl[] = {"LSB", "RSB"};
-  double dev_min = 30, pull_min = 3;
+  double dev_min = 30, pull_min = 7;
 
   // get the SB/MC 2d maps from the repository
   TH2D **h_cth = new TH2D*[2];

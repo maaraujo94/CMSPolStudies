@@ -29,14 +29,14 @@ double g_exp(double m, double N, double sig, double m0)
 }
 
 // fit function parser - called by TF2
-// parameters: N, f, mu, sig1, sig2, n, alpha, fG, sigG
+// parameters: N, f1, mu, sig1, sig2, n, alpha, fG, sigG, f3, sig3
 double cb_func(double *x, double *par)
 {
   // get m, pt and corresp pt bin
   double m = x[0];
 
   double N = par[0];
-  double f = par[1]; // f is constant in pt, only take the first value and use in all cases
+  double f1 = par[1]; // f is constant in pt, only take the first value and use in all cases
 
   double mu = par[2]; // mu is constant in pt
   double sig1 = par[3]; 
@@ -47,13 +47,16 @@ double cb_func(double *x, double *par)
 
   double fG = par[7];
   double sigG = par[8];
-  
-  double func = f * cb_exp(m, N, sig1, mu, n, alpha) + (1.-f-fG) * cb_exp(m, N, sig2, mu, n, alpha) + fG * g_exp(m, N, sigG, mu);
+
+  double f3 = par[9];
+  double sig3 = par[10];
+
+  double func = f1 * cb_exp(m, N, sig1, mu, n, alpha) + (1.-f1-f3-fG) * cb_exp(m, N, sig2, mu, n, alpha) + f3 * cb_exp(m, N, sig3, mu, n, alpha) + fG * g_exp(m, N, sigG, mu);
   return func;
 }
 
 // MAIN
-void NPMCmass_hp_fn()
+void NPMCmass_hpt_3CB()
 {
   // prepare mass histograms
   // Full lt range and [100, 500] micron interval only
@@ -125,22 +128,24 @@ void NPMCmass_hp_fn()
   double fit_f = 3.28;
 
   // define function for fitting
-  TF1 *f_cb = new TF1("f_cb", cb_func, fit_i, fit_f, 9, 1);
+  TF1 *f_cb = new TF1("f_cb", cb_func, fit_i, fit_f, 11, 1);
 
-  string par_n[] = {"N", "f", "mu", "sig1", "sig2", "n", "alpha", "fG", "sigG"};
-  double par_v[] = {1., 0.5, 3.097, 2e-2, 3e-2, 1.5, 2., 1e-2, 8e-2};
+  string par_n[] = {"N", "f1", "mu", "sig1", "sig2", "n", "alpha", "fG", "sigG", "f3", "sig3"};
+  double par_v[] = {1., 0.3, 3.097, 2e-2, 3e-2, 2., 2., 1e-2, 8e-2, 0.1, 5e-2};
   // define parameters - all free
-  for(int i = 0; i < 9; i++) {
+  for(int i = 0; i < 11; i++) {
     f_cb->SetParName(i, par_n[i].c_str());
   }
 
   // separate parts of the fit function
-  TF1 *fp1 = new TF1("fp1", "[1]*cb_exp(x,[0],[3],[2],[4],[5])", fit_i, fit_f);
-  fp1->SetParNames("N", "f", "mu", "sigma1", "n", "alpha");
-  TF1 *fp2 = new TF1("fp2", "(1.-[1]-[6]) * cb_exp(x,[0],[3],[2],[4],[5])", fit_i, fit_f);
-  fp2->SetParNames("N", "f", "mu", "sigma2", "n", "alpha", "fG");
-  TF1 *fp3 = new TF1("fp3", "[1]*g_exp(x,[0],[3],[2])", fit_i, fit_f);
-  fp3->SetParNames("N", "fG", "mu", "sigmaG");
+  TF1 *fcb1 = new TF1("fcb1", "[1]*cb_exp(x,[0],[3],[2],[4],[5])", fit_i, fit_f);
+  fcb1->SetParNames("N", "f1", "mu", "sigma1", "n", "alpha");
+  TF1 *fcb2 = new TF1("fcb2", "(1.-[1]-[6]-[7]) * cb_exp(x,[0],[3],[2],[4],[5])", fit_i, fit_f);
+  fcb2->SetParNames("N", "f1", "mu", "sigma2", "n", "alpha", "fG", "f3");
+  TF1 *fcb3 = new TF1("fcb3", "[1]*cb_exp(x,[0],[3],[2],[4],[5])", fit_i, fit_f);
+  fcb3->SetParNames("N", "f3", "mu", "sigma3", "n", "alpha");
+  TF1 *fg = new TF1("fg", "[1]*g_exp(x,[0],[3],[2])", fit_i, fit_f);
+  fg->SetParNames("N", "fG", "mu", "sigmaG");
 
   // run and plot the fit
   TCanvas *c = new TCanvas("", "", 700, 700);
@@ -149,25 +154,21 @@ void NPMCmass_hp_fn()
   // first running the full fit
   f_cb->SetParameters(par_v);
   f_cb->SetParameter(0, h_mF_hp->GetMaximum()/20.);
-  f_cb->FixParameter(5, 2.101);
-  f_cb->FixParameter(7, 1.3e-02);
-  f_cb->FixParameter(8, 8.2e-2);
+  f_cb->FixParameter(7, 5.0e-3);
+  f_cb->FixParameter(8, 1.5e-1);
   f_cb->SetLineColor(kBlue);
   f_cb->SetNpx(1000);
   h_mF_hp->Fit("f_cb", "R");
-
+  
   // storing parameters
-  double pars[9], epars[9];
-  for(int j = 0; j < 9; j++) {
+  double pars[11], epars[11];
+  for(int j = 0; j < 11; j++) {
     pars[j] = f_cb->GetParameter(j);
     epars[j] = f_cb->GetParError(j);
   }
 
-  //c->SetLogy();
-  
   h_mF_hp->SetMaximum(h_mF_hp->GetMaximum()*1.1);
   h_mF_hp->SetMinimum(0);
-  //h_mF_hp->SetMinimum(h_mF_hp->GetMaximum()*1e-5);
   h_mF_hp->SetStats(0);
   h_mF_hp->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
   h_mF_hp->GetYaxis()->SetTitleOffset(1.8);
@@ -178,24 +179,28 @@ void NPMCmass_hp_fn()
   h_mF_hp->Draw("error");
 
   // separate parts of the fit function
-  fp1->SetParameters(pars[0], pars[1], pars[2], pars[3], pars[5], pars[6]);
-  fp1->SetLineColor(kRed);
-  fp1->SetLineStyle(kDashed);
-  fp1->Draw("lsame");
-  fp2->SetParameters(pars[0], pars[1], pars[2], pars[4], pars[5], pars[6], pars[7]);
-  fp2->SetLineColor(kGreen);
-  fp2->SetLineStyle(kDashed);
-  fp2->Draw("lsame");
-  fp3->SetParameters(pars[0], pars[7], pars[2], pars[8]);
-  fp3->SetLineColor(kViolet);
-  fp3->SetLineStyle(kDashed);
-  fp3->Draw("lsame");
-
+  fcb1->SetParameters(pars[0], pars[1], pars[2], pars[3], pars[5], pars[6]);
+  fcb1->SetLineColor(kRed);
+  fcb1->SetLineStyle(kDashed);
+  fcb1->Draw("lsame");
+  fcb2->SetParameters(pars[0], pars[1], pars[2], pars[4], pars[5], pars[6], pars[7], pars[9]);
+  fcb2->SetLineColor(kGreen);
+  fcb2->SetLineStyle(kDashed);
+  fcb2->Draw("lsame");
+  fcb3->SetParameters(pars[0], pars[9], pars[2], pars[10], pars[5], pars[6]);
+  fcb3->SetLineColor(kBlack);
+  fcb3->SetLineStyle(kDashed);
+  fcb3->Draw("lsame");
+  fg->SetParameters(pars[0], pars[7], pars[2], pars[8]);
+  fg->SetLineColor(kViolet);
+  fg->SetLineStyle(kDashed);
+  fg->Draw("lsame");
+	  
   TLatex lc;
   lc.SetTextSize(0.04);
-  lc.DrawLatex(3.15, 700, Form("Fixed n=%.2f", pars[5]));
-  
-  c->SaveAs("plots/NPMCmass/NP_fit_hpt_fn.pdf");
+  lc.DrawLatex(3.15, 700, Form("Free n=%.2f", pars[5]));
+
+  c->SaveAs("plots/NPMCmass/NP3_fit_hpt.pdf");
   c->Clear();
   
   // calculating pulls
@@ -247,31 +252,30 @@ void NPMCmass_hp_fn()
   plim4->SetLineStyle(kDotted);
   plim4->Draw("lsame");
 	  
-  c->SaveAs("plots/NPMCmass/NP_pulls_hpt_fn.pdf");
+  c->SaveAs("plots/NPMCmass/NP_pulls_hpt.pdf");
   c->Clear();
 
   ofstream ftable;
-  ftable.open("text_output/NP_hpt_fn_fit.txt" );
-  for(int i = 0; i < 9; i++) {
+  ftable.open("text_output/NP_hpt_fit.txt" );
+  for(int i = 0; i < 11; i++) {
     if(i == 0)
       ftable << pars[i]/(120.-50.) << "\t " << epars[i]/(120.-50.) << "\t ";
-    else
+    else 
       ftable << pars[i] << "\t " << epars[i] << "\t ";
   }
   ftable << f_cb->GetChisquare() << "\t " << f_cb->GetNDF() << "\n";
   ftable.close();
-
+  
 
   // then running just the NP range fit
   f_cb->SetParameters(par_v);
   f_cb->SetParameter(0, h_mNP_hp->GetMaximum()/20.);
-  f_cb->FixParameter(5, 1.896);
-  f_cb->FixParameter(7, 1.9e-2);
-  f_cb->FixParameter(8, 6.7e-2);
+  f_cb->FixParameter(7, 5.3e-3);
+  f_cb->FixParameter(8, 8.7e-2);
   h_mNP_hp->Fit("f_cb", "R");
 
   // storing parameters
-  for(int j = 0; j < 9; j++) {
+  for(int j = 0; j < 11; j++) {
     pars[j] = f_cb->GetParameter(j);
     epars[j] = f_cb->GetParError(j);
   }
@@ -280,7 +284,6 @@ void NPMCmass_hp_fn()
   
   h_mNP_hp->SetMaximum(h_mNP_hp->GetMaximum()*1.1);
   h_mNP_hp->SetMinimum(0);
-  //h_mNP_hp->SetMinimum(h_mNP_hp->GetMaximum()*1e-5);
   h_mNP_hp->SetStats(0);
   h_mNP_hp->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
   h_mNP_hp->GetYaxis()->SetTitleOffset(1.8);
@@ -291,25 +294,29 @@ void NPMCmass_hp_fn()
   h_mNP_hp->Draw("error");
 
   // separate parts of the fit function
-  fp1->SetParameters(pars[0], pars[1], pars[2], pars[3], pars[5], pars[6]);
-  fp1->SetLineColor(kRed);
-  fp1->SetLineStyle(kDashed);
-  fp1->Draw("lsame");
-  fp2->SetParameters(pars[0], pars[1], pars[2], pars[4], pars[5], pars[6], pars[7]);
-  fp2->SetLineColor(kGreen);
-  fp2->SetLineStyle(kDashed);
-  fp2->Draw("lsame");
-  fp3->SetParameters(pars[0], pars[7], pars[2], pars[8]);
-  fp3->SetLineColor(kViolet);
-  fp3->SetLineStyle(kDashed);
-  fp3->Draw("lsame");
+  fcb1->SetParameters(pars[0], pars[1], pars[2], pars[3], pars[5], pars[6]);
+  fcb1->SetLineColor(kRed);
+  fcb1->SetLineStyle(kDashed);
+  fcb1->Draw("lsame");
+  fcb2->SetParameters(pars[0], pars[1], pars[2], pars[4], pars[5], pars[6], pars[7], pars[9]);
+  fcb2->SetLineColor(kGreen);
+  fcb2->SetLineStyle(kDashed);
+  fcb2->Draw("lsame");
+  fcb3->SetParameters(pars[0], pars[9], pars[2], pars[10], pars[5], pars[6]);
+  fcb3->SetLineColor(kBlack);
+  fcb3->SetLineStyle(kDashed);
+  fcb3->Draw("lsame");
+  fg->SetParameters(pars[0], pars[7], pars[2], pars[8]);
+  fg->SetLineColor(kViolet);
+  fg->SetLineStyle(kDashed);
+  fg->Draw("lsame");
 
   TLatex lcR;
   lcR.SetTextSize(0.04);
-  lcR.DrawLatex(3.15, 350, Form("Fixed n=%.2f", pars[5]));
+  lcR.DrawLatex(3.15, 350, Form("Free n=%.2f", pars[5]));
   lcR.DrawLatex(3.15, 310, Form("#chi^{2}/ndf = %.0f/%d", f_cb->GetChisquare(), f_cb->GetNDF()));
 
-  c->SaveAs("plots/NPMCmass/NPR_fit_hpt_fn.pdf");
+  c->SaveAs("plots/NPMCmass/NPR3_fit_hpt.pdf");
   c->Clear();
   
   // calculating pulls
@@ -349,14 +356,14 @@ void NPMCmass_hp_fn()
   plim4->Draw("lsame");
 
 	  
-  c->SaveAs("plots/NPMCmass/NPR_pulls_hpt_fn.pdf");
+  c->SaveAs("plots/NPMCmass/NPR3_pulls_hpt.pdf");
   c->Clear();
       
   c->Destructor();
 
   ofstream ftableNP;
-  ftableNP.open("text_output/NPR_hpt_fn_fit.txt" );
-  for(int i = 0; i < 9; i++) {
+  ftableNP.open("text_output/NPR_hpt_fit.txt" );
+  for(int i = 0; i < 11; i++) {
     if(i == 0)
       ftableNP << pars[i]/(120.-50.) << "\t " << epars[i]/(120.-50.) << "\t ";
     else

@@ -41,6 +41,7 @@ void plot2dHistos()
   // then get the data and mc plots
   TFile *fin2 = new TFile("../PR_fit/files/histoStore.root");
   TH2D *h_Data2 = (TH2D*)fin2->Get("dataH_ab");
+  TH2D *h_NP2 = (TH2D*)fin2->Get("NPH_ab");
   TH2D *h_MC2 = (TH2D*)fin2->Get("mcH_ab");
 
   c->SetLogz();
@@ -51,6 +52,14 @@ void plot2dHistos()
   h_Data2->SetTitle("2017 Peak Data");
   h_Data2->Draw("COLZ");
   c->SaveAs("plots/2dMaps/data_2d_plot.pdf");
+  c->Clear();
+
+  h_NP2->SetStats(0);
+  h_NP2->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+  h_NP2->GetYaxis()->SetTitle("p_{T} (GeV)");
+  h_NP2->SetTitle("2017 NP Data");
+  h_NP2->Draw("COLZ");
+  c->SaveAs("plots/2dMaps/np_2d_plot.pdf");
   c->Clear();
 
   h_MC2->SetStats(0);

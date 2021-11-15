@@ -191,6 +191,10 @@ void NPMCmass_hpt()
   fp3->SetLineStyle(kDashed);
   fp3->Draw("lsame");
 	  
+  TLatex lc;
+  lc.SetTextSize(0.04);
+  lc.DrawLatex(3.15, 700, Form("Free n=%.2f", pars[5]));
+
   c->SaveAs("plots/NPMCmass/NP_fit_hpt.pdf");
   c->Clear();
   
@@ -299,7 +303,12 @@ void NPMCmass_hpt()
   fp3->SetLineColor(kViolet);
   fp3->SetLineStyle(kDashed);
   fp3->Draw("lsame");
-	  
+
+  TLatex lcR;
+  lcR.SetTextSize(0.04);
+  lcR.DrawLatex(3.15, 350, Form("Free n=%.2f", pars[5]));
+  lcR.DrawLatex(3.15, 310, Form("#chi^{2}/ndf = %.0f/%d", f_cb->GetChisquare(), f_cb->GetNDF()));
+
   c->SaveAs("plots/NPMCmass/NPR_fit_hpt.pdf");
   c->Clear();
   

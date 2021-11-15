@@ -27,12 +27,13 @@ void plotCosPars_all()
 
   // initialize tgraphs for parameters
   TGraphErrors ****g_par = new TGraphErrors***[n_fit];
-  TGraph *g_chi = new TGraph();
-  TLine **l_chi =  new TLine*[n_fit-1];
+  TGraph **g_chi = new TGraph*[n_inp];//();
+  TLine ***l_chi =  new TLine**[n_fit-1];
 
   // cycle to fill TGraphs
   for(int i_f = 0; i_f < n_fit; i_f++) { // cycle through fit format
     g_par[i_f] = new TGraphErrors**[n_inp];
+    if(i_f != 0) l_chi[i_f-1] = new TLine*[n_inp];
     for(int i_inp = 0; i_inp < n_inp; i_inp++) { // cycle through SB
       // open file
       TFile *fin = new TFile(Form("%sfiles/%s%s_fitres.root", loc[i_f].c_str(), lbl[i_inp].c_str(), filename[i_f].c_str()));	
@@ -44,10 +45,14 @@ void plotCosPars_all()
       }
 
       // get fit chi^2
-      if(i_f == 0)
-	fin->GetObject("fit_chiP", g_chi);
-      else
-	fin->GetObject("fit_chiP", l_chi[i_f-1]);
+      if(i_f == 0) {
+	g_chi[i_inp] = new TGraph();
+	fin->GetObject("fit_chiP", g_chi[i_inp]);
+      }
+      else {
+	l_chi[i_f-1][i_inp] = new TLine();
+	fin->GetObject("fit_chiP", l_chi[i_f-1][i_inp]);
+      }
 
       fin->Close();
     }
@@ -99,15 +104,15 @@ void plotCosPars_all()
     fp->GetYaxis()->SetLabelOffset(0.01);
     fp->SetTitle(Form("2017 %s %s", lbl[i_inp].c_str(), partit[n_p].c_str()));
     
-    g_chi->SetMarkerStyle(20);
-    g_chi->SetMarkerSize(1.5);
-    g_chi->SetMarkerColor(col_s(0));
-    g_chi->SetLineColor(col_s(0));
-    g_chi->Draw("psame");
+    g_chi[i_inp]->SetMarkerStyle(20);
+    g_chi[i_inp]->SetMarkerSize(1.5);
+    g_chi[i_inp]->SetMarkerColor(col_s(0));
+    g_chi[i_inp]->SetLineColor(col_s(0));
+    g_chi[i_inp]->Draw("psame");
 
     for(int i = 0; i < n_fit-1; i++) {
-      l_chi[i]->SetLineColor(col_s(i+1));
-      l_chi[i]->Draw("lsame");
+      l_chi[i][i_inp]->SetLineColor(col_s(i+1));
+      l_chi[i][i_inp]->Draw("lsame");
     }
     
     c->SaveAs(Form("plots/%s/parA_%s.pdf", lbl[i_inp].c_str(), parlab[n_p].c_str()));

@@ -23,7 +23,8 @@ void fNPcorr()
   for(int i_x = 0; i_x < nBinsX; i_x++) {
     for(int i_y = 0; i_y < nBinsY; i_y++) {
       h_fc->SetBinContent(i_x+1, i_y+1, 1.-h_fbkg->GetBinContent(i_x+1, i_y+1));
-      h_fc->SetBinError(i_x+1, i_y+1, h_fbkg->GetBinError(i_x+1, i_y+1));
+      //h_fc->SetBinError(i_x+1, i_y+1, h_fbkg->GetBinError(i_x+1, i_y+1));
+      h_fc->SetBinError(i_x+1, i_y+1, 0);
     }
   }
 
@@ -51,12 +52,21 @@ void fNPcorr()
   h_fnp1d->GetYaxis()->SetLabelOffset(0.01);
   h_fnp1d->SetTitle("2017 f_{NP}^{corr}");
   h_fnp1d->SetLineColor(kRed);
+  h_fnp1d->SetMarkerColor(kRed);
+  h_fnp1d->SetMarkerStyle(20);
+  h_fnp1d->SetMarkerSize(.75);
   h_fnp1d->Draw("error");
   
   h_fbkg1d->SetLineColor(kGreen+1);
+  h_fbkg1d->SetMarkerColor(kGreen+1);
+  h_fbkg1d->SetMarkerStyle(20);
+  h_fbkg1d->SetMarkerSize(.75);
   h_fbkg1d->Draw("error same");
     
   h_fnpc1d->SetLineColor(kRed+2);
+  h_fnpc1d->SetMarkerColor(kRed+2);
+  h_fnpc1d->SetMarkerStyle(20);
+  h_fnpc1d->SetMarkerSize(.75);
   h_fnpc1d->Draw("error same");
 
   c->SaveAs("plots/f_NP_corr.pdf");

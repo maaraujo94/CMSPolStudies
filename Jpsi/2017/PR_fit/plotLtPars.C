@@ -30,7 +30,7 @@ void plotLtPars()
   double par_f[7][pt_bins], epar_f[7][pt_bins];
   double par_b[7][pt_bins], epar_b[7][pt_bins];
   double chis[3][pt_bins], ndf[3][pt_bins], zero[pt_bins];
-  double fNP[3][pt_bins], chiN[3][pt_bins];
+  double fNP[3][pt_bins], chiN[3][pt_bins], pChi[3][pt_bins];
 
   // read the fit results
   ifile.open("text_output/lt_fit.txt");
@@ -50,7 +50,8 @@ void plotLtPars()
     pt_avg[i] = 0.5*(pt_max[i]+pt_min[i]);
     pt_err[i] = 0.5*(pt_max[i]-pt_min[i]);
     chiN[0][i] = chis[0][i]/ndf[0][i];
-    zero[i] = 0;
+    pChi[0][i] = TMath::Prob(chis[0][i], ndf[0][i]);
+     zero[i] = 0;
   }
   ifile.close();
 
@@ -69,6 +70,7 @@ void plotLtPars()
     fNP[1][i]*=100;
 
     chiN[1][i] = chis[1][i]/ndf[1][i];
+    pChi[1][i] = TMath::Prob(chis[1][i], ndf[1][i]);
   }
   ifile.close();
 
@@ -87,6 +89,7 @@ void plotLtPars()
     fNP[2][i]*=100;
 
     chiN[2][i] = chis[2][i]/ndf[2][i];
+    pChi[2][i] = TMath::Prob(chis[2][i], ndf[2][i]);
   }
   ifile.close();
 
@@ -136,7 +139,7 @@ void plotLtPars()
     g_par_f[i]->SetMarkerSize(.75);
     g_par_f[i]->SetMarkerColor(kBlue);
     g_par_f[i]->SetLineColor(kBlue);
-    //g_par_f[i]->Draw("psame");
+    g_par_f[i]->Draw("psame");
 
     g_par_f[i]->SetName(Form("fit_mf_%s", parlab[i].c_str()));
     g_par_f[i]->Write();
@@ -197,7 +200,39 @@ void plotLtPars()
   
   c->SaveAs(Form("plots/lifetime/par_chiN.pdf"));
   c->Clear();
+    // plot chi prob
+  TGraph *g_chiP   = new TGraph(pt_bins, pt_avg, pChi[0]);
+  TGraph *g_chiP_f = new TGraph(pt_bins, pt_avg, pChi[1]);
+  TGraph *g_chiP_b = new TGraph(pt_bins, pt_avg, pChi[2]);
+
+  TH1F *fchiP = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 1);
+  fchiP->SetXTitle("p_{T} (GeV)");
+  fchiP->SetYTitle("P(#chi^{2})");
+  fchiP->GetYaxis()->SetTitleOffset(1.5);
+  fchiP->GetYaxis()->SetLabelOffset(0.01);
+  fchiP->SetTitle("2017 P(#chi^{2}) vs p_{T}");
   
+  g_chiP->SetMarkerStyle(20);
+  //g_chiP->SetMarkerSize(.75);
+  g_chiP->SetMarkerColor(kBlack);
+  g_chiP->SetLineColor(kBlack);
+  g_chiP->Draw("psame");
+
+  g_chiP_f->SetMarkerStyle(20);
+  //g_chiP_f->SetMarkerSize(.75);
+  g_chiP_f->SetMarkerColor(kBlue);
+  g_chiP_f->SetLineColor(kBlue);
+  g_chiP_f->Draw("psame");
+
+  g_chiP_b->SetMarkerStyle(20);
+  //g_chiP_b->SetMarkerSize(.75);
+  g_chiP_b->SetMarkerColor(kRed);
+  g_chiP_b->SetLineColor(kRed);
+  g_chiP_b->Draw("psame");
+
+  c->SaveAs(Form("plots/lifetime/par_Pchi.pdf"));
+  c->Clear();
+
   TGraphErrors *g_frac = new TGraphErrors(pt_bins, pt_avg, fNP[0], pt_err, zero);
   TGraphErrors *g_frac_f = new TGraphErrors(pt_bins, pt_avg, fNP[1], pt_err, zero);
   TGraphErrors *g_frac_b = new TGraphErrors(pt_bins, pt_avg, fNP[2], pt_err, zero);
