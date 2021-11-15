@@ -1,5 +1,5 @@
 // plot the pT dists of peak, NP and SB data
-void plotPts()
+void plotYields()
 {
   const int nPtBins = 7;
   double ptBins[nPtBins+1];
@@ -9,7 +9,6 @@ void plotPts()
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
-  // define aux vals for plotting
   double m_min[] = {3.4, 3.57, 3.82};
   double m_max[] = {3.52, 3.81, 4.0};
 
@@ -104,7 +103,7 @@ void plotPts()
   c->SaveAs("plots/ptcomp_fNP.pdf");
   c->Clear();
 
-  TH1F *fr2 = c->DrawFrame(20, 0., 125, 1.0);
+  TH1F *fr2 = c->DrawFrame(20, 0., 125, 1.);
   fr2->SetXTitle("p_{T} (GeV)");
   fr2->SetYTitle("Yield ratio (a.u.)");
   fr2->GetYaxis()->SetTitleOffset(1.5);

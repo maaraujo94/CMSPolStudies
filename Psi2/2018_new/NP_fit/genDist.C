@@ -1,9 +1,9 @@
-// macro to generate the sideband costh dists in the final binning
+// macro to generate the sideband costh dists in the final binning, with unc
 
 void genDist()
 {
   // get binning from the stored data histos
-  TFile *infile = new TFile("files/histoStore.root");
+  TFile *infile = new TFile("../PR_fit/files/histoStore.root");
   TH2D *hist = new TH2D();
   infile->GetObject(Form("dataH_ab"), hist);
   hist->SetDirectory(0);
@@ -15,7 +15,7 @@ void genDist()
   double maxX = hist->GetXaxis()->GetBinUpEdge(nBinsX);
   double dX = (maxX-minX)/nBinsX;
 
-  // get fL from storage
+  // get fit parameters from storage
   TFile *infL = new TFile("files/store_fL.root");
   double fL = ((TGraphErrors*)infL->Get("g_fL"))->GetY()[0];
   infL->Close();
@@ -80,5 +80,6 @@ void genDist()
   c->SaveAs("plots/SB_base.pdf");
   c->Clear();
   c->Destructor();
+
 
 }

@@ -27,7 +27,7 @@ void bkgCosth()
   double m_min[] = {3.4, 3.57, 3.82};
   double m_max[] = {3.52, 3.81, 4.0};
 
-  // data needs LSB/RSB PR (2)
+  // data needs LSB/RSB NP (2)
   // MC only needs SR PR (1)
   string lbl[2] = {"LSB", "RSB"};
   TH2D **dataHist = new TH2D*[2];
@@ -60,7 +60,7 @@ void bkgCosth()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2 && abs(data_lt) < 0.005) {
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2 && data_lt > 0.01 && data_lt < 0.05) {
 	// LSB
 	if(data_m < m_max[0] && data_m > m_min[0]) {
 	  dataHist[0]->Fill(cos(data_th), data_pt);
@@ -81,7 +81,7 @@ void bkgCosth()
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
-    }  
+    }
 
   treeM3->SetBranchAddress("theta", &mc_th);
   treeM3->SetBranchAddress("dimPt", &mc_pt);
@@ -129,5 +129,6 @@ void bkgCosth()
   }
 
   outfile->Close();
+  int nBinsX = dataHist_ab[0]->GetNbinsX();
 
 }

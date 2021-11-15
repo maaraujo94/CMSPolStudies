@@ -46,7 +46,7 @@ void ltPerPt_bFix(double binLow, double binHigh, double mu_avg, double f_avg)
   fitS->FixParameter(2, f_avg);
   fitS->SetLineColor(kBlue);
   fitS->SetNpx(1000);
-  int fits = ltHist->Fit(fitS, "RQ");
+  TFitResultPtr fits = ltHist->Fit(fitS, "RQS");
   
   // get the NP fraction in the signal region (+- 100 mum)
   fNP->SetParameters(fitS->GetParameter(1), fitS->GetParameter(2), fitS->GetParameter(3), fitS->GetParameter(4), fitS->GetParameter(5), fitS->GetParameter(6));
@@ -244,6 +244,11 @@ void ltPerPt_bFix(double binLow, double binHigh, double mu_avg, double f_avg)
   ftable << fitS->GetChisquare() << "\t " << fitS->GetNDF() << "\t " << fracNP << "\n";
   ftable.close();
 
+  TFile *fout = new TFile("files/ltfitres.root", "update");
+  fits->SetName(Form("fitres_%.0f", binLow));
+  fits->Write(0, TObject::kOverwrite);
+  fout->Close();
+  
   c->Destructor();
 
 }

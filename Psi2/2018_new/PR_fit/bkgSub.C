@@ -1,31 +1,27 @@
-#import "../cosMax/imp_jumpF.C"
-
 // macro to subtract background for pol correction
 
-// macro for rounding to integers
-int do_round(double val)
-{
-  int valR = (int)val;
-  if (val-valR > 0.5) return valR+1;
-  else return valR;
-}
+#import "../cosMax/imp_jumpF.C"
 
 void bkgSub()
 {
   // PART 1 - all the inputs
   // PR SR data distribution over all pT bins
   TH2D *h_PR2d = new TH2D(); // base PR SR 2d map
-  TH2D *h_NP2d = new TH2D(); // base NP SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
   TFile *inHist = new TFile("files/histoStore.root");
   inHist->GetObject("dataH_ab", h_PR2d);
   h_PR2d->SetDirectory(0);
-  inHist->GetObject("NPH_ab", h_NP2d);
-  h_NP2d->SetDirectory(0);
   inHist->GetObject("mcH_ab", h_MC2d);
   h_MC2d->SetDirectory(0);
   inHist->Close();
-  
+
+  // NP distribution corrected for mass bkg contamination
+  TH2D *h_NP2d = new TH2D(); // base NP SR 2d map
+  TFile *inNP = new TFile("../NP_fit/files/bkgSubRes.root");
+  inNP->GetObject("h_NPcB", h_NP2d);
+  h_NP2d->SetDirectory(0);
+  inNP->Close();
+
   // get the binning
   int nBinsX = h_PR2d->GetNbinsX(), nBinsY = h_PR2d->GetNbinsY();
   const double *yBins = h_PR2d->GetYaxis()->GetXbins()->GetArray();
@@ -53,17 +49,19 @@ void bkgSub()
   
   TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", yBins[0]-10, yBins[nBinsY]+10);
   cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
-  
-  // bkg fraction in PR SR
-  TGraphErrors *g_fSB = new TGraphErrors();
-  TFile *inFracS = new TFile("files/mfit.root");
-  inFracS->GetObject("fit_fBG", g_fSB);
-  inFracS->Close();
 
-  TGraphErrors *g_fNP = new TGraphErrors();
-  TFile *inFracN = new TFile("files/ltfit.root");
-  inFracN->GetObject("fit_b_fNP", g_fNP);
-  inFracN->Close();
+  // bkg fraction in PR SR
+  // NP fraction in NP SR - corrected for mass bkg contamination
+  TH2D *h_fb2d = new TH2D();
+  TH2D *h_fnp2d = new TH2D();
+  TFile *inFracSB = new TFile("files/bkgFrac.root");
+  inFracSB->GetObject("h_fbkg", h_fb2d);
+  h_fb2d->SetDirectory(0);
+  inFracSB->Close();
+  TFile *inFracNP = new TFile("files/NPFrac.root");
+  inFracNP->GetObject("h_fNPc", h_fnp2d);
+  h_fnp2d->SetDirectory(0);
+  inFracNP->Close();
   
   TFile *fout = new TFile("files/bkgSubRes.root", "recreate");
   TCanvas *c =  new TCanvas("", "", 900, 900);
@@ -84,31 +82,25 @@ void bkgSub()
     double N_sig = h_PR2d->Integral(1, nBinsX, i+1, i+1);
     
     // getting the max costh value for the fit, cR
-    double cMaxVal = jumpF(cosMax->Integral(pt_min, pt_max)/(pt_max-pt_min));
+    double cMaxVal = jumpF(cosMax->Integral(pt_min, pt_max)/(pt_max-pt_min))-0.05;
     
     // get the base data and MC 1d projections
     TH1D *h_PR = h_PR2d->ProjectionX(Form("h_PRSR_%d", i), i+1, i+1);
     TH1D *h_NP = h_NP2d->ProjectionX(Form("h_NP_%d", i), i+1, i+1);
     TH1D *h_MC = h_MC2d->ProjectionX(Form("h_MC_%d", i), i+1, i+1);
+    // get the fbkg 1d projections - easier to propagate unc
+    TH1D *h_fbkg = h_fb2d->ProjectionX(Form("h_fbkg_%d", i), i+1, i+1);
+    TH1D *h_fNP = h_fnp2d->ProjectionX(Form("h_fNP_%d", i), i+1, i+1);
 
-    // scale NP dist to unity integral;
+    // scale background dists to unity integral;
     h_NP->Scale(1. / h_NP->Integral());
-    
-    // scale bkg dist to unity integral
     h_SB[i]->Scale(1. / h_SB[i]->Integral());
-
+    
     // PART 3 - scaling background
-    // get the proper scaling factor out of the f_bkg
-    double f_NP = g_fNP->GetY()[i]/100.;
-    double scFac = f_NP * N_sig;
-    // scale the background dist
-    h_NP->Scale(scFac);
-
-    // get the proper scaling factor out of the f_bkg
-    double f_SB = g_fSB->GetY()[i];
-    scFac = f_SB * N_sig;
-    // scale the background dist
-    h_SB[i]->Scale(scFac);
+    h_NP->Multiply(h_fNP); // propagating unc
+    h_NP->Scale(N_sig);
+    h_SB[i]->Multiply(h_fbkg); // propagating unc
+    h_SB[i]->Scale(N_sig);
 
     // PART 4 - signal extraction
     // define the pure PR histo
