@@ -85,48 +85,37 @@ void plotRes()
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
   c->Clear();
 
-  // draw just final lambda_th(pT)
-  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
+   // draw just final lambda_th(pT) - comp btw std, alt
+  double val[nBinspT];
+  for(int i = 0; i < nBinspT; i++) { 
+    val[i] = graph_lth[3]->GetY()[i] - graph_lthBase->GetY()[i];
+  }
+  TGraphErrors *g_lthD = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val, graph_lthBase->GetEX(), graph_lthBase->GetEY());
+
+  double d_lim = 0.2;
+  
+  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
   fl2->SetXTitle("p_{T} (GeV)");
   fl2->SetYTitle("#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("2018 #lambda_{#theta} (prompt J/#psi)");
-
-  graph_lthB->SetLineColor(kBlack);
-  graph_lthB->SetMarkerColor(kBlack);
-  graph_lthB->SetMarkerStyle(20);
-  graph_lthB->SetMarkerSize(.5);
-  graph_lthB->Draw("p same");
-
-  graph_lth[3]->SetLineColor(kRed);
-  graph_lth[3]->SetMarkerColor(kRed);
-  graph_lth[3]->SetMarkerStyle(20);
-  graph_lth[3]->SetMarkerSize(.5);
-  graph_lth[3]->Draw("p same");
-
-  TLegend *legF = new TLegend(0.7, 0.75, 0.9, 0.9);
-  legF->SetTextSize(0.03);
-  legF->AddEntry(graph_lthB, "Constant #lambda_{4}", "pl");
-  legF->AddEntry(graph_lth[3], "Linear #lambda_{4}", "pl");
-  legF->Draw();
-
-  /*TF1 *cons = new TF1("constant", "[0]", pTBins[0], pTBins[nBinspT]);
-  cons->SetLineColor(kBlue);
-  cons->SetLineWidth(1);
-  cons->SetParameter(0, 0.1);
-  graph_lth[3]->Fit(cons);*/
+  fl2->SetTitle("2018 #delta#lambda_{#theta} (prompt J/#psi)");
+  
+  g_lthD->SetLineColor(kBlack);
+  g_lthD->SetMarkerColor(kBlack);
+  g_lthD->SetMarkerStyle(20);
+  g_lthD->SetMarkerSize(.5);
+  g_lthD->Draw("p same");
 
   zero->Draw();
-  trans1->Draw();
-  trans2->Draw();
-  
-  /*  TLatex lc;
-  lc.SetTextSize(0.03);
-  lc.SetTextColor(kBlack);
-  lc.DrawLatex(70, 0.85, Form("#lambda_{#theta}^{PR} = %.3f #pm %.3f", cons->GetParameter(0), cons->GetParError(0)));
-  lc.DrawLatex(70, 0.7, Form("#chi^{2}/ndf = %.0f/%d", cons->GetChisquare(), cons->GetNDF()));
-  lc.DrawLatex(70, 0.55, Form("P(#chi^{2},ndf) = %.1f%%", 100*TMath::Prob(cons->GetChisquare(), cons->GetNDF())));*/
+  TLine *trans1D = new TLine(46, -d_lim, 46, d_lim);
+  trans1D->SetLineColor(kBlack);
+  trans1D->SetLineStyle(kDashed);
+  trans1D->Draw();
+  TLine *trans2D = new TLine(66, -d_lim, 66, d_lim);
+  trans2D->SetLineColor(kBlack);
+  trans2D->SetLineStyle(kDashed);
+  trans2D->Draw();
 
   c->SaveAs("par_lth_F.pdf");
   c->Clear();

@@ -83,7 +83,7 @@ void genDist()
   TCanvas *c = new TCanvas("", "", 900, 900);
   h_SB1d->SetStats(0);
   h_SB1d->SetMinimum(0);
-  h_SB1d->SetMaximum(h_RSB1d->GetMaximum()*1.1);
+  h_SB1d->SetMaximum(2.75);//h_RSB1d->GetMaximum()*1.1);
   h_SB1d->SetLineColor(kGreen+1);
   h_SB1d->GetXaxis()->SetTitle("|cos#theta|");
   h_SB1d->Draw();
