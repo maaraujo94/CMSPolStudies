@@ -147,8 +147,8 @@ void mBkg()
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
   string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
-  double par_v[] =  {1., 0.4, 3.69, 1e-4, 1e-4, n_v, alpha_v, 1., 0.5, fG_v, sigG_v1};
-  double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1.,      1., 1.,  1.,   sigG_v2};
+  double par_v[] =  {1., 0.8, 3.68, 1.e-4, 1.e-4, n_v, alpha_v, 1., 1., fG_v, sigG_v1};
+  double par2_v[] = {1., 1.,  1.,  2e-2, 4.e-2, 1.,  1.,      1., 1.,  1.,   sigG_v2};
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
     // normalizations
@@ -170,8 +170,8 @@ void mBkg()
 	else if (j == 5 || j == 9) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 
 	// fixing alpha to MC value (or leaving pT-constant free)
-	//else if(j == 6) f_cb->FixParameter(j*nPtBins+i, par_v[j]); // MC value
-	else if(j == 6 && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]); // pT-constant free
+	else if(j == 6) f_cb->FixParameter(j*nPtBins+i, par_v[j]); // MC value
+	//else if(j == 6 && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]); // pT-constant free
 	
 	// setting the linear parameter sigma_G to MC values
 	else if(j == 10 && i != 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
@@ -416,7 +416,7 @@ void mBkg()
     ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
     for(int i_p = 0; i_p < 11; i_p++) {
       // plot all pT values - N (0), sig1,2 (3,4), N_BG (7), lambda (8), NOT sigG (10)
-      if(i_p == 0 || i_p == 3 || i_p == 4 || i_p == 7 || i_p == 8 ) {//|| i_p == 10) {
+      if(i_p == 0 || i_p == 3 || i_p == 4 || i_p == 7 || i_p == 8 ) {
 	double val = pars[i_p][i]*mult[i_p], unc = epars[i_p][i]*mult[i_p];
 	if(i_p == 0 || i_p == 7) {
 	  val /= (ptBins[i+1]-ptBins[i]);
@@ -433,7 +433,7 @@ void mBkg()
 	}
       }
       // plot single value: f (1), mu (2), n, alpha (5,6), fG (9), NOW sigG (10)
-      else if((i_p == 1 || i_p == 2 || i_p == 5 || i_p == 6 || i_p == 9 || i_p == 10) && i == 0) {
+      else if((i_p == 1 || i_p == 2 || i_p == 5 || i_p == 6 || i_p == 9 ) && i == 0) {
 	double val = pars[i_p][i]*mult[i_p], unc = epars[i_p][i]*mult[i_p];
 	if(unc > 0) {
 	  int p_norm = 1.; 
@@ -441,12 +441,16 @@ void mBkg()
 	  ftex << " & \\multirow{" << nPtBins << "}{*}{" <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << "}" ;
 	}
 	else {
-	  int p_norm = 3.;
+	  int p_norm = 3;
+	  if(val == 0) p_norm = 1;
 	  ftex << " & \\multirow{" << nPtBins << "}{*}{" <<  setprecision(p_norm) << fixed << val << "}" ;
 	}
       }
-      else
-	ftex << " & ";
+      else if( i_p == 10  && i == 0) {
+	ftex << " & \\multirow{" << nPtBins << "}{*}{-}" ;
+      }
+    else
+      ftex << " & ";
     }
     ftex << " & " << setprecision(2) << fixed << fBkg[i]*100.;
     ftex <<  "\\\\\n";

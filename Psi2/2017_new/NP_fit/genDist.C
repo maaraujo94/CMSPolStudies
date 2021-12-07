@@ -57,6 +57,7 @@ void genDist()
   double norm = 1.;
   
   TCanvas *c = new TCanvas("", "", 900, 900);
+
   h_SB[0]->SetStats(0);
   h_SB[0]->SetLineColor(kGreen+1);
   h_SB[0]->Scale(norm);
@@ -77,9 +78,27 @@ void genDist()
   leg->AddEntry(h_RSB1d[0], "RSB", "l");
   leg->Draw();
 
-  c->SaveAs("plots/SB_base.pdf");
+  c->SaveAs("plots/SB_base_0.pdf");
+  c->Clear();
+
+  
+  h_SB[6]->SetStats(0);
+  h_SB[6]->SetLineColor(kGreen+1);
+  h_SB[6]->Scale(norm);
+  h_SB[6]->SetMinimum(0);
+  //h_SB[6]->SetMaximum(cthRSB->Eval(0.95)*1.2);
+  h_SB[6]->GetXaxis()->SetTitle("|cos#theta|");
+  h_SB[6]->Draw();
+  
+  h_LSB1d[6]->SetLineColor(kBlack);
+  h_LSB1d[6]->Draw("same");
+  h_RSB1d[6]->SetLineColor(kBlue);
+  h_RSB1d[6]->Draw("same");
+
+  leg->Draw();
+
+  c->SaveAs("plots/SB_base_6.pdf");
   c->Clear();
   c->Destructor();
-
 
 }

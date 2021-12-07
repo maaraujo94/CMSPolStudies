@@ -23,6 +23,7 @@ void plot2dHistos()
   h_NP->SetStats(0);
   h_NP->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_NP->GetYaxis()->SetTitle("p_{T} (GeV)");
+  h_NP->SetMinimum(0);
   h_NP->SetTitle("2018 NP Data/MC");
   h_NP->Draw("COLZ");
   c->SaveAs("plots/2dMaps/ratio_NP.pdf");
