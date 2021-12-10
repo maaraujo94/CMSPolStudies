@@ -68,7 +68,7 @@ void fnpProp()
   double epsrel = 1e-6, error = 0;
   double mults[] = {1, 100., 1e3, 1e3, 1e3, 1e3};
 
-  TH1D *h_fnp = new TH1D("h_fnp", "Full f_{NP}", n_pt, ptBins);
+  TH1D *h_fnp = new TH1D("h_fnp", "Run 2 f_{NP}", n_pt, ptBins);
   double ln = 10000;
   double fit_v[n_par], dpar[n_par];
   double cov[n_par][n_par];
@@ -122,7 +122,7 @@ void fnpProp()
   fr1->SetYTitle("f_{NP} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("Full f_{NP} vs p_{T}");
+  fr1->SetTitle("Run 2 f_{NP} vs p_{T}");
 
   h_fnp->SetStats(0);
   h_fnp->SetMarkerStyle(20);
@@ -149,7 +149,7 @@ void fnpProp()
   infile->Close();
 
   // f_np(pT) but generating 2d map so it's easier to apply uncertainties
-  TH2D *h_fnp2d = new TH2D("h_fnp2d", "Full f_{NP}", nBinsX, minX, maxX, n_pt, ptBins);
+  TH2D *h_fnp2d = new TH2D("h_fnp2d", "Run 2 f_{NP}", nBinsX, minX, maxX, n_pt, ptBins);
   for(int i_pt = 0; i_pt < n_pt; i_pt++) {
     // same result for all costh bins
     for(int i_cos = 0; i_cos < nBinsX; i_cos++) {
@@ -168,7 +168,7 @@ void fnpProp()
   h_fnppt->GetYaxis()->SetTitle("f_{NP} (%)");
   h_fnppt->GetYaxis()->SetTitleOffset(1.3);
   h_fnppt->GetYaxis()->SetLabelOffset(0.01);
-  h_fnppt->SetTitle("Full f_{NP}");
+  h_fnppt->SetTitle("Run 2 f_{NP}");
   h_fnppt->SetFillColorAlpha(kBlue, 0.5);
   h_fnppt->Draw("e3");
   h_fnp->Draw("error same");

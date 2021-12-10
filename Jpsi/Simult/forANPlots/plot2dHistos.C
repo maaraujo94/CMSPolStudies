@@ -15,7 +15,7 @@ void plot2dHistos()
   h_Data->SetStats(0);
   h_Data->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_Data->GetYaxis()->SetTitle("p_{T} (GeV)");
-  h_Data->SetTitle("Full Peak Data/MC");
+  h_Data->SetTitle("Run 2 Peak Data/MC");
   h_Data->Draw("COLZ");
   c->SaveAs("plots/2dMaps/ratio_Peak.pdf");
   c->Clear();
@@ -23,7 +23,7 @@ void plot2dHistos()
   h_NP->SetStats(0);
   h_NP->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_NP->GetYaxis()->SetTitle("p_{T} (GeV)");
-  h_NP->SetTitle("Full NP Data/MC");
+  h_NP->SetTitle("Run 2 NP Data/MC");
   h_NP->Draw("COLZ");
   c->SaveAs("plots/2dMaps/ratio_NP.pdf");
   c->Clear();
@@ -31,7 +31,7 @@ void plot2dHistos()
   h_SB->SetStats(0);
   h_SB->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_SB->GetYaxis()->SetTitle("p_{T} (GeV)");
-  h_SB->SetTitle("Full SB Data/MC");
+  h_SB->SetTitle("Run 2 SB Data/MC");
   h_SB->Draw("COLZ");
   c->SaveAs("plots/2dMaps/ratio_SB.pdf");
   c->Clear();
@@ -49,7 +49,7 @@ void plot2dHistos()
   h_Data2->SetStats(0);
   h_Data2->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_Data2->GetYaxis()->SetTitle("p_{T} (GeV)");
-  h_Data2->SetTitle("Full Peak Data");
+  h_Data2->SetTitle("Run 2 Peak Data");
   h_Data2->Draw("COLZ");
   c->SaveAs("plots/2dMaps/data_2d_plot.pdf");
   c->Clear();
@@ -57,7 +57,7 @@ void plot2dHistos()
   h_NP2->SetStats(0);
   h_NP2->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_NP2->GetYaxis()->SetTitle("p_{T} (GeV)");
-  h_NP2->SetTitle("Full NP Data");
+  h_NP2->SetTitle("Run 2 NP Data");
   h_NP2->Draw("COLZ");
   c->SaveAs("plots/2dMaps/np_2d_plot.pdf");
   c->Clear();
@@ -65,7 +65,7 @@ void plot2dHistos()
   h_MC2->SetStats(0);
   h_MC2->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_MC2->GetYaxis()->SetTitle("p_{T} (GeV)");
-  h_MC2->SetTitle("Full Peak MC");
+  h_MC2->SetTitle("Run 2 Peak MC");
   h_MC2->Draw("COLZ");
   c->SaveAs("plots/2dMaps/mc_2d_plot.pdf");
   c->Clear();

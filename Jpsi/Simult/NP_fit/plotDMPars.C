@@ -74,7 +74,7 @@ void plotDMPars()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.5);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Full %s", partit[i_p].c_str()));
+    fl->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
 
     TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
     leg->SetTextSize(0.03);

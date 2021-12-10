@@ -48,7 +48,7 @@ void fbkgProp()
   fin->Close();
 
   // fbkg = integral / evt_all (in signal region)
-  TH1D *h_fbkg = new TH1D("h_fbkg", "Full f_{bkg}", n_pt, ptBins);
+  TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{bkg}", n_pt, ptBins);
   double ln = 10000;
   const int n_p = 2;
   double fit_v[n_p], dpar[n_p];
@@ -97,7 +97,7 @@ void fbkgProp()
   fr1->SetYTitle("f_{bkg} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("Full f_{bkg} vs p_{T}");
+  fr1->SetTitle("Run 2 f_{bkg} vs p_{T}");
 
   h_fbkg->SetStats(0);
   h_fbkg->SetMarkerStyle(20);
@@ -141,7 +141,7 @@ void fbkgProp()
   double dX = (maxX-minX)/nBinsX;
   
   // f_bkg(pT) but generating 2d map so it's easier to apply uncertainties
-  TH2D *h_fbkg2d = new TH2D("h_fbkg2d", "Full f_{bkg}", nBinsX, minX, maxX, nBinsY, yBins);
+  TH2D *h_fbkg2d = new TH2D("h_fbkg2d", "Run 2 f_{bkg}", nBinsX, minX, maxX, nBinsY, yBins);
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
     for(int i_cos = 0; i_cos < nBinsX; i_cos++) {
       h_fbkg2d->SetBinContent(i_cos+1, i_pt+1, f_fit1->GetParameter(0));
@@ -158,7 +158,7 @@ void fbkgProp()
   h_fbkgpt->GetYaxis()->SetTitle("f_{bkg} (%)");
   h_fbkgpt->GetYaxis()->SetTitleOffset(1.3);
   h_fbkgpt->GetYaxis()->SetLabelOffset(0.01);
-  h_fbkgpt->SetTitle("Full f_{bkg} vs p_{T}");
+  h_fbkgpt->SetTitle("Run 2 f_{bkg} vs p_{T}");
   h_fbkgpt->SetStats(0);
   h_fbkgpt->SetFillColorAlpha(kBlue, 0.5);
   h_fbkgpt->Draw("e3");

@@ -55,7 +55,7 @@ void plotMMG()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Full %s", partit[i_p].c_str()));
+    fl->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
 
     if (i_p == 4) continue;
     

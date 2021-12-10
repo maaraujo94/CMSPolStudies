@@ -54,7 +54,7 @@ void ctEvts()
   ftex.open(Form("text_output/data_mc_evts_S.tex"));
   ftex << "\\begin{tabular}{cc|ccc|c}\n";
   ftex << "\\hline\n";
-  ftex << Form("\\multicolumn{2}{c}{Run2} & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[0], pt_max[2]);
+  ftex << Form("\\multicolumn{2}{c}{Run 2} & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[0], pt_max[2]);
   ftex << "\\hline\n";
   
   ftex << Form("\\multirow{4}{*}{\\rotatebox[origin=c]{90}{Data}} & Peak & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_PRSR[0]/1e6, n_PRSR[1]/1e6, n_PRSR[2]/1e6, n_PRSR[3]/1e6);

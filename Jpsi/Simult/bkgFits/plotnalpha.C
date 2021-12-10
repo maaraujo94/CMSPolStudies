@@ -55,7 +55,7 @@ void plotnalpha()
     fl->SetYTitle(parax[1].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Full %s vs %s", partit[0].c_str(), partit[1].c_str()));
+    fl->SetTitle(Form("Run 2 %s vs %s", partit[0].c_str(), partit[1].c_str()));
    
     // free mode always plots points
     g_both[i_m]->SetLineColor(col[i_m]);
@@ -73,7 +73,7 @@ void plotnalpha()
   fl->SetYTitle(parax[1].c_str());
   fl->GetYaxis()->SetTitleOffset(1.8);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle(Form("Full %s vs %s", partit[0].c_str(), partit[1].c_str()));
+  fl->SetTitle(Form("Run 2 %s vs %s", partit[0].c_str(), partit[1].c_str()));
   
   TLegend *leg = new TLegend(0.65, 0.7, 0.9, 0.9);
   leg->SetTextSize(0.03);

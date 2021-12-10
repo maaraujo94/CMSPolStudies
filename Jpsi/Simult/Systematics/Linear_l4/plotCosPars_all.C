@@ -71,7 +71,7 @@ void plotCosPars_all()
       fp->SetYTitle(Form("%s", partit[i].c_str()));
       fp->GetYaxis()->SetTitleOffset(1.5);
       fp->GetYaxis()->SetLabelOffset(0.01);
-      fp->SetTitle(Form("Full %s %s", lbl[i_inp].c_str(), partit[i].c_str()));
+      fp->SetTitle(Form("Run 2 %s %s", lbl[i_inp].c_str(), partit[i].c_str()));
 
       for(int i_f = 0; i_f < n_fit; i_f++) {
 	// plot free parameters (all for fit 1, N for fit 2, 3)
@@ -101,7 +101,7 @@ void plotCosPars_all()
     fp->SetYTitle(Form("%s", partit[n_p].c_str()));
     fp->GetYaxis()->SetTitleOffset(1.5);
     fp->GetYaxis()->SetLabelOffset(0.01);
-    fp->SetTitle(Form("Full %s %s", lbl[i_inp].c_str(), partit[n_p].c_str()));
+    fp->SetTitle(Form("Run 2 %s %s", lbl[i_inp].c_str(), partit[n_p].c_str()));
     
     g_chi[i_inp]->SetMarkerStyle(20);
     g_chi[i_inp]->SetMarkerSize(1.5);

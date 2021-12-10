@@ -42,7 +42,7 @@ void plotFracs()
   fr1->SetYTitle("f (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("Full f comparison");
+  fr1->SetTitle("Run 2 f comparison");
 
   h_fNP->SetLineColor(kRed);
   h_fNP->SetMarkerColor(kRed);

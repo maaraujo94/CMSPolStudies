@@ -62,7 +62,7 @@ void plotMMseq()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Full %s", partit[i_p].c_str()));
+    fl->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
 
     if(i_p == 1) c->SetLogy();
     else c->SetLogy(0);
@@ -121,7 +121,7 @@ void plotMMseq()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Full %s (#mu constant)", partit[i_p].c_str()));
+    fl->SetTitle(Form("Run 2 %s (#mu constant)", partit[i_p].c_str()));
 
     c->SetLogy(0);
 
@@ -173,7 +173,7 @@ void plotMMseq()
   f2->SetYTitle(parax[3].c_str());
   f2->GetYaxis()->SetTitleOffset(1.8);
   f2->GetYaxis()->SetLabelOffset(0.01);
-  f2->SetTitle(Form("Full %s (#mu, f constant)", partit[3].c_str()));
+  f2->SetTitle(Form("Run 2 %s (#mu, f constant)", partit[3].c_str()));
 
   c->SetLogy(0);
   
@@ -222,7 +222,7 @@ void plotMMseq()
   f2na->SetYTitle("n, #alpha");
   f2na->GetYaxis()->SetTitleOffset(1.8);
   f2na->GetYaxis()->SetLabelOffset(0.01);
-  f2na->SetTitle(Form("Full n, #alpha (#mu, f constant)"));
+  f2na->SetTitle(Form("Run 2 n, #alpha (#mu, f constant)"));
 
   c->SetLogy(0);
   
@@ -265,7 +265,7 @@ void plotMMseq()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Full %s (#mu, f constant, #sigma_{1,2} linear)", partit[i_p].c_str()));
+    fl->SetTitle(Form("Run 2 %s (#mu, f constant, #sigma_{1,2} linear)", partit[i_p].c_str()));
 
     c->SetLogy(0);
 
@@ -301,7 +301,7 @@ void plotMMseq()
   f4->SetYTitle(parax[6].c_str());
   f4->GetYaxis()->SetTitleOffset(1.8);
   f4->GetYaxis()->SetLabelOffset(0.01);
-  f4->SetTitle("Full #alpha (#mu, f, n constant, #sigma_{1,2} linear)");
+  f4->SetTitle("Run 2 #alpha (#mu, f, n constant, #sigma_{1,2} linear)");
 
   c->SetLogy(0);
   
@@ -334,7 +334,7 @@ void plotMMseq()
   fc->SetYTitle("#chi^{2}/ndf");
   fc->GetYaxis()->SetTitleOffset(1.3);
   fc->GetYaxis()->SetLabelOffset(0.01);
-  fc->SetTitle(Form("Full #chi^{2}/ndf for different fit models"));
+  fc->SetTitle(Form("Run 2 #chi^{2}/ndf for different fit models"));
 
   for(int i = 0; i < n_m; i++) {
     l_chiN[i]->SetLineColor(i+1);
@@ -362,7 +362,7 @@ void plotMMseq()
     flna->SetYTitle(parax[i_p].c_str());
     flna->GetYaxis()->SetTitleOffset(1.8);
     flna->GetYaxis()->SetLabelOffset(0.01);
-    flna->SetTitle(Form("Full %s", partit[i_p].c_str()));
+    flna->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
 
     int c_val = 1;
     for(int i_m = 0; i_m < 4; i_m++) {

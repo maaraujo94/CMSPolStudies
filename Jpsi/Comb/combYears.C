@@ -47,12 +47,20 @@ void combYears()
     yeC[i+nC/2] = graph_lth8[0]->GetEY()[i];    
   }
   TGraphErrors *g_lth = new TGraphErrors(nC, xvC, yvC, xeC, yeC);
+  TGraphErrors *g_lthSF = new TGraphErrors(graph_lthS[0]->GetN(), graph_lthS[0]->GetX(), graph_lthS[0]->GetY(), graph_lthS[0]->GetEX(), graph_lthS[0]->GetEY());
   
   TF1 *flin = new TF1("flin", "[0]*x+[1]", pTBins[0], pTBins[nBinspT]);
   flin->SetParameters(0.1, 0.2);
   flin->SetLineColor(kBlack);
   flin->SetLineStyle(kDashed);
   g_lth->Fit(flin);
+
+  TF1 *flinS = new TF1("flinS", "[0]*x+[1]", pTBins[0], pTBins[nBinspT]);
+  flinS->SetParameters(0.1, 0.2);
+  flinS->SetLineColor(kViolet+2);
+  flinS->SetLineStyle(kDashed);
+  g_lthSF->Fit(flinS);
+
    
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
@@ -66,12 +74,18 @@ void combYears()
   fl->SetTitle("prompt J/#psi #lambda_{#theta}");
 
   graph_lth7[0]->SetLineColor(kBlue);
+  graph_lth7[0]->SetMarkerStyle(20);
+  graph_lth7[0]->SetMarkerSize(.5);
   graph_lth7[0]->SetMarkerColor(kBlue);
   graph_lth7[0]->Draw("p same");
   graph_lth8[0]->SetLineColor(kRed);
+  graph_lth8[0]->SetMarkerStyle(20);
+  graph_lth8[0]->SetMarkerSize(.5);
   graph_lth8[0]->SetMarkerColor(kRed);
   graph_lth8[0]->Draw("p same");
   graph_lthS[0]->SetLineColor(kViolet+2);
+  graph_lthS[0]->SetMarkerStyle(20);
+  graph_lthS[0]->SetMarkerSize(.5);
   graph_lthS[0]->SetMarkerColor(kViolet+2);
   graph_lthS[0]->Draw("p same");
  
@@ -90,12 +104,7 @@ void combYears()
   c->SaveAs("par_lthS.pdf");
 
   flin->Draw("lsame");
-
-  TF1 *flinS = new TF1("flinS", "[0]*x+[1]", pTBins[0], pTBins[nBinspT]);
-  flinS->SetParameters(0.1, 0.2);
-  flinS->SetLineColor(kViolet+2);
-  flinS->SetLineStyle(kDashed);
-  graph_lthS[0]->Fit(flinS);
+  flinS->Draw("lsame");
 
   TLatex lc;
   lc.SetTextSize(0.03);
@@ -103,6 +112,13 @@ void combYears()
   lc.DrawLatex(30, 0.7, Form("b = %.3f #pm %.3f", flin->GetParameter(1), flin->GetParError(1)));
   lc.DrawLatex(30, 0.55, Form("#chi^{2}/ndf = %.0f/%d", flin->GetChisquare(), flin->GetNDF()));
   lc.DrawLatex(60, 0.55, Form("P(#chi^{2},ndf) = %.1f %%", TMath::Prob(flin->GetChisquare(), flin->GetNDF())*100.));
+
+
+  lc.SetTextColor(kViolet+2); 
+  lc.DrawLatex(30, -0.15, Form("m = ( %.2f #pm %.2f ) #times 10^{-3}", flinS->GetParameter(0)*1e3, flinS->GetParError(0)*1e3));
+  lc.DrawLatex(30, -0.3, Form("b = %.3f #pm %.3f", flinS->GetParameter(1), flinS->GetParError(1)));
+  lc.DrawLatex(30, -0.45, Form("#chi^{2}/ndf = %.0f/%d", flinS->GetChisquare(), flinS->GetNDF()));
+  lc.DrawLatex(60, -0.45, Form("P(#chi^{2},ndf) = %.1f %%", TMath::Prob(flinS->GetChisquare(), flinS->GetNDF())*100.));
 
     cout << flin->GetChisquare() << "/" << flin->GetNDF() << " -> " << TMath::Prob(flin->GetChisquare(), flin->GetNDF()) << endl;
 

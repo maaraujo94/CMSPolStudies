@@ -115,7 +115,7 @@ void mBkg()
   double m_max[] = {2.95, 3.2, 3.26};
 
   // Fill 2d histo
-  TH2D *h_d2d = new TH2D("h_d2d", "Full data M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
+  TH2D *h_d2d = new TH2D("h_d2d", "Run 2 data M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
 
   // scale 1d histos and fill 2d histo
   for(int i = 0; i < nPtBins; i++) {

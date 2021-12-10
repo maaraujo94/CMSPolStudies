@@ -68,7 +68,7 @@ void getfL()
   fmL->SetYTitle("<m_{LSB}> (GeV)");
   fmL->GetYaxis()->SetTitleOffset(1.3);
   fmL->GetYaxis()->SetLabelOffset(0.01);
-  fmL->SetTitle("Full <m_{LSB}> (p_{T})");
+  fmL->SetTitle("Run 2 <m_{LSB}> (p_{T})");
 
   g_mL->SetLineColor(kBlack);
   g_mL->SetMarkerStyle(20);
@@ -83,7 +83,7 @@ void getfL()
   fmR->SetYTitle("<m_{RSB}> (GeV)");
   fmR->GetYaxis()->SetTitleOffset(1.3);
   fmR->GetYaxis()->SetLabelOffset(0.01);
-  fmR->SetTitle("Full <m_{RSB}> (p_{T})");
+  fmR->SetTitle("Run 2 <m_{RSB}> (p_{T})");
 
   g_mR->SetLineColor(kBlue);
   g_mR->SetMarkerStyle(20);
@@ -98,7 +98,7 @@ void getfL()
   ffL->SetYTitle("f_{L} (%)");
   ffL->GetYaxis()->SetTitleOffset(1.3);
   ffL->GetYaxis()->SetLabelOffset(0.01);
-  ffL->SetTitle("Full f_{L} (p_{T})");
+  ffL->SetTitle("Run 2 f_{L} (p_{T})");
 
   g_fL->SetLineColor(kRed);
   g_fL->SetMarkerStyle(20);

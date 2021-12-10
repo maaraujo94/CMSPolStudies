@@ -33,7 +33,7 @@ void plotRes()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Full #lambda_{#theta}");
+  fl->SetTitle("Run 2 #lambda_{#theta}");
 
   int col[] =  {kRed, kRed+3};
   for(int i = 0; i < 2; i++) {
@@ -70,7 +70,7 @@ void plotRes()
   fl2->SetYTitle("#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Full #lambda_{#theta} (pure NP J/#psi)");
+  fl2->SetTitle("Run 2 #lambda_{#theta} (pure NP J/#psi)");
 
   graph_lth[1]->SetLineColor(kBlack);
   graph_lth[1]->SetMarkerColor(kBlack);
@@ -95,7 +95,7 @@ void plotRes()
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
   fa->GetYaxis()->SetLabelOffset(0.01);
-  fa->SetTitle("Full A");
+  fa->SetTitle("Run 2 A");
 
   // combine both lambda_th distributions
   for(int i = 0; i < 2; i++) {
@@ -123,7 +123,7 @@ void plotRes()
   fc->SetYTitle("P(#chi^{2}, ndf)");
   fc->GetYaxis()->SetTitleOffset(1.3);
   fc->GetYaxis()->SetLabelOffset(0.01);
-  fc->SetTitle("Full P(#chi^{2}, ndf)");
+  fc->SetTitle("Run 2 P(#chi^{2}, ndf)");
 
   // combine both lambda_th distributions
   for(int i = 0; i < 2; i++) {

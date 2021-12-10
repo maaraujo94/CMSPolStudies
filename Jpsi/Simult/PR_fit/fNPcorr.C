@@ -54,7 +54,7 @@ void fNPcorr()
   h_fnp1d->GetYaxis()->SetTitle("f (%)");
   h_fnp1d->GetYaxis()->SetTitleOffset(1.3);
   h_fnp1d->GetYaxis()->SetLabelOffset(0.01);
-  h_fnp1d->SetTitle("Full f_{NP}^{corr}");
+  h_fnp1d->SetTitle("Run 2 f_{NP}^{corr}");
   h_fnp1d->SetLineColor(kRed);
   h_fnp1d->SetMarkerColor(kRed);
   h_fnp1d->SetMarkerStyle(20);

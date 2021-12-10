@@ -96,10 +96,10 @@ void plotRes()
   
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
   fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("#lambda_{#theta}");
+  fl2->SetYTitle("#delta#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Full #delta#lambda_{#theta} (prompt J/#psi)");
+  fl2->SetTitle("Run 2 #delta#lambda_{#theta} (prompt J/#psi)");
   
   g_lthD->SetLineColor(kBlack);
   g_lthD->SetMarkerColor(kBlack);

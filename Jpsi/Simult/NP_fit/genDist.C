@@ -43,8 +43,8 @@ void genDist()
   inRSB->Close();
 
   // create the histograms - SB
-  TH2D *h_LSB = new TH2D(Form("h_LSB"), "Full LSB/MC", nBinsX, minX, maxX, nBinsY, yBins);
-  TH2D *h_RSB = new TH2D(Form("h_RSB"), "Full RSB/MC", nBinsX, minX, maxX, nBinsY, yBins);
+  TH2D *h_LSB = new TH2D(Form("h_LSB"), "Run 2 LSB/MC", nBinsX, minX, maxX, nBinsY, yBins);
+  TH2D *h_RSB = new TH2D(Form("h_RSB"), "Run 2 RSB/MC", nBinsX, minX, maxX, nBinsY, yBins);
 
   // determine the uncertainty band at each pT and cost value
   double ln = 10000;
@@ -66,7 +66,7 @@ void genDist()
   }
 
   // define the final bkg/MC dist as the weighted sum using fL
-  TH2D *h_SB = new TH2D(Form("h_SB"), "Full bkg/MC", nBinsX, minX, maxX, nBinsY, yBins);
+  TH2D *h_SB = new TH2D(Form("h_SB"), "Run 2 bkg/MC", nBinsX, minX, maxX, nBinsY, yBins);
   h_SB->Add(h_LSB, h_RSB, fL, 1.-fL);
 
   cout << "all SB histos filled" << endl;

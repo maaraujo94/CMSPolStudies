@@ -58,9 +58,13 @@ void plotRes()
   fl->SetTitle("prompt J/#psi #lambda_{#theta}");
 
   graph_lth7[0]->SetLineColor(kBlue);
+  graph_lth7[0]->SetMarkerSize(.5);
+  graph_lth7[0]->SetMarkerColor(kBlue);
   graph_lth7[0]->SetMarkerColor(kBlue);
   graph_lth7[0]->Draw("p same");
   graph_lth8[0]->SetLineColor(kBlack);
+  graph_lth8[0]->SetMarkerStyle(20);
+  graph_lth8[0]->SetMarkerSize(.5);
   graph_lth8[0]->SetMarkerColor(kBlack);
   graph_lth8[0]->Draw("p same");
  

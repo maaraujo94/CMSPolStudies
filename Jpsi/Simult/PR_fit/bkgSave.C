@@ -20,7 +20,7 @@ void bkgSave()
     double lowt = -0.05, hit = 0.5; // plotting in mm, not cm
     TH1D **ltHist = new TH1D*[nPtBins];
     for(int ip = 0; ip < nPtBins; ip++) {
-      ltHist[ip] = new TH1D(Form("ltH%.0f", ptBins[ip]), Form("Full data c#tau (%.0f < p_{T} < %.0f GeV)", ptBins[ip], ptBins[ip+1]), tbins, lowt, hit);
+      ltHist[ip] = new TH1D(Form("ltH%.0f", ptBins[ip]), Form("Run 2 data c#tau (%.0f < p_{T} < %.0f GeV)", ptBins[ip], ptBins[ip+1]), tbins, lowt, hit);
     }
     
     // open and read the data tree
@@ -72,7 +72,7 @@ void bkgSave()
     double lowm = 2.9, him = 3.3;
     TH1D **h_d1d = new TH1D*[nPtBins];
     for(int ip = 0; ip < nPtBins; ip++)
-      h_d1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("Full data M(#mu#mu) (%.0f < p_{T} < %.0f GeV)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
+      h_d1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("Run 2 data M(#mu#mu) (%.0f < p_{T} < %.0f GeV)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
         
     // filling all the histos at once    
     // open and read the data tree
