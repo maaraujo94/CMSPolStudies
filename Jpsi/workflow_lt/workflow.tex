@@ -27,7 +27,7 @@
 \pagebreak
 
 \section{Cheat sheet: code order}
-
+\subsection{PR\_fit}
 
 \textbf{Initial storage}
 \begin{enumerate}
@@ -59,6 +59,60 @@
 \item fbkgProp.C
 \item fnpProp.C
 \item fNPcorr.C (this point onwards requires running the NP\_fit framework)
+\end{enumerate}
+
+\textbf{Final fit}
+\begin{enumerate}
+\item bkgSub.C
+\item indFit.C
+\item plotRes.C
+\end{enumerate}
+
+\pagebreak
+
+\subsection{bkgFits}
+
+\textbf{Base fits}
+\begin{enumerate}
+\item newMCmass\_0-5.C
+\item newMCmass\_G.C
+\end{enumerate}
+
+\textbf{Base fit plots}
+\begin{enumerate}
+\item plotMMseq.C
+\item plotnalpha.C
+\item plotMMG.C
+\end{enumerate}
+
+\textbf{NP fits}
+\begin{enumerate}
+\item NPMCmass.C
+\item NPMCmass\_hpt.C
+\item NPMCmass\_hp\_fn.C
+\item combNPRes.C
+\end{enumerate}
+
+\subsection{NP\_fit}
+
+\textbf{Initial storage}
+\begin{enumerate}
+\item bkgSave.C
+\end{enumerate}
+
+\textbf{Background fits - mass bkg}
+\begin{enumerate}
+\item (bkgFits) NPMCmass.C
+\item mBkg.C $\rightarrow$ calls plotDMPars.C
+\item bkgCosth.C
+\item fitBkgCosth2d.C $\rightarrow$ calls plotCosPars2d.C
+\item getfL.C
+\item genDist.C
+\end{enumerate}
+
+\textbf{Background functions}
+\begin{enumerate}
+\item fbkgProp.C
 \end{enumerate}
 
 \textbf{Final fit}

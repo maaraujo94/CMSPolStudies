@@ -1,3 +1,14 @@
+double f_eff(double pt)
+{
+  double beta = 1.698;
+  double ptz = 3.723;
+
+  double f = 1.0;
+  f /= 1. + exp(-beta*(pt-ptz));
+
+  return f;
+}
+
 void effPlot()
 {
   TFile *fin = new TFile("eff_mm_trailing_v5.root");
