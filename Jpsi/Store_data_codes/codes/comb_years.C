@@ -2,11 +2,11 @@
 
 void comb_years()
 {
-  Double_t mmPt, th, phi, lt, lterr, mass, rap;
+  Double_t mmPt, th, phi, lt, lterr, mass, rap, dR;
   int tEvt, perc;
   
   // PART 1 : the data
-  TFile *fData = new TFile("../Store_data_codes/dataS_cos.root", "recreate");
+  TFile *fData = new TFile("../dataS_cos.root", "recreate");
   TTree *tData = new TTree("data_cos", "");
   
   tData->Branch("theta", &th);
@@ -16,9 +16,10 @@ void comb_years()
   tData->Branch("lterr", &lterr);
   tData->Branch("Mass", &mass);
   tData->Branch("Rap", &rap);
-  
+  tData->Branch("DeltaR", &dR);
+
   // open files and read TTrees - 2017
-  TFile *finD7 = new TFile("../Store_data_codes/data17_cos.root");
+  TFile *finD7 = new TFile("../data17_cos.root");
   TTree *treeD7 = (TTree*)finD7->Get("data_cos");
 
   tEvt = treeD7->GetEntries();
@@ -30,6 +31,7 @@ void comb_years()
   treeD7->SetBranchAddress("lterr", &lterr);
   treeD7->SetBranchAddress("Mass", &mass);
   treeD7->SetBranchAddress("Rap", &rap);
+  treeD7->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
     treeD7->GetEntry(i);
@@ -39,7 +41,7 @@ void comb_years()
   finD7->Close();
 
   // open files and read TTrees - 2018
-  TFile *finD8 = new TFile("../Store_data_codes/data18_cos.root");
+  TFile *finD8 = new TFile("../data18_cos.root");
   TTree *treeD8 = (TTree*)finD8->Get("data_cos");
 
   tEvt = treeD8->GetEntries();
@@ -51,6 +53,7 @@ void comb_years()
   treeD8->SetBranchAddress("lterr", &lterr);
   treeD8->SetBranchAddress("Mass", &mass);
   treeD8->SetBranchAddress("Rap", &rap);
+  treeD8->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
     treeD8->GetEntry(i);
@@ -63,7 +66,9 @@ void comb_years()
   fData->Close();
 
   // PART 2 : the low-pt MC
-  TFile *fMC = new TFile("../Store_data_codes/MCS_cos.root", "recreate");
+  Double_t mPPt, mMPt, mPEta, mMEta;
+
+  TFile *fMC = new TFile("../MCS_cos.root", "recreate");
   TTree *tMC = new TTree("MC_cos", "");
   
   tMC->Branch("theta", &th);
@@ -73,9 +78,14 @@ void comb_years()
   tMC->Branch("lterr", &lterr);
   tMC->Branch("Mass", &mass);
   tMC->Branch("Rap", &rap);
+  tMC->Branch("muonPPt", &mPPt);
+  tMC->Branch("muonPEta", &mPEta);
+  tMC->Branch("muonMPt", &mMPt);
+  tMC->Branch("muonMEta", &mMEta);
+  tMC->Branch("DeltaR", &dR);
   
   // open files and read TTrees - 2017
-  TFile *finM7 = new TFile("../Store_data_codes/MC17_cos.root");
+  TFile *finM7 = new TFile("../MC17_cos.root");
   TTree *treeM7 = (TTree*)finM7->Get("MC_cos");
 
   tEvt = treeM7->GetEntries();
@@ -87,6 +97,11 @@ void comb_years()
   treeM7->SetBranchAddress("lterr", &lterr);
   treeM7->SetBranchAddress("Mass", &mass);
   treeM7->SetBranchAddress("Rap", &rap);
+  treeM7->SetBranchAddress("muonPPt", &mPPt);
+  treeM7->SetBranchAddress("muonPEta", &mPEta);
+  treeM7->SetBranchAddress("muonMPt", &mMPt);
+  treeM7->SetBranchAddress("muonMEta", &mMEta);
+  treeM7->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
     treeM7->GetEntry(i);
@@ -96,7 +111,7 @@ void comb_years()
   finM7->Close();
 
   // open files and read TTrees - 2018
-  TFile *finM8 = new TFile("../Store_data_codes/MC18_cos.root");
+  TFile *finM8 = new TFile("../MC18_cos.root");
   TTree *treeM8 = (TTree*)finM8->Get("MC_cos");
 
   tEvt = treeM8->GetEntries();
@@ -108,6 +123,11 @@ void comb_years()
   treeM8->SetBranchAddress("lterr", &lterr);
   treeM8->SetBranchAddress("Mass", &mass);
   treeM8->SetBranchAddress("Rap", &rap);
+  treeM8->SetBranchAddress("muonPPt", &mPPt);
+  treeM8->SetBranchAddress("muonPEta", &mPEta);
+  treeM8->SetBranchAddress("muonMPt", &mMPt);
+  treeM8->SetBranchAddress("muonMEta", &mMEta);
+  treeM8->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
     treeM8->GetEntry(i);
@@ -120,7 +140,7 @@ void comb_years()
   fMC->Close();
 
   // PART 3 : the mid-pt MC
-  TFile *fMCh = new TFile("../Store_data_codes/MChS_cos.root", "recreate");
+  TFile *fMCh = new TFile("../MChS_cos.root", "recreate");
   TTree *tMCh = new TTree("MC_cos", "");
   
   tMCh->Branch("theta", &th);
@@ -130,9 +150,14 @@ void comb_years()
   tMCh->Branch("lterr", &lterr);
   tMCh->Branch("Mass", &mass);
   tMCh->Branch("Rap", &rap);
-  
+  tMCh->Branch("muonPPt", &mPPt);
+  tMCh->Branch("muonPEta", &mPEta);
+  tMCh->Branch("muonMPt", &mMPt);
+  tMCh->Branch("muonMEta", &mMEta);
+  tMCh->Branch("DeltaR", &dR);
+
   // open files and read TTrees - 2017
-  TFile *finMh7 = new TFile("../Store_data_codes/MCh17_cos.root");
+  TFile *finMh7 = new TFile("../MCh17_cos.root");
   TTree *treeMh7 = (TTree*)finMh7->Get("MC_cos");
 
   tEvt = treeMh7->GetEntries();
@@ -144,6 +169,11 @@ void comb_years()
   treeMh7->SetBranchAddress("lterr", &lterr);
   treeMh7->SetBranchAddress("Mass", &mass);
   treeMh7->SetBranchAddress("Rap", &rap);
+  treeMh7->SetBranchAddress("muonPPt", &mPPt);
+  treeMh7->SetBranchAddress("muonPEta", &mPEta);
+  treeMh7->SetBranchAddress("muonMPt", &mMPt);
+  treeMh7->SetBranchAddress("muonMEta", &mMEta);
+  treeMh7->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
     treeMh7->GetEntry(i);
@@ -153,7 +183,7 @@ void comb_years()
   finMh7->Close();
 
   // open files and read TTrees - 2018
-  TFile *finMh8 = new TFile("../Store_data_codes/MCh18_cos.root");
+  TFile *finMh8 = new TFile("../MCh18_cos.root");
   TTree *treeMh8 = (TTree*)finMh8->Get("MC_cos");
 
   tEvt = treeMh8->GetEntries();
@@ -165,6 +195,11 @@ void comb_years()
   treeMh8->SetBranchAddress("lterr", &lterr);
   treeMh8->SetBranchAddress("Mass", &mass);
   treeMh8->SetBranchAddress("Rap", &rap);
+  treeMh8->SetBranchAddress("muonPPt", &mPPt);
+  treeMh8->SetBranchAddress("muonPEta", &mPEta);
+  treeMh8->SetBranchAddress("muonMPt", &mMPt);
+  treeMh8->SetBranchAddress("muonMEta", &mMEta);
+  treeMh8->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
     treeMh8->GetEntry(i);
@@ -177,7 +212,7 @@ void comb_years()
   fMCh->Close();
 
   // PART 4 : the high-pt MC
-  TFile *fMCvh = new TFile("../Store_data_codes/MCvhS_cos.root", "recreate");
+  TFile *fMCvh = new TFile("../MCvhS_cos.root", "recreate");
   TTree *tMCvh = new TTree("MC_cos", "");
   
   tMCvh->Branch("theta", &th);
@@ -187,9 +222,14 @@ void comb_years()
   tMCvh->Branch("lterr", &lterr);
   tMCvh->Branch("Mass", &mass);
   tMCvh->Branch("Rap", &rap);
-  
+  tMCvh->Branch("muonPPt", &mPPt);
+  tMCvh->Branch("muonPEta", &mPEta);
+  tMCvh->Branch("muonMPt", &mMPt);
+  tMCvh->Branch("muonMEta", &mMEta);
+  tMCvh->Branch("DeltaR", &dR);
+
   // open files and read TTrees - 2017
-  TFile *finMvh7 = new TFile("../Store_data_codes/MCvh17_cos.root");
+  TFile *finMvh7 = new TFile("../MCvh17_cos.root");
   TTree *treeMvh7 = (TTree*)finMvh7->Get("MC_cos");
 
   tEvt = treeMvh7->GetEntries();
@@ -201,6 +241,11 @@ void comb_years()
   treeMvh7->SetBranchAddress("lterr", &lterr);
   treeMvh7->SetBranchAddress("Mass", &mass);
   treeMvh7->SetBranchAddress("Rap", &rap);
+  treeMvh7->SetBranchAddress("muonPPt", &mPPt);
+  treeMvh7->SetBranchAddress("muonPEta", &mPEta);
+  treeMvh7->SetBranchAddress("muonMPt", &mMPt);
+  treeMvh7->SetBranchAddress("muonMEta", &mMEta);
+  treeMvh7->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
     treeMvh7->GetEntry(i);
@@ -210,7 +255,7 @@ void comb_years()
   finMvh7->Close();
 
   // open files and read TTrees - 2018
-  TFile *finMvh8 = new TFile("../Store_data_codes/MCvh18_cos.root");
+  TFile *finMvh8 = new TFile("../MCvh18_cos.root");
   TTree *treeMvh8 = (TTree*)finMvh8->Get("MC_cos");
 
   tEvt = treeMvh8->GetEntries();
@@ -222,6 +267,11 @@ void comb_years()
   treeMvh8->SetBranchAddress("lterr", &lterr);
   treeMvh8->SetBranchAddress("Mass", &mass);
   treeMvh8->SetBranchAddress("Rap", &rap);
+  treeMvh8->SetBranchAddress("muonPPt", &mPPt);
+  treeMvh8->SetBranchAddress("muonPEta", &mPEta);
+  treeMvh8->SetBranchAddress("muonMPt", &mMPt);
+  treeMvh8->SetBranchAddress("muonMEta", &mMEta);
+  treeMvh8->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
     treeMvh8->GetEntry(i);
@@ -234,7 +284,7 @@ void comb_years()
   fMCvh->Close();
 
   // PART 5 : the old low-pt MC
-  TFile *fMCO = new TFile("../Store_data_codes/MCOS_cos.root", "recreate");
+  TFile *fMCO = new TFile("../MCOS_cos.root", "recreate");
   TTree *tMCO = new TTree("MC_cos", "");
   
   tMCO->Branch("theta", &th);
@@ -244,9 +294,14 @@ void comb_years()
   tMCO->Branch("lterr", &lterr);
   tMCO->Branch("Mass", &mass);
   tMCO->Branch("Rap", &rap);
-  
+  tMCO->Branch("muonPPt", &mPPt);
+  tMCO->Branch("muonPEta", &mPEta);
+  tMCO->Branch("muonMPt", &mMPt);
+  tMCO->Branch("muonMEta", &mMEta);
+  tMCO->Branch("DeltaR", &dR);
+
   // open files and read TTrees - 2017
-  TFile *finMO7 = new TFile("../Store_data_codes/MC17_old_cos.root");
+  TFile *finMO7 = new TFile("../MC17_old_cos.root");
   TTree *treeMO7 = (TTree*)finMO7->Get("MC_cos");
 
   tEvt = treeMO7->GetEntries();
@@ -258,6 +313,11 @@ void comb_years()
   treeMO7->SetBranchAddress("lterr", &lterr);
   treeMO7->SetBranchAddress("Mass", &mass);
   treeMO7->SetBranchAddress("Rap", &rap);
+  treeMO7->SetBranchAddress("muonPPt", &mPPt);
+  treeMO7->SetBranchAddress("muonPEta", &mPEta);
+  treeMO7->SetBranchAddress("muonMPt", &mMPt);
+  treeMO7->SetBranchAddress("muonMEta", &mMEta);
+  treeMO7->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
     treeMO7->GetEntry(i);
@@ -267,7 +327,7 @@ void comb_years()
   finMO7->Close();
 
   // open files and read TTrees - 2018
-  TFile *finMO8 = new TFile("../Store_data_codes/MC18_old_cos.root");
+  TFile *finMO8 = new TFile("../MC18_old_cos.root");
   TTree *treeMO8 = (TTree*)finMO8->Get("MC_cos");
 
   tEvt = treeMO8->GetEntries();
@@ -279,6 +339,11 @@ void comb_years()
   treeMO8->SetBranchAddress("lterr", &lterr);
   treeMO8->SetBranchAddress("Mass", &mass);
   treeMO8->SetBranchAddress("Rap", &rap);
+  treeMO8->SetBranchAddress("muonPPt", &mPPt);
+  treeMO8->SetBranchAddress("muonPEta", &mPEta);
+  treeMO8->SetBranchAddress("muonMPt", &mMPt);
+  treeMO8->SetBranchAddress("muonMEta", &mMEta);
+  treeMO8->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
     treeMO8->GetEntry(i);

@@ -63,7 +63,8 @@ double *cos_B(TLorentzVector *B, TLorentzVector *psi, TLorentzVector *beam, TLor
 
 void ang_MC_old()
 {
-  Double_t mmPt, th, phi, lt, lterr, mass, rap;
+  Double_t mmPt, th, phi, lt, lterr, mass, rap, mPPt, mMPt, mPEta, mMEta, dR;
+  double dPhi, dEta, dpT;
   double *ang;
   Float_t ct, ctErr;
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
@@ -100,17 +101,35 @@ void ang_MC_old()
   newtree7->Branch("lterr", &lterr);
   newtree7->Branch("Mass", &mass);
   newtree7->Branch("Rap", &rap);
+  newtree7->Branch("muonPPt", &mPPt);
+  newtree7->Branch("muonPEta", &mPEta);
+  newtree7->Branch("muonMPt", &mMPt);
+  newtree7->Branch("muonMEta", &mMEta);
+  newtree7->Branch("DeltaR", &dR);
 
   for(int i = 0; i < mEvt; i++) {
     tree7->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
 	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 )
       {
+	mPPt = muP_p4->Pt();
+	mMPt = muM_p4->Pt();
+	mPEta = muP_p4->Eta();
+	mMEta = muM_p4->Eta();
+	
 	mmPt = mumu_p4->Pt();
 	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
 	lt = ct;
 	lterr = ctErr;
+
+	dPhi = muP_p4->Phi() - muM_p4->Phi();
+	dEta = muP_p4->Eta() - muM_p4->Eta();
+	dpT = abs(muP_p4->Pt()-muM_p4->Pt());
+	if(dPhi > gPI) dPhi -= 2.*gPI;
+	if(dPhi < -gPI) dPhi += 2.*gPI;
+	
+	dR = sqrt(dEta*dEta+dPhi*dPhi)+log(dpT)/45.;
 	
 	ang = cos_B(mumu_p4, muP_p4, beam, targ);
 	th = ang[0];
@@ -148,17 +167,35 @@ void ang_MC_old()
   newtree8->Branch("lterr", &lterr);
   newtree8->Branch("Mass", &mass);
   newtree8->Branch("Rap", &rap);
+  newtree8->Branch("muonPPt", &mPPt);
+  newtree8->Branch("muonPEta", &mPEta);
+  newtree8->Branch("muonMPt", &mMPt);
+  newtree8->Branch("muonMEta", &mMEta);
+  newtree8->Branch("DeltaR", &dR);
 
   for(int i = 0; i < mEvt; i++) {
     tree8->GetEntry(i);
     if( muP_p4->Pt() > 5.6 && muM_p4->Pt() > 5.6 && 
 	abs(muP_p4->Eta()) < 1.4 && abs(muM_p4->Eta()) < 1.4 )
       {
+	mPPt = muP_p4->Pt();
+	mMPt = muM_p4->Pt();
+	mPEta = muP_p4->Eta();
+	mMEta = muM_p4->Eta();
+
 	mmPt = mumu_p4->Pt();
 	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
 	lt = ct;
 	lterr = ctErr;
+
+	dPhi = muP_p4->Phi() - muM_p4->Phi();
+	dEta = muP_p4->Eta() - muM_p4->Eta();
+	dpT = abs(muP_p4->Pt()-muM_p4->Pt());
+	if(dPhi > gPI) dPhi -= 2.*gPI;
+	if(dPhi < -gPI) dPhi += 2.*gPI;
+	
+	dR = sqrt(dEta*dEta+dPhi*dPhi)+log(dpT)/45.;
 	
 	ang = cos_B(mumu_p4, muP_p4, beam, targ);
 	th = ang[0];
@@ -172,6 +209,5 @@ void ang_MC_old()
   fout8->Write();
   fout8->Close();
   fin8->Close();
-
   
 }
