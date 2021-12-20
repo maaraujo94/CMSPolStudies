@@ -3,6 +3,7 @@
 void comb_years()
 {
   Double_t mmPt, th, phi, lt, lterr, mass, rap, dR;
+  Double_t mPPt, mMPt, mPEta, mMEta;
   int tEvt, perc;
   
   // PART 1 : the data
@@ -16,6 +17,10 @@ void comb_years()
   tData->Branch("lterr", &lterr);
   tData->Branch("Mass", &mass);
   tData->Branch("Rap", &rap);
+  tData->Branch("muonPPt", &mPPt);
+  tData->Branch("muonPEta", &mPEta);
+  tData->Branch("muonMPt", &mMPt);
+  tData->Branch("muonMEta", &mMEta);
   tData->Branch("DeltaR", &dR);
 
   // open files and read TTrees - 2017
@@ -31,6 +36,10 @@ void comb_years()
   treeD7->SetBranchAddress("lterr", &lterr);
   treeD7->SetBranchAddress("Mass", &mass);
   treeD7->SetBranchAddress("Rap", &rap);
+  treeD7->SetBranchAddress("muonPPt", &mPPt);
+  treeD7->SetBranchAddress("muonPEta", &mPEta);
+  treeD7->SetBranchAddress("muonMPt", &mMPt);
+  treeD7->SetBranchAddress("muonMEta", &mMEta);
   treeD7->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
@@ -53,6 +62,10 @@ void comb_years()
   treeD8->SetBranchAddress("lterr", &lterr);
   treeD8->SetBranchAddress("Mass", &mass);
   treeD8->SetBranchAddress("Rap", &rap);
+  treeD8->SetBranchAddress("muonPPt", &mPPt);
+  treeD8->SetBranchAddress("muonPEta", &mPEta);
+  treeD8->SetBranchAddress("muonMPt", &mMPt);
+  treeD8->SetBranchAddress("muonMEta", &mMEta);
   treeD8->SetBranchAddress("DeltaR", &dR);
 
   for(int i = 0; i < tEvt; i++) {
@@ -66,8 +79,6 @@ void comb_years()
   fData->Close();
 
   // PART 2 : the low-pt MC
-  Double_t mPPt, mMPt, mPEta, mMEta;
-
   TFile *fMC = new TFile("../MCS_cos.root", "recreate");
   TTree *tMC = new TTree("MC_cos", "");
   

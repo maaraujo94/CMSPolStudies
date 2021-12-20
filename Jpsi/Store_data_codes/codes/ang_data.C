@@ -64,7 +64,7 @@ double *cos_B(TLorentzVector *B, TLorentzVector *psi, TLorentzVector *beam, TLor
 
 void ang_data()
 {
-  Double_t mmPt, ct, ctErr, vProb, th, phi, lt, lterr, mass, rap, dR;
+  Double_t mmPt, ct, ctErr, vProb, th, phi, lt, lterr, mass, rap, mPPt, mMPt, mPEta, mMEta, dR;
   double dPhi, dEta, dpT;
   double *ang;
   TLorentzVector *mumu_p4 = 0, *muM_p4 = 0, *muP_p4 = 0;
@@ -105,6 +105,10 @@ void ang_data()
   newtree7->Branch("lterr", &lterr);
   newtree7->Branch("Mass", &mass);
   newtree7->Branch("Rap", &rap);
+  newtree7->Branch("muonPPt", &mPPt);
+  newtree7->Branch("muonPEta", &mPEta);
+  newtree7->Branch("muonMPt", &mMPt);
+  newtree7->Branch("muonMEta", &mMEta);
   newtree7->Branch("DeltaR", &dR);
   
   for(int i = 0; i < dEvt; i++) {
@@ -114,6 +118,11 @@ void ang_data()
 	vProb > 0.01 &&
 	(trigger&16) == 16)
       {
+	mPPt = muP_p4->Pt();
+	mMPt = muM_p4->Pt();
+	mPEta = muP_p4->Eta();
+	mMEta = muM_p4->Eta();
+
 	mmPt = mumu_p4->Pt();
 	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
@@ -168,6 +177,10 @@ void ang_data()
   newtree8->Branch("lterr", &lterr);
   newtree8->Branch("Mass", &mass);
   newtree8->Branch("Rap", &rap);
+  newtree8->Branch("muonPPt", &mPPt);
+  newtree8->Branch("muonPEta", &mPEta);
+  newtree8->Branch("muonMPt", &mMPt);
+  newtree8->Branch("muonMEta", &mMEta);
   newtree8->Branch("DeltaR", &dR);
 
   for(int i = 0; i < dEvt; i++) {
@@ -177,6 +190,11 @@ void ang_data()
 	vProb > 0.01 &&
 	(trigger&16) == 16)
       {
+	mPPt = muP_p4->Pt();
+	mMPt = muM_p4->Pt();
+	mPEta = muP_p4->Eta();
+	mMEta = muM_p4->Eta();
+
 	mmPt = mumu_p4->Pt();
 	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
