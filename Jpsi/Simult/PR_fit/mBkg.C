@@ -268,15 +268,6 @@ void mBkg()
     fp4->SetLineColor(kViolet);
     fp4->SetLineStyle(kDashed);
     fp4->Draw("lsame");
-
-    TLine **lims = new TLine*[2];
-    lims[0] = new TLine(m_min[1], 0, m_min[1], getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.5, 0));
-    lims[1] = new TLine(m_max[1], 0, m_max[1], getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.5, 0));
-    for(int j = 0; j < 2; j++) {
-      lims[j]->SetLineColor(kRed);
-      lims[j]->SetLineStyle(kDashed);
-      //lims[j]->Draw();
-    }
     
     c->SaveAs(Form("plots/mass/fit_pt%d.pdf", i_pt));
     c->Clear();
@@ -357,7 +348,7 @@ void mBkg()
     fd->SetYTitle("relative difference (%)");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Data J/#psi rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Data mass rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_dev = new TGraph(mbins, mv, dv);
     g_dev->SetLineColor(kBlack);
@@ -368,15 +359,6 @@ void mBkg()
     // aux lines - pull = 0 and sigma limits
     zero->Draw("lsame");
 
-    TLine **limd = new TLine*[2];
-    limd[0] = new TLine(m_min[1], -15, m_min[1], 15);
-    limd[1] = new TLine(m_max[1], -15, m_max[1], 15);
-    for(int j = 0; j < 2; j++) {
-      limd[j]->SetLineColor(kRed);
-      limd[j]->SetLineStyle(kDashed);
-      limd[j]->Draw();
-    }
-  
     c->SaveAs(Form("plots/mass/devs_pt%d.pdf", i_pt));
     c->Clear();
   }

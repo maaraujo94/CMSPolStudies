@@ -2,12 +2,17 @@
 // peak data, mc, peak data/MC, NP data/MC, SB data/MC
 void plot2dHistos()
 {
-  // first get the ratio plots
-  TFile *fin = new TFile("../PR_fit/files/bkgSubRes.root");
-  TH2D *h_Data = (TH2D*)fin->Get("h_Data");
-  TH2D *h_NP = (TH2D*)fin->Get("h_NP");
-  TH2D *h_SB = (TH2D*)fin->Get("h_SB");
+  // get everything from histoStore
+  TFile *fin2 = new TFile("../PR_fit/files/histoStore.root");
+  // first the ratios
+  TH2D *h_Data = (TH2D*)fin2->Get("ratioH_ab");
+  TH2D *h_NP = (TH2D*)fin2->Get("ratNPH_ab"); // ORIGINAL RATIO: not including bkg sub
+  // then the base dists
+  TH2D *h_Data2 = (TH2D*)fin2->Get("dataH_ab");
+  TH2D *h_NP2 = (TH2D*)fin2->Get("NPH_ab");
+  TH2D *h_MC2 = (TH2D*)fin2->Get("mcH_ab");
 
+  // first draw the ratios
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.11);
   c->SetRightMargin(0.13);
@@ -28,22 +33,7 @@ void plot2dHistos()
   c->SaveAs("plots/2dMaps/ratio_NP.pdf");
   c->Clear();
 
-  h_SB->SetStats(0);
-  h_SB->GetXaxis()->SetTitle("|cos#theta_{HX}|");
-  h_SB->GetYaxis()->SetTitle("p_{T} (GeV)");
-  h_SB->SetTitle("2018 SB Data/MC");
-  h_SB->Draw("COLZ");
-  c->SaveAs("plots/2dMaps/ratio_SB.pdf");
-  c->Clear();
-
-  fin->Close();
-
-  // then get the data and mc plots
-  TFile *fin2 = new TFile("../PR_fit/files/histoStore.root");
-  TH2D *h_Data2 = (TH2D*)fin2->Get("dataH_ab");
-  TH2D *h_NP2 = (TH2D*)fin2->Get("NPH_ab");
-  TH2D *h_MC2 = (TH2D*)fin2->Get("mcH_ab");
-
+  // then draw the base dists
   c->SetLogz();
  
   h_Data2->SetStats(0);

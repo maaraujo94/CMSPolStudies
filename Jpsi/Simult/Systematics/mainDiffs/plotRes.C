@@ -44,7 +44,7 @@ void plotRes()
   fIndEta->Close();
 
   // get the differences and the unc band
-  double rdiff[4][nBinspT], diff[4][nBinspT], za[nBinspT];
+  double rdiff[4][nBinspT], diff[4][nBinspT], za[nBinspT], rerr[nBinspT];
   for(int i = 0; i < nBinspT; i++) { 
     diff[0][i] = (graph_lth[1]->GetY()[i] - graph_lth[2]->GetY()[i]);
     diff[1][i] = (graph_lth[3]->GetY()[i] - graph_lth[4]->GetY()[i]);
@@ -53,10 +53,12 @@ void plotRes()
     cout << i; 
     for(int j = 0; j < 4; j++){
       rdiff[j][i] = diff[j][i]/graph_lth[0]->GetY()[i];
+      rdiff[j][i] *= 100.;
       cout << " " << diff[j][i];
     }
     cout << endl;
     za[i] = 0;
+    rerr[i] = graph_lth[0]->GetEY()[i]/graph_lth[0]->GetY()[i]*100;
   }
   TGraphErrors *g_lthY = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[0], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthEff = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[1], graph_lth[0]->GetEX(), za);
@@ -69,14 +71,16 @@ void plotRes()
   TGraphErrors *gr_lthEta = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[3], graph_lth[0]->GetEX(), za);
 
   TGraphErrors *g_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_lth[0]->GetEY());
+  TGraphErrors *gr_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), rerr);
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
-  double d_lim = 0.6;
-  
+  double d_lim = 60;
+
+  // FIRST - draw the relative difference in %
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
   fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("rel #delta#lambda_{#theta}");
+  fl2->SetYTitle("rel #delta#lambda_{#theta} (%)");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
   fl2->SetTitle("Relative difference #delta#lambda_{#theta} (prompt J/#psi)");
@@ -105,10 +109,6 @@ void plotRes()
   gr_lthEta->SetMarkerSize(.5);
   gr_lthEta->Draw("pl same");
 
-  g_unc->SetLineColor(kRed);
-  g_unc->SetFillColorAlpha(kRed, 0.4);
-  g_unc->Draw("ce3");
-
   TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
@@ -124,15 +124,22 @@ void plotRes()
 
   TLegend *leg = new TLegend(0.675, 0.75, 0.9, 0.9);
   leg->SetTextSize(0.03);
-  leg->AddEntry(g_lthY, "2017-2018", "pl");
-  leg->AddEntry(g_lthEff, "f(p_{T})-1/f(p_{T})", "pl");
-  leg->AddEntry(g_lthpT, "p_{T} cut - base", "pl");
-  leg->AddEntry(g_lthEta, "#eta cut - base", "pl");
+  leg->AddEntry(gr_lthY, "2017 - 2018", "pl");
+  leg->AddEntry(gr_lthEff, "f(p_{T}) - 1/f(p_{T})", "pl");
+  leg->AddEntry(gr_lthpT, "p_{T} cut - base", "pl");
+  leg->AddEntry(gr_lthEta, "#eta cut - base", "pl");
   leg->Draw();
   
-  c->SaveAs("par_dlth_F.pdf");
+  c->SaveAs("lth_relDiff.pdf");
+
+  gr_unc->SetLineColor(kRed);
+  gr_unc->SetFillColorAlpha(kRed, 0.4);
+  gr_unc->Draw("ce3");
+
+  c->SaveAs("lth_relDiff_band.pdf");
   c->Clear();
 
+  // SECOND - draw the relative difference in %
   double da_lim = 0.2;
   
   TH1F *fl3 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
@@ -188,7 +195,7 @@ void plotRes()
   leg->AddEntry(g_lthEta, "#eta cut - base", "pl");*/
   leg->Draw();
   
-  c->SaveAs("par_lth_F.pdf");
+  c->SaveAs("lth_absDiff_band.pdf");
   c->Clear();
 
   c->Destructor();

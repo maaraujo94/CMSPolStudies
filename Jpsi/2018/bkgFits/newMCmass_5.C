@@ -248,9 +248,9 @@ void newMCmass_5()
     
     //c->SetLogy();
 	  
-    h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.2);
-    if(pt_val[i_pt] > 34 && pt_val[i_pt] < 37)
-      h_m1d[i_pt]->SetMaximum(18000);
+    h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.1);
+    //if(pt_val[i_pt] > 34 && pt_val[i_pt] < 37)
+    //h_m1d[i_pt]->SetMaximum(18000);
     h_m1d[i_pt]->SetMinimum(0);//h_m1d[i_pt]->GetMaximum()*1e-5);
     h_m1d[i_pt]->SetStats(0);
     h_m1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
@@ -305,12 +305,12 @@ void newMCmass_5()
     double lowmp = fit_i, himp = fit_f;
 	  
     // plotting the puls
-    TH1F *fl = c->DrawFrame(lowmp, -6, himp, 6);
+    TH1F *fl = c->DrawFrame(lowmp, -7, himp, 7);
     fl->SetXTitle("M(#mu#mu) (GeV)");
     fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("MC J/#psi Pulls (%.0f < p_{T} < %.0f)", ptBins[i_pt], ptBins[i_pt+1]));
+    fl->SetTitle(Form("MC mass fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 	  
     TGraph *g_pull = new TGraph(mbins, mv, pv);
     g_pull->SetLineColor(kBlack);
@@ -321,6 +321,19 @@ void newMCmass_5()
     TLine *zero = new TLine(lowmp, 0, himp, 0);
     zero->SetLineStyle(kDashed);
     zero->Draw();
+
+    TLine *plim1 = new TLine(lowmp, -5, himp, -5);
+    plim1->SetLineStyle(kDotted);
+    plim1->Draw("lsame");
+    TLine *plim2 = new TLine(lowmp, -3, himp, -3);
+    plim2->SetLineStyle(kDotted);
+    plim2->Draw("lsame");
+    TLine *plim3 = new TLine(lowmp, 3, himp, 3);
+    plim3->SetLineStyle(kDotted);
+    plim3->Draw("lsame");
+    TLine *plim4 = new TLine(lowmp, 5, himp, 5);
+    plim4->SetLineStyle(kDotted);
+    plim4->Draw("lsame");
 	  
     c->SaveAs(Form("plots/MCMass/pulls_pt%d_dep.pdf", i_pt));
     c->Clear();

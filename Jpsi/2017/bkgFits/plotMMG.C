@@ -17,7 +17,7 @@ void plotMMG()
   string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "f_{G}", "#sigma_{G}"};
   string parax[] = {"f (%)", "N per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "f_{G} (%)", "#sigma_{G} (MeV)"};
   double parmin[] = {0,   3e1, 3090, 0.0, 30., 0.6, 1.8, 0,   0};
-  double parmax[] = {100, 2e3, 3100, 100, 55., 1.8, 2.5, 100, 100};
+  double parmax[] = {100, 3e3, 3100, 100, 55., 1.8, 2.5, 100, 100};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];

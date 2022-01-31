@@ -75,7 +75,7 @@ void plot_ANdists()
     h_pT[i]->GetXaxis()->SetTitle("p_{T}(#mu#mu) (GeV)");
     h_pT[i]->GetXaxis()->SetTitleOffset(1.1);
     h_pT[i]->GetYaxis()->SetTitle("dN/dp_{T}");
-    h_pT[i]->SetTitle(Form("p_{T} (%s)", lbl_pt[i].c_str()));
+    h_pT[i]->SetTitle("");//Form("p_{T} (%s)", lbl_pt[i].c_str()));
     if(i == 0) h_pT[i]->Draw("histo");
     else {
       // set bins above pt_max to zero
@@ -120,7 +120,7 @@ void plot_ANdists()
     h_y[i]->GetXaxis()->SetTitle("y(#mu#mu)");
     h_y[i]->GetXaxis()->SetTitleOffset(1.1);
     h_y[i]->GetYaxis()->SetTitle("dN/dy");
-    h_y[i]->SetTitle(Form("y (%s)", lbl_y[i].c_str()));
+    h_y[i]->SetTitle("");//Form("y (%s)", lbl_y[i].c_str()));
     if(i > 2) h_y[i]->SetLineStyle(kDashed);
     if(i == 0) h_y[i]->Draw("histo");
     else h_y[i]->Draw("histo same");  
@@ -148,7 +148,7 @@ void plot_ANdists()
     h_y[i]->GetXaxis()->SetTitle("y(#mu#mu)");
     h_y[i]->GetXaxis()->SetTitleOffset(1.1);
     h_y[i]->GetYaxis()->SetTitle("dN/dy");
-    h_y[i]->SetTitle(Form("y (%s)", lbl_y[i].c_str()));
+    h_y[i]->SetTitle("");//Form("y (%s)", lbl_y[i].c_str()));
     if(i > 2) {
       h_y[i]->Scale(h_y[i-3]->Integral() / h_y[i]->Integral());
       h_y[i]->SetLineStyle(kDashed);
@@ -165,13 +165,6 @@ void plot_ANdists()
   lcys.DrawLatex(0.875, 2e4, "Mid-p_{T}");
   lcys.SetTextColor(coly[2]);
   lcys.DrawLatex(0.875, 4e3, "High-p_{T}");
-
-  lcys.SetTextSize(0.04);
-  lcys.SetTextColor(kBlack);
-  lcys.DrawLatex(-0.5, 3e5, "rescaled MC");
-  lcys.DrawLatex(-0.5, 1e5, "#minus Peak data");
-  lcys.DrawLatex(-0.5, 6e4, "--MC");
-  
   
   c->SaveAs(Form("plots/ANdists/y_scale.pdf"));
   c->Clear();
@@ -188,7 +181,7 @@ void plot_ANdists()
     h_lt[i]->GetXaxis()->SetTitle("c#tau (#mum)");
     h_lt[i]->GetXaxis()->SetTitleOffset(1.1);
     h_lt[i]->GetYaxis()->SetTitle("dN/dc#tau");
-    h_lt[i]->SetTitle(Form("lifetime (%s)", lbl_lt[i].c_str()));
+    h_lt[i]->SetTitle("");//Form("lifetime (%s)", lbl_lt[i].c_str()));
     if(i == 0) h_lt[i]->Draw("histo");
     else h_lt[i]->Draw("histo same");  
   }
@@ -259,7 +252,7 @@ void plot_ANdists()
     h_lt[i]->GetXaxis()->SetTitle("c#tau (#mum)");
     h_lt[i]->GetXaxis()->SetTitleOffset(1.1);
     h_lt[i]->GetYaxis()->SetTitle("dN/dc#tau (a.u.)");
-    h_lt[i]->SetTitle(Form("lifetime (%s)", lbl_lt[i].c_str()));
+    h_lt[i]->SetTitle("");//Form("lifetime (%s)", lbl_lt[i].c_str()));
     if(i == 0) h_lt[i]->Draw("histo");
     else h_lt[i]->Draw("histo same");  
   }
@@ -299,7 +292,7 @@ void plot_ANdists()
     h_m[i]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
     h_m[i]->GetXaxis()->SetTitleOffset(1.1);
     h_m[i]->GetYaxis()->SetTitle("dN/dM (normalized)");
-    h_m[i]->SetTitle(Form("M (%s)", lbl_y[i].c_str()));
+    h_m[i]->SetTitle("");//Form("M (%s)", lbl_y[i].c_str()));
     if(i > 2) h_m[i]->SetLineStyle(kDashed);
   }
   
@@ -318,10 +311,6 @@ void plot_ANdists()
   lcm.DrawLatex(3.17, 0.069, "low-p_{T}");
   lcm.SetTextColor(coly[2]);
   lcm.DrawLatex(3.17, 0.062, "high-p_{T}");
-  lcm.SetTextColor(kBlack);
-  lcm.DrawLatex(2.925, 0.078, "#minus Data");
-  lcm.DrawLatex(2.925, 0.071, "--MC");
-
   
   c->SaveAs(Form("plots/ANdists/m_scale.pdf"));
   c->Clear();

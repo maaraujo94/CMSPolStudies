@@ -83,7 +83,7 @@ void newMCmass_G()
   double lowm = 2.9, him = 3.3;
   TH1D **h_m1d = new TH1D*[nPtBins];
   for(int ip = 0; ip < nPtBins; ip++)
-    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("2017 MC M(#mu#mu) (%.0f < p_{T} < %.0f)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
+    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("2017 MC M(#mu#mu) (%.0f < p_{T} < %.0f GeV)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
   
   TH2D *h_m2d = new TH2D("h_m2d", "2017 MC M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
  
@@ -220,6 +220,7 @@ void newMCmass_G()
 
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetLeftMargin(0.12);
 
   TFile *fout = new TFile("files/MCfit_G.root", "recreate");
   h_m2d->Fit("f_cb", "R");
@@ -251,6 +252,7 @@ void newMCmass_G()
     h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.1);
     h_m1d[i_pt]->SetMinimum(0);
     h_m1d[i_pt]->SetStats(0);
+    h_m1d[i_pt]->SetTitle(Form("2018 MC M(#mu#mu) (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
     h_m1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
     h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.8);
     h_m1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));

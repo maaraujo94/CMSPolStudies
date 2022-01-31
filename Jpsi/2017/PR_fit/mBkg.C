@@ -345,7 +345,7 @@ void mBkg()
     fd->SetYTitle("relative difference (%)");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Data J/#psi rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Data mass rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_dev = new TGraph(mbins, mv, dv);
     g_dev->SetLineColor(kBlack);
@@ -356,15 +356,6 @@ void mBkg()
     // aux lines - pull = 0 and sigma limits
     zero->Draw("lsame");
 
-    TLine **limd = new TLine*[2];
-    limd[0] = new TLine(m_min[1], -15, m_min[1], 15);
-    limd[1] = new TLine(m_max[1], -15, m_max[1], 15);
-    for(int j = 0; j < 2; j++) {
-      limd[j]->SetLineColor(kRed);
-      limd[j]->SetLineStyle(kDashed);
-      limd[j]->Draw();
-    }
-  
     c->SaveAs(Form("plots/mass/devs_pt%d.pdf", i_pt));
     c->Clear();
   }
@@ -395,7 +386,7 @@ void mBkg()
   ofstream ftex;
   ftex.open(Form("text_output/mfit_res.tex"));
   ftex << "\\begin{tabular}{c||c|c|c|c|c|c|c|c|c|c|c||c}\n";
-  ftex << "$\\pt$ (GeV) & $N_{SR}$ & $f_{CB1}$ (\\%) & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ & $\\alpha$ & $N_{BG}$ & $\\lambda$ (GeV) & $f_G$ (\\%) & $\\sigma_G$ (MeV) & $f_{bkg}$ (\\%) \\\\\n";
+  ftex << "$\\pt$ (GeV) & $N_{SR}$ & $f_{CB1}$ (\\%) & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ & $\\alpha$ & $N_{BG}$ & $t$ (GeV) & $f_G$ (\\%) & $\\sigma_G$ (MeV) & $f_{bkg}$ (\\%) \\\\\n";
   ftex << "\\hline\n";
 
   for(int i = 0; i < nPtBins; i++) {
