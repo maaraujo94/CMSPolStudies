@@ -98,7 +98,7 @@ void plotLtPars()
   string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma_{1}", "#sigma_{2}", "t_{NP}"};
   string par_unit[] = {" per 1 GeV", " per 1 GeV", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
 
-  double parmin[] = {2e1, 1e2, 0,  -5., 0,  0,  300};
+  double parmin[] = {4e1, 2e2, 0,  -5., 0,  0,  300};
   double parmax[] = {3e5, 1e6, 100, 5., 20, 40, 400};
 
   // initialize tgraphs for parameters

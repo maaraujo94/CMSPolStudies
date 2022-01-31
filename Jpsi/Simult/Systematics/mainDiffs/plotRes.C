@@ -3,6 +3,7 @@
 // 2) f(pT) - 1/f(pT) / Run2
 // 3) pT_cut - Run2 / Run2
 // 4) eta_cut - Run2 / Run2
+// 5) dR cut - Run 2 / Run2
 
 void plotRes()
 {
@@ -14,8 +15,8 @@ void plotRes()
   int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
   
-  // get the fit results - 6 sets
-  TGraphErrors **graph_lth = new TGraphErrors*[7];
+  // get the fit results - 7 sets
+  TGraphErrors **graph_lth = new TGraphErrors*[8];
   // 0 - get Run2 results
   TFile *fIndB = new TFile("../../PR_fit/files/finalFitRes.root");
   graph_lth[0] = (TGraphErrors*)fIndB->Get("graph_lambda_J");
@@ -42,16 +43,21 @@ void plotRes()
   TFile *fIndEta = new TFile("../../../Simult_cutEta/PR_fit/files/finalFitRes.root");
   graph_lth[6] = (TGraphErrors*)fIndEta->Get(Form("graph_lambda_J"));
   fIndEta->Close();
+  // 5 - get results with DeltaR_pT cut
+  TFile *fIndR = new TFile("../../../Simult_dR1/PR_fit/files/finalFitRes.root");
+  graph_lth[7] = (TGraphErrors*)fIndR->Get(Form("graph_lambda_J"));
+  fIndR->Close();
 
   // get the differences and the unc band
-  double rdiff[4][nBinspT], diff[4][nBinspT], za[nBinspT], rerr[nBinspT];
+  double rdiff[5][nBinspT], diff[5][nBinspT], za[nBinspT], rerr[nBinspT];
   for(int i = 0; i < nBinspT; i++) { 
     diff[0][i] = (graph_lth[1]->GetY()[i] - graph_lth[2]->GetY()[i]);
     diff[1][i] = (graph_lth[3]->GetY()[i] - graph_lth[4]->GetY()[i]);
     diff[2][i] = (graph_lth[5]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[3][i] = (graph_lth[6]->GetY()[i] - graph_lth[0]->GetY()[i]);
+    diff[4][i] = (graph_lth[7]->GetY()[i] - graph_lth[0]->GetY()[i]);
     cout << i; 
-    for(int j = 0; j < 4; j++){
+    for(int j = 0; j < 5; j++){
       rdiff[j][i] = diff[j][i]/graph_lth[0]->GetY()[i];
       rdiff[j][i] *= 100.;
       cout << " " << diff[j][i];
@@ -64,11 +70,13 @@ void plotRes()
   TGraphErrors *g_lthEff = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[1], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthpT = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[2], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthEta = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[3], graph_lth[0]->GetEX(), za);
+  TGraphErrors *g_lthR = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[4], graph_lth[0]->GetEX(), za);
 
   TGraphErrors *gr_lthY = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[0], graph_lth[0]->GetEX(), za);
   TGraphErrors *gr_lthEff = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[1], graph_lth[0]->GetEX(), za);
   TGraphErrors *gr_lthpT = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[2], graph_lth[0]->GetEX(), za);
   TGraphErrors *gr_lthEta = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[3], graph_lth[0]->GetEX(), za);
+  TGraphErrors *gr_lthR = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[4], graph_lth[0]->GetEX(), za);
 
   TGraphErrors *g_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_lth[0]->GetEY());
   TGraphErrors *gr_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), rerr);
@@ -109,6 +117,12 @@ void plotRes()
   gr_lthEta->SetMarkerSize(.5);
   gr_lthEta->Draw("pl same");
 
+  gr_lthR->SetLineColor(kOrange);
+  gr_lthR->SetMarkerColor(kOrange);
+  gr_lthR->SetMarkerStyle(20);
+  gr_lthR->SetMarkerSize(.5);
+  gr_lthR->Draw("pl same");
+
   TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
@@ -128,6 +142,7 @@ void plotRes()
   leg->AddEntry(gr_lthEff, "f(p_{T}) - 1/f(p_{T})", "pl");
   leg->AddEntry(gr_lthpT, "p_{T} cut - base", "pl");
   leg->AddEntry(gr_lthEta, "#eta cut - base", "pl");
+  leg->AddEntry(gr_lthR, "#deltaR cut - base", "pl");
   leg->Draw();
   
   c->SaveAs("lth_relDiff.pdf");
@@ -172,6 +187,12 @@ void plotRes()
   g_lthEta->SetMarkerStyle(20);
   g_lthEta->SetMarkerSize(.5);
   g_lthEta->Draw("pl same");
+
+  g_lthR->SetLineColor(kOrange);
+  g_lthR->SetMarkerColor(kOrange);
+  g_lthR->SetMarkerStyle(20);
+  g_lthR->SetMarkerSize(.5);
+  g_lthR->Draw("pl same");
 
   g_unc->SetLineColor(kRed);
   g_unc->SetFillColorAlpha(kRed, 0.4);

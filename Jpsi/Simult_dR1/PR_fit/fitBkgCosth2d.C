@@ -6,6 +6,15 @@ const int nPtBins = 7;
 double ptBins[nPtBins+1];
 
 TF1 *cosMax;
+TF1 *cosMin;
+
+// aux func for costheta_min
+double cminf(double pt, double a, double b, double c, double d)
+{
+  if (pt < d) return 0;
+  else
+    return a*(1.-exp(b+c*pt));
+}
 
 // tf2 function parser
 // parameters: N (per bin), lambda2 (constant), lambda4 (constant)
@@ -21,7 +30,8 @@ double sum_func(double *xx, double *pp)
   double pMin = ptBins[pt_bin], pMax = ptBins[pt_bin+1];
   
   double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
-  if(cos > cMaxVal)
+  double cMinVal = jumpF(cosMin->Integral(pMin, pMax)/(pMax-pMin));
+  if(cos > cMaxVal || cos < cMinVal)
     {
       TF2::RejectPoint();
       return 0;
@@ -56,7 +66,7 @@ void fitBkgCosth2d()
   double maxX = h_cth[0]->GetXaxis()->GetBinUpEdge(nBinsX);
   for(int i = 0; i <= nPtBins; i++) ptBins[i] = yBins[i];
 
-  // get the fit range from our cosmax(pT)
+  // get the fit range from our cosmax(pT), cosmin(pT)
   ifstream in;
   string dataS;
   in.open("../cosMax/cosMaxFitRes.txt");
@@ -68,7 +78,17 @@ void fitBkgCosth2d()
   
   cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", yBins[0]-10, yBins[nBinsY]+10);
   cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
+
+  in.open("../cosMax/cosMinFitRes.txt");
+  getline(in, dataS);
+  getline(in, dataS);
+  double minPar[4];
+  in >> minPar[0] >> aux >> minPar[1] >> aux >> minPar[2] >> aux >> minPar[3];
+  in.close();
   
+  cosMin = new TF1("cosMin", "cminf(x, [0], [1], [2], [3])", yBins[0]-10, yBins[nBinsY]+10);
+  cosMin->SetParameters(minPar[0], minPar[1], minPar[2], minPar[3]);
+
   // cycle over 2 background types
   TCanvas *c = new TCanvas("", "", 700, 700);
   for(int i_inp = 0; i_inp < 2; i_inp++) {
@@ -101,7 +121,7 @@ void fitBkgCosth2d()
     f_1d->SetParNames("N", "l_2", "l_4");
     
     double par[nBinsY], epar[nBinsY];
-    double cMaxVal[nBinsY], pt[nBinsY], ept[nBinsY];
+    double cMaxVal[nBinsY], cMinVal[nBinsY], pt[nBinsY], ept[nBinsY];
 
     // cycle over all pT bins
     for(int i = 0; i < nBinsY; i++) {
@@ -118,9 +138,10 @@ void fitBkgCosth2d()
       double pMax = h_cth[i_inp]->GetYaxis()->GetBinUpEdge(i+1);
     
       cMaxVal[i] = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
+      cMinVal[i] = jumpF(cosMin->Integral(pMin, pMax)/(pMax-pMin));
 
       // initializing f_1d and plotting
-      f_1d->SetRange(0, cMaxVal[i]);
+      f_1d->SetRange(cMinVal[i], cMaxVal[i]);
       f_1d->SetParameters(par[i], f_fit->GetParameter(nPtBins), f_fit->GetParameter(nPtBins+1));
       
       // plot the fit
@@ -152,7 +173,7 @@ void fitBkgCosth2d()
 	double fitv = f_1d->Eval(cv[i_cos]);
 	double datav = pHist[i]->GetBinContent(i_cos+1);
 	double datau = pHist[i]->GetBinError(i_cos+1);
-	if(cv[i_cos] < cMaxVal[i]) {
+	if(cv[i_cos] < cMaxVal[i] && cv[i_cos] > cMinVal[i]) {
 	  pv[i_cos] = (datav-fitv)/datau;
 	  dv[i_cos] = (datav-fitv)/fitv * 100.;
 	}
@@ -175,7 +196,7 @@ void fitBkgCosth2d()
       g_pull->SetMarkerColor(kBlack);
       g_pull->SetMarkerStyle(20);
 
-      int p_lim = nBinsX;
+      /*   int p_lim = nBinsX;
       for(int i = 0; i < nBinsX; i++) {
 	if(pv[i] == 0) {
 	  p_lim = i;
@@ -183,14 +204,18 @@ void fitBkgCosth2d()
 	}
       }
       for(int i = p_lim; i < nBinsX; i++)
-	g_pull->RemovePoint(p_lim);
+      g_pull->RemovePoint(p_lim);*/
       
       g_pull->Draw("p");
 
-      TLine *clim = new TLine(cMaxVal[i], -pull_min, cMaxVal[i], pull_min);
-      clim->SetLineColor(kRed);
-      clim->SetLineStyle(kDashed);
-      clim->Draw();
+      TLine *climMax = new TLine(cMaxVal[i], -pull_min, cMaxVal[i], pull_min);
+      climMax->SetLineColor(kRed);
+      climMax->SetLineStyle(kDashed);
+      climMax->Draw();
+      TLine *climMin = new TLine(cMinVal[i], -pull_min, cMinVal[i], pull_min);
+      climMin->SetLineColor(kRed);
+      climMin->SetLineStyle(kDashed);
+      climMin->Draw();
 
       TLine *zero = new TLine(minX, 0, maxX, 0);
       zero->SetLineColor(kBlack);
@@ -227,10 +252,14 @@ void fitBkgCosth2d()
       g_dev->SetMarkerStyle(20);
       g_dev->Draw("p");
 		
-      TLine *climd = new TLine(cMaxVal[i], -dev_min, cMaxVal[i], dev_min);
-      climd->SetLineColor(kRed);
-      climd->SetLineStyle(kDashed);
-      climd->Draw();
+      TLine *climMaxd = new TLine(cMaxVal[i], -dev_min, cMaxVal[i], dev_min);
+      climMaxd->SetLineColor(kRed);
+      climMaxd->SetLineStyle(kDashed);
+      climMaxd->Draw();
+      TLine *climMind = new TLine(cMinVal[i], -dev_min, cMinVal[i], dev_min);
+      climMind->SetLineColor(kRed);
+      climMind->SetLineStyle(kDashed);
+      climMind->Draw();
 
       zero->Draw();
 	

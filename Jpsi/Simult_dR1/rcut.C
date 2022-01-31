@@ -1,1 +1,1 @@
-double r_cut = 0.19;
+double r_cut = 0.17;
