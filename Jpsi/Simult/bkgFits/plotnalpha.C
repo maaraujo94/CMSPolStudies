@@ -91,6 +91,6 @@ void plotnalpha()
   
   c->SaveAs(Form("plots/MCMass/na_comp.pdf"));
   c->Clear();
-  
+  c->Destructor();
 
 }

@@ -3,7 +3,7 @@
 // 2) f(pT) - 1/f(pT) / Run2
 // 3) pT_cut - Run2 / Run2
 // 4) eta_cut - Run2 / Run2
-// 5) dR cut - Run 2 / Run2
+// 5) dR cuts - Run 2 / Run2
 
 void plotRes()
 {
@@ -15,8 +15,8 @@ void plotRes()
   int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
   
-  // get the fit results - 7 sets
-  TGraphErrors **graph_lth = new TGraphErrors*[8];
+  // get the fit results - 8 sets
+  TGraphErrors **graph_lth = new TGraphErrors*[9];
   // 0 - get Run2 results
   TFile *fIndB = new TFile("../../PR_fit/files/finalFitRes.root");
   graph_lth[0] = (TGraphErrors*)fIndB->Get("graph_lambda_J");
@@ -44,18 +44,22 @@ void plotRes()
   graph_lth[6] = (TGraphErrors*)fIndEta->Get(Form("graph_lambda_J"));
   fIndEta->Close();
   // 5 - get results with DeltaR_pT cut
-  TFile *fIndR = new TFile("../../../Simult_dR1/PR_fit/files/finalFitRes.root");
-  graph_lth[7] = (TGraphErrors*)fIndR->Get(Form("graph_lambda_J"));
-  fIndR->Close();
+  TFile *fIndR1 = new TFile("../../../Simult_dR1/PR_fit/files/finalFitRes.root");
+  graph_lth[7] = (TGraphErrors*)fIndR1->Get(Form("graph_lambda_J"));
+  fIndR1->Close();
+  TFile *fIndR2 = new TFile("../../../Simult_dR2/PR_fit/files/finalFitRes.root");
+  graph_lth[8] = (TGraphErrors*)fIndR2->Get(Form("graph_lambda_J"));
+  fIndR2->Close();
 
   // get the differences and the unc band
-  double rdiff[5][nBinspT], diff[5][nBinspT], za[nBinspT], rerr[nBinspT];
+  double rdiff[6][nBinspT], diff[6][nBinspT], za[nBinspT], rerr[nBinspT];
   for(int i = 0; i < nBinspT; i++) { 
     diff[0][i] = (graph_lth[1]->GetY()[i] - graph_lth[2]->GetY()[i]);
     diff[1][i] = (graph_lth[3]->GetY()[i] - graph_lth[4]->GetY()[i]);
     diff[2][i] = (graph_lth[5]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[3][i] = (graph_lth[6]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[4][i] = (graph_lth[7]->GetY()[i] - graph_lth[0]->GetY()[i]);
+    diff[5][i] = (graph_lth[8]->GetY()[i] - graph_lth[0]->GetY()[i]);
     cout << i; 
     for(int j = 0; j < 5; j++){
       rdiff[j][i] = diff[j][i]/graph_lth[0]->GetY()[i];
@@ -70,13 +74,15 @@ void plotRes()
   TGraphErrors *g_lthEff = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[1], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthpT = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[2], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthEta = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[3], graph_lth[0]->GetEX(), za);
-  TGraphErrors *g_lthR = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[4], graph_lth[0]->GetEX(), za);
+  TGraphErrors *g_lthR1 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[4], graph_lth[0]->GetEX(), za);
+  TGraphErrors *g_lthR2 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[5], graph_lth[0]->GetEX(), za);
 
   TGraphErrors *gr_lthY = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[0], graph_lth[0]->GetEX(), za);
   TGraphErrors *gr_lthEff = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[1], graph_lth[0]->GetEX(), za);
   TGraphErrors *gr_lthpT = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[2], graph_lth[0]->GetEX(), za);
   TGraphErrors *gr_lthEta = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[3], graph_lth[0]->GetEX(), za);
-  TGraphErrors *gr_lthR = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[4], graph_lth[0]->GetEX(), za);
+  TGraphErrors *gr_lthR1 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[4], graph_lth[0]->GetEX(), za);
+  TGraphErrors *gr_lthR2 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[5], graph_lth[0]->GetEX(), za);
 
   TGraphErrors *g_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_lth[0]->GetEY());
   TGraphErrors *gr_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), rerr);
@@ -117,11 +123,17 @@ void plotRes()
   gr_lthEta->SetMarkerSize(.5);
   gr_lthEta->Draw("pl same");
 
-  gr_lthR->SetLineColor(kOrange);
-  gr_lthR->SetMarkerColor(kOrange);
-  gr_lthR->SetMarkerStyle(20);
-  gr_lthR->SetMarkerSize(.5);
-  gr_lthR->Draw("pl same");
+  gr_lthR1->SetLineColor(kOrange);
+  gr_lthR1->SetMarkerColor(kOrange);
+  gr_lthR1->SetMarkerStyle(20);
+  gr_lthR1->SetMarkerSize(.5);
+  gr_lthR1->Draw("pl same");
+
+  gr_lthR2->SetLineColor(kOrange+2);
+  gr_lthR2->SetMarkerColor(kOrange+2);
+  gr_lthR2->SetMarkerStyle(20);
+  gr_lthR2->SetMarkerSize(.5);
+  gr_lthR2->Draw("pl same");
 
   TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
   zero->SetLineColor(kBlack);
@@ -136,13 +148,14 @@ void plotRes()
   trans2D->SetLineStyle(kDashed);
   trans2D->Draw();
 
-  TLegend *leg = new TLegend(0.675, 0.75, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.65, 0.15, 0.9, 0.35);
   leg->SetTextSize(0.03);
   leg->AddEntry(gr_lthY, "2017 - 2018", "pl");
   leg->AddEntry(gr_lthEff, "f(p_{T}) - 1/f(p_{T})", "pl");
   leg->AddEntry(gr_lthpT, "p_{T} cut - base", "pl");
   leg->AddEntry(gr_lthEta, "#eta cut - base", "pl");
-  leg->AddEntry(gr_lthR, "#deltaR cut - base", "pl");
+  leg->AddEntry(gr_lthR1, "#deltaR>0.17 - base", "pl");
+  leg->AddEntry(gr_lthR2, "#deltaR>0.15 - base", "pl");
   leg->Draw();
   
   c->SaveAs("lth_relDiff.pdf");
@@ -155,7 +168,7 @@ void plotRes()
   c->Clear();
 
   // SECOND - draw the relative difference in %
-  double da_lim = 0.2;
+  double da_lim = 0.34;
   
   TH1F *fl3 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
   fl3->SetXTitle("p_{T} (GeV)");
@@ -188,11 +201,17 @@ void plotRes()
   g_lthEta->SetMarkerSize(.5);
   g_lthEta->Draw("pl same");
 
-  g_lthR->SetLineColor(kOrange);
-  g_lthR->SetMarkerColor(kOrange);
-  g_lthR->SetMarkerStyle(20);
-  g_lthR->SetMarkerSize(.5);
-  g_lthR->Draw("pl same");
+  g_lthR1->SetLineColor(kOrange);
+  g_lthR1->SetMarkerColor(kOrange);
+  g_lthR1->SetMarkerStyle(20);
+  g_lthR1->SetMarkerSize(.5);
+  g_lthR1->Draw("pl same");
+
+  g_lthR2->SetLineColor(kOrange+2);
+  g_lthR2->SetMarkerColor(kOrange+2);
+  g_lthR2->SetMarkerStyle(20);
+  g_lthR2->SetMarkerSize(.5);
+  g_lthR2->Draw("pl same");
 
   g_unc->SetLineColor(kRed);
   g_unc->SetFillColorAlpha(kRed, 0.4);

@@ -19,15 +19,12 @@ void plotRpTpT()
   h_RpTpT->SetTitle("trig/reco");
   h_RpTpT->Draw("colz");
 
-  TLine *rlin = new TLine(0.19, 46, 0.19, 120);
+  TLine *rlin = new TLine(0.17, 25, 0.17, 120);
   rlin->SetLineColor(kBlue);
   rlin->Draw("same");
-  /*  TLine *rlin2 = new TLine(0.174, 54, 0.174, 66);
+  TLine *rlin2 = new TLine(0.15, 25, 0.15, 120);
   rlin2->SetLineColor(kBlue);
   rlin2->Draw("same");
-  TLine *rlin3 = new TLine(0.168, 66, 0.168, 120);
-  rlin3->SetLineColor(kBlue);
-  rlin3->Draw("same");*/
 
   int vc = kGreen+4;
   // vertical lines - MC sample separation
@@ -41,9 +38,6 @@ void plotRpTpT()
   vlin2->SetLineWidth(2);
   vlin2->SetLineStyle(kDashed);
   vlin2->Draw("same");
-  TLine *vlin3 = new TLine(0, 64, 0.168, 64);
-  vlin3->SetLineColor(kGreen+1+3);
-  //vlin3->Draw("same");
 
   c->SaveAs("plots/RpTpT.pdf");
   c->Clear();
@@ -54,9 +48,8 @@ void plotRpTpT()
   r_RpTpT->Draw("colz");
 
   rlin->Draw("same");
-  // rlin2->Draw("same");
-  //rlin3->Draw("same");
-
+  rlin2->Draw("same");
+  
   c->SaveAs("plots/RpTpT_r.pdf");
   c->Clear();
   c->Destructor();

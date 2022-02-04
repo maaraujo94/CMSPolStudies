@@ -151,7 +151,7 @@ void mBkg()
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
   string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
-  double par_v[] =  {1., 0.6, 3.09, 1e-4, 1e-4, n_v, alpha_v, 1., 1., fG_v, sigG_v1};
+  double par_v[] =  {1., 0.5, 3.1, 1e-4, 1e-4, n_v, alpha_v, 1., 0.7, fG_v, sigG_v1};
   double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1.,      1., 1.,  1.,   sigG_v2};
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
@@ -159,7 +159,7 @@ void mBkg()
     f_cb->SetParName(i, Form("NS_%d", i));
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
     f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
-    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/3.);
+    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/4.);
 
     for(int j = 1; j < 11; j++) { // between NS, NB
       if(j != 7) {

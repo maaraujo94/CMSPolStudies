@@ -1,6 +1,6 @@
 // code to plot the fit results
 
-void plotRes()
+void plotNPRes()
 {
   // get the histo limits
   TFile *fIn = new TFile("../../PR_fit/files/bkgSubRes.root");
@@ -13,16 +13,16 @@ void plotRes()
   // get the fit results
   // get lambda values for each eff model
   TGraphErrors **graph_lth = new TGraphErrors*[2];
-  TFile *fInd1 = new TFile("../../../Simult_dR1/PR_fit/files/finalFitRes.root");
-  graph_lth[0] = (TGraphErrors*)fInd1->Get(Form("graph_lambda_J"));
+  TFile *fInd1 = new TFile("../../../Simult_dR1/NP_fit/files/finalFitRes.root");
+  graph_lth[0] = (TGraphErrors*)fInd1->Get(Form("graph_lambda_NPc"));
   fInd1->Close();
-  TFile *fInd2 = new TFile("../../../Simult_dR2/PR_fit/files/finalFitRes.root");
-  graph_lth[1] = (TGraphErrors*)fInd2->Get(Form("graph_lambda_J"));
+  TFile *fInd2 = new TFile("../../../Simult_dR2/NP_fit/files/finalFitRes.root");
+  graph_lth[1] = (TGraphErrors*)fInd2->Get(Form("graph_lambda_NPc"));
   fInd2->Close();
  
   // get the final lth from the base SB/MC fit
-  TFile *fIndB = new TFile("../../PR_fit/files/finalFitRes.root");
-  TGraphErrors *graph_lthBase = (TGraphErrors*)fIndB->Get("graph_lambda_J");
+  TFile *fIndB = new TFile("../../NP_fit/files/finalFitRes.root");
+  TGraphErrors *graph_lthBase = (TGraphErrors*)fIndB->Get("graph_lambda_NPc");
   fIndB->Close();
   
   // draw the fit results
@@ -45,7 +45,7 @@ void plotRes()
   fl2->SetYTitle("#delta#lambda_{#theta} (dev - base)");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #delta#lambda_{#theta} (prompt J/#psi)");
+  fl2->SetTitle("Run 2 #delta#lambda_{#theta} (NP J/#psi)");
   
   g_lthD1->SetLineColor(kBlue);
   g_lthD1->SetMarkerColor(kBlue);
@@ -78,7 +78,7 @@ void plotRes()
   leg->AddEntry(g_lthD2, "#DeltaR > 0.15", "pl");
   leg->Draw();
   
-  c->SaveAs("par_lth_F.pdf");
+  c->SaveAs("parNP_lth_F.pdf");
   c->Clear();
 
   // now compare absolute values
@@ -89,7 +89,7 @@ void plotRes()
   fl3->SetYTitle("#lambda_{#theta}");
   fl3->GetYaxis()->SetTitleOffset(1.3);
   fl3->GetYaxis()->SetLabelOffset(0.01);
-  fl3->SetTitle("Run 2 #lambda_{#theta} (prompt J/#psi)");
+  fl3->SetTitle("Run 2 #lambda_{#theta} (NP J/#psi)");
   
   graph_lth[0]->SetLineColor(kBlue);
   graph_lth[0]->SetMarkerColor(kBlue);
@@ -122,7 +122,7 @@ void plotRes()
   leg->AddEntry(graph_lthBase, "no cut", "pl");
   leg->Draw();
   
-  c->SaveAs("par_lth_abs.pdf");
+  c->SaveAs("parNP_lth_abs.pdf");
   c->Clear();
 
   c->Destructor();
