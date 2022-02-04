@@ -1,4 +1,5 @@
 #import "../cosMax/imp_jumpF.C"
+#import "../rcut.C"
 
 // code to do the individual fit (1d costheta maps)
 
@@ -84,8 +85,8 @@ void indFit()
     ept[i] = (pMax-pMin)/2.;
 
     // get max costheta
-    double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
-    double cMinVal = jumpF(cosMin->Integral(pMin, pMax)/(pMax-pMin));
+    double cMaxVal = jumpF(cosMax->Eval(pMin));
+    double cMinVal = jumpF(cosMin->Eval(pMax));
 
     // fit the 2 functions
     for(int i_t = 0; i_t < 2; i_t++) {
@@ -104,13 +105,14 @@ void indFit()
     }
 
     // plotting everything
-    pHist[0][i]->SetTitle(Form("Signal extraction (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
+    pHist[0][i]->SetTitle(Form("#DeltaR>%.2f NP |cos#theta| (%.0f < p_{T} < %.0f GeV)", r_cut, pMin, pMax));
     pHist[0][i]->SetStats(0);
     pHist[0][i]->SetLineColor(kRed);
     pHist[0][i]->SetMarkerColor(kRed);
     pHist[0][i]->SetMinimum(0);
     //pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.5);
     pHist[0][i]->SetMaximum(parA[0][i]*1.5);
+    if(i==nBinsY-1) pHist[0][i]->SetMaximum(pHist[0][i]->GetMaximum()*1.5);
     pHist[0][i]->Draw("error");
     fit1d[0]->SetLineColor(kRed);
     fit1d[0]->SetLineStyle(kDashed);

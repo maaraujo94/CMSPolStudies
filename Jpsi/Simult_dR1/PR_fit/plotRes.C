@@ -1,4 +1,5 @@
 // code to plot the fit results
+#import "../rcut.C"
 
 void plotRes()
 {
@@ -33,7 +34,7 @@ void plotRes()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Run 2 #lambda_{#theta}");
+  fl->SetTitle(Form("Run 2 #lambda_{#theta} (#DeltaR>%.2f)", r_cut));
 
   int col[] = {kViolet, kRed, kBlack, kBlue};
   for(int i = 0; i < 4; i++) {

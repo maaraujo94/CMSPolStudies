@@ -1,5 +1,7 @@
 // macro to generate the sideband costh dists in the final binning, with unc
 
+#import "../rcut.C"
+
 // the SB/MC model function
 double fit_model(double x, double l2, double l4) {
   return 1 + l2 * pow(x,2) + l4 * pow(x,4);
@@ -66,7 +68,7 @@ void genDist()
   }
 
   // define the final bkg/MC dist as the weighted sum using fL
-  TH2D *h_SB = new TH2D(Form("h_SB"), "Run 2 bkg/MC", nBinsX, minX, maxX, nBinsY, yBins);
+  TH2D *h_SB = new TH2D(Form("h_SB"), Form("Run 2 bkg/MC (#DeltaR>%.2f)", r_cut), nBinsX, minX, maxX, nBinsY, yBins);
   h_SB->Add(h_LSB, h_RSB, fL, 1.-fL);
   
   cout << "bkg/MC fully filled" << endl;

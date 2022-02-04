@@ -1,3 +1,5 @@
+#import "../rcut.C"
+
 void ctEvts()
 {
   double pt_min[] = {25, 46, 66};
@@ -20,15 +22,15 @@ void ctEvts()
   TTree *tree = (TTree*)finD->Get("data_cos");
 
   for(int i_pt = 0; i_pt < 3; i_pt++) { // cycle in pt region
-    n_PRSR[i_pt] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[i_pt], pt_max[i_pt], lt_min[0], lt_max[0], m_min[1], m_max[1]));
-    n_NP[i_pt] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[i_pt], pt_max[i_pt], lt_min[1], lt_max[1], m_min[1], m_max[1]));
-    n_LSB[i_pt] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[i_pt], pt_max[i_pt], lt_min[0], lt_max[0], m_min[0], m_max[0]));
-    n_RSB[i_pt] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[i_pt], pt_max[i_pt], lt_min[0], lt_max[0], m_min[2], m_max[2]));
+    n_PRSR[i_pt] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[i_pt], pt_max[i_pt], lt_min[0], lt_max[0], m_min[1], m_max[1], r_cut));
+    n_NP[i_pt] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[i_pt], pt_max[i_pt], lt_min[1], lt_max[1], m_min[1], m_max[1], r_cut));
+    n_LSB[i_pt] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[i_pt], pt_max[i_pt], lt_min[0], lt_max[0], m_min[0], m_max[0], r_cut));
+    n_RSB[i_pt] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[i_pt], pt_max[i_pt], lt_min[0], lt_max[0], m_min[2], m_max[2], r_cut));
   }
-  n_PRSR[3] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[0], pt_max[2], lt_min[0], lt_max[0], m_min[1], m_max[1]));
-  n_NP[3] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[0], pt_max[2], lt_min[1], lt_max[1], m_min[1], m_max[1]));
-  n_LSB[3] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[0], pt_max[2], lt_min[0], lt_max[0], m_min[0], m_max[0]));
-  n_RSB[3] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[0], pt_max[2], lt_min[0], lt_max[0], m_min[2], m_max[2]));
+  n_PRSR[3] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[0], pt_max[2], lt_min[0], lt_max[0], m_min[1], m_max[1], r_cut));
+  n_NP[3] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[0], pt_max[2], lt_min[1], lt_max[1], m_min[1], m_max[1], r_cut));
+  n_LSB[3] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[0], pt_max[2], lt_min[0], lt_max[0], m_min[0], m_max[0], r_cut));
+  n_RSB[3] = tree->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[0], pt_max[2], lt_min[0], lt_max[0], m_min[2], m_max[2], r_cut));
 
   finD->Close();
 
@@ -39,9 +41,9 @@ void ctEvts()
   TFile *fin4 = new TFile("../../Store_data_codes/MCvhS_cos.root");
   TTree *treeM3 = (TTree*)fin4->Get("MC_cos");
 
-  n_MC[0] = treeM1->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[0], pt_max[0], lt_min[0], lt_max[0], m_min[1], m_max[1]));
-  n_MC[1] = treeM2->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[1], pt_max[1], lt_min[0], lt_max[0], m_min[1], m_max[1]));
-  n_MC[2] = treeM3->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[2], pt_max[2], lt_min[0], lt_max[0], m_min[1], m_max[1]));
+  n_MC[0] = treeM1->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[0], pt_max[0], lt_min[0], lt_max[0], m_min[1], m_max[1], r_cut));
+  n_MC[1] = treeM2->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[1], pt_max[1], lt_min[0], lt_max[0], m_min[1], m_max[1], r_cut));
+  n_MC[2] = treeM3->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f && DeltaR > %f", pt_min[2], pt_max[2], lt_min[0], lt_max[0], m_min[1], m_max[1], r_cut));
 
   n_MC[3] = n_MC[0] + n_MC[1] + n_MC[2];
 
@@ -54,7 +56,7 @@ void ctEvts()
   ftex.open(Form("text_output/data_mc_evts_S.tex"));
   ftex << "\\begin{tabular}{cc|ccc|c}\n";
   ftex << "\\hline\n";
-  ftex << Form("\\multicolumn{2}{c}{Run 2} & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[0], pt_max[2]);
+  ftex << Form("\\multicolumn{2}{c}{Run 2 (%.2f cut)} & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", r_cut, pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[0], pt_max[2]);
   ftex << "\\hline\n";
   
   ftex << Form("\\multirow{4}{*}{\\rotatebox[origin=c]{90}{Data}} & Peak & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_PRSR[0]/1e6, n_PRSR[1]/1e6, n_PRSR[2]/1e6, n_PRSR[3]/1e6);

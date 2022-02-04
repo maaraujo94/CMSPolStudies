@@ -1,5 +1,6 @@
 #import "../cosMax/imp_jumpF.C"
 #import "plotCosPars2d.C"
+#import "../rcut.C"
 
 //pt bins defined globally for access from functions
 const int nPtBins = 7;
@@ -29,8 +30,8 @@ double sum_func(double *xx, double *pp)
   
   double pMin = ptBins[pt_bin], pMax = ptBins[pt_bin+1];
   
-  double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
-  double cMinVal = jumpF(cosMin->Integral(pMin, pMax)/(pMax-pMin));
+  double cMaxVal = jumpF(cosMax->Eval(pMin));
+  double cMinVal = jumpF(cosMin->Eval(pMax));
   if(cos > cMaxVal || cos < cMinVal)
     {
       TF2::RejectPoint();
@@ -98,7 +99,7 @@ void fitBkgCosth2d()
     // getting the pT bin projections of Data/MC
     for(int i = 0; i < nPtBins; i++) {
       pHist[i] = h_cth[i_inp]->ProjectionX(Form("%s_bin%d_1d", lbl[i_inp].c_str(), i+1), i+1, i+1);
-      pHist[i]->SetTitle(Form("Run 2 %s/MC |cos#theta| (%.0f < p_{T} < %.0f GeV)", lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
+      pHist[i]->SetTitle(Form("#DeltaR>%.2f %s/MC |cos#theta| (%.0f < p_{T} < %.0f GeV)", r_cut, lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
     }
 
     // define the ratio fit function
@@ -137,8 +138,8 @@ void fitBkgCosth2d()
       double pMin = h_cth[i_inp]->GetYaxis()->GetBinLowEdge(i+1);
       double pMax = h_cth[i_inp]->GetYaxis()->GetBinUpEdge(i+1);
     
-      cMaxVal[i] = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
-      cMinVal[i] = jumpF(cosMin->Integral(pMin, pMax)/(pMax-pMin));
+      cMaxVal[i] = jumpF(cosMax->Eval(pMin));
+      cMinVal[i] = jumpF(cosMin->Eval(pMax));
 
       // initializing f_1d and plotting
       f_1d->SetRange(cMinVal[i], cMaxVal[i]);
@@ -189,7 +190,7 @@ void fitBkgCosth2d()
       fp->SetYTitle("pulls");
       fp->GetYaxis()->SetTitleOffset(1.3);
       fp->GetYaxis()->SetLabelOffset(0.01);
-      fp->SetTitle(Form("%s/MC |cos#theta| fit pulls (%.0f < p_{T} < %.0f GeV)", lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
+      fp->SetTitle(Form("#DeltaR>%.2f %s/MC pulls (%.0f < p_{T} < %.0f GeV)", r_cut, lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
 
       TGraph *g_pull = new TGraph(nBinsX, cv, pv);
       g_pull->SetLineColor(kBlack);
@@ -244,7 +245,7 @@ void fitBkgCosth2d()
       fd->SetYTitle("relative difference (%)");
       fd->GetYaxis()->SetTitleOffset(1.3);
       fd->GetYaxis()->SetLabelOffset(0.01);
-      fd->SetTitle(Form("Run 2 %s rel. difference (%.0f < p_{T} < %.0f GeV)", lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
+      fd->SetTitle(Form("#DeltaR>%.2f %s/MC rel. diff. (%.0f < p_{T} < %.0f GeV)", r_cut, lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
 
       TGraph *g_dev = new TGraph(nBinsX, cv, dv);
       g_dev->SetLineColor(kBlack);

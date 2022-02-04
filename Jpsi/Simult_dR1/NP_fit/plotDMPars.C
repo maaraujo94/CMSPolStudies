@@ -1,3 +1,5 @@
+#import "../rcut.C"
+
 // macro to compare fit parameters w/ and w/o Gaussian
 // get relative position on an axis (pi, pf)
 void plotDMPars()
@@ -9,8 +11,8 @@ void plotDMPars()
   string legn[] = {"no G", "with G"};
 
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fBG", "fG", "sigG"};
-  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "#lambda", "f_{bkg}", "f_{G}", "#sigma_{G}"};
-  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "#lambda (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
+  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t", "f_{bkg}", "f_{G}", "#sigma_{G}"};
+  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
   double parmin[] = {0,    6e0, 3090, 0,   32, 1.6, 1.6, 1e2, 0, 0.,  0,   0};
   double parmax[] = {100., 1e4, 3100, 100, 46, 2.0, 2.0, 1e6, 2, 15., 100, 100};
@@ -74,7 +76,7 @@ void plotDMPars()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.5);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
+    fl->SetTitle(Form("Run 2 %s (#DeltaR>%.2f)", partit[i_p].c_str(), r_cut));
 
     TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
     leg->SetTextSize(0.03);

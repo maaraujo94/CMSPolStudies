@@ -46,6 +46,9 @@ void plotCos()
 
   TCanvas *c = new TCanvas("", "", 900, 900);
 
+  double aux1 = h_inv->GetMaximum();
+  double aux2 = h_inv->GetMaximum(aux1);
+  h_inv->SetMaximum(aux2);
   h_inv->SetStats(0);
   h_inv->GetXaxis()->SetTitle("p_{T} (GeV)");
   h_inv->GetYaxis()->SetTitle("|cos#theta|");
@@ -54,4 +57,6 @@ void plotCos()
   cosMax->Draw("lsame");
 
   c->SaveAs("plotCos.pdf");
+  c->Clear();
+  c->Destructor();
 }
