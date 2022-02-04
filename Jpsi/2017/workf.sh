@@ -4,29 +4,22 @@ echo "running MC fits\n"
 
 cd bkgFits
 
-root -l -b -q newMCmass_0.C
-root -l -b -q newMCmass_1.C
-root -l -b -q newMCmass_2.C
-root -l -b -q newMCmass_3.C
-root -l -b -q newMCmass_4.C
-root -l -b -q newMCmass_5.C
-root -l -b -q newMCmass_G.C
-root -l -b -q plotMMseq.C
-root -l -b -q plotnalpha.C
-root -l -b -q plotMMG.C
-
-echo "running NP MC fits\n"
-
-root -l -b -q NPMCmass.C
-root -l -b -q NPMCmass_hpt.C
-root -l -b -q NPMCmass_hp_fn.C
-root -l -b -q combNPRes.C
+#root -l -b -q newMCmass_0.C
+#root -l -b -q newMCmass_1.C
+#root -l -b -q newMCmass_2.C
+#root -l -b -q newMCmass_3.C
+#root -l -b -q newMCmass_4.C
+#root -l -b -q newMCmass_5.C
+#root -l -b -q newMCmass_G.C
+#root -l -b -q plotMMseq.C
+#root -l -b -q plotnalpha.C
+#root -l -b -q plotMMG.C
 
 echo "getting costh limits with fine binning\n"
 
 cd ../cosMax
-root -l -b -q histoSave.C
-root -l -b -q getCos.C
+#root -l -b -q histoSave.C
+#root -l -b -q getCos.C
 
 echo "saving the PR histos for fitting"
 

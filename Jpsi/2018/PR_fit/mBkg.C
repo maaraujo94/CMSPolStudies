@@ -157,7 +157,7 @@ void mBkg()
     f_cb->SetParName(i, Form("NS_%d", i));
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
     f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
-    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/2.);
+    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/3.);
 
     for(int j = 1; j < 11; j++) { // between NS, NB
       if(j != 7) {

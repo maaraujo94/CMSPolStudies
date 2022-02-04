@@ -252,7 +252,7 @@ void newMCmass_G()
     h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.1);
     h_m1d[i_pt]->SetMinimum(0);
     h_m1d[i_pt]->SetStats(0);
-    h_m1d[i_pt]->SetTitle(Form("2018 MC M(#mu#mu) (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+    h_m1d[i_pt]->SetTitle(Form("2017 MC M(#mu#mu) (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
     h_m1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
     h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.8);
     h_m1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
