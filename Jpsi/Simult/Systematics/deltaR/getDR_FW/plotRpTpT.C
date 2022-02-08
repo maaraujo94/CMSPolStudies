@@ -25,6 +25,10 @@ void plotRpTpT()
   TLine *rlin2 = new TLine(0.15, 25, 0.15, 120);
   rlin2->SetLineColor(kBlue);
   rlin2->Draw("same");
+  TLine *rlin3 = new TLine(0.12, 25, 0.12, 120);
+  rlin3->SetLineColor(kBlue);
+  rlin3->SetLineStyle(kDashed);
+  rlin3->Draw("same");
 
   int vc = kGreen+4;
   // vertical lines - MC sample separation
@@ -49,6 +53,7 @@ void plotRpTpT()
 
   rlin->Draw("same");
   rlin2->Draw("same");
+  rlin3->Draw("same");
   
   c->SaveAs("plots/RpTpT_r.pdf");
   c->Clear();

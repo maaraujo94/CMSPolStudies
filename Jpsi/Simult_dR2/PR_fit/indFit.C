@@ -86,7 +86,7 @@ void indFit()
     // get max costheta
     double cMaxVal = jumpF(cosMax->Eval(pMin));
     double cMinVal = jumpF(cosMin->Eval(pMax));
-
+    
     // fit the 4 functions
     for(int i_t = 0; i_t < 4; i_t++) {
       fit1d[i_t]->SetRange(cMinVal, cMaxVal);

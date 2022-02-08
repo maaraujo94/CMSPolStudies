@@ -1,20 +1,26 @@
 // code to compare the deviations for several scenarios
-// 1) 2017 - 2018 / Run2
-// 2) f(pT) - 1/f(pT) / Run2
+// 1) f(pT) - Run2 / Run2
+// 2) 1/f(pT) - Run2 / Run2
 // 3) pT_cut - Run2 / Run2
 // 4) eta_cut - Run2 / Run2
 // 5) dR cuts - Run 2 / Run2
 
+// 0) 2017 - 2018 / Run2
+// this case is studied separately because the differences are independent
+
 void plotRes()
 {
+  // PART 1 - regular fine-binned results for all studies
   // get the histo limits
   TFile *fIn = new TFile("../../PR_fit/files/bkgSubRes.root");
   TH2D* rHist;
   fIn->GetObject("h_Data", rHist);
+  rHist->SetDirectory(0);
+  fIn->Close();
   
   int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
-  
+
   // get the fit results - 8 sets
   TGraphErrors **graph_lth = new TGraphErrors*[9];
   // 0 - get Run2 results
@@ -51,173 +57,127 @@ void plotRes()
   graph_lth[8] = (TGraphErrors*)fIndR2->Get(Form("graph_lambda_J"));
   fIndR2->Close();
 
-  // get the differences and the unc band
-  double rdiff[6][nBinspT], diff[6][nBinspT], za[nBinspT], rerr[nBinspT];
-  for(int i = 0; i < nBinspT; i++) { 
-    diff[0][i] = (graph_lth[1]->GetY()[i] - graph_lth[2]->GetY()[i]);
-    diff[1][i] = (graph_lth[3]->GetY()[i] - graph_lth[4]->GetY()[i]);
+  // get the differences
+  double diff[6][nBinspT], za[nBinspT], errY[nBinspT], sigY[nBinspT], uncR[nBinspT];
+  for(int i = 0; i < nBinspT; i++) {
+    diff[0][i] = (graph_lth[3]->GetY()[i] - graph_lth[0]->GetY()[i]);
+    diff[1][i] = (graph_lth[4]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[2][i] = (graph_lth[5]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[3][i] = (graph_lth[6]->GetY()[i] - graph_lth[0]->GetY()[i]);
-    diff[4][i] = (graph_lth[7]->GetY()[i] - graph_lth[0]->GetY()[i]);
-    diff[5][i] = (graph_lth[8]->GetY()[i] - graph_lth[0]->GetY()[i]);
-    cout << i; 
-    for(int j = 0; j < 5; j++){
-      rdiff[j][i] = diff[j][i]/graph_lth[0]->GetY()[i];
-      rdiff[j][i] *= 100.;
-      cout << " " << diff[j][i];
+    // deltaR cuts apply to different pT regions
+    if(graph_lth[0]->GetX()[i] < 66) {
+      diff[4][i] = (graph_lth[7]->GetY()[i] - graph_lth[0]->GetY()[i]);
+      uncR[i] = graph_lth[7]->GetEY()[i];
     }
-    cout << endl;
+    else {
+      diff[4][i] = (graph_lth[8]->GetY()[i] - graph_lth[0]->GetY()[i]);
+      uncR[i] = graph_lth[8]->GetEY()[i];
+    }
+    // 2017 - 2018 case can be calculated w their uncertainties
+    double val7 = graph_lth[1]->GetY()[i];
+    double val8 = graph_lth[2]->GetY()[i];
+    diff[5][i] = (val7 - val8);
+    double err7 = graph_lth[1]->GetEY()[i];
+    double err8 = graph_lth[2]->GetEY()[i];
+    errY[i] = sqrt(pow(err7, 2) + pow(err8, 2));
+    // also calculate 2017-2018 sigmas / pulls
+    sigY[i] = diff[5][i]/errY[i];
+    
     za[i] = 0;
-    rerr[i] = graph_lth[0]->GetEY()[i]/graph_lth[0]->GetY()[i]*100;
   }
-  TGraphErrors *g_lthY = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[0], graph_lth[0]->GetEX(), za);
-  TGraphErrors *g_lthEff = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[1], graph_lth[0]->GetEX(), za);
+
+  // PART 2 - coarse-binned results for rho study
+  // get the histo limits
+  TFile *fInc = new TFile("../deltaR/files/chistStore.root");
+  TH2D* cHist;
+  fInc->GetObject("cHistB", cHist);
+  cHist->SetDirectory(0);
+  fInc->Close();
+  
+  int nBinspT_c = cHist->GetNbinsY();
+  const double *pTBins_c = cHist->GetYaxis()->GetXbins()->GetArray();
+
+  // get the fit results - 3 sets
+  TGraphErrors **graph_lth_c = new TGraphErrors*[3];
+  // 0 - get Run2 results
+  TFile *fIndB_c = new TFile("../deltaR/files/finalFitRes.root");
+  graph_lth_c[0] = (TGraphErrors*)fIndB_c->Get("graph_lambda_B");
+  graph_lth_c[1] = (TGraphErrors*)fIndB_c->Get(Form("graph_lambda_T"));
+  graph_lth_c[2] = (TGraphErrors*)fIndB_c->Get(Form("graph_lambda_L"));
+  fIndB_c->Close();
+
+  // get the differences
+  double diff_c[nBinspT], za_c[nBinspT];
+  for(int i = 0; i < nBinspT_c; i++) {
+    // deltaR cuts apply to different pT regions
+    if(graph_lth_c[0]->GetX()[i] < 66) {
+      diff_c[i] = (graph_lth_c[1]->GetY()[i] - graph_lth_c[0]->GetY()[i]);
+    }
+    else {
+      diff_c[i] = (graph_lth_c[2]->GetY()[i] - graph_lth_c[0]->GetY()[i]);
+    }
+
+    cout << i << " " << abs(diff_c[i]) << endl;
+    
+    za_c[i] = 0;
+  }
+
+  TGraphErrors *g_lthY = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[5], graph_lth[0]->GetEX(), errY);
+  TGraphErrors *g_lthF = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[0], graph_lth[0]->GetEX(), za);
+  TGraphErrors *g_lthFI = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[1], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthpT = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[2], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthEta = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[3], graph_lth[0]->GetEX(), za);
-  TGraphErrors *g_lthR1 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[4], graph_lth[0]->GetEX(), za);
-  TGraphErrors *g_lthR2 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[5], graph_lth[0]->GetEX(), za);
-
-  TGraphErrors *gr_lthY = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[0], graph_lth[0]->GetEX(), za);
-  TGraphErrors *gr_lthEff = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[1], graph_lth[0]->GetEX(), za);
-  TGraphErrors *gr_lthpT = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[2], graph_lth[0]->GetEX(), za);
-  TGraphErrors *gr_lthEta = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[3], graph_lth[0]->GetEX(), za);
-  TGraphErrors *gr_lthR1 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[4], graph_lth[0]->GetEX(), za);
-  TGraphErrors *gr_lthR2 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), rdiff[5], graph_lth[0]->GetEX(), za);
-
+  TGraphErrors *g_lthR = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[4], graph_lth[0]->GetEX(), za);
+  TGraphErrors *g_lthR_c = new TGraphErrors(nBinspT_c, graph_lth_c[0]->GetX(), diff_c, graph_lth_c[0]->GetEX(), za_c);
+  
   TGraphErrors *g_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_lth[0]->GetEY());
-  TGraphErrors *gr_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), rerr);
+  TGraph *g_sigY = new TGraph(nBinspT, graph_lth[0]->GetX(), sigY);
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
   double d_lim = 60;
 
-  // FIRST - draw the relative difference in %
-  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
-  fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("rel #delta#lambda_{#theta} (%)");
-  fl2->GetYaxis()->SetTitleOffset(1.3);
-  fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Relative difference #delta#lambda_{#theta} (prompt J/#psi)");
+  // FIRST - draw the abs diff + Simult unc band
+  double da_lim = 0.2;
   
-  gr_lthY->SetLineColor(kBlack);
-  gr_lthY->SetMarkerColor(kBlack);
-  gr_lthY->SetMarkerStyle(20);
-  gr_lthY->SetMarkerSize(.5);
-  gr_lthY->Draw("pl same");
-
-  gr_lthEff->SetLineColor(kBlue);
-  gr_lthEff->SetMarkerColor(kBlue);
-  gr_lthEff->SetMarkerStyle(20);
-  gr_lthEff->SetMarkerSize(.5);
-  gr_lthEff->Draw("pl same");
-
-  gr_lthpT->SetLineColor(kGreen+1);
-  gr_lthpT->SetMarkerColor(kGreen+1);
-  gr_lthpT->SetMarkerStyle(20);
-  gr_lthpT->SetMarkerSize(.5);
-  gr_lthpT->Draw("pl same");
-
-  gr_lthEta->SetLineColor(kViolet-1);
-  gr_lthEta->SetMarkerColor(kViolet-1);
-  gr_lthEta->SetMarkerStyle(20);
-  gr_lthEta->SetMarkerSize(.5);
-  gr_lthEta->Draw("pl same");
-
-  gr_lthR1->SetLineColor(kOrange);
-  gr_lthR1->SetMarkerColor(kOrange);
-  gr_lthR1->SetMarkerStyle(20);
-  gr_lthR1->SetMarkerSize(.5);
-  gr_lthR1->Draw("pl same");
-
-  gr_lthR2->SetLineColor(kOrange+2);
-  gr_lthR2->SetMarkerColor(kOrange+2);
-  gr_lthR2->SetMarkerStyle(20);
-  gr_lthR2->SetMarkerSize(.5);
-  gr_lthR2->Draw("pl same");
-
-  TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
-  zero->SetLineColor(kBlack);
-  zero->SetLineStyle(kDashed);
-  zero->Draw();
-  TLine *trans1D = new TLine(46, -d_lim, 46, d_lim);
-  trans1D->SetLineColor(kBlack);
-  trans1D->SetLineStyle(kDashed);
-  trans1D->Draw();
-  TLine *trans2D = new TLine(66, -d_lim, 66, d_lim);
-  trans2D->SetLineColor(kBlack);
-  trans2D->SetLineStyle(kDashed);
-  trans2D->Draw();
-
-  TLegend *leg = new TLegend(0.65, 0.15, 0.9, 0.35);
-  leg->SetTextSize(0.03);
-  leg->AddEntry(gr_lthY, "2017 - 2018", "pl");
-  leg->AddEntry(gr_lthEff, "f(p_{T}) - 1/f(p_{T})", "pl");
-  leg->AddEntry(gr_lthpT, "p_{T} cut - base", "pl");
-  leg->AddEntry(gr_lthEta, "#eta cut - base", "pl");
-  leg->AddEntry(gr_lthR1, "#deltaR>0.17 - base", "pl");
-  leg->AddEntry(gr_lthR2, "#deltaR>0.15 - base", "pl");
-  leg->Draw();
+  TH1F *fl1 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
+  fl1->SetXTitle("p_{T} (GeV)");
+  fl1->SetYTitle("#Delta#lambda_{#theta}");
+  fl1->GetYaxis()->SetTitleOffset(1.3);
+  fl1->GetYaxis()->SetLabelOffset(0.01);
+  fl1->SetTitle("#Delta#lambda_{#theta} (prompt J/#psi)");
   
-  c->SaveAs("lth_relDiff.pdf");
+  g_lthF->SetLineColor(kBlue);
+  g_lthF->SetMarkerColor(kBlue);
+  g_lthF->SetMarkerStyle(24);
+  g_lthF->SetMarkerSize(.75);
+  g_lthF->Draw("p same");
 
-  gr_unc->SetLineColor(kRed);
-  gr_unc->SetFillColorAlpha(kRed, 0.4);
-  gr_unc->Draw("ce3");
-
-  c->SaveAs("lth_relDiff_band.pdf");
-  c->Clear();
-
-  // SECOND - draw the relative difference in %
-  double da_lim = 0.34;
-  
-  TH1F *fl3 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
-  fl3->SetXTitle("p_{T} (GeV)");
-  fl3->SetYTitle("#delta#lambda_{#theta}");
-  fl3->GetYaxis()->SetTitleOffset(1.3);
-  fl3->GetYaxis()->SetLabelOffset(0.01);
-  fl3->SetTitle("Difference #delta#lambda_{#theta} (prompt J/#psi)");
-  
-  g_lthY->SetLineColor(kBlack);
-  g_lthY->SetMarkerColor(kBlack);
-  g_lthY->SetMarkerStyle(20);
-  g_lthY->SetMarkerSize(.5);
-  g_lthY->Draw("pl same");
-
-  g_lthEff->SetLineColor(kBlue);
-  g_lthEff->SetMarkerColor(kBlue);
-  g_lthEff->SetMarkerStyle(20);
-  g_lthEff->SetMarkerSize(.5);
-  g_lthEff->Draw("pl same");
+  g_lthFI->SetLineColor(kBlue);
+  g_lthFI->SetMarkerColor(kBlue);
+  g_lthFI->SetMarkerStyle(22);
+  g_lthFI->SetMarkerSize(.75);
+  g_lthFI->Draw("p same");
 
   g_lthpT->SetLineColor(kGreen+1);
   g_lthpT->SetMarkerColor(kGreen+1);
   g_lthpT->SetMarkerStyle(20);
-  g_lthpT->SetMarkerSize(.5);
-  g_lthpT->Draw("pl same");
+  g_lthpT->SetMarkerSize(.75);
+  g_lthpT->Draw("p same");
 
-  g_lthEta->SetLineColor(kViolet-1);
-  g_lthEta->SetMarkerColor(kViolet-1);
+  g_lthEta->SetLineColor(kRed);
+  g_lthEta->SetMarkerColor(kRed);
   g_lthEta->SetMarkerStyle(20);
-  g_lthEta->SetMarkerSize(.5);
-  g_lthEta->Draw("pl same");
+  g_lthEta->SetMarkerSize(.75);
+  g_lthEta->Draw("p same");
 
-  g_lthR1->SetLineColor(kOrange);
-  g_lthR1->SetMarkerColor(kOrange);
-  g_lthR1->SetMarkerStyle(20);
-  g_lthR1->SetMarkerSize(.5);
-  g_lthR1->Draw("pl same");
-
-  g_lthR2->SetLineColor(kOrange+2);
-  g_lthR2->SetMarkerColor(kOrange+2);
-  g_lthR2->SetMarkerStyle(20);
-  g_lthR2->SetMarkerSize(.5);
-  g_lthR2->Draw("pl same");
-
-  g_unc->SetLineColor(kRed);
-  g_unc->SetFillColorAlpha(kRed, 0.4);
+  g_unc->SetLineColor(kBlack);
+  g_unc->SetFillColorAlpha(kBlack, 0.3);
   g_unc->Draw("ce3");
 
-  zero->Draw();
+  TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
+  zero->SetLineColor(kBlack);
+  zero->SetLineStyle(kDashed);
   TLine *trans1A = new TLine(46, -da_lim, 46, da_lim);
   trans1A->SetLineColor(kBlack);
   trans1A->SetLineStyle(kDashed);
@@ -227,20 +187,119 @@ void plotRes()
   trans2A->SetLineStyle(kDashed);
   trans2A->Draw();
 
-  /*  TLegend *leg = new TLegend(0.675, 0.75, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.65, 0.7, 0.9, 0.9);
   leg->SetTextSize(0.03);
-  leg->AddEntry(g_lthY, "2017-2018", "pl");
-  leg->AddEntry(g_lthEff, "f(p_{T})-1/f(p_{T})", "pl");
+  leg->AddEntry(g_lthF, "f(p_{T}) - base", "pl");
+  leg->AddEntry(g_lthFI, "1/f(p_{T}) - base", "pl");
   leg->AddEntry(g_lthpT, "p_{T} cut - base", "pl");
-  leg->AddEntry(g_lthEta, "#eta cut - base", "pl");*/
+  leg->AddEntry(g_lthEta, "#eta cut - base", "pl");
   leg->Draw();
-  
+
   c->SaveAs("lth_absDiff_band.pdf");
   c->Clear();
 
-  c->Destructor();
+  // FIRST (2) - draw just deltaR (larger difference)
+  da_lim = 0.3;
   
-  fIn->Close();
+  TH1F *fl12 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
+  fl12->SetXTitle("p_{T} (GeV)");
+  fl12->SetYTitle("#Delta#lambda_{#theta}");
+  fl12->GetYaxis()->SetTitleOffset(1.3);
+  fl12->GetYaxis()->SetLabelOffset(0.01);
+  fl12->SetTitle("#Delta#lambda_{#theta} (prompt J/#psi)");
+  
+  g_lthR->SetLineColor(kBlue);
+  g_lthR->SetMarkerColor(kBlue);
+  g_lthR->SetMarkerStyle(20);
+  g_lthR->SetMarkerSize(.75);
+  g_lthR->Draw("p same");
 
+  g_lthR_c->SetLineColor(kRed);
+  g_lthR_c->SetMarkerColor(kRed);
+  g_lthR_c->SetMarkerStyle(20);
+  g_lthR_c->SetMarkerSize(.75);
+  g_lthR_c->Draw("p same");
+
+  g_unc->Draw("ce3");
+
+  TLine *trans12A = new TLine(46, -da_lim, 46, da_lim);
+  trans12A->SetLineColor(kBlack);
+  trans12A->SetLineStyle(kDashed);
+  trans12A->Draw();
+  TLine *trans22A = new TLine(66, -da_lim, 66, da_lim);
+  trans22A->SetLineColor(kBlack);
+  trans22A->SetLineStyle(kDashed);
+  trans22A->Draw();
+
+  trans12A->Draw();
+  trans22A->Draw();
+
+  TLegend *legR = new TLegend(0.5, 0.75, 0.9, 0.9);
+  legR->SetTextSize(0.03);
+  legR->AddEntry(g_lthR, "#DeltaR cut - base", "pl");
+  legR->AddEntry(g_lthR_c, "#DeltaR cut - base (coarse)", "pl");
+  legR->Draw();
+
+  c->SaveAs("lth_absDiff_rho.pdf");
+  c->Clear();
+
+  
+  // SECOND - draw 2017-2018 with the calculated uncertainty
+  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
+  fl2->SetXTitle("p_{T} (GeV)");
+  fl2->SetYTitle("#Delta#lambda_{#theta}");
+  fl2->GetYaxis()->SetTitleOffset(1.3);
+  fl2->GetYaxis()->SetLabelOffset(0.01);
+  fl2->SetTitle("prompt J/#psi #Delta#lambda_{#theta} (2017-2018)");
+  
+  g_lthY->SetLineColor(kBlack);
+  g_lthY->SetMarkerColor(kBlack);
+  g_lthY->SetMarkerStyle(20);
+  g_lthY->SetMarkerSize(.75);
+  g_lthY->Draw("p same");
+
+  trans12A->Draw();
+  trans22A->Draw();
+  zero->Draw();
+  
+  c->SaveAs("lth_absDiff_Y.pdf");
+  c->Clear();
+
+  // THIRD - Draw 2017-2018 as pulls / nr sigma (divide values by unc)
+  TH1F *fl3 = c->DrawFrame(pTBins[0]-5, -3, pTBins[nBinspT], 3);
+  fl3->SetXTitle("p_{T} (GeV)");
+  fl3->SetYTitle("pulls");
+  fl3->GetYaxis()->SetTitleOffset(1.3);
+  fl3->GetYaxis()->SetLabelOffset(0.01);
+  fl3->SetTitle("prompt J/#psi pulls (2017-2018)");
+  
+  g_sigY->SetLineColor(kBlack);
+  g_sigY->SetMarkerColor(kBlack);
+  g_sigY->SetMarkerStyle(20);
+  g_sigY->SetMarkerSize(1);
+  g_sigY->Draw("p same");
+
+  TLine *trans1S = new TLine(46, -3, 46, 3);
+  trans1S->SetLineColor(kBlack);
+  trans1S->SetLineStyle(kDashed);
+  trans1S->Draw();
+  TLine *trans2S = new TLine(66, -3, 66, 3);
+  trans2S->SetLineColor(kBlack);
+  trans2S->SetLineStyle(kDashed);
+  trans2S->Draw();
+  zero->Draw();
+  TLine *oneM = new TLine(pTBins[0]-5, -1, pTBins[nBinspT], -1);
+  oneM->SetLineColor(kBlack);
+  oneM->SetLineStyle(kDashDotted);
+  oneM->Draw();
+  TLine *oneP = new TLine(pTBins[0]-5, 1, pTBins[nBinspT], 1);
+  oneP->SetLineColor(kBlack);
+  oneP->SetLineStyle(kDashDotted);
+  oneP->Draw();
+  
+  c->SaveAs("lth_pulls_Y.pdf");
+  c->Clear();
+
+  c->Destructor();
 
 }
