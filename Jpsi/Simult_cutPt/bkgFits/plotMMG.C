@@ -180,6 +180,6 @@ void plotMMG()
     c->SaveAs(Form("plots/MCMass/parG_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }
-  
+  c->Destructor();
 
 }

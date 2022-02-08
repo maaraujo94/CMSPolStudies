@@ -100,7 +100,7 @@ void newMCmass_0()
 
     // MC 1
     Double_t mc_pt, mc_lt, mc_m, mc_y;  
-    double mPPt, mMPt;
+    double mPPt, mMPt, mPEta, mMEta;
   
     tree1->SetBranchAddress("dimPt", &mc_pt);
     tree1->SetBranchAddress("Rap", &mc_y);
@@ -108,13 +108,15 @@ void newMCmass_0()
     tree1->SetBranchAddress("lt", &mc_lt);
     tree1->SetBranchAddress("muonPPt", &mPPt);
     tree1->SetBranchAddress("muonMPt", &mMPt);
+    tree1->SetBranchAddress("muonPEta", &mPEta);
+    tree1->SetBranchAddress("muonMEta", &mMEta);
 
     // cycle over data , fill the lifetime histogram
     int mEvt = tree1->GetEntries();
     for(int i = 0; i < mEvt; i++)
       {
 	tree1->GetEntry(i);
-	if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && mPPt > pt_cut && mMPt > pt_cut) {
+	if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
 	  for(int i_p = 0; i_p < nPtBins; i_p++)
 	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
 	      h_m1d[i_p]->Fill(mc_m);
@@ -129,13 +131,15 @@ void newMCmass_0()
     tree2->SetBranchAddress("lt", &mc_lt);
     tree2->SetBranchAddress("muonPPt", &mPPt);
     tree2->SetBranchAddress("muonMPt", &mMPt);
+    tree2->SetBranchAddress("muonPEta", &mPEta);
+    tree2->SetBranchAddress("muonMEta", &mMEta);
 
     // cycle over data , fill the lifetime histogram
     mEvt = tree2->GetEntries();
     for(int i = 0; i < mEvt; i++)
       {
 	tree2->GetEntry(i);
-	if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && mPPt > pt_cut && mMPt > pt_cut) {
+	if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
 	  for(int i_p = 0; i_p < nPtBins; i_p++)
 	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
 	      h_m1d[i_p]->Fill(mc_m);
@@ -150,13 +154,15 @@ void newMCmass_0()
     tree3->SetBranchAddress("lt", &mc_lt);
     tree3->SetBranchAddress("muonPPt", &mPPt);
     tree3->SetBranchAddress("muonMPt", &mMPt);
+    tree3->SetBranchAddress("muonPEta", &mPEta);
+    tree3->SetBranchAddress("muonMEta", &mMEta);
 
     // cycle over data , fill the lifetime histogram
     mEvt = tree3->GetEntries();
     for(int i = 0; i < mEvt; i++)
       {
 	tree3->GetEntry(i);
-	if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mPPt > pt_cut && mMPt > pt_cut) {
+	if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
 	  for(int i_p = 0; i_p < nPtBins; i_p++)
 	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
 	      h_m1d[i_p]->Fill(mc_m);

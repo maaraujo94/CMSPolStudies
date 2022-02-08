@@ -75,7 +75,7 @@ void NPMCmass()
 
     // MC 1
     Double_t mc_pt, mc_lt, mc_m, mc_y;  
-    double mPPt, mMPt;
+    double mPPt, mMPt, mPEta, mMEta;
   
     tree1->SetBranchAddress("dimPt", &mc_pt);
     tree1->SetBranchAddress("Rap", &mc_y);
@@ -83,13 +83,15 @@ void NPMCmass()
     tree1->SetBranchAddress("lt", &mc_lt);
     tree1->SetBranchAddress("muonPPt", &mPPt);
     tree1->SetBranchAddress("muonMPt", &mMPt);
+    tree1->SetBranchAddress("muonPEta", &mPEta);
+    tree1->SetBranchAddress("muonMEta", &mMEta);
 
     // cycle over data , fill the lifetime histogram
     int mEvt = tree1->GetEntries();
     for(int i = 0; i < mEvt; i++)
       {
 	tree1->GetEntry(i);
-	if(mc_pt > 25 && mc_pt < 120 && abs(mc_y) < 1.2 && mPPt > pt_cut && mMPt > pt_cut) {
+	if(mc_pt > 25 && mc_pt < 120 && abs(mc_y) < 1.2 && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
 	  h_mF->Fill(mc_m);
 	  if(mc_pt > 50)
 	    h_mF_hp->Fill(mc_m);

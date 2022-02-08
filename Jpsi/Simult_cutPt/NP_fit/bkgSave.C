@@ -30,7 +30,7 @@ void bkgSave()
     
     // data
     Double_t data_pt, data_lt, data_m, data_y;  
-    double mPPt, mMPt;
+    double mPPt, mMPt, mPEta, mMEta;
 	
     tree1->SetBranchAddress("dimPt", &data_pt);
     tree1->SetBranchAddress("Rap", &data_y);
@@ -38,13 +38,15 @@ void bkgSave()
     tree1->SetBranchAddress("lt", &data_lt);
     tree1->SetBranchAddress("muonPPt", &mPPt);
     tree1->SetBranchAddress("muonMPt", &mMPt);
+    tree1->SetBranchAddress("muonPEta", &mPEta);
+    tree1->SetBranchAddress("muonMEta", &mMEta);
 
     // cycle over data , fill the mass histogram
     int dEvt = tree1->GetEntries();
     for(int i = 0; i < dEvt; i++)
       {
 	tree1->GetEntry(i);
-	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.05 && abs(data_y) < 1.2 && mPPt > pt_cut && mMPt > pt_cut) {
+	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.05 && abs(data_y) < 1.2 && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
 	  for(int i_p = 0; i_p < nPtBins; i_p++)
 	    if(data_pt > ptBins[i_p] && data_pt < ptBins[i_p+1])
 	      h_d1d[i_p]->Fill(data_m);

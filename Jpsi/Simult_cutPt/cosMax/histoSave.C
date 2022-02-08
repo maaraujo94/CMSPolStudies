@@ -36,7 +36,7 @@ void histoSave()
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m;
   Double_t mc_th, mc_pt, mc_lt, mc_m;
-  double mPPt, mMPt;
+  double mPPt, mMPt, mPEta, mMEta;
   
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
@@ -44,6 +44,8 @@ void histoSave()
   treeD->SetBranchAddress("lt", &data_lt);
   treeD->SetBranchAddress("muonPPt", &mPPt);
   treeD->SetBranchAddress("muonMPt", &mMPt);
+  treeD->SetBranchAddress("muonPEta", &mPEta);
+  treeD->SetBranchAddress("muonMEta", &mMEta);
   
   treeM1->SetBranchAddress("theta", &mc_th);
   treeM1->SetBranchAddress("dimPt", &mc_pt);
@@ -51,12 +53,14 @@ void histoSave()
   treeM1->SetBranchAddress("lt", &mc_lt);
   treeM1->SetBranchAddress("muonPPt", &mPPt);
   treeM1->SetBranchAddress("muonMPt", &mMPt);
+  treeM1->SetBranchAddress("muonPEta", &mPEta);
+  treeM1->SetBranchAddress("muonMEta", &mMEta);
 
   // cycle over data and MC, fill the costh histogram acc to binning
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2 && mPPt > pt_cut && mMPt > pt_cut) {      
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2 && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {      
 	dataHist_ab->Fill(abs(cos(data_th)), data_pt);
       }
     }
@@ -64,7 +68,7 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2 && mPPt > pt_cut && mMPt > pt_cut) {
+      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2 && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
@@ -75,11 +79,13 @@ void histoSave()
   treeM2->SetBranchAddress("lt", &mc_lt);
   treeM2->SetBranchAddress("muonPPt", &mPPt);
   treeM2->SetBranchAddress("muonMPt", &mMPt);
+  treeM2->SetBranchAddress("muonPEta", &mPEta);
+  treeM2->SetBranchAddress("muonMEta", &mMEta);
 
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2 && mPPt > pt_cut && mMPt > pt_cut) {
+      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2 && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
       }
     }
@@ -90,11 +96,13 @@ void histoSave()
   treeM3->SetBranchAddress("lt", &mc_lt);
   treeM3->SetBranchAddress("muonPPt", &mPPt);
   treeM3->SetBranchAddress("muonMPt", &mMPt);
+  treeM3->SetBranchAddress("muonPEta", &mPEta);
+  treeM3->SetBranchAddress("muonMEta", &mMEta);
 
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2 && mPPt > pt_cut && mMPt > pt_cut) {
+      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2 && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
