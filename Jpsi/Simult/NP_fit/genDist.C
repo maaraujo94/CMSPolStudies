@@ -66,7 +66,7 @@ void genDist()
   }
 
   // define the final bkg/MC dist as the weighted sum using fL
-  TH2D *h_SB = new TH2D(Form("h_SB"), "Run 2 bkg/MC", nBinsX, minX, maxX, nBinsY, yBins);
+  TH2D *h_SB = new TH2D(Form("h_SB"), "Run 2 NP bkg/MC", nBinsX, minX, maxX, nBinsY, yBins);
   h_SB->Add(h_LSB, h_RSB, fL, 1.-fL);
 
   cout << "all SB histos filled" << endl;

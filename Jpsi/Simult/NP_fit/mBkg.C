@@ -356,7 +356,7 @@ void mBkg()
     fd->SetYTitle("relative difference (%)");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Data J/#psi rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Data nass rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_dev = new TGraph(mbins, mv, dv);
     g_dev->SetLineColor(kBlack);
@@ -373,7 +373,7 @@ void mBkg()
     for(int j = 0; j < 2; j++) {
       limd[j]->SetLineColor(kRed);
       limd[j]->SetLineStyle(kDashed);
-      limd[j]->Draw();
+      //limd[j]->Draw();
     }
   
     c->SaveAs(Form("plots/mass/devs_pt%d.pdf", i_pt));

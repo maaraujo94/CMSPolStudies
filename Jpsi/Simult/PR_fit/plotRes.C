@@ -49,11 +49,11 @@ void plotRes()
   TLine *trans1 = new TLine(46, -1, 46, 1);
   trans1->SetLineColor(kBlack);
   trans1->SetLineStyle(kDashed);
-  trans1->Draw();
+  //trans1->Draw();
   TLine *trans2 = new TLine(66, -1, 66, 1);
   trans2->SetLineColor(kBlack);
   trans2->SetLineStyle(kDashed);
-  trans2->Draw();
+  //trans2->Draw();
 
   TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
   leg->SetTextSize(0.03);
@@ -85,8 +85,8 @@ void plotRes()
   //graph_lth[3]->Fit(cons);
 
   zero->Draw();
-  trans1->Draw();
-  trans2->Draw();
+  //trans1->Draw();
+  //trans2->Draw();
   
   /*TLatex lc;
   lc.SetTextSize(0.03);

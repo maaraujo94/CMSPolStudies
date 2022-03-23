@@ -37,7 +37,7 @@ void plotCosPars2d()
       fp->SetYTitle(Form("%s", partit[i].c_str()));
       fp->GetYaxis()->SetTitleOffset(1.5);
       fp->GetYaxis()->SetLabelOffset(0.01);
-      fp->SetTitle(Form("Full %s %s", lbl[i_inp].c_str(), partit[i].c_str()));
+      fp->SetTitle(Form("Run 2 %s %s", lbl[i_inp].c_str(), partit[i].c_str()));
 
       // constant pars
       if( i > 0) {

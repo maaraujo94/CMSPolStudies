@@ -59,7 +59,7 @@ void plotModel()
   fl1->SetYTitle("#Delta#lambda_{#theta}");
   fl1->GetYaxis()->SetTitleOffset(1.3);
   fl1->GetYaxis()->SetLabelOffset(0.01);
-  fl1->SetTitle("#Delta#lambda_{#theta} (prompt J/#psi)");
+  fl1->SetTitle("#Delta#lambda_{#theta} (fit framework)");
   
   g_lthA->SetLineColor(kBlue);
   g_lthA->SetMarkerColor(kBlue);
@@ -90,11 +90,11 @@ void plotModel()
   TLine *trans1A = new TLine(46, -da_lim, 46, da_lim);
   trans1A->SetLineColor(kBlack);
   trans1A->SetLineStyle(kDashed);
-  trans1A->Draw();
+  //trans1A->Draw();
   TLine *trans2A = new TLine(66, -da_lim, 66, da_lim);
   trans2A->SetLineColor(kBlack);
   trans2A->SetLineStyle(kDashed);
-  trans2A->Draw();
+  //trans2A->Draw();
 
   TLegend *leg = new TLegend(0.6, 0.7, 0.9, 0.9);
   leg->SetTextSize(0.03);

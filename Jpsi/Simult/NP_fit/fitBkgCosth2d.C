@@ -78,7 +78,7 @@ void fitBkgCosth2d()
     // getting the pT bin projections of Data/MC
     for(int i = 0; i < nPtBins; i++) {
       pHist[i] = h_cth[i_inp]->ProjectionX(Form("%s_bin%d_1d", lbl[i_inp].c_str(), i+1), i+1, i+1);
-      pHist[i]->SetTitle(Form("Run 2 %s/MC |cos#theta| (%.0f < p_{T} < %.0f GeV)", lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
+      pHist[i]->SetTitle(Form("Run 2 NP %s/MC |cos#theta| (%.0f < p_{T} < %.0f GeV)", lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
     }
 
     // define the ratio fit function
@@ -190,7 +190,7 @@ void fitBkgCosth2d()
       TLine *clim = new TLine(cMaxVal[i], -pull_min, cMaxVal[i], pull_min);
       clim->SetLineColor(kRed);
       clim->SetLineStyle(kDashed);
-      clim->Draw();
+      //clim->Draw();
 
       TLine *zero = new TLine(minX, 0, maxX, 0);
       zero->SetLineColor(kBlack);
@@ -219,18 +219,22 @@ void fitBkgCosth2d()
       fd->SetYTitle("relative difference (%)");
       fd->GetYaxis()->SetTitleOffset(1.3);
       fd->GetYaxis()->SetLabelOffset(0.01);
-      fd->SetTitle(Form("Run 2 %s rel. difference (%.0f < p_{T} < %.0f GeV)", lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
+      fd->SetTitle(Form("%s/MC |cos#theta| rel. difference (%.0f < p_{T} < %.0f GeV)", lbl[i_inp].c_str(), yBins[i], yBins[i+1]));
 
       TGraph *g_dev = new TGraph(nBinsX, cv, dv);
       g_dev->SetLineColor(kBlack);
       g_dev->SetMarkerColor(kBlack);
       g_dev->SetMarkerStyle(20);
       g_dev->Draw("p");
-		
+
+      for(int i = p_lim; i < nBinsX; i++)
+	g_dev->RemovePoint(p_lim);
+
+      
       TLine *climd = new TLine(cMaxVal[i], -dev_min, cMaxVal[i], dev_min);
       climd->SetLineColor(kRed);
       climd->SetLineStyle(kDashed);
-      climd->Draw();
+      //climd->Draw();
 
       zero->Draw();
 	

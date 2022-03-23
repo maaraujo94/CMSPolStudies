@@ -16,7 +16,28 @@ void plot2dHistos()
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.11);
   c->SetRightMargin(0.13);
-  
+
+  // scaling Peak ratio
+  double maxR[3];
+  int bin_min[] = {1,8,12};
+  int bin_max[] = {7,11,17};
+  for(int i = 0; i < 3; i++) {
+    h_Data->GetYaxis()->SetRange(bin_min[i], bin_max[i]);
+    maxR[i] = h_Data->GetMaximum();
+  }
+  h_Data->GetYaxis()->SetRange(bin_min[0], bin_max[2]);
+
+  double scalF;
+  for(int i_x = 0; i_x < h_Data->GetNbinsX(); i_x++) {
+    for(int i_y = 0; i_y < h_Data->GetNbinsY(); i_y++){
+      // get scaling factor
+      for(int i = 0; i < 3; i++) 
+	if(i_y+1 >= bin_min[i] && i_y+1 <= bin_max[i]) 
+	  scalF = maxR[0]/maxR[i];
+      h_Data->SetBinContent(i_x+1, i_y+1, h_Data->GetBinContent(i_x+1, i_y+1)*scalF);
+    }
+  }
+
   h_Data->SetStats(0);
   h_Data->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_Data->GetYaxis()->SetTitle("p_{T} (GeV)");
@@ -24,6 +45,23 @@ void plot2dHistos()
   h_Data->Draw("COLZ");
   c->SaveAs("plots/2dMaps/ratio_Peak.pdf");
   c->Clear();
+
+  // scaling NP ratio
+  for(int i = 0; i < 3; i++) {
+    h_NP->GetYaxis()->SetRange(bin_min[i], bin_max[i]);
+    maxR[i] = h_NP->GetMaximum();
+  }
+  h_NP->GetYaxis()->SetRange(bin_min[0], bin_max[2]);
+
+  for(int i_x = 0; i_x < h_NP->GetNbinsX(); i_x++) {
+    for(int i_y = 0; i_y < h_NP->GetNbinsY(); i_y++){
+      // get scaling factor
+      for(int i = 0; i < 3; i++) 
+	if(i_y+1 >= bin_min[i] && i_y+1 <= bin_max[i]) 
+	  scalF = maxR[0]/maxR[i];
+      h_NP->SetBinContent(i_x+1, i_y+1, h_NP->GetBinContent(i_x+1, i_y+1)*scalF);
+    }
+  }
 
   h_NP->SetStats(0);
   h_NP->GetXaxis()->SetTitle("|cos#theta_{HX}|");

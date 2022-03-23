@@ -19,7 +19,10 @@ void plotLth()
     graph_lth[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
   }    
   fInd->Close();
-  
+  TFile *fIndN = new TFile("../NP_fit/files/finalFitRes.root");
+  graph_lth[1] = (TGraphErrors*)fIndN->Get("graph_lambda_NP");
+  fIndN->Close();
+
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
   int cols[] = {kViolet-1, kRed, kBlack, kBlue, kGreen};
@@ -36,11 +39,21 @@ void plotLth()
   graph_lth[0]->SetMarkerColor(cols[0]);
   graph_lth[0]->Draw("p same");
 
+  graph_lth[1]->SetLineColor(cols[1]);
+  graph_lth[1]->SetMarkerColor(cols[1]);
+  graph_lth[1]->Draw("p same");
+
   TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  
+
+  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+  leg->SetTextSize(0.03);
+  leg->AddEntry(graph_lth[0], "Peak", "pl");
+  leg->AddEntry(graph_lth[1], "NP", "pl");
+  leg->Draw();
+
   c->SaveAs("plots/ratioFinal/lth1_2018.pdf");
 
   // add pr lambda_th
