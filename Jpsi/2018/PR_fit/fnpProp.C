@@ -1,11 +1,20 @@
 // macro to propagate the uncertainties to f_NP analytically
 // then save it as a 2d histo unc band
 
+int n_pt;
+
 // define negative exponential only for positive x
 double pos_exp(double x, double ld)
 {
   if(x > 0) return exp(-x/ld);
   else return 0;
+}
+
+int ent_v(int i, int i_pt)
+{
+  if(i == 0) return n_pt+i_pt;
+  else if (i < 3) return 2*n_pt + (i-1);
+  else return n_pt*(i-1)+2+i_pt;
 }
 
 void fnpProp()
@@ -28,32 +37,27 @@ void fnpProp()
   fcNP->SetRange(5*lowt, 5*hit);
   fcNP->SetNofPointsFFT(1000);
   TF1 *fNP = new TF1("fNP", *fcNP, lowPlot, hit, fcNP->GetNpar());
-  fNP->SetParNames("N_NP", "f", "mu", "sig1", "sig2", "t");
+  fNP->SetParNames("N_NP", "f", "mu", "sig1", "sig2", "lambda");
   
   // get fit parameters - need to know which params are being used
-  TFile *inNP = new TFile("files/ltfit.root");
+  TFile *inNP = new TFile("files/ltfitres2d.root");
   int n_par = fNP->GetNpar(); 
   TGraphErrors** g_par = new TGraphErrors*[n_par];
   for(int i = 0; i < n_par; i++) {
-    inNP->GetObject(Form("fit_bf_%s", fNP->GetParName(i)), g_par[i]);
+    inNP->GetObject(Form("fit_%s", fNP->GetParName(i)), g_par[i]);
   }
+  // get fitres to get cov in each pT bin
+  TFitResult *fitres = new TFitResult();
+  inNP->GetObject("fitres", fitres);
   inNP->Close();
 
   // get pT binning from the fit pars
-  int n_pt = g_par[0]->GetN();
+  n_pt = g_par[0]->GetN();
   double ptBins[n_pt+1];
   for(int i = 0; i < n_pt; i++) {
     ptBins[i] = g_par[0]->GetX()[i]-g_par[0]->GetEX()[i];
   }
   ptBins[n_pt] = g_par[0]->GetX()[n_pt-1]+g_par[0]->GetEX()[n_pt-1];
-
-  // get array of fitres to get cov in each pT bin
-  TFile *infr = new TFile("files/ltfitres.root");
-  TFitResult** fitres = new TFitResult*[n_pt];
-  for(int i = 0; i < n_pt; i++) {
-    infr->GetObject(Form("fitres_%.0f", ptBins[i]), fitres[i]);
-  }
-  infr->Close();
   
   // prepare lt histograms
   TH1D **h_d1d = new TH1D*[n_pt];
@@ -66,7 +70,6 @@ void fnpProp()
 
   // fNP = integral / evt_all (in prompt region)
   double epsrel = 1e-6, error = 0;
-  double mults[] = {1, 100., 1e3, 1e3, 1e3, 1e3};
 
   TH1D *h_fnp = new TH1D("h_fnp", "2018 f_{NP}", n_pt, ptBins);
   double ln = 10000;
@@ -82,12 +85,11 @@ void fnpProp()
     // define input parameters for integral - varies by pT bin
     for(int i = 0; i < n_par; i++) {
       fit_v[i] = g_par[i]->GetY()[i_pt];
-      // fit values taken after plotting, need to correct for units
-      if(i == 0) fit_v[i] *= (ptBins[i_pt+1]-ptBins[i_pt]);
-      fit_v[i] /= mults[i];
       for(int j = 0; j < n_par; j++) {
 	// covariance taken straight from fit, no correction
-	cov[i][j] = fitres[i_pt]->GetCovarianceMatrix()[i+1][j+1];
+	int pos_i = ent_v(i,i_pt);
+	int pos_j = ent_v(j,i_pt);
+	cov[i][j] = fitres->GetCovarianceMatrix()[pos_i][pos_j];
       }
     }
     // integral is a function of all above params
@@ -122,7 +124,7 @@ void fnpProp()
   fr1->SetYTitle("f_{NP} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("2018 f_{NP} vs p_{T}");
+  fr1->SetTitle("2018 f_{NP}");
 
   h_fnp->SetStats(0);
   h_fnp->SetMarkerStyle(20);
