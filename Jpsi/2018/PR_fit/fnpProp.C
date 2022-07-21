@@ -106,11 +106,13 @@ void fnpProp()
       else dpar[i] = 0;
     }
     
-    for(int i = 0; i < n_par; i++)  
-      for(int j = 0; j < n_par; j++) 
+    for(int i = 0; i < n_par; i++)  {
+      for(int j = 0; j < n_par; j++) {
 	fe += dpar[i]*dpar[j]*cov[i][j];
+      }
+    }
     fe = sqrt(fe);
-
+    
     // fill pT bin
     h_fnp->SetBinContent(i_pt+1, fv/evt_all*100.);
     h_fnp->SetBinError(i_pt+1, fe/evt_all*100.);

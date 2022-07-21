@@ -126,7 +126,12 @@ void plotFracs()
   h_fJc->SetMarkerSize(.5);
   h_fJc->Draw("error same");
 
-  leg->Draw();
+  TLegend *legc = new TLegend(0.7, 0.7, 0.9, 0.9);
+  legc->SetTextSize(0.03);
+  legc->AddEntry(h_fJc, "prompt J/#psi", "pl");
+  legc->AddEntry(h_fNPc, "NP^{c}", "pl");
+  legc->AddEntry(fSB_b, "bkg", "pl");
+  legc->Draw();
 
   c->SaveAs("plots/f_comp_corr.pdf");
   c->Clear();

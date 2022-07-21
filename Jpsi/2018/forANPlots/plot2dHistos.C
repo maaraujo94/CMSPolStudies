@@ -17,7 +17,7 @@ void plot2dHistos()
   c->SetLeftMargin(0.11);
   c->SetRightMargin(0.13);
 
-    // scaling Peak ratio
+  // scaling Peak ratio
   double maxR[3];
   int bin_min[] = {1,8,12};
   int bin_max[] = {7,11,17};

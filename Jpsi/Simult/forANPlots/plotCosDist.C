@@ -44,7 +44,7 @@ void plotCosDist()
     
     TLatex lcb1;
     lcb1.SetTextSize(0.04);
-    lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "Full");
+    lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "Run 2");
     lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
     lcb1.SetTextColor(cols[0]);
     lcb1.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
@@ -58,7 +58,7 @@ void plotCosDist()
     h_base1d[1][i]->Draw("error same");
 
     lcb1.SetTextColor(cols[1]);
-    lcb1.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*1.1, "NP (scaled)");
+    lcb1.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*1.1, "NP");
 
     h_base1d[2][i]->SetStats(0);
     h_base1d[2][i]->SetLineColor(cols[2]);
@@ -76,7 +76,7 @@ void plotCosDist()
     
     TLatex lcb3;
     lcb3.SetTextSize(0.04);
-    lcb3.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "Full");
+    lcb3.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "Run 2");
     lcb3.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
     lcb3.SetTextColor(cols[0]);
     lcb3.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
@@ -84,7 +84,7 @@ void plotCosDist()
     h_base1d[1][i]->Draw("error same");
 
     lcb3.SetTextColor(cols[1]);
-    lcb3.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*1.1, "NP (scaled)");
+    lcb3.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*1.1, "NP");
 
     h_base1d[2][i]->Draw("error same");
 
@@ -97,7 +97,7 @@ void plotCosDist()
     h_base1d[3][i]->Draw("error same");
 
     lcb3.SetTextColor(cols[3]);
-    lcb3.DrawLatex(0.15, h_base1d[3][i]->GetMaximum()*0.7, "J/#psi");
+    lcb3.DrawLatex(0.15, h_base1d[3][i]->GetMaximum()*0.75, "J/#psi");
 
     h_base1d[4][i]->SetStats(0);
     h_base1d[4][i]->SetLineColor(cols[4]);
@@ -105,7 +105,7 @@ void plotCosDist()
     h_base1d[4][i]->Draw("error same");
 
     lcb3.SetTextColor(cols[4]);
-    lcb3.DrawLatex(0.15, h_base1d[4][i]->GetMaximum()*1.1, "bkg (scaled)");
+    lcb3.DrawLatex(0.15, h_base1d[4][i]->GetMaximum()*1.1, "bkg");
 
     c->SaveAs(Form("plots/ratioFinal/dists/bin3B_%d.pdf", i));    
     c->Clear();

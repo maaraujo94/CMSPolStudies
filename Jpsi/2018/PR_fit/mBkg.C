@@ -167,8 +167,6 @@ void mBkg()
 	if(j < 3  && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	// fixing n, alpha, fG to MC value
 	else if((j == 5 || j == 6 || j == 9)) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-	//else if((j == 5 || j == 9)) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-
 	// setting the linear parameters sigma_1,2
 	else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	else if((j == 3 || j == 4) && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);

@@ -141,9 +141,9 @@ void mBkg()
   n_v = do_round(n_v*pow(10, nm))/pow(10, nm);
   nm = ceil(-log10(alpha_v))+3;	
   alpha_v = do_round(alpha_v*pow(10, nm))/pow(10, nm);
-  nm = ceil(-log10(fG_v))+3;	
+  nm = ceil(-log10(fG_v))+3;
   fG_v = do_round(fG_v*pow(10, nm))/pow(10, nm);
-  nm = ceil(-log10(sigG_v2))+3;	
+  nm = ceil(-log10(sigG_v2))+3;
   sigG_v2 = do_round(sigG_v2*pow(10, nm))/pow(10, nm);
   
   // define 2d function for fitting
@@ -455,30 +455,6 @@ void mBkg()
   // sigma parameters - ONLY 1 and 2
   ofstream ftex2;
   ftex2.open("text_output/mfit_resA.tex");
-  /*ftex2 << "\\begin{tabular}{cc|cc|cc||c}\n";
-  ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} & \\multicolumn{2}{|c}{$\\sigma_G$}  & \\multirow{2}{*}{$\\chi^2/$ndf}\\\\\n";
-  ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & \\\\\n";
-  ftex2 << "\\hline\n";
-
-  for(int j = 3; j < 5; j++) {
-    double val = f_cb->GetParameter(j*nPtBins)*1e5;
-    double unc = f_cb->GetParError(j*nPtBins)*1e5;
-    int p_norm = ceil(-log10(unc))+1;	
-    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-    val = f_cb->GetParameter(j*nPtBins+1)*1e3;
-    unc = f_cb->GetParError(j*nPtBins+1)*1e3;
-    p_norm = ceil(-log10(unc))+1;	
-    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
-    ftex2 << " & ";
-  }
-  for(int j = 10; j < 11; j++) {
-    double val = f_cb->GetParameter(j*nPtBins)*1e5;
-    int p_norm = ceil(-log10(val))+3;	
-    ftex2 << setprecision(p_norm) << fixed << val << " & ";
-    val = f_cb->GetParameter(j*nPtBins+1)*1e3;
-    p_norm = ceil(-log10(val))+3;	
-    ftex2 << setprecision(p_norm) << fixed << val << " & ";
-    }*/
   ftex2 << "\\begin{tabular}{cc|cc||c}\n";
   ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$}  & \\multirow{2}{*}{$\\chi^2/$ndf}\\\\\n";
   ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV)  & \\\\\n";

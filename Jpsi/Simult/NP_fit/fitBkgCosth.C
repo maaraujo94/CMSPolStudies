@@ -53,6 +53,16 @@ void fitBkgCosth()
 
     // cycle over 3 fit types
     for(int i_f = 0; i_f < 3; i_f++) {
+
+      // fitting the result of fit 1 here
+      if(i_f == 1) {
+	TGraphErrors *graph_l2 = new TGraphErrors(nBinsY, pt, par[1], ept, epar[1]);
+	TF1 *cons = new TF1("cons", "[0]", yBins[0], yBins[nBinsY]);
+	graph_l2->Fit(cons);
+
+	par[1][0] = cons->GetParameter(0);
+      }
+      
       // cycle over all pT bins
       for(int i = 0; i < nBinsY; i++) {
 
@@ -75,13 +85,15 @@ void fitBkgCosth()
 	f_fit->SetParameters(pHist[i]->GetBinContent(1)*1.1, 0.1, 0.1);
 
 	// fixing lambdas successively
-	if(i_f > 0) {
+	// done with FITS! NOT by hand
+	if(i_f == 1) { // fixing lambda_2 here
+	  f_fit->FixParameter(1, par[1][0]);
+	}
+	else if(i_f == 2) { // fixing lambda_4 here
 	  if(i_inp == 0) f_fit->FixParameter(1, 0.3);
 	  else f_fit->FixParameter(1, 0.5);
-	}
-	if(i_f == 2) {
-	  if(i_inp == 0) f_fit->FixParameter(2, 0.4);
-	  else f_fit->FixParameter(2, -0.2);
+	  if(i_inp == 0) f_fit->FixParameter(2, 0.5);
+	  else f_fit->FixParameter(2, 0.9);
 	}
 	pHist[i]->Fit("f_fit", "R");
 	for(int j = 0; j < 3; j++) {

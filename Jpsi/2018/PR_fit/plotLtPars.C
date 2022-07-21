@@ -124,7 +124,7 @@ void plotLtPars()
     fp->SetYTitle(Form("%s%s", partit[i].c_str(), par_unit[i].c_str()));
     fp->GetYaxis()->SetTitleOffset(1.5);
     fp->GetYaxis()->SetLabelOffset(0.01);
-    fp->SetTitle(Form("2018 %s", partit[i].c_str()));
+    //fp->SetTitle(Form("2018 %s", partit[i].c_str()));
 
     g_par[i]->SetMarkerStyle(20);
     g_par[i]->SetMarkerSize(.75);
@@ -134,6 +134,10 @@ void plotLtPars()
 
     g_par[i]->SetName(Form("fit_%s", parlab[i].c_str()));
     g_par[i]->Write();
+
+    if(i == 2 || i == 3) c->SaveAs(Form("plots/lifetime/parf_%s.pdf", parlab[i].c_str()));
+
+    fp->SetTitle(Form("2018 %s", partit[i].c_str()));
 
     g_par_f[i]->SetMarkerStyle(20);
     g_par_f[i]->SetMarkerSize(.75);

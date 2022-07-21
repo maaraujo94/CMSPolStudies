@@ -1,16 +1,5 @@
 // macro to take the stored histos and plot nicely
 
-int col_data(int inp) {
-  if(inp < 3) return kBlack;
-  else return inp-1;
-}
-
-int col_three(int inp) {
-  if(inp < 4) return kBlack;
-  else if(inp < 8) return kViolet;
-  else return inp-7;
-}
-
 void plot_ANdists()
 {
   // PART 1 : reading the histograms
@@ -75,7 +64,7 @@ void plot_ANdists()
     h_pT[i]->GetXaxis()->SetTitle("p_{T}(#mu#mu) (GeV)");
     h_pT[i]->GetXaxis()->SetTitleOffset(1.1);
     h_pT[i]->GetYaxis()->SetTitle("dN/dp_{T}");
-    h_pT[i]->SetTitle("");//Form("p_{T} (%s)", lbl_pt[i].c_str()));
+    h_pT[i]->SetTitle("");
     if(i == 0) h_pT[i]->Draw("histo");
     else {
       // set bins above pt_max to zero
@@ -120,7 +109,7 @@ void plot_ANdists()
     h_y[i]->GetXaxis()->SetTitle("y(#mu#mu)");
     h_y[i]->GetXaxis()->SetTitleOffset(1.1);
     h_y[i]->GetYaxis()->SetTitle("dN/dy");
-    h_y[i]->SetTitle("");//Form("y (%s)", lbl_y[i].c_str()));
+    h_y[i]->SetTitle("");
     if(i > 2) h_y[i]->SetLineStyle(kDashed);
     if(i == 0) h_y[i]->Draw("histo");
     else h_y[i]->Draw("histo same");  
@@ -148,7 +137,7 @@ void plot_ANdists()
     h_y[i]->GetXaxis()->SetTitle("y(#mu#mu)");
     h_y[i]->GetXaxis()->SetTitleOffset(1.1);
     h_y[i]->GetYaxis()->SetTitle("dN/dy");
-    h_y[i]->SetTitle("");//Form("y (%s)", lbl_y[i].c_str()));
+    h_y[i]->SetTitle("");
     if(i > 2) {
       h_y[i]->Scale(h_y[i-3]->Integral() / h_y[i]->Integral());
       h_y[i]->SetLineStyle(kDashed);
@@ -181,7 +170,7 @@ void plot_ANdists()
     h_lt[i]->GetXaxis()->SetTitle("c#tau (#mum)");
     h_lt[i]->GetXaxis()->SetTitleOffset(1.1);
     h_lt[i]->GetYaxis()->SetTitle("dN/dc#tau");
-    h_lt[i]->SetTitle("");//Form("lifetime (%s)", lbl_lt[i].c_str()));
+    h_lt[i]->SetTitle("");
     if(i == 0) h_lt[i]->Draw("histo");
     else h_lt[i]->Draw("histo same");  
   }
@@ -252,7 +241,7 @@ void plot_ANdists()
     h_lt[i]->GetXaxis()->SetTitle("c#tau (#mum)");
     h_lt[i]->GetXaxis()->SetTitleOffset(1.1);
     h_lt[i]->GetYaxis()->SetTitle("dN/dc#tau (a.u.)");
-    h_lt[i]->SetTitle("");//Form("lifetime (%s)", lbl_lt[i].c_str()));
+    h_lt[i]->SetTitle("");
     if(i == 0) h_lt[i]->Draw("histo");
     else h_lt[i]->Draw("histo same");  
   }
@@ -292,7 +281,7 @@ void plot_ANdists()
     h_m[i]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
     h_m[i]->GetXaxis()->SetTitleOffset(1.1);
     h_m[i]->GetYaxis()->SetTitle("dN/dM (normalized)");
-    h_m[i]->SetTitle("");//Form("M (%s)", lbl_y[i].c_str()));
+    h_m[i]->SetTitle("");
     if(i > 2) h_m[i]->SetLineStyle(kDashed);
   }
   
@@ -335,24 +324,6 @@ void plot_ANdists()
 
   // plot costh
   c->SetLogy(0);
-
-  /* for(int i = 0; i < 12; i++) {
-
-    h_cos[i]->SetStats(0);
-    h_cos[i]->Scale(1./h_cos[i]->Integral());
-    h_cos[i]->SetLineColor(col_three(i));
-    h_cos[i]->SetMinimum(0);
-    h_cos[i]->SetMaximum(0.09);
-    h_cos[i]->GetXaxis()->SetTitle("|cos#theta|");
-    h_cos[i]->GetXaxis()->SetTitleOffset(1.);
-    h_cos[i]->GetYaxis()->SetTitle("dN/d|cos#theta| (normalized)");
-    h_cos[i]->SetTitle(Form("cos#theta (%s)", lbl_cos[i].c_str()));
-    h_cos[i]->Draw("histo");
-    
-    c->SaveAs(Form("plots/ANdists/cos_%s.pdf", lbl_cos[i].c_str()));
-    c->Clear();
-  
-    }*/
 
   for(int i = 9; i < 12; i++) {
 

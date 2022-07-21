@@ -93,11 +93,11 @@ void plotMMseq()
     TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
     l1->SetLineColor(kBlack);
     l1->SetLineStyle(kDashed);
-    l1->Draw();
+    //l1->Draw();
     TLine *l2 = new TLine(66, parmin[i_p], 66, parmax[i_p]);
     l2->SetLineColor(kBlack);
     l2->SetLineStyle(kDashed);
-    l2->Draw();
+    //l2->Draw();
     
     c->SaveAs(Form("plots/MCMass/par_%s.pdf", parlab[i_p].c_str()));
 
@@ -157,11 +157,11 @@ void plotMMseq()
     TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
     l1->SetLineColor(kBlack);
     l1->SetLineStyle(kDashed);
-    l1->Draw();
+    //l1->Draw();
     TLine *l2 = new TLine(66, parmin[i_p], 66, parmax[i_p]);
     l2->SetLineColor(kBlack);
     l2->SetLineStyle(kDashed);
-    l2->Draw();
+    //l2->Draw();
     
     c->SaveAs(Form("plots/MCMass/par_1_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
@@ -207,11 +207,11 @@ void plotMMseq()
   TLine *l21 = new TLine(46, parmin[3], 46, parmax[3]);
   l21->SetLineColor(kBlack);
   l21->SetLineStyle(kDashed);
-  l21->Draw();
+  //l21->Draw();
   TLine *l22 = new TLine(66, parmin[3], 66, parmax[3]);
   l22->SetLineColor(kBlack);
   l22->SetLineStyle(kDashed);
-  l22->Draw();
+  //l22->Draw();
     
   c->SaveAs("plots/MCMass/par_2.pdf");
   c->Clear();
@@ -248,11 +248,11 @@ void plotMMseq()
   TLine *lna21 = new TLine(46, parmin[5], 46, parmax[6]);
   lna21->SetLineColor(kBlack);
   lna21->SetLineStyle(kDashed);
-  lna21->Draw();
+  //lna21->Draw();
   TLine *lna22 = new TLine(66, parmin[5], 66, parmax[6]);
   lna22->SetLineColor(kBlack);
   lna22->SetLineStyle(kDashed);
-  lna22->Draw();
+  //lna22->Draw();
     
   c->SaveAs("plots/MCMass/par_2_na.pdf");
   c->Clear();
@@ -285,11 +285,11 @@ void plotMMseq()
     TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
     l1->SetLineColor(kBlack);
     l1->SetLineStyle(kDashed);
-    l1->Draw();
+    //l1->Draw();
     TLine *l2 = new TLine(66, parmin[i_p], 66, parmax[i_p]);
     l2->SetLineColor(kBlack);
     l2->SetLineStyle(kDashed);
-    l2->Draw();
+    //l2->Draw();
     
     c->SaveAs(Form("plots/MCMass/par_3_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
@@ -319,11 +319,11 @@ void plotMMseq()
   TLine *l41 = new TLine(46, parmin[6], 46, parmax[6]);
   l41->SetLineColor(kBlack);
   l41->SetLineStyle(kDashed);
-  l41->Draw();
+  //l41->Draw();
   TLine *l42 = new TLine(66, parmin[6], 66, parmax[6]);
   l42->SetLineColor(kBlack);
   l42->SetLineStyle(kDashed);
-  l42->Draw();
+  //l42->Draw();
     
   c->SaveAs("plots/MCMass/par_4.pdf");
   c->Clear();

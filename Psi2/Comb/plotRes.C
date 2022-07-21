@@ -3,7 +3,7 @@
 void plotRes()
 {
   // get the histo limits
-  TFile *fIn = new TFile("../2017_new/PR_fit/files/bkgSubRes.root");
+  TFile *fIn = new TFile("../2017/PR_fit/files/bkgSubRes.root");
   TH2D* rHist;
   fIn->GetObject("h_Data", rHist);
   
@@ -13,13 +13,13 @@ void plotRes()
   // get the fit results
   // get lambda values for each bin
   string lbl[] = {"J"};
-  TFile *fInd7 = new TFile("../2017_new/PR_fit/files/finalFitRes.root");
+  TFile *fInd7 = new TFile("../2017/PR_fit/files/finalFitRes.root");
   TGraphErrors **graph_lth7 = new TGraphErrors*[4];
   for(int i_t = 0; i_t < 1; i_t++) {
     graph_lth7[i_t] = (TGraphErrors*)fInd7->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
   }    
   fInd7->Close();
-  TFile *fInd8 = new TFile("../2018_new/PR_fit/files/finalFitRes.root");
+  TFile *fInd8 = new TFile("../2018/PR_fit/files/finalFitRes.root");
   TGraphErrors **graph_lth8 = new TGraphErrors*[4];
   for(int i_t = 0; i_t < 1; i_t++) {
     graph_lth8[i_t] = (TGraphErrors*)fInd8->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
@@ -38,7 +38,9 @@ void plotRes()
     xvC[i+nC/2] = graph_lth8[0]->GetX()[i];
     yvC[i+nC/2] = graph_lth8[0]->GetY()[i];
     xeC[i+nC/2] = graph_lth8[0]->GetEX()[i];
-    yeC[i+nC/2] = graph_lth8[0]->GetEY()[i];    
+    yeC[i+nC/2] = graph_lth8[0]->GetEY()[i];
+
+    cout << i << " " << yvC[i] - yvC[i+nC/2] << " +/- " << sqrt(pow(yeC[i],2)+pow(yeC[i+nC/2],2)) << endl;
   }
   TGraphErrors *g_lth = new TGraphErrors(nC, xvC, yvC, xeC, yeC);
   
@@ -58,9 +60,14 @@ void plotRes()
   fl->SetTitle("prompt #psi(2S) #lambda_{#theta}");
 
   graph_lth7[0]->SetLineColor(kBlue);
+  graph_lth7[0]->SetMarkerSize(.25);
+  graph_lth7[0]->SetMarkerStyle(20);
+  graph_lth7[0]->SetMarkerColor(kBlue);
   graph_lth7[0]->SetMarkerColor(kBlue);
   graph_lth7[0]->Draw("p same");
   graph_lth8[0]->SetLineColor(kBlack);
+  graph_lth8[0]->SetMarkerStyle(20);
+  graph_lth8[0]->SetMarkerSize(.25);
   graph_lth8[0]->SetMarkerColor(kBlack);
   graph_lth8[0]->Draw("p same");
  
@@ -92,7 +99,7 @@ void plotRes()
 
   c->SaveAs("parF_lth.pdf");
   c->Clear();
-
+  c->Destructor();
 
   
   

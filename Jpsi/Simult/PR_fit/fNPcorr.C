@@ -47,6 +47,8 @@ void fNPcorr()
   h_fbkg1d->Scale(100.);
   h_fnpc1d->Scale(100.);
 
+  cout << h_fnp1d->GetBinError(1) << " " << h_fbkg1d->GetBinError(1) << " "<< h_fnpc1d->GetBinError(1) << endl;
+  
   h_fnp1d->SetStats(0);
   h_fnp1d->SetMinimum(0);
   h_fnp1d->SetMaximum(50);
@@ -73,6 +75,13 @@ void fNPcorr()
   h_fnpc1d->SetMarkerSize(.75);
   h_fnpc1d->Draw("error same");
 
+  TLegend *leg = new TLegend(0.7, 0.6, 0.9, 0.9);
+  leg->SetTextSize(0.04);
+  leg->AddEntry(h_fnp1d, "f_{NP}", "pl");
+  leg->AddEntry(h_fbkg1d, "f_{bkg}^{NP}", "pl");
+  leg->AddEntry(h_fnpc1d, "f_{NP}^{c}", "pl");
+  leg->Draw();
+  
   c->SaveAs("plots/f_NP_corr.pdf");
   c->Destructor();
   

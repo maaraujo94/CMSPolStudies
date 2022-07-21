@@ -326,15 +326,6 @@ void mBkg()
     zero->SetLineStyle(kDashed);
     zero->Draw();
 
-    /*    TLine **limp = new TLine*[2];
-    limp[0] = new TLine(m_min[1], -20, m_min[1], 20);
-    limp[1] = new TLine(m_max[1], -20, m_max[1], 20);
-    for(int j = 0; j < 2; j++) {
-      limp[j]->SetLineColor(kRed);
-      limp[j]->SetLineStyle(kDashed);
-      limp[j]->Draw();
-      }*/
-
     TLine *plim1 = new TLine(m_min[0], -5, m_max[2], -5);
     plim1->SetLineStyle(kDotted);
     plim1->Draw("lsame");

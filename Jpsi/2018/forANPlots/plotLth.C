@@ -39,14 +39,16 @@ void plotLth()
   graph_lth[0]->SetMarkerColor(cols[0]);
   graph_lth[0]->Draw("p same");
 
-  graph_lth[1]->SetLineColor(cols[1]);
-  graph_lth[1]->SetMarkerColor(cols[1]);
-  graph_lth[1]->Draw("p same");
-
   TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
+
+  c->SaveAs("plots/ratioFinal/lth0_2018.pdf");
+
+  graph_lth[1]->SetLineColor(cols[1]);
+  graph_lth[1]->SetMarkerColor(cols[1]);
+  graph_lth[1]->Draw("p same");
 
   TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
   leg->SetTextSize(0.03);

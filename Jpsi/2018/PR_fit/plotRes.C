@@ -78,23 +78,10 @@ void plotRes()
   graph_lth[3]->SetMarkerColor(kBlack);
   graph_lth[3]->Draw("p same");
 
-  TF1 *cons = new TF1("constant", "[0]", pTBins[0], pTBins[nBinspT]);
-  cons->SetLineColor(kBlue);
-  cons->SetLineWidth(1);
-  cons->SetParameter(0, 0.1);
-  //graph_lth[3]->Fit(cons);
-
   zero->Draw();
   trans1->Draw();
   trans2->Draw();
   
-  /*TLatex lc;
-  lc.SetTextSize(0.03);
-  lc.SetTextColor(kBlack);
-  lc.DrawLatex(70, 0.85, Form("#lambda_{#theta}^{PR} = %.3f #pm %.3f", cons->GetParameter(0), cons->GetParError(0)));
-  lc.DrawLatex(70, 0.7, Form("#chi^{2}/ndf = %.0f/%d", cons->GetChisquare(), cons->GetNDF()));
-  lc.DrawLatex(70, 0.55, Form("P(#chi^{2},ndf) = %.1f%%", 100*TMath::Prob(cons->GetChisquare(), cons->GetNDF())));*/
-
   c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
   c->Clear();
 

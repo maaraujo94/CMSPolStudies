@@ -9,6 +9,13 @@ void plotCosDist()
     infile->GetObject(Form("h_%sB", lbl[i].c_str()), h_base[i]);
     h_base[i]->SetDirectory(0);
   }
+
+  // read the RATIO histos from subtraction - normalized by f_NP/f_bkg
+  TH2D **h_rat = new TH2D*[5]; 
+  for(int i = 0; i < 5; i++) {
+    infile->GetObject(Form("h_%s", lbl[i].c_str()), h_rat[i]);
+    h_rat[i]->SetDirectory(0);
+  }
   infile->Close();
 
   // get the binning
@@ -20,6 +27,12 @@ void plotCosDist()
   for(int i_t = 0; i_t < 5; i_t++) {
     for(int i = 1; i <= nBinsY; i++) {
       h_base1d[i_t][i-1] = h_base[i_t]->ProjectionX(Form("bin%d_%d", i, i_t+1), i, i);
+    }
+  }
+  TH1D *h_rat1d[5][nBinsY];
+  for(int i_t = 0; i_t < 5; i_t++) {
+    for(int i = 1; i <= nBinsY; i++) {
+      h_rat1d[i_t][i-1] = h_rat[i_t]->ProjectionX(Form("binR%d_%d", i, i_t+1), i, i);
     }
   }
   
@@ -109,6 +122,26 @@ void plotCosDist()
 
     c->SaveAs(Form("plots/ratioFinal/dists/bin3B_%d.pdf", i));    
     c->Clear();
+
+    // just peak costh - ratio
+    h_rat1d[0][i]->SetTitle("");
+    h_rat1d[0][i]->SetStats(0);
+    h_rat1d[0][i]->SetLineColor(cols[0]);
+    h_rat1d[0][i]->SetMarkerColor(cols[0]);
+    h_rat1d[0][i]->SetMinimum(0);
+    h_rat1d[0][i]->SetMaximum(h_rat1d[0][i]->GetBinContent(1)*1.5);
+    h_rat1d[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+    h_rat1d[0][i]->Draw("error");
+    
+    TLatex lcr1;
+    lcr1.SetTextSize(0.04);
+    lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.9, "2018");
+    lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
+    lcr1.SetTextColor(cols[0]);
+    lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.8, "Peak/MC");
+    
+    c->SaveAs(Form("plots/ratioFinal/dists/bin1_%d.pdf", i));
+
   }
   c->Destructor();
 }

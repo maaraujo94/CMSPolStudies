@@ -276,9 +276,9 @@ void calcSys()
   
   c->SaveAs("lth_uncs_pos.pdf");
   c->Clear();  
-  c->Destructor();
     
   // tex table with sys uncerts per pt bin
+  double sysp[nBinspT], sysn[nBinspT];
   ofstream ftex;
   ftex.open(Form("sys_unc.tex"));
   ftex << "\\begin{tabular}{c||c|c|c|c||c|c}\n";
@@ -326,6 +326,8 @@ void calcSys()
     // full syst (sum all sources)
     double valP = sqrt(pow(val_d,2)+pow(val_l4,2)+pow(val_eff,2)+pow(val_rho,2));
     double valN = sqrt(pow(val_d,2)+pow(val_eff,2)+pow(val_rho,2));
+    sysp[i] = valP;
+    sysn[i] = valN;
     ftex << " & $^{+" << valP << "}_{-" << valN << "}$";
     ftex << " & $\\pm" << graph_lth[0]->GetEY()[i] << "$";
     ftex << "\\\\";
@@ -336,5 +338,36 @@ void calcSys()
   }
   ftex << "\\end{tabular}\n";
   ftex.close();
+
+  // plotting the lambda_theta with total (sys+stat) error
+  // sysp, sysn, graph_lth[0]->GetEY() (stat)
+  double err_tp[nBinspT], err_tn[nBinspT];
+  for(int i = 0; i < nBinspT; i++) {
+    double e_st = graph_lth[0]->GetEY()[i];
+    err_tp[i] = sqrt(pow(sysp[i], 2) + pow(e_st, 2));
+    err_tn[i] = sqrt(pow(sysn[i], 2) + pow(e_st, 2));
+
+    cout << i << " " << err_tp[i] << " " << err_tn[i] << endl;
+  }
+
+  TH1F *fl1 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
+  fl1->SetXTitle("p_{T} (GeV)");
+  fl1->SetYTitle("#lambda_{#theta}");
+  fl1->GetYaxis()->SetTitleOffset(1.3);
+  fl1->GetYaxis()->SetLabelOffset(0.01);
+  fl1->SetTitle("Run 2 #lambda_{#theta} (prompt J/#psi)");
+  
+  TGraphAsymmErrors *lth_fin = new TGraphAsymmErrors(nBinspT, graph_lth[0]->GetX(), graph_lth[0]->GetY(), graph_lth[0]->GetEX(), graph_lth[0]->GetEX(), err_tn, err_tp);
+  lth_fin->SetMarkerColor(kBlack);
+  lth_fin->SetLineColor(kBlack);
+  lth_fin->Draw("p same");
+
+  TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
+  zero->SetLineColor(kBlack);
+  zero->SetLineStyle(kDashed);
+  zero->Draw();
+
+  c->SaveAs("lth_full_unc.pdf");
+  c->Destructor();
 
 }

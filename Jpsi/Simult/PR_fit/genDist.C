@@ -83,14 +83,23 @@ void genDist()
   TCanvas *c = new TCanvas("", "", 900, 900);
   h_SB1d->SetStats(0);
   h_SB1d->SetMinimum(0);
-  h_SB1d->SetMaximum(2.75);//h_RSB1d->GetMaximum()*1.1);
+  h_SB1d->SetMaximum(2.6);//h_RSB1d->GetMaximum()*1.1);
   h_SB1d->SetLineColor(kGreen+1);
+  h_SB1d->SetMarkerStyle(20);
+  h_SB1d->SetMarkerSize(.75);
+  h_SB1d->SetMarkerColor(kGreen+1);
   h_SB1d->GetXaxis()->SetTitle("|cos#theta|");
   h_SB1d->Draw();
   
   h_LSB1d->SetLineColor(kBlack);
+  h_LSB1d->SetMarkerStyle(20);
+  h_LSB1d->SetMarkerSize(.75);
+  h_LSB1d->SetMarkerColor(kBlack);
   h_LSB1d->Draw("same");
   h_RSB1d->SetLineColor(kBlue);
+  h_RSB1d->SetMarkerStyle(20);
+  h_RSB1d->SetMarkerSize(.75);
+  h_RSB1d->SetMarkerColor(kBlue);
   h_RSB1d->Draw("same");
 
   TLegend *leg = new TLegend(0.7, 0.2, 0.9, 0.45);
