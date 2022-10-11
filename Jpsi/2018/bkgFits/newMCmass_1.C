@@ -267,7 +267,7 @@ void newMCmass_1()
     fp2->SetLineStyle(kDashed);
     fp2->Draw("lsame");
 	  
-    c->SaveAs(Form("plots/MCMass/CB_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_1/CB_pt%d.pdf", i_pt));
     c->Clear();
 	  
     // calculating pulls
@@ -306,7 +306,7 @@ void newMCmass_1()
     zero->SetLineStyle(kDashed);
     zero->Draw();
 	  
-    c->SaveAs(Form("plots/MCMass/pulls_pt%d_dep.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_1/pulls_pt%d_dep.pdf", i_pt));
     c->Clear();
 
     // clean up parameters for plotting

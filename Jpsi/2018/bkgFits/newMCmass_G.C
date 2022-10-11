@@ -294,11 +294,13 @@ void newMCmass_G()
     fp3->SetLineStyle(kDashed);
     fp3->Draw("lsame");
 	  
-    c->SaveAs(Form("plots/MCMass/CBG_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_G/CBG_pt%d.pdf", i_pt));
     c->Clear();
 	  
     // calculating pulls
     double mv[mbins], pv[mbins];
+    // aux for getting chi2 cont per bin
+    double chit = 0;
     for(int i_m = 0 ; i_m < mbins; i_m++) {
       mv[i_m] = h_m1d[i_pt]->GetBinCenter(i_m+1);
       double fitv = f_1d->Eval(mv[i_m]);
@@ -309,7 +311,9 @@ void newMCmass_G()
       }
       else
 	pv[i_m] = 0;
+      chit += pv[i_m]*pv[i_m];
     }
+    cout << i_pt << " " << chit << endl;
 	  
     c->SetLogy(0);
 
@@ -348,7 +352,7 @@ void newMCmass_G()
     plim4->Draw("lsame");
 
 	  
-    c->SaveAs(Form("plots/MCMass/pullsG_pt%d_dep.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_G/pullsG_pt%d_dep.pdf", i_pt));
     c->Clear();
 
     // clean up parameters for plotting

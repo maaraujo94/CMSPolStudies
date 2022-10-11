@@ -49,6 +49,27 @@ void plotLth()
     if(binsX[i] > 66 && binsX[i-1] < 66) cut_val = i;
   }
 
+  // get array that is just deltas with new unc
+  double delta_v[nBinspT], delta_u[nBinspT];
+  for(int i = 0; i < nBinspT; i++) {
+    if (i < cut_val) {
+      //delta_v[i] = abs(g_lthD1->GetY()[i]);
+      delta_v[i] = g_lthD1->GetY()[i];
+      double unc1 = graph_lth[0]->GetEY()[i];
+      double unc2 = graph_lthBase->GetEY()[i];
+      delta_u[i] = sqrt(abs(pow(unc1,2)-pow(unc2,2)));
+      g_lthD1->GetEY()[i] = delta_u[i];
+    }
+    else {
+      //delta_v[i] = abs(g_lthD2->GetY()[i]);
+      delta_v[i] = g_lthD2->GetY()[i];
+      double unc1 = graph_lth[1]->GetEY()[i];
+      double unc2 = graph_lthBase->GetEY()[i];
+      delta_u[i] = sqrt(abs(pow(unc1,2)-pow(unc2,2)));
+      g_lthD2->GetEY()[i] = delta_u[i];
+    }
+  }
+
   for(int i = cut_val; i < nBinspT; i++)
     g_lthD1->RemovePoint(cut_val);
   for(int i = 0; i < cut_val; i++)
@@ -65,6 +86,13 @@ void plotLth()
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
   fl2->SetTitle("Run 2 #delta#lambda_{#theta} (prompt J/#psi)");
+
+  TGraphErrors *g_lthDB = new TGraphErrors(nBinspT, graph_lthBase->GetX(), delta_v, graph_lthBase->GetEX(), delta_u);
+  g_lthDB->SetLineColor(kBlack);
+  g_lthDB->SetMarkerColor(kBlack);
+  g_lthDB->SetMarkerStyle(20);
+  g_lthDB->SetMarkerSize(.5);
+  //g_lthDB->Draw("p same");
   
   g_lthD1->SetLineColor(kBlue);
   g_lthD1->SetMarkerColor(kBlue);
@@ -91,6 +119,12 @@ void plotLth()
   trans2D->SetLineStyle(kDashed);
   trans2D->Draw();
 
+  TF1 *f1 = new TF1("f1", "[0]", 25, 120);
+  f1->SetParameter(0, -0.1);
+  g_lthDB->Fit(f1, "R");
+  f1->SetLineColor(kBlack);
+  //f1->Draw("lsame");
+  
   TLegend *leg = new TLegend(0.65, 0.15, 0.9, 0.3);
   leg->SetTextSize(0.03);
   leg->AddEntry(g_lthD1, "#DeltaR > 0.17", "pl");

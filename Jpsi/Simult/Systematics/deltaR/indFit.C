@@ -14,7 +14,7 @@ double cminf(double pt, double a, double b, double c, double d)
 void indFit()
 {
   string loc = "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi";
-  
+
   // read the three coarse histos
   TFile *infile = new TFile("files/chistStore.root");
   TH2D **h_fit = new TH2D*[3];
@@ -107,12 +107,21 @@ void indFit()
       // get max costheta
       cosMax->SetParameters(maxPar[i_t][0], maxPar[i_t][1], maxPar[i_t][2]);
       cMaxVal[i_t] = jumpF(cosMax->Eval(pMin));
+
       if(i_t>0) {
 	cosMin->SetParameters(minPar[i_t][0], minPar[i_t][1], minPar[i_t][2], minPar[i_t][3]);
 	cMinVal[i_t] = jumpF(cosMin->Eval(pMax));
       }
-      else cMinVal[i_t] = 0;
-
+      else {
+	if(pt[i] < 66) {
+	  cosMin->SetParameters(minPar[2][0], minPar[2][1], minPar[2][2], minPar[2][3]);
+	  cMinVal[i_t] = jumpF(cosMin->Eval(pMax));
+	}
+	else 
+	  
+	  cMinVal[i_t] = 0;
+      }
+	
       fit1d[i_t]->SetRange(cMinVal[i_t], cMaxVal[i_t]);
       fit1d[i_t]->SetParameters(pHist[i_t][i]->GetBinContent(1)*1.1, 0.1);
 
@@ -169,6 +178,7 @@ void indFit()
       c_lim_Min->SetLineStyle(kDashed);
       c_lim_Min->SetLineColor(col[i_t]);
       c_lim_Min->Draw();
+      cout << endl << i_t << " " << cMinVal[i_t] << " " << cMaxVal[i_t] << endl;
     }
     cout << endl << endl << cMinVal[2] << endl << endl;
     
