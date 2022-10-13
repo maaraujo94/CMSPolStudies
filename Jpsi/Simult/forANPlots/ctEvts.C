@@ -1,7 +1,7 @@
 void ctEvts()
 {
-  double pt_min[] = {25, 46, 66};
-  double pt_max[] = {46, 66, 120};
+  double pt_min[] = {25,   47.5, 70};
+  double pt_max[] = {47.5, 70,   120};
   
   double m_min[] = {2.92, 3.0, 3.21};
   double m_max[] = {2.95, 3.2, 3.28};

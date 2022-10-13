@@ -106,7 +106,7 @@ void indFit()
     pHist[2][i]->SetLineColor(kGreen);
     pHist[2][i]->SetMarkerColor(kGreen);
     pHist[2][i]->Draw("same");
-    
+
     TLatex lc;
     lc.SetTextSize(0.03);
     lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{NP} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));

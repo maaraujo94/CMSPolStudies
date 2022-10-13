@@ -36,18 +36,14 @@ root -l -b -q bkgSave.C
 
 echo "fitting lifetime, mass distributions\n"
 
+root -l -b -q ltBkg2d.C
+root -l -b -q plotLPars2d.C
 root -l -b -q ltBkg.C
 root -l -b -q mBkg.C
 
-echo "fitting mass bkg costh dists\n"
+echo "getting mass bkg dists in reg binning\n"
 
 root -l -b -q bkgCosth.C
-root -l -b -q fitBkgCosth.C
-root -l -b -q fitBkgCosth2d.C
-root -l -b -q plotCosPars_both.C
-
-echo "getting mass bkg fitted dists in reg binning\n"
-
 root -l -b -q getfL.C
 root -l -b -q genDist.C
 
@@ -63,9 +59,6 @@ cd ../NP_fit
 root -l -b -q bkgSave.C
 root -l -b -q mBkg.C
 root -l -b -q bkgCosth.C
-root -l -b -q fitBkgCosth.C
-root -l -b -q fitBkgCosth2d.C
-root -l -b -q plotCosPars_both.C
 root -l -b -q getfL.C
 root -l -b -q genDist.C
 root -l -b -q fbkgProp.C

@@ -23,18 +23,13 @@ void fNPcorr()
   for(int i_x = 0; i_x < nBinsX; i_x++) {
     for(int i_y = 0; i_y < nBinsY; i_y++) {
       h_fc->SetBinContent(i_x+1, i_y+1, 1.-h_fbkg->GetBinContent(i_x+1, i_y+1));
-      //h_fc->SetBinError(i_x+1, i_y+1, h_fbkg->GetBinError(i_x+1, i_y+1));
       h_fc->SetBinError(i_x+1, i_y+1, 0);
     }
   }
 
   // get corrected f_NP
   TH2D *h_fNPc = (TH2D*)h_fnp->Clone("h_fNPc");
-  //for(int i = 0; i < nBinsY; i++) cout << h_fNPc->GetBinError(1, i+1) << " ";
-  //cout << endl;
   h_fNPc->Multiply(h_fc);
-  //for(int i = 0; i < nBinsY; i++) cout << h_fNPc->GetBinError(1, i+1) << " ";
-  //cout << endl;
 
   // plot the comparison
   TCanvas *c = new TCanvas("", "", 900, 900);

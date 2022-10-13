@@ -42,7 +42,15 @@ void plotRes()
     exhB[i] = graph_lthBase->GetEX()[i]-0.5;
   }
   TGraphAsymmErrors *graph_lthB = new TGraphAsymmErrors(nB, xB, graph_lthBase->GetY(), exlB, exhB, graph_lthBase->GetEY(), graph_lthBase->GetEY());
-  
+
+  // get the difference between models
+  double val[nBinspT];
+  for(int i = 0; i < nBinspT; i++) { 
+    val[i] = graph_lth[3]->GetY()[i] - graph_lthBase->GetY()[i];
+  }
+  TGraphErrors *g_lthD = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val, graph_lthBase->GetEX(), graph_lthBase->GetEY());
+
+
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
 
@@ -54,6 +62,17 @@ void plotRes()
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("Run 2 #lambda_{#theta}");
 
+  // remove 45-47.5 bin in all lth plots
+  int i_cut = 0;
+  for(int ip= 0; ip < nBinspT; ip++) {
+    if(pTBins[ip] < 46 && pTBins[ip+1] > 46)
+      i_cut = ip;
+  }
+  for(int i = 0; i < 4; i++)
+    graph_lth[i]->RemovePoint(i_cut);
+  graph_lthBase->RemovePoint(i_cut);
+  g_lthD->RemovePoint(i_cut);
+  
   int col[] = {kViolet, kRed, kBlack, kBlue};
   for(int i = 0; i < 4; i++) {
     graph_lth[i]->SetLineColor(col[i]);
@@ -86,12 +105,6 @@ void plotRes()
   c->Clear();
 
   // draw just final lambda_th(pT) - comp btw std, alt
-  double val[nBinspT];
-  for(int i = 0; i < nBinspT; i++) { 
-    val[i] = graph_lth[3]->GetY()[i] - graph_lthBase->GetY()[i];
-  }
-  TGraphErrors *g_lthD = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val, graph_lthBase->GetEX(), graph_lthBase->GetEY());
-
   double d_lim = 0.2;
   
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);

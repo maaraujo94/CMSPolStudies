@@ -120,4 +120,6 @@ void getCos()
   outfile << setprecision(0) << fixed <<  fitf->GetChisquare() << "/" << fitf->GetNDF() << endl;
   outfile << "\\end{tabular}\n";
   outfile.close();
+
+  can->Destructor();  
 }

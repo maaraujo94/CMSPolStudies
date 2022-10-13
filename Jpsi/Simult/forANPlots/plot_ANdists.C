@@ -64,7 +64,7 @@ void plot_ANdists()
   c->SetLogy();
   c->SetLeftMargin(0.11);
   int colpt[] = {kBlack, kRed+1, kGreen+3, kBlue};
-  double ptlim[] = {46, 66, 300};
+  double ptlim[] = {25, 47.5, 70, 300};
 
   for(int i = 0; i < 4; i++) {
 
@@ -78,13 +78,17 @@ void plot_ANdists()
     h_pT[i]->SetTitle(Form("p_{T} (%s)", lbl_pt[i].c_str()));
     if(i == 0) h_pT[i]->Draw("histo");
     else {
-      // set bins above pt_max to zero
-      int nb = h_pT[i]->GetNbinsX();
+      // set bins above pt_max and below pt_min to zero
+      /*     int nb = h_pT[i]->GetNbinsX();
       for(int ib = 0; ib < nb; ib++) {
 	double pt = h_pT[i]->GetXaxis()->GetBinUpEdge(ib+1);
-	if (pt > ptlim[i-1])
+	if (pt > ptlim[i])
 	  h_pT[i]->SetBinContent(ib+1, 0);
-      }
+	// added here
+	pt = h_pT[i]->GetXaxis()->GetBinLowEdge(ib+1);
+	if (pt < ptlim[i-1])
+	  h_pT[i]->SetBinContent(ib+1, 0);
+	  }*/
     
     h_pT[i]->Draw("histo same");
     }
@@ -424,6 +428,7 @@ void plot_ANdists()
 
   c->SaveAs(Form("plots/ANdists/cos_full.pdf"));
   c->Clear();
+  c->Destructor();
 
   fin->Close();
 }

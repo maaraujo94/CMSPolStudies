@@ -24,7 +24,7 @@ void plotLtPars()
   // read the fit results
   ifstream ifile;
   string data;
-  int pt_bins = 17;
+  int pt_bins = 19;
   double pt_min[pt_bins], pt_max[pt_bins], pt_avg[pt_bins], pt_err[pt_bins];
   double par[7][pt_bins], epar[7][pt_bins];
   double par_f[7][pt_bins], epar_f[7][pt_bins];

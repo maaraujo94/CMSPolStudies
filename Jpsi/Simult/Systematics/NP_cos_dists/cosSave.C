@@ -1,13 +1,13 @@
 void cosSave()
 {
   // prepare binning and histograms for plots
-  const int nPtBins = 7;
-  double ptBins[nPtBins+1];
-  for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
-  for(int i=0; i<4; i++) ptBins[i+3] = 46.+10.*i;
-  ptBins[7] = 120;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
-  cout << endl;
+    const int nPtBins = 9;
+    double ptBins[nPtBins+1];
+    for(int i=0; i<5; i++) ptBins[i] = 5.*i+25.;
+    for(int i=0; i<4; i++) ptBins[i+5] = 50+10.*i;
+    ptBins[9] = 120;
+    for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
+    cout << endl;
 
   // histograms for data (peak and NP) and MC
   TH2D *NP1Hist_ab = new TH2D("NP1H_ab", "Full Data (NP 1)", 20, 0, 1., nPtBins, ptBins);
@@ -62,7 +62,7 @@ void cosSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > ptBins[0] && mc_pt < 47.5 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
@@ -76,7 +76,7 @@ void cosSave()
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 47.5 && mc_pt < 70 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
@@ -90,7 +90,7 @@ void cosSave()
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }

@@ -1,10 +1,5 @@
 // macro to generate the sideband costh dists in the final binning, with unc
 
-// the SB/MC model function
-double fit_model(double x, double l2, double l4) {
-  return 1 + l2 * pow(x,2) + l4 * pow(x,4);
-}
-
 void genDist()
 {
   // get binning from the stored data histos
@@ -24,85 +19,79 @@ void genDist()
   TFile *infL = new TFile("files/store_fL.root");
   double fL = ((TGraphErrors*)infL->Get("g_fL"))->GetY()[0];
   infL->Close();
-  // get LSB lambda2, lambda4
-  TFile *inLSB = new TFile("files/LSB2d_fitres.root");
-  int nPtBins = ((TGraphErrors*)inLSB->Get("fit_l2"))->GetN();
-  double L_l2 = ((TGraphErrors*)inLSB->Get("fit_l2"))->GetY()[0];
-  double L_l4 = ((TGraphErrors*)inLSB->Get("fit_l4"))->GetY()[0];
-  double L_el2 = ((TGraphErrors*)inLSB->Get("fit_l2"))->GetEY()[0];
-  double L_el4 = ((TGraphErrors*)inLSB->Get("fit_l4"))->GetEY()[0];
-  double L_cov = ((TFitResult*)inLSB->Get("fitres"))->GetCovarianceMatrix()[nPtBins][nPtBins+1];
-  inLSB->Close();
-  // get RSB lambda2, lambda4
-  TFile *inRSB = new TFile("files/RSB2d_fitres.root");
-  double R_l2 = ((TGraphErrors*)inRSB->Get("fit_l2"))->GetY()[0];
-  double R_l4 = ((TGraphErrors*)inRSB->Get("fit_l4"))->GetY()[0];
-  double R_el2 = ((TGraphErrors*)inRSB->Get("fit_l2"))->GetEY()[0];
-  double R_el4 = ((TGraphErrors*)inRSB->Get("fit_l4"))->GetEY()[0];
-  double R_cov = ((TFitResult*)inRSB->Get("fitres"))->GetCovarianceMatrix()[nPtBins][nPtBins+1];
-  inRSB->Close();
+  // get LSB and RSB histograms
+  TFile *inSB = new TFile("files/bkgHist.root");
+  TH2D *h_LSB = (TH2D*)inSB->Get("dataH0_ab");
+  TH2D *h_RSB = (TH2D*)inSB->Get("dataH1_ab");
+  h_LSB->SetDirectory(0);
+  h_RSB->SetDirectory(0);
+  inSB->Close();
 
-  // create the histograms - SB
-  TH2D *h_LSB = new TH2D(Form("h_LSB"), "Run 2 LSB/MC", nBinsX, minX, maxX, nBinsY, yBins);
-  TH2D *h_RSB = new TH2D(Form("h_RSB"), "Run 2 RSB/MC", nBinsX, minX, maxX, nBinsY, yBins);
-
-  // determine the uncertainty band at each pT and cost value
-  double ln = 10000;
+  // get the 1d sb histos and scale to nr events
+  TH1D **h_LSB1d = new TH1D*[nBinsY];
+  TH1D **h_RSB1d = new TH1D*[nBinsY];
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
-    for(int i_c = 0; i_c < nBinsX; i_c++) {
-      double cost = minX + (i_c+0.5) * dX;
-      // LSB calculations
-      h_LSB->SetBinContent(i_c+1, i_pt+1, fit_model(cost, L_l2, L_l4));
-      double d2 = (fit_model(cost, L_l2 + L_el2/ln, L_l4) - fit_model(cost, L_l2, L_l4))/(L_el2/ln);
-      double d4 = (fit_model(cost, L_l2, L_l4 + L_el4/ln) - fit_model(cost, L_l2, L_l4))/(L_el4/ln);
-      h_LSB->SetBinError(i_c+1, i_pt+1, sqrt( pow(d2 * L_el2, 2) + pow(d4 * L_el4, 2) + 2*d2*d4*L_cov ));
-
-      // RSB calculations
-      h_RSB->SetBinContent(i_c+1, i_pt+1, fit_model(cost, R_l2, R_l4));
-      d2 = (fit_model(cost, R_l2 + R_el2/ln, R_l4) - fit_model(cost, R_l2, R_l4))/(R_el2/ln);
-      d4 = (fit_model(cost, R_l2, R_l4 + R_el4/ln) - fit_model(cost, R_l2, R_l4))/(R_el4/ln);
-      h_RSB->SetBinError(i_c+1, i_pt+1, sqrt( pow(d2 * R_el2, 2) + pow(d4 * R_el4, 2) + 2*d2*d4*R_cov ));
-    }
+    h_LSB1d[i_pt] = h_LSB->ProjectionX(Form("h_LSB_%d", i_pt), i_pt+1, i_pt+1);
+    h_LSB1d[i_pt]->Scale(1./h_LSB1d[i_pt]->GetEntries());
+    h_RSB1d[i_pt] = h_RSB->ProjectionX(Form("h_RSB_%d", i_pt), i_pt+1, i_pt+1);
+    h_RSB1d[i_pt]->Scale(1./h_RSB1d[i_pt]->GetEntries());
   }
 
-  // define the final bkg/MC dist as the weighted sum using fL
-  TH2D *h_SB = new TH2D(Form("h_SB"), "Run 2 NP bkg/MC", nBinsX, minX, maxX, nBinsY, yBins);
-  h_SB->Add(h_LSB, h_RSB, fL, 1.-fL);
+  // get the sideband histos by summing with proportion fL
+  TH1D **h_SB = new TH1D*[nBinsY];
+  for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
+    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("Run 2 SB cos#theta (%.0f < p_{T} < %.0f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
+    
+    h_SB[i_pt]->Sumw2();
+    h_SB[i_pt]->Add(h_LSB1d[i_pt], h_RSB1d[i_pt], fL, 1.-fL);
+  }
 
   cout << "all SB histos filled" << endl;
   
   TFile *fout = new TFile("files/bkgCosModel.root", "recreate");
-  h_SB->Write();
+  for(int i = 0; i < nBinsY; i++) {
+    h_SB[i]->Write();
+  }
   fout->Close();
 
-  // plot the 1d projection of the result (there's no pT dependence)
-  TH1D *h_LSB1d = h_LSB->ProjectionX("h_LSB_1d", 1, 1);
-  TH1D *h_RSB1d = h_RSB->ProjectionX("h_RSB_1d", 1, 1);
-  TH1D *h_SB1d = h_SB->ProjectionX("h_SB_1d", 1, 1);
-  
   TCanvas *c = new TCanvas("", "", 900, 900);
-  h_SB1d->SetStats(0);
-  h_SB1d->SetMinimum(0);
-  h_SB1d->SetMaximum(1.7);//h_LSB1d->GetMaximum()*1.1);
-  h_SB1d->SetLineColor(kGreen+1);
-  h_SB1d->GetXaxis()->SetTitle("|cos#theta|");
-  h_SB1d->Draw();
-  
-  h_LSB1d->SetLineColor(kBlack);
-  h_LSB1d->Draw("same");
-  h_RSB1d->SetLineColor(kBlue);
-  h_RSB1d->Draw("same");
 
-  TLegend *leg = new TLegend(0.7, 0.2, 0.9, 0.45);
+  h_SB[0]->SetStats(0);
+  h_SB[0]->SetLineColor(kGreen+1);
+  h_SB[0]->SetMinimum(0);
+  h_SB[0]->GetXaxis()->SetTitle("#phi");
+  h_SB[0]->Draw();
+  
+  h_LSB1d[0]->SetLineColor(kBlack);
+  h_LSB1d[0]->Draw("same");
+  h_RSB1d[0]->SetLineColor(kBlue);
+  h_RSB1d[0]->Draw("same");
+
+  TLegend *leg = new TLegend(0.7, 0.65, 0.9, 0.9);
   leg->SetTextSize(0.03);
-  leg->AddEntry(h_SB1d, "SR", "l");
-  leg->AddEntry(h_LSB1d, "LSB", "l");
-  leg->AddEntry(h_RSB1d, "RSB", "l");
+  leg->AddEntry(h_SB[0], "SR", "l");
+  leg->AddEntry(h_LSB1d[0], "LSB", "l");
+  leg->AddEntry(h_RSB1d[0], "RSB", "l");
   leg->Draw();
 
-  c->SaveAs("plots/SB_base.pdf");
+  c->SaveAs("plots/SB_base_full_0.pdf");
+  c->Clear();
+
+  h_SB[17]->SetStats(0);
+  h_SB[17]->SetLineColor(kGreen+1);
+  h_SB[17]->SetMinimum(0);
+  h_SB[17]->GetXaxis()->SetTitle("cos#theta");
+  h_SB[17]->Draw();
+  
+  h_LSB1d[17]->SetLineColor(kBlack);
+  h_LSB1d[17]->Draw("same");
+  h_RSB1d[17]->SetLineColor(kBlue);
+  h_RSB1d[17]->Draw("same");
+
+  leg->Draw();
+
+  c->SaveAs("plots/SB_base_full_17.pdf");
   c->Clear();
   c->Destructor();
-
 
 }

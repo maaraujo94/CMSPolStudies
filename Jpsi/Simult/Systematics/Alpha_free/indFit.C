@@ -84,7 +84,7 @@ void indFit()
     }
 
     // plotting everything
-    pHist[0][i]->SetTitle(Form("Signal extraction (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
+    pHist[0][i]->SetTitle(Form("Signal extraction (%.1f < p_{T} < %.1f GeV)", pMin, pMax));
     pHist[0][i]->SetStats(0);
     pHist[0][i]->SetLineColor(kViolet);
     pHist[0][i]->SetMarkerColor(kViolet);

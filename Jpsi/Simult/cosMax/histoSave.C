@@ -9,6 +9,9 @@ void histoSave()
   for(int i = 0; i < 15; i++) ptBins[i] = 25+i;
   for(int i = 0; i < 30; i++) ptBins[i+15] = 40 + 2.*i;
   for(int i = 0; i < 5; i++) ptBins[i+45] = 100+5.*i;
+  // new limits for the MC
+  ptBins[18] = 45;
+  ptBins[19] = 47.5;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -57,7 +60,7 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > ptBins[0] && mc_pt < 47.5 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
@@ -70,7 +73,7 @@ void histoSave()
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 47.5 && mc_pt < 70 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
       }
     }
@@ -83,7 +86,7 @@ void histoSave()
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }

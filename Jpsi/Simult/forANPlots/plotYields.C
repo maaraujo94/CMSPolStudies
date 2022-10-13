@@ -1,11 +1,11 @@
 // plot the pT dists of peak, NP and SB data
 void plotYields()
 {
-  const int nPtBins = 7;
+  const int nPtBins = 9;
   double ptBins[nPtBins+1];
-  for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
-  for(int i=0; i<4; i++) ptBins[i+3] = 46.+10.*i;
-  ptBins[7] = 120;
+  for(int i=0; i<5; i++) ptBins[i] = 5.*i+25.;
+  for(int i=0; i<4; i++) ptBins[i+5] = 50+10.*i;
+  ptBins[9] = 120;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 

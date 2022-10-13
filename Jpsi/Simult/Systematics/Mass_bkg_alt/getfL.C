@@ -9,21 +9,7 @@ int do_round(double val)
 
 void getfL()
 {
-  // get the binning
-  TH2D *h_pr = new TH2D();
-  TFile *inPR = new TFile("../../PR_fit/files/bkgHist.root");
-  inPR->GetObject("ratioH0_ab", h_pr);
-  h_pr->SetDirectory(0);
-
-  int nBinsX = h_pr->GetNbinsX(), nBinsY = h_pr->GetNbinsY();
-  const double *yBins = h_pr->GetYaxis()->GetXbins()->GetArray();
-  double minX = h_pr->GetXaxis()->GetBinLowEdge(1);
-  double maxX = h_pr->GetXaxis()->GetBinUpEdge(nBinsX);
-  double dX = (maxX-minX)/(double)nBinsX;
-
-  inPR->Close();
-
-  // now get the mass background fit function
+  // get the mass background fit function
   TF1 *fMass = new TF1("fMass", "1.-x*[0]", 2.9, 3.3);
   // define same function as above but *m
   TF1 *mMass = new TF1("mMass", "(1.-x*[0])*x", 2.9, 3.3);
@@ -31,13 +17,17 @@ void getfL()
   TFile *inFMass = new TFile("files/mfit.root");
   TGraphErrors *m_ld = (TGraphErrors*)inFMass->Get("fit_m_bkg");
   inFMass->Close();
+
+  // get the binning
+  int nBinsY = m_ld->GetN();
+  const double *yBins = m_ld->GetX();
   
   // this part is done for every pT bin
   double avg_LSB[nBinsY], avg_RSB[nBinsY], fL[nBinsY];
   double pt_v[nBinsY], pt_e[nBinsY], zeros[nBinsY];
   for(int i = 0; i < nBinsY; i++) {
-    pt_v[i] = 0.5*(yBins[i+1]+yBins[i]);
-    pt_e[i] = 0.5*(yBins[i+1]-yBins[i]);
+    pt_v[i] = yBins[i];
+    pt_e[i] = m_ld->GetEX()[i];
     zeros[i] = 1e-4;
     
     // set the parameters of the binned functions

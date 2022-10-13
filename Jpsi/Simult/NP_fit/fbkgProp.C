@@ -39,14 +39,16 @@ void fbkgProp()
   ptBins[n_pt] = g_par[0]->GetX()[n_pt-1]+g_par[0]->GetEX()[n_pt-1];
   
   // prepare mass histograms
-  TH1D **h_d1d = new TH1D*[n_pt];
+TH1D **h_d1d = new TH1D*[n_pt];
+  TH2D *h_d2d = new TH2D();
   TFile *fin = new TFile("files/mStore.root");
-  for(int ip = 0; ip < n_pt; ip++) {
-    fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
-    h_d1d[ip]->SetDirectory(0);
-  }
+  fin->GetObject("mH", h_d2d);
+  h_d2d->SetDirectory(0);
   fin->Close();
-
+  for(int ip = 0; ip < n_pt; ip++) {
+    h_d1d[ip] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[ip]), ip+1, ip+1);
+  }
+  
   // fbkg = integral / evt_all (in signal region)
   TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{bkg}^{NP}", n_pt, ptBins);
   double ln = 10000;
@@ -162,7 +164,7 @@ void fbkgProp()
   h_fbkgpt->SetStats(0);
   h_fbkgpt->SetFillColorAlpha(kBlue, 0.5);
   h_fbkgpt->Draw("e3");
-  f_fit1->Draw("same");
+  //f_fit1->Draw("same");
   h_fbkg->Draw("e0 same");
   
   c->SaveAs("plots/fBG_band.pdf");

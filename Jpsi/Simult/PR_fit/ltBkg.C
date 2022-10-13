@@ -14,13 +14,18 @@ int do_round(double val)
 void ltBkg()
 {
   // prepare binning and histograms for plots
-  const int nPtBins = 17;
+  TH2D *h_d2d = new TH2D();  
+  TFile *fin = new TFile("files/ltStore.root");
+  fin->GetObject("ltH", h_d2d);
+  h_d2d->SetDirectory(0);
+  fin->Close();
+
+  int nPtBins = h_d2d->GetNbinsY();
   double ptBins[nPtBins+1];
-  for(int i = 0; i < 7; i++) ptBins[i] = 25 + 3.*i;
-  for(int i = 0; i < 6; i++) ptBins[i+7] = 46 + 5.*i;
-  for(int i = 0; i < 3; i++) ptBins[i+13] = 76 + 8.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 100 + 20.*i;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
+  for(int i = 0; i <= nPtBins; i++) {
+    ptBins[i] = h_d2d->GetYaxis()->GetXbins()->GetArray()[i];
+    cout << ptBins[i] << ",";
+  }
   cout << endl;
 
   // prepare output tables
@@ -41,7 +46,7 @@ void ltBkg()
 
   // run first fits - all params free
   for(int i = 0; i < nPtBins; i++) {
-    ltPerPt(ptBins[i], ptBins[i+1]);
+    ltPerPt(ptBins[i], ptBins[i+1], i);
     cout << endl;
   }
 
@@ -81,7 +86,7 @@ void ltBkg()
   
   // run lifetime fit with mu fixed to above value
   for(int i = 0; i < nPtBins; i++) {
-    ltPerPt_muFix(ptBins[i], ptBins[i+1], mu_avg);
+    ltPerPt_muFix(ptBins[i], ptBins[i+1], i, mu_avg);
     cout << endl;
   }
 
@@ -117,7 +122,7 @@ void ltBkg()
   fout->Close();
   
   for(int i = 0; i < nPtBins; i++) {
-    ltPerPt_bFix(ptBins[i], ptBins[i+1], mu_avg, f_avg);
+    ltPerPt_bFix(ptBins[i], ptBins[i+1], i, mu_avg, f_avg);
     cout << endl;
   }
   plotLtPars();

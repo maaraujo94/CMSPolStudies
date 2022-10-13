@@ -12,7 +12,7 @@ void plotDMPars()
   string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "#lambda (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
   double parmin[] = {0,    1e1, 3090, 0,   32, 1.0, 2.0,  3e0, 0, 0.,  0,   0};
-  double parmax[] = {100., 2e4, 3100, 100, 46, 1.4, 2.25, 5e3, 200, 15., 100, 100};
+  double parmax[] = {100., 2e4, 3100, 100, 46, 1.4, 2.25, 5e3, 20, 15., 100, 100};
  
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];

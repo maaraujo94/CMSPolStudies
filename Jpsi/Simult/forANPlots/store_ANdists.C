@@ -86,11 +86,11 @@ void store_ANdists()
 
       // fill the y histo
       if(data_m > 3.0 && data_m < 3.2 && abs(data_lt) < 0.005) {
-	if(data_pt > 25 && data_pt < 46) 
+	if(data_pt > 25 && data_pt < 47.5) 
 	  h_y[0]->Fill(data_y);
-	else if(data_pt > 46 && data_pt < 66) 
+	else if(data_pt > 47.5 && data_pt < 70) 
 	  h_y[1]->Fill(data_y);
-	else if(data_pt > 66 && data_pt < 120) 
+	else if(data_pt > 70 && data_pt < 120) 
 	  h_y[2]->Fill(data_y);
       }
       
@@ -98,21 +98,21 @@ void store_ANdists()
       if(abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
 	if(data_pt > 25 && data_pt < 120)
 	  h_m[6]->Fill(data_m);
-	if(data_pt > 25 && data_pt < 46) 
+	if(data_pt > 25 && data_pt < 47.5) 
 	  h_m[0]->Fill(data_m);
-	else if(data_pt > 46 && data_pt < 66) 
+	else if(data_pt > 47.5 && data_pt < 70) 
 	  h_m[1]->Fill(data_m);
-	else if(data_pt > 66 && data_pt < 120) 
+	else if(data_pt > 70 && data_pt < 120) 
 	  h_m[2]->Fill(data_m);
       }
       
       // fill the lt histo - in MICRON
       if(data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2) {
-	if(data_pt > 25 && data_pt < 46) 
+	if(data_pt > 25 && data_pt < 47.5) 
 	  h_lt[0]->Fill(data_lt*1e4);
-	else if(data_pt > 46 && data_pt < 66) 
+	else if(data_pt > 47.5 && data_pt < 70) 
 	  h_lt[1]->Fill(data_lt*1e4);
-	else if(data_pt > 66 && data_pt < 120) 
+	else if(data_pt > 70 && data_pt < 120) 
 	  h_lt[2]->Fill(data_lt*1e4);
 	if(data_pt > 25 && data_pt < 120) 
 	  h_lt[3]->Fill(data_lt*1e4);
@@ -120,22 +120,22 @@ void store_ANdists()
 
       // fill the costh histo - PRSR
       if(data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2 && abs(data_lt) < 0.005) {
-	if(data_pt > 25 && data_pt < 46) 
+	if(data_pt > 25 && data_pt < 47.5) 
 	  h_cos[0]->Fill(abs(cos(data_th)));
-	else if(data_pt > 46 && data_pt < 66) 
+	else if(data_pt > 47.5 && data_pt < 70) 
 	  h_cos[1]->Fill(abs(cos(data_th)));
-	else if(data_pt > 66 && data_pt < 120) 
+	else if(data_pt > 70 && data_pt < 120) 
 	  h_cos[2]->Fill(abs(cos(data_th)));
 	if(data_pt > 25 && data_pt < 120) 
 	  h_cos[3]->Fill(abs(cos(data_th)));
       }
       // fill the costh histo - NPSR
       if(data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2 && data_lt > 0.01 && data_lt < 0.05) {
-	if(data_pt > 25 && data_pt < 46) 
+	if(data_pt > 25 && data_pt < 47.5) 
 	  h_cos[4]->Fill(abs(cos(data_th)));
-	else if(data_pt > 46 && data_pt < 66) 
+	else if(data_pt > 47.5 && data_pt < 70) 
 	  h_cos[5]->Fill(abs(cos(data_th)));
-	else if(data_pt > 66 && data_pt < 120) 
+	else if(data_pt > 70 && data_pt < 120) 
 	  h_cos[6]->Fill(abs(cos(data_th)));
 	if(data_pt > 25 && data_pt < 120) 
 	  h_cos[7]->Fill(abs(cos(data_th)));
@@ -154,19 +154,19 @@ void store_ANdists()
 
       // fill the y histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 25 && mc_pt < 46) 
+	if(mc_pt > 25 && mc_pt < 47.5) 
 	  h_y[3]->Fill(mc_y);
       }
 
       // fill the m histo
       if(abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
-	if(mc_pt > 25 && mc_pt < 46) 
+	if(mc_pt > 25 && mc_pt < 47.5) 
 	  h_m[3]->Fill(mc_m);
       }
 
       // fill the costh histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_y) < 1.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 25 && mc_pt < 46) {
+	if(mc_pt > 25 && mc_pt < 47.5) {
 	  h_cos[8]->Fill(abs(cos(mc_th)));
 	  h_cos[11]->Fill(abs(cos(mc_th)));
 	}
@@ -184,19 +184,19 @@ void store_ANdists()
       }
 
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 46 && mc_pt < 66) 
+	if(mc_pt > 47.5 && mc_pt < 70) 
 	  h_y[4]->Fill(mc_y);
       }
       
       // fill the m histo
       if(abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
-	if(mc_pt > 46 && mc_pt < 66) 
+	if(mc_pt > 47.5 && mc_pt < 70) 
 	  h_m[4]->Fill(mc_m);
       }
       
       // fill the costh histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_y) < 1.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 46 && mc_pt < 66) {
+	if(mc_pt > 47.5 && mc_pt < 70) {
 	  h_cos[9]->Fill(abs(cos(mc_th)));
 	  h_cos[11]->Fill(abs(cos(mc_th)));
 	}
@@ -215,19 +215,19 @@ void store_ANdists()
 
       // fill the y histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 66 && mc_pt < 120) 
+	if(mc_pt > 70 && mc_pt < 120) 
 	  h_y[5]->Fill(mc_y);
       }
 
       // fill the m histo
       if(abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
-	if(mc_pt > 66 && mc_pt < 120) 
+	if(mc_pt > 70 && mc_pt < 120) 
 	  h_m[5]->Fill(mc_m);
       }
 
       // fill the costh histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_y) < 1.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 66 && mc_pt < 120) {
+	if(mc_pt > 70 && mc_pt < 120) {
 	  h_cos[10]->Fill(abs(cos(mc_th)));
 	  h_cos[11]->Fill(abs(cos(mc_th)));
 	}
