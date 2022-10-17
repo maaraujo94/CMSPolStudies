@@ -14,7 +14,7 @@ int do_round(double val)
 
 double gPI = TMath::Pi();
 //pt bins defined globally for access from functions
-const int nPtBins = 7;
+const int nPtBins = 9;
 double ptBins[nPtBins+1];
 
 // crystal ball function
@@ -91,39 +91,31 @@ void mBkg()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
-  for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
-  for(int i=0; i<4; i++) ptBins[i+3] = 46.+10.*i;
-  ptBins[7] = 120;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
-  cout << endl;
-
-  // prepare mass histograms
-  TH1D **h_d1d = new TH1D*[nPtBins];
-  TFile *fin = new TFile("files/mStore.root");
-  for(int ip = 0; ip < nPtBins; ip++) {
-    fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
-    h_d1d[ip]->SetDirectory(0);
-  }
+  TH2D *h_d2d = new TH2D();
+  TFile *fin = new TFile("../../Simult/PR_fit/files/mStore.root");
+  fin->GetObject("mH", h_d2d);
+  h_d2d->SetDirectory(0);
   fin->Close();
 
-  int mbins = h_d1d[0]->GetNbinsX();
-  double lowm = h_d1d[0]->GetXaxis()->GetBinLowEdge(1);
-  double him = h_d1d[0]->GetXaxis()->GetBinUpEdge(mbins);
+  int mbins = h_d2d->GetNbinsX();
+  double lowm = h_d2d->GetXaxis()->GetBinLowEdge(1);
+  double him = h_d2d->GetXaxis()->GetBinUpEdge(mbins);
+  for(int i = 0; i <= nPtBins; i++) {
+    ptBins[i] = h_d2d->GetYaxis()->GetXbins()->GetArray()[i];
+    cout << ptBins[i] << ",";
+  }
+  cout << endl;
+
+  // Make 1d histos
+  TH1D **h_d1d = new TH1D*[nPtBins];
+  for(int i = 0; i < nPtBins; i++) {
+    h_d1d[i] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[i]), i+1, i+1);
+    h_d1d[i]->SetTitle(Form("Run 2 data M(#mu#mu) (%.1f < p_{T} < %.1f GeV)", ptBins[i], ptBins[i+1]));
+  }
 
   // define aux vals for plotting
   double m_min[] = {2.94, 3.0, 3.21};
   double m_max[] = {2.95, 3.2, 3.26};
-
-  // Fill 2d histo
-  TH2D *h_d2d = new TH2D("h_d2d", "Run 2 data M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
-
-  // scale 1d histos and fill 2d histo
-  for(int i = 0; i < nPtBins; i++) {
-    for(int j = 0; j < mbins; j++) {
-      h_d2d->SetBinContent(j+1, i+1, h_d1d[i]->GetBinContent(j+1));
-      h_d2d->SetBinError(j+1, i+1, h_d1d[i]->GetBinError(j+1));
-    }
-  } 
 
   // get the MC n and alpha values for fixing
   TFile *inMC = new TFile("../bkgFits/files/MCfit_G.root");
@@ -268,15 +260,6 @@ void mBkg()
     fp4->SetLineColor(kViolet);
     fp4->SetLineStyle(kDashed);
     fp4->Draw("lsame");
-
-    TLine **lims = new TLine*[2];
-    lims[0] = new TLine(m_min[1], 0, m_min[1], getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.5, 0));
-    lims[1] = new TLine(m_max[1], 0, m_max[1], getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.5, 0));
-    for(int j = 0; j < 2; j++) {
-      lims[j]->SetLineColor(kRed);
-      lims[j]->SetLineStyle(kDashed);
-      //lims[j]->Draw();
-    }
     
     c->SaveAs(Form("plots/mass/fit_pt%d.pdf", i_pt));
     c->Clear();
@@ -357,7 +340,7 @@ void mBkg()
     fd->SetYTitle("relative difference (%)");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Data J/#psi rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Data mass rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_dev = new TGraph(mbins, mv, dv);
     g_dev->SetLineColor(kBlack);
@@ -368,15 +351,6 @@ void mBkg()
     // aux lines - pull = 0 and sigma limits
     zero->Draw("lsame");
 
-    TLine **limd = new TLine*[2];
-    limd[0] = new TLine(m_min[1], -15, m_min[1], 15);
-    limd[1] = new TLine(m_max[1], -15, m_max[1], 15);
-    for(int j = 0; j < 2; j++) {
-      limd[j]->SetLineColor(kRed);
-      limd[j]->SetLineStyle(kDashed);
-      limd[j]->Draw();
-    }
-  
     c->SaveAs(Form("plots/mass/devs_pt%d.pdf", i_pt));
     c->Clear();
   }

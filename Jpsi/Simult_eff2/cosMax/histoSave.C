@@ -1,7 +1,7 @@
+#import "../effCode.C"
+
 // code to get the 2d fine-binned data/mc ratio hist for |costh|max
 // saves ratio (|costh|)
-
-#import "../effCode.C"
 
 void histoSave()
 {
@@ -11,6 +11,9 @@ void histoSave()
   for(int i = 0; i < 15; i++) ptBins[i] = 25+i;
   for(int i = 0; i < 30; i++) ptBins[i+15] = 40 + 2.*i;
   for(int i = 0; i < 5; i++) ptBins[i+45] = 100+5.*i;
+  // new limits for the MC
+  ptBins[18] = 45;
+  ptBins[19] = 47.5;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -35,9 +38,9 @@ void histoSave()
   
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m;
+double mPPt, mMPt, mPEta, mMEta;
+double effP, effM;
   Double_t mc_th, mc_pt, mc_lt, mc_m;
-  Double_t mP_pt, mM_pt, mP_eta, mM_eta;
-  double effP, effM;    
   
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
@@ -48,11 +51,11 @@ void histoSave()
   treeM1->SetBranchAddress("dimPt", &mc_pt);
   treeM1->SetBranchAddress("Mass", &mc_m);
   treeM1->SetBranchAddress("lt", &mc_lt);
-  treeM1->SetBranchAddress("muonPPt", &mP_pt);
-  treeM1->SetBranchAddress("muonPEta", &mP_eta);
-  treeM1->SetBranchAddress("muonMPt", &mM_pt);
-  treeM1->SetBranchAddress("muonMEta", &mM_eta);
-  
+  treeM1->SetBranchAddress("muonPEta", &mPEta);
+  treeM1->SetBranchAddress("muonMEta", &mMEta);
+  treeM1->SetBranchAddress("muonPPt", &mPPt);
+  treeM1->SetBranchAddress("muonMPt", &mMPt);
+
   // cycle over data and MC, fill the costh histogram acc to binning
   for(int i = 0; i < dEvt; i++)
     {
@@ -65,10 +68,9 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	effP = f_eff(mP_pt, mP_eta);
-	effM = f_eff(mM_pt, mM_eta);
-
+	  effP = f_eff(mPPt, mPEta);
+	  effM = f_eff(mMPt, mMEta);
+      if(mc_pt > ptBins[0] && mc_pt < 47.5 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt, effP*effM);
       }
     }
@@ -77,18 +79,17 @@ void histoSave()
   treeM2->SetBranchAddress("dimPt", &mc_pt);
   treeM2->SetBranchAddress("Mass", &mc_m);
   treeM2->SetBranchAddress("lt", &mc_lt);
-  treeM2->SetBranchAddress("muonPPt", &mP_pt);
-  treeM2->SetBranchAddress("muonPEta", &mP_eta);
-  treeM2->SetBranchAddress("muonMPt", &mM_pt);
-  treeM2->SetBranchAddress("muonMEta", &mM_eta);
+  treeM2->SetBranchAddress("muonPEta", &mPEta);
+  treeM2->SetBranchAddress("muonMEta", &mMEta);
+  treeM2->SetBranchAddress("muonPPt", &mPPt);
+  treeM2->SetBranchAddress("muonMPt", &mMPt);
 
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	effP = f_eff(mP_pt, mP_eta);
-	effM = f_eff(mM_pt, mM_eta);
-
+	  effP = f_eff(mPPt, mPEta);
+	  effM = f_eff(mMPt, mMEta);
+      if(mc_pt > 47.5 && mc_pt < 70 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt, effP*effM);	
       }
     }
@@ -97,18 +98,17 @@ void histoSave()
   treeM3->SetBranchAddress("dimPt", &mc_pt);
   treeM3->SetBranchAddress("Mass", &mc_m);
   treeM3->SetBranchAddress("lt", &mc_lt);
-  treeM3->SetBranchAddress("muonPPt", &mP_pt);
-  treeM3->SetBranchAddress("muonPEta", &mP_eta);
-  treeM3->SetBranchAddress("muonMPt", &mM_pt);
-  treeM3->SetBranchAddress("muonMEta", &mM_eta);
-
+  treeM3->SetBranchAddress("muonPEta", &mPEta);
+  treeM3->SetBranchAddress("muonMEta", &mMEta);
+  treeM3->SetBranchAddress("muonPPt", &mPPt);
+  treeM3->SetBranchAddress("muonMPt", &mMPt);
+  
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	effP = f_eff(mP_pt, mP_eta);
-	effM = f_eff(mM_pt, mM_eta);
-
+	  effP = f_eff(mPPt, mPEta);
+	  effM = f_eff(mMPt, mMEta);
+      if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt, effP*effM);
       }
     }

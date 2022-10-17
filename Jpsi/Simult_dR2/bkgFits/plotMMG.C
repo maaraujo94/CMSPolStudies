@@ -16,7 +16,7 @@ void plotMMG()
   string parlab[] = {"f", "N", "mu", "sig1", "sig2", "n", "alpha", "fG" , "sigG"};
   string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "f_{G}", "#sigma_{G}"};
   string parax[] = {"f (%)", "N per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "f_{G} (%)", "#sigma_{G} (MeV)"};
-  double parmin[] = {0,   3e1, 3090, 0.0, 30., 0.6, 1.8, 0,   0};
+  double parmin[] = {0,   7e1, 3090, 0.0, 30., 0.6, 1.8, 0,   0};
   double parmax[] = {100, 4e3, 3100, 100, 55., 1.8, 2.5, 100, 100};
 
   // initialize tgraphs for parameters
@@ -181,5 +181,5 @@ void plotMMG()
     c->Clear();
   }
   
-
+  c->Destructor();
 }

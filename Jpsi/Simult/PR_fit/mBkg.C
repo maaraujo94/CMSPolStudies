@@ -91,7 +91,7 @@ void mBkg()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
-  TH2D *h_d2d = new TH2D();  
+  TH2D *h_d2d = new TH2D();
   TFile *fin = new TFile("files/mStore.root");
   fin->GetObject("mH", h_d2d);
   h_d2d->SetDirectory(0);

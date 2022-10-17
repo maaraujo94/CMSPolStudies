@@ -1,7 +1,7 @@
+#import "../etacut.C"
+
 // code to get the 2d fine-binned data/mc ratio hist for |costh|max
 // saves ratio (|costh|)
-
-#import "../etacut.C"
 
 void histoSave()
 {
@@ -11,6 +11,9 @@ void histoSave()
   for(int i = 0; i < 15; i++) ptBins[i] = 25+i;
   for(int i = 0; i < 30; i++) ptBins[i+15] = 40 + 2.*i;
   for(int i = 0; i < 5; i++) ptBins[i+45] = 100+5.*i;
+  // new limits for the MC
+  ptBins[18] = 45;
+  ptBins[19] = 47.5;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -35,8 +38,8 @@ void histoSave()
   
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m;
+double mPEta, mMEta;
   Double_t mc_th, mc_pt, mc_lt, mc_m;
-  double mPEta, mMEta;
   
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
@@ -56,7 +59,8 @@ void histoSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2 && (abs(mPEta) < 0.2 || abs(mPEta) > 0.3) && (abs(mMEta) < 0.2 || abs(mMEta) > 0.3)) {      
+if((abs(mPEta) < eta_lo || abs(mPEta) > eta_hi) && (abs(mMEta) < eta_lo || abs(mMEta) > eta_hi))
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2) {      
 	dataHist_ab->Fill(abs(cos(data_th)), data_pt);
       }
     }
@@ -64,7 +68,8 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2 && (abs(mPEta) < 0.2 || abs(mPEta) > 0.3) && (abs(mMEta) < 0.2 || abs(mMEta) > 0.3)) {
+if((abs(mPEta) < eta_lo || abs(mPEta) > eta_hi) && (abs(mMEta) < eta_lo || abs(mMEta) > eta_hi))
+      if(mc_pt > ptBins[0] && mc_pt < 47.5 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
@@ -79,7 +84,8 @@ void histoSave()
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2 && (abs(mPEta) < 0.2 || abs(mPEta) > 0.3) && (abs(mMEta) < 0.2 || abs(mMEta) > 0.3)) {
+if((abs(mPEta) < eta_lo || abs(mPEta) > eta_hi) && (abs(mMEta) < eta_lo || abs(mMEta) > eta_hi))
+      if(mc_pt > 47.5 && mc_pt < 70 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
       }
     }
@@ -90,11 +96,12 @@ void histoSave()
   treeM3->SetBranchAddress("lt", &mc_lt);
   treeM3->SetBranchAddress("muonPEta", &mPEta);
   treeM3->SetBranchAddress("muonMEta", &mMEta);
-
+  
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2 && (abs(mPEta) < 0.2 || abs(mPEta) > 0.3) && (abs(mMEta) < 0.2 || abs(mMEta) > 0.3)) {
+if((abs(mPEta) < eta_lo || abs(mPEta) > eta_hi) && (abs(mMEta) < eta_lo || abs(mMEta) > eta_hi))
+      if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }

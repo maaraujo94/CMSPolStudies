@@ -385,6 +385,7 @@ void plotMMseq()
     c->SaveAs(Form("plots/MCMass/na_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }
+  c->Destructor();
 
   // also storing chi^2 as table
   ofstream ftex;

@@ -85,7 +85,7 @@ void getCos()
   
   // the fit function: a logarithm
   fitf = new TF1("fitf", "[0]*log([1]+[2]*x)", yBins[0], yBins[nBinsY]);
-  fitf->SetParameters(0.1, -1000, 100);
+  fitf->SetParameters(0.1, -10, 8);
   fitf->SetLineColor(kBlue);
   costh->Fit("fitf");
   costh->Draw("");
@@ -120,4 +120,6 @@ void getCos()
   outfile << setprecision(0) << fixed <<  fitf->GetChisquare() << "/" << fitf->GetNDF() << endl;
   outfile << "\\end{tabular}\n";
   outfile.close();
+
+  can->Destructor();  
 }

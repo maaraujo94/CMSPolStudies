@@ -1,7 +1,7 @@
+#import "../ptcut.C"
+
 double gPI = TMath::Pi();
 int DO_FILL = 1;
-
-#import "../ptcut.C"
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
@@ -75,23 +75,24 @@ void NPMCmass()
 
     // MC 1
     Double_t mc_pt, mc_lt, mc_m, mc_y;  
-    double mPPt, mMPt, mPEta, mMEta;
-  
+double mPPt, mMPt, mPEta, mMEta;
+
     tree1->SetBranchAddress("dimPt", &mc_pt);
     tree1->SetBranchAddress("Rap", &mc_y);
     tree1->SetBranchAddress("Mass", &mc_m);
     tree1->SetBranchAddress("lt", &mc_lt);
-    tree1->SetBranchAddress("muonPPt", &mPPt);
-    tree1->SetBranchAddress("muonMPt", &mMPt);
     tree1->SetBranchAddress("muonPEta", &mPEta);
     tree1->SetBranchAddress("muonMEta", &mMEta);
-
+    tree1->SetBranchAddress("muonPPt", &mPPt);
+    tree1->SetBranchAddress("muonMPt", &mMPt);
+    
     // cycle over data , fill the lifetime histogram
     int mEvt = tree1->GetEntries();
     for(int i = 0; i < mEvt; i++)
       {
 	tree1->GetEntry(i);
-	if(mc_pt > 25 && mc_pt < 120 && abs(mc_y) < 1.2 && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+	if(mc_pt > 25 && mc_pt < 120 && abs(mc_y) < 1.2) {
 	  h_mF->Fill(mc_m);
 	  if(mc_pt > 50)
 	    h_mF_hp->Fill(mc_m);

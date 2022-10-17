@@ -9,11 +9,11 @@ void plotDMPars()
   string legn[] = {"no G", "with G"};
 
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fBG", "fG", "sigG"};
-  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "#lambda", "f_{bkg}", "f_{G}", "#sigma_{G}"};
-  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma_{1} (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "#lambda (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
+  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t", "f_{bkg}", "f_{G}", "#sigma_{G}"};
+  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
   double parmin[] = {0,    1e1, 3090, 0,   32, 1.6, 1.6, 3e3, 0, 0.,  0,   0};
-  double parmax[] = {100., 1e4, 3100, 100, 46, 2.0, 2.0, 7e5, 1, 15., 100, 100};
+  double parmax[] = {100., 2e4, 3100, 100, 46, 2.0, 2.0, 7e5, 1, 15., 100, 100};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
@@ -60,7 +60,7 @@ void plotDMPars()
   double pt_max = xv[n-1]+xe[n-1]+5;
   
   TCanvas *c = new TCanvas("", "", 900, 900);
-  c->SetLeftMargin(0.11);
+  c->SetLeftMargin(0.12);
 
   for(int i_p = 0; i_p < 10; i_p++) {
 
@@ -72,9 +72,9 @@ void plotDMPars()
     TH1F *fl = c->DrawFrame(pt_min, parmin[i_p], pt_max, parmax[i_p]);
     fl->SetXTitle("p_{T} (GeV)");
     fl->SetYTitle(parax[i_p].c_str());
-    fl->GetYaxis()->SetTitleOffset(1.5);
+    fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
+    fl->SetTitle(Form("Run 2 NP %s", partit[i_p].c_str()));
 
     TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
     leg->SetTextSize(0.03);
@@ -144,7 +144,7 @@ void plotDMPars()
     if(i_p == 2) {
       TLine *pdg = new TLine(pt_min, 3096.9, pt_max, 3096.9);
       pdg->SetLineStyle(kDashed);
-      pdg->Draw();
+      //pdg->Draw();
     }
 
     int isLog = 0;

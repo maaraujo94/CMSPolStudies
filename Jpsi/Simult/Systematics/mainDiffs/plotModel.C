@@ -1,7 +1,6 @@
 // code to compare the deviations for several scenarios
 // 1) free alpha - Run2
 // 2) linear mass bkg - Run2
-// 3) linear lambda_4 - Run2
 
 void plotModel()
 {
@@ -27,23 +26,17 @@ void plotModel()
   TFile *fIndmb = new TFile("../Mass_bkg_alt/files/finalFitRes.root");
   graph_lth[2] = (TGraphErrors*)fIndmb->Get(Form("graph_lambda_J"));
   fIndmb->Close();
-  // 3 - get results with linear lbd_4
-  TFile *fIndl4 = new TFile("../Linear_l4/files/finalFitRes.root");
-  graph_lth[3] = (TGraphErrors*)fIndl4->Get(Form("graph_lambda_J"));
-  fIndl4->Close();
 
   // get the differences
-  double diff[3][nBinspT], za[nBinspT];
+  double diff[2][nBinspT], za[nBinspT];
   for(int i = 0; i < nBinspT; i++) {
     diff[0][i] = (graph_lth[1]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[1][i] = (graph_lth[2]->GetY()[i] - graph_lth[0]->GetY()[i]);
-    diff[2][i] = (graph_lth[3]->GetY()[i] - graph_lth[0]->GetY()[i]);
     
     za[i] = 0;
   }
   TGraphErrors *g_lthA = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[0], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthMB = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[1], graph_lth[0]->GetEX(), za);
-  TGraphErrors *g_lthL4 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[2], graph_lth[0]->GetEX(), za);
   
   TGraphErrors *g_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_lth[0]->GetEY());
   
@@ -73,12 +66,6 @@ void plotModel()
   g_lthMB->SetMarkerSize(.75);
   g_lthMB->Draw("p same");
 
-  g_lthL4->SetLineColor(kGreen+1);
-  g_lthL4->SetMarkerColor(kGreen+1);
-  g_lthL4->SetMarkerStyle(20);
-  g_lthL4->SetMarkerSize(.75);
-  g_lthL4->Draw("p same");
-
   g_unc->SetLineColor(kBlack);
   g_unc->SetFillColorAlpha(kBlack, 0.1);
   g_unc->Draw("ce3");
@@ -100,7 +87,6 @@ void plotModel()
   leg->SetTextSize(0.03);
   leg->AddEntry(g_lthA, "Free #alpha", "pl");
   leg->AddEntry(g_lthMB, "Linear mass bkg", "pl");
-  leg->AddEntry(g_lthL4, "Linear #lambda_{4}", "pl");
   leg->Draw();
 
   c->SaveAs("lth_absDiff_M.pdf");

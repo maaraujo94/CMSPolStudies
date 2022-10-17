@@ -13,61 +13,39 @@ void plotLth()
   // get the fit results
   // get lambda values for each eff model
   TGraphErrors **graph_lth = new TGraphErrors*[2];
-  TFile *fInd1 = new TFile("../../../Simult_dR1/PR_fit/files/finalFitRes.root");
-  graph_lth[0] = (TGraphErrors*)fInd1->Get(Form("graph_lambda_J"));
-  fInd1->Close();
-  TFile *fInd2 = new TFile("../../../Simult_dR2/PR_fit/files/finalFitRes.root");
-  graph_lth[1] = (TGraphErrors*)fInd2->Get(Form("graph_lambda_J"));
-  fInd2->Close();
- 
-  // get the final lth from the base SB/MC fit
-  TFile *fIndB = new TFile("../../PR_fit/files/finalFitRes.root");
-  TGraphErrors *graph_lthBase = (TGraphErrors*)fIndB->Get("graph_lambda_J");
-  fIndB->Close();
+  TFile *fInd_f = new TFile("files/finalFitRes.root");
+  string lbl[] = {"T", "L"};
+  for(int i_t = 0; i_t < 2; i_t++) {
+    graph_lth[i_t] = (TGraphErrors*)fInd_f->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
+  }    
+  TGraphErrors *graph_lthBase = (TGraphErrors*)fInd_f->Get("graph_lambda_B");
+  fInd_f->Close();
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
 
   // draw just final lambda_th(pT) - comp btw std, alt
-  double val[2][nBinspT];
+  double val[2][nBinspT], unc[2][nBinspT];
   for(int j = 0; j < 2; j++) {
     for(int i = 0; i < nBinspT; i++) { 
       val[j][i] = graph_lth[j]->GetY()[i] - graph_lthBase->GetY()[i];
+      double unc1 = graph_lth[j]->GetEY()[i];
+      double unc2 = graph_lthBase->GetEY()[i];
+      unc[j][i] = sqrt(abs(pow(unc1,2)-pow(unc2,2)));
     }
   }
-  TGraphErrors *g_lthD1 = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val[0], graph_lthBase->GetEX(), graph_lthBase->GetEY());
-  TGraphErrors *g_lthD2 = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val[1], graph_lthBase->GetEX(), graph_lthBase->GetEY());
+  TGraphErrors *g_lthD1 = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val[0], graph_lthBase->GetEX(), unc[0]);
+  TGraphErrors *g_lthD2 = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val[1], graph_lthBase->GetEX(), unc[1]);
 
   double d_lim = 0.4;
 
   // only plot the fiducial cut plots in specific ranges
-  // [0]: dR > 0.17 -> 46 to 66 GeV
-  // [1]: dR > 0.15 -> 66 to 120 GeV
+  // [0]: dR > 0.17 -> 25 to 70 GeV
+  // [1]: dR > 0.15 -> 70 to 120 GeV
   double* binsX = graph_lthBase->GetX();
   int cut_val;
   for(int i = 1; i < nBinspT; i++) {
-    if(binsX[i] > 66 && binsX[i-1] < 66) cut_val = i;
-  }
-
-  // get array that is just deltas with new unc
-  double delta_v[nBinspT], delta_u[nBinspT];
-  for(int i = 0; i < nBinspT; i++) {
-    if (i < cut_val) {
-      //delta_v[i] = abs(g_lthD1->GetY()[i]);
-      delta_v[i] = g_lthD1->GetY()[i];
-      double unc1 = graph_lth[0]->GetEY()[i];
-      double unc2 = graph_lthBase->GetEY()[i];
-      delta_u[i] = sqrt(abs(pow(unc1,2)-pow(unc2,2)));
-      g_lthD1->GetEY()[i] = delta_u[i];
-    }
-    else {
-      //delta_v[i] = abs(g_lthD2->GetY()[i]);
-      delta_v[i] = g_lthD2->GetY()[i];
-      double unc1 = graph_lth[1]->GetEY()[i];
-      double unc2 = graph_lthBase->GetEY()[i];
-      delta_u[i] = sqrt(abs(pow(unc1,2)-pow(unc2,2)));
-      g_lthD2->GetEY()[i] = delta_u[i];
-    }
+    if(binsX[i] > 70 && binsX[i-1] < 70) cut_val = i;
   }
 
   for(int i = cut_val; i < nBinspT; i++)
@@ -86,13 +64,6 @@ void plotLth()
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
   fl2->SetTitle("Run 2 #delta#lambda_{#theta} (prompt J/#psi)");
-
-  TGraphErrors *g_lthDB = new TGraphErrors(nBinspT, graph_lthBase->GetX(), delta_v, graph_lthBase->GetEX(), delta_u);
-  g_lthDB->SetLineColor(kBlack);
-  g_lthDB->SetMarkerColor(kBlack);
-  g_lthDB->SetMarkerStyle(20);
-  g_lthDB->SetMarkerSize(.5);
-  //g_lthDB->Draw("p same");
   
   g_lthD1->SetLineColor(kBlue);
   g_lthD1->SetMarkerColor(kBlue);
@@ -113,17 +84,11 @@ void plotLth()
   TLine *trans1D = new TLine(46, -d_lim, 46, d_lim);
   trans1D->SetLineColor(kBlack);
   trans1D->SetLineStyle(kDashed);
-  trans1D->Draw();
-  TLine *trans2D = new TLine(66, -d_lim, 66, d_lim);
+  //  trans1D->Draw();
+  TLine *trans2D = new TLine(70, -d_lim, 70, d_lim);
   trans2D->SetLineColor(kBlack);
   trans2D->SetLineStyle(kDashed);
   trans2D->Draw();
-
-  TF1 *f1 = new TF1("f1", "[0]", 25, 120);
-  f1->SetParameter(0, -0.1);
-  g_lthDB->Fit(f1, "R");
-  f1->SetLineColor(kBlack);
-  //f1->Draw("lsame");
   
   TLegend *leg = new TLegend(0.65, 0.15, 0.9, 0.3);
   leg->SetTextSize(0.03);
@@ -131,7 +96,7 @@ void plotLth()
   leg->AddEntry(g_lthD2, "#DeltaR > 0.15", "pl");
   leg->Draw();
   
-  c->SaveAs("plots/par_lth_F.pdf");
+  c->SaveAs("plots/par_dlth.pdf");
   c->Clear();
 
   // now compare absolute values
@@ -166,8 +131,8 @@ void plotLth()
   TLine *trans1A = new TLine(46, -a_lim, 46, a_lim);
   trans1A->SetLineColor(kBlack);
   trans1A->SetLineStyle(kDashed);
-  trans1A->Draw();
-  TLine *trans2A = new TLine(66, -a_lim, 66, a_lim);
+  //trans1A->Draw();
+  TLine *trans2A = new TLine(70, -a_lim, 70, a_lim);
   trans2A->SetLineColor(kBlack);
   trans2A->SetLineStyle(kDashed);
   trans2A->Draw();
@@ -175,7 +140,7 @@ void plotLth()
   leg->AddEntry(graph_lthBase, "no cut", "pl");
   leg->Draw();
   
-  c->SaveAs("plots/par_lth_abs.pdf");
+  c->SaveAs("plots/par_lth.pdf");
   c->Clear();
 
   c->Destructor();

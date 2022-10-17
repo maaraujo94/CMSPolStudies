@@ -84,12 +84,13 @@ void indFit()
     }
 
     // plotting everything
-    pHist[0][i]->SetTitle(Form("Signal extraction (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
+    pHist[0][i]->SetTitle(Form("data/MC |cos#theta| (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
     pHist[0][i]->SetStats(0);
     pHist[0][i]->SetLineColor(kViolet);
     pHist[0][i]->SetMarkerColor(kViolet);
     pHist[0][i]->SetMinimum(0);
     pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.5);
+    pHist[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     pHist[0][i]->Draw("error");
     fit1d[0]->SetLineColor(kViolet);
     fit1d[0]->SetLineStyle(kDashed);

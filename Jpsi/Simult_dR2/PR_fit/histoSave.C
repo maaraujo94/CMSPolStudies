@@ -1,18 +1,17 @@
+#import "../rcut.C"
+
 // code to get the 2d data/mc ratio hist (pr, np)
 // saves data, mc, ratio (normal and |costh|)
-
-#import "../rcut.C"
 
 void histoSave()
 {
   // fine pT binning - to be rebinned after background subtraction
-  const int nPtBins = 17;
+  const int nPtBins = 19;
   double ptBins[nPtBins+1];
-  int yBins_c[nPtBins+1];
-  for(int i = 0; i < 7; i++) ptBins[i] = 25 + 3.*i;
-  for(int i = 0; i < 6; i++) ptBins[i+7] = 46 + 5.*i;
-  for(int i = 0; i < 3; i++) ptBins[i+13] = 76 + 8.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 100 + 20.*i;
+  for(int i = 0; i < 10; i++) ptBins[i] = 25 + 2.5*i;
+  for(int i = 0; i < 6; i++) ptBins[i+10] = 50 + 5.*i;
+  for(int i = 0; i < 2; i++) ptBins[i+16] = 80 + 10.*i;
+  for(int i = 0; i < 2; i++) ptBins[i+18] = 100 + 20.*i;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -42,8 +41,8 @@ void histoSave()
   
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m, data_y;
+Double_t dR;
   Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y;
-  double dR;
   
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
@@ -63,7 +62,8 @@ void histoSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2 && dR > r_cut) {
+if(dR > r_cut)
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2) {
 	if(abs(data_lt) < 0.005 ) {
 	  dataHist->Fill(cos(data_th), data_pt);
 	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
@@ -78,7 +78,8 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2 && dR > r_cut) {
+if(dR > r_cut)
+      if(mc_pt > ptBins[0] && mc_pt < 47.5 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
@@ -95,7 +96,8 @@ void histoSave()
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2 && dR > r_cut) {
+if(dR > r_cut)
+      if(mc_pt > 47.5 && mc_pt < 70 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
@@ -113,7 +115,8 @@ void histoSave()
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2 && dR > r_cut) {
+if(dR > r_cut)
+      if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 
 	mcHist->Fill(cos(mc_th), mc_pt);
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
@@ -160,10 +163,10 @@ void histoSave()
 
   // split between pT ranges - must set by hand
   
-  double pt_min[] = {dataHist->GetYaxis()->GetBinLowEdge(1), dataHist->GetYaxis()->GetBinLowEdge(8), dataHist->GetYaxis()->GetBinLowEdge(12)};
-  double pt_max[] = {dataHist->GetYaxis()->GetBinUpEdge(7), dataHist->GetYaxis()->GetBinUpEdge(11), dataHist->GetYaxis()->GetBinUpEdge(18)};
+  double pt_min[] = {dataHist->GetYaxis()->GetBinLowEdge(1), dataHist->GetYaxis()->GetBinLowEdge(10), dataHist->GetYaxis()->GetBinLowEdge(15)};
+  double pt_max[] = {dataHist->GetYaxis()->GetBinUpEdge(9), dataHist->GetYaxis()->GetBinUpEdge(14), dataHist->GetYaxis()->GetBinUpEdge(19)};
   
-  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 1", dataHist->Integral(1, 40, 1, 7), NPHist->Integral(1, 40, 1, 7), mcHist->Integral(1, 40, 1, 7)) << endl;
-  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 2", dataHist->Integral(1, 40, 8, 11), NPHist->Integral(1, 40, 8, 11), mcHist->Integral(1, 40, 8, 11)) << endl;
-  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 3", dataHist->Integral(1, 40, 12, 17), NPHist->Integral(1, 40, 12, 17), mcHist->Integral(1, 40, 12, 17)) << endl;
+  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 1 [%.1f, %.1f] GeV", dataHist->Integral(1, 40, 1, 9), NPHist->Integral(1, 40, 1, 9), mcHist->Integral(1, 40, 1, 9), pt_min[0], pt_max[0]) << endl;
+  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 2 [%.1f, %.1f] GeV", dataHist->Integral(1, 40, 10, 14), NPHist->Integral(1, 40, 10, 14), mcHist->Integral(1, 40, 10, 14), pt_min[1], pt_max[1]) << endl;
+  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 3 [%.1f, %.1f] GeV", dataHist->Integral(1, 40, 15, 19), NPHist->Integral(1, 40, 15, 19), mcHist->Integral(1, 40, 15, 19), pt_min[2], pt_max[2]) << endl;
 }

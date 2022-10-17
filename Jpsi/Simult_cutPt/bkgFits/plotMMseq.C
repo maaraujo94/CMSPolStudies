@@ -386,7 +386,7 @@ void plotMMseq()
     c->Clear();
   }
   c->Destructor();
-  
+
   // also storing chi^2 as table
   ofstream ftex;
   ftex.open("text_output/mfit_chi.tex");

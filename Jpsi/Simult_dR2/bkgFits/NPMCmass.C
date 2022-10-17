@@ -1,7 +1,7 @@
+#import "../rcut.C"
+
 double gPI = TMath::Pi();
 int DO_FILL = 1;
-
-#import "../rcut.C"
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
@@ -74,7 +74,8 @@ void NPMCmass()
     TTree *tree1 = (TTree*)fin1->Get("MC_cos");
 
     // MC 1
-    Double_t mc_pt, mc_lt, mc_m, mc_y, dR;  
+    Double_t mc_pt, mc_lt, mc_m, mc_y;  
+Double_t dR;
 
     tree1->SetBranchAddress("dimPt", &mc_pt);
     tree1->SetBranchAddress("Rap", &mc_y);
@@ -87,7 +88,8 @@ void NPMCmass()
     for(int i = 0; i < mEvt; i++)
       {
 	tree1->GetEntry(i);
-	if(mc_pt > 25 && mc_pt < 120 && abs(mc_y) < 1.2 && dR > r_cut) {
+if(dR > r_cut)
+	if(mc_pt > 25 && mc_pt < 120 && abs(mc_y) < 1.2) {
 	  h_mF->Fill(mc_m);
 	  if(mc_pt > 50)
 	    h_mF_hp->Fill(mc_m);

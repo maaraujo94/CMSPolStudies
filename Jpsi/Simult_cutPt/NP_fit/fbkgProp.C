@@ -39,16 +39,18 @@ void fbkgProp()
   ptBins[n_pt] = g_par[0]->GetX()[n_pt-1]+g_par[0]->GetEX()[n_pt-1];
   
   // prepare mass histograms
-  TH1D **h_d1d = new TH1D*[n_pt];
+TH1D **h_d1d = new TH1D*[n_pt];
+  TH2D *h_d2d = new TH2D();
   TFile *fin = new TFile("files/mStore.root");
-  for(int ip = 0; ip < n_pt; ip++) {
-    fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
-    h_d1d[ip]->SetDirectory(0);
-  }
+  fin->GetObject("mH", h_d2d);
+  h_d2d->SetDirectory(0);
   fin->Close();
-
+  for(int ip = 0; ip < n_pt; ip++) {
+    h_d1d[ip] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[ip]), ip+1, ip+1);
+  }
+  
   // fbkg = integral / evt_all (in signal region)
-  TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{bkg}", n_pt, ptBins);
+  TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{bkg}^{NP}", n_pt, ptBins);
   double ln = 10000;
   const int n_p = 2;
   double fit_v[n_p], dpar[n_p];
@@ -94,10 +96,10 @@ void fbkgProp()
 
   TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 15);
   fr1->SetXTitle("p_{T} (GeV)");
-  fr1->SetYTitle("f_{bkg} (%)");
+  fr1->SetYTitle("f_{bkg}^{NP} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("Run 2 f_{bkg} vs p_{T}");
+  fr1->SetTitle("Run 2 f_{bkg}^{NP} vs p_{T}");
 
   h_fbkg->SetStats(0);
   h_fbkg->SetMarkerStyle(20);
@@ -141,7 +143,7 @@ void fbkgProp()
   double dX = (maxX-minX)/nBinsX;
   
   // f_bkg(pT) but generating 2d map so it's easier to apply uncertainties
-  TH2D *h_fbkg2d = new TH2D("h_fbkg2d", "Run 2 f_{bkg}", nBinsX, minX, maxX, nBinsY, yBins);
+  TH2D *h_fbkg2d = new TH2D("h_fbkg2d", "Run 2 f_{bkg}^{NP}", nBinsX, minX, maxX, nBinsY, yBins);
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
     for(int i_cos = 0; i_cos < nBinsX; i_cos++) {
       h_fbkg2d->SetBinContent(i_cos+1, i_pt+1, f_fit1->GetParameter(0));
@@ -155,14 +157,14 @@ void fbkgProp()
   h_fbkgpt->SetMinimum(0);
   h_fbkgpt->SetMaximum(15);
   h_fbkgpt->GetXaxis()->SetTitle("p_{T} (GeV)");
-  h_fbkgpt->GetYaxis()->SetTitle("f_{bkg} (%)");
+  h_fbkgpt->GetYaxis()->SetTitle("f_{bkg}^{NP} (%)");
   h_fbkgpt->GetYaxis()->SetTitleOffset(1.3);
   h_fbkgpt->GetYaxis()->SetLabelOffset(0.01);
-  h_fbkgpt->SetTitle("Run 2 f_{bkg} vs p_{T}");
+  h_fbkgpt->SetTitle("Run 2 f_{bkg}^{NP} vs p_{T}");
   h_fbkgpt->SetStats(0);
   h_fbkgpt->SetFillColorAlpha(kBlue, 0.5);
   h_fbkgpt->Draw("e3");
-  f_fit1->Draw("same");
+  //f_fit1->Draw("same");
   h_fbkg->Draw("e0 same");
   
   c->SaveAs("plots/fBG_band.pdf");

@@ -24,7 +24,7 @@ void plotLtPars()
   // read the fit results
   ifstream ifile;
   string data;
-  int pt_bins = 17;
+  int pt_bins = 19;
   double pt_min[pt_bins], pt_max[pt_bins], pt_avg[pt_bins], pt_err[pt_bins];
   double par[7][pt_bins], epar[7][pt_bins];
   double par_f[7][pt_bins], epar_f[7][pt_bins];
@@ -172,7 +172,7 @@ void plotLtPars()
   fchi->SetYTitle("#chi^{2}/ndf");
   fchi->GetYaxis()->SetTitleOffset(1.5);
   fchi->GetYaxis()->SetLabelOffset(0.01);
-  fchi->SetTitle("Run 2 #chi^{2}/ndf vs p_{T}");
+  fchi->SetTitle("Run 2 #chi^{2}/ndf");
   
   g_chi->SetMarkerStyle(20);
   g_chi->SetMarkerSize(.75);
@@ -211,7 +211,7 @@ void plotLtPars()
   fchiP->SetYTitle("P(#chi^{2})");
   fchiP->GetYaxis()->SetTitleOffset(1.5);
   fchiP->GetYaxis()->SetLabelOffset(0.01);
-  fchiP->SetTitle("Run 2 P(#chi^{2}) vs p_{T}");
+  fchiP->SetTitle("Run 2 P(#chi^{2})");
   
   g_chiP->SetMarkerStyle(20);
   //g_chiP->SetMarkerSize(.75);
@@ -243,7 +243,7 @@ void plotLtPars()
   ffr->SetYTitle("f_{NP} (%)");
   ffr->GetYaxis()->SetTitleOffset(1.3);
   ffr->GetYaxis()->SetLabelOffset(0.01);
-  ffr->SetTitle("Run 2 f_{NP} vs p_{T}");
+  ffr->SetTitle("Run 2 f_{NP}");
   
   g_frac->SetMarkerStyle(20);
   g_frac->SetMarkerSize(.75);
@@ -318,7 +318,7 @@ void plotLtPars()
   fsig->SetYTitle("#sigma (#mum)");
   fsig->GetYaxis()->SetTitleOffset(1.3);
   fsig->GetYaxis()->SetLabelOffset(0.01);
-  fsig->SetTitle("Run 2 #sigma_{m} vs p_{T}");
+  fsig->SetTitle("Run 2 #sigma_{m}");
   
   g_sig->SetMarkerStyle(20);
   g_sig->SetMarkerSize(.75);
@@ -350,7 +350,7 @@ void plotLtPars()
   frms->SetYTitle("rms (Lxy) (#mum)");
   frms->GetYaxis()->SetTitleOffset(1.3);
   frms->GetYaxis()->SetLabelOffset(0.01);
-  frms->SetTitle("Run 2 rms (Lxy) vs p_{T}");
+  frms->SetTitle("Run 2 rms (Lxy)");
   
   g_rms->SetMarkerStyle(20);
   g_rms->SetMarkerSize(.75);
@@ -382,7 +382,7 @@ void plotLtPars()
   frat->SetYTitle("#sigma_{2}/#sigma_{1}");
   frat->GetYaxis()->SetTitleOffset(1.3);
   frat->GetYaxis()->SetLabelOffset(0.01);
-  frat->SetTitle("Run 2 #sigma_{2}/#sigma_{1} vs p_{T}");
+  frat->SetTitle("Run 2 #sigma_{2}/#sigma_{1}");
   
   g_rat->SetMarkerStyle(20);
   g_rat->SetMarkerSize(.75);

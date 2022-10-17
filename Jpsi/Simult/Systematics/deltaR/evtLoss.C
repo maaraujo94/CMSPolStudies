@@ -31,7 +31,7 @@ void evtLoss()
   double maxX = h_dataB->GetXaxis()->GetBinUpEdge(nBinsX);
   double dX = (maxX-minX)/nBinsX;
 
-  // calculate the events kept
+  // calculate the event loss (in percentage)
   double diffL[nBinsY], diffT[nBinsY];
   double mdiffL[nBinsY], mdiffT[nBinsY];
   double za[nBinsY], eptBins[nBinsY], ptBins[nBinsY];
@@ -53,7 +53,7 @@ void evtLoss()
 
     mdiffL[i] = 1-vL/vB;
     mdiffT[i] = 1-vT/vB;
-}
+  }
 
   // define the tgraphs for the two sets of evts
   TGraphErrors *g_lossL = new TGraphErrors(nBinsY, ptBins, diffL, eptBins, za);
@@ -105,7 +105,7 @@ void evtLoss()
   cOff->SetLineStyle(kDashed);
   cOff->Draw();
 
-  c->SaveAs("evtLoss.pdf");
+  c->SaveAs("plots/evtLoss.pdf");
   c->Clear();
   c->Destructor();
 

@@ -1,5 +1,5 @@
 double gPI = TMath::Pi();
-int DO_FILL = 0;
+int DO_FILL = 1;
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)

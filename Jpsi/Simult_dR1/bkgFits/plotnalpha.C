@@ -8,8 +8,8 @@ void plotnalpha()
   string parlab[] = {"n", "alpha"};
   string partit[] = {"n", "#alpha"};
   string parax[] = {"n", "#alpha"};
-  double parmin[] = {0., 2.};
-  double parmax[] = {2., 3.2};
+  double parmin[] = {0.7, 1.95};
+  double parmax[] = {1.7, 2.4};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_p];
@@ -91,6 +91,6 @@ void plotnalpha()
   
   c->SaveAs(Form("plots/MCMass/na_comp.pdf"));
   c->Clear();
-  
+  c->Destructor();
 
 }

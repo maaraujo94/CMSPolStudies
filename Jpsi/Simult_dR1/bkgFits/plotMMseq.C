@@ -9,8 +9,8 @@ void plotMMseq()
   string parlab[] = {"f", "N", "mu", "sig1", "sig2", "n", "alpha", "chiN"};
   string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha"};
   string parax[] = {"f (%)", "N per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha"};
-  double parmin[] = {0,   1e1, 3090,   0.0, 30., 0.6, 1.8};
-  double parmax[] = {100, 4e3, 3100,   60., 55., 1.8, 2.8};
+  double parmin[] = {0,   7e1, 3090,   0.0, 30., 0.6, 1.8};
+  double parmax[] = {100, 4e3, 3100,   60., 55., 1.8, 2.5};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_p];
@@ -217,7 +217,7 @@ void plotMMseq()
   c->Clear();
 
   // also draw n, alpha
-  TH1F *f2na = c->DrawFrame(pt_min, 0, pt_max, 3.2);
+  TH1F *f2na = c->DrawFrame(pt_min, parmin[5], pt_max, parmax[6]);
   f2na->SetXTitle("p_{T} (GeV)");
   f2na->SetYTitle("n, #alpha");
   f2na->GetYaxis()->SetTitleOffset(1.8);
@@ -245,11 +245,11 @@ void plotMMseq()
   leg2na->AddEntry(g_par[5+1][2], "#alpha", "pl");
   leg2na->Draw();
   
-  TLine *lna21 = new TLine(46, 0, 46, 3.2);
+  TLine *lna21 = new TLine(46, parmin[5], 46, parmax[6]);
   lna21->SetLineColor(kBlack);
   lna21->SetLineStyle(kDashed);
   lna21->Draw();
-  TLine *lna22 = new TLine(66, 0, 66, 3.2);
+  TLine *lna22 = new TLine(66, parmin[5], 66, parmax[6]);
   lna22->SetLineColor(kBlack);
   lna22->SetLineStyle(kDashed);
   lna22->Draw();
@@ -385,6 +385,7 @@ void plotMMseq()
     c->SaveAs(Form("plots/MCMass/na_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }
+  c->Destructor();
 
   // also storing chi^2 as table
   ofstream ftex;
