@@ -16,7 +16,7 @@ void plotMMG()
   string parlab[] = {"f", "N", "mu", "sig1", "sig2", "n", "alpha", "fG" , "sigG"};
   string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "f_{G}", "#sigma_{G}"};
   string parax[] = {"f (%)", "N per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "f_{G} (%)", "#sigma_{G} (MeV)"};
-  double parmin[] = {0,   3e1, 3090, 0.0, 30., 0.6, 1.8, 0,   0};
+  double parmin[] = {0,   4e1, 3090, 0.0, 30., 0.6, 1.8, 0,   0};
   double parmax[] = {100, 2e3, 3100, 100, 55., 1.8, 2.5, 100, 100};
 
   // initialize tgraphs for parameters
@@ -162,11 +162,11 @@ void plotMMG()
     TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
     l1->SetLineColor(kBlack);
     l1->SetLineStyle(kDashed);
-    l1->Draw();
+    //l1->Draw();
     TLine *l2 = new TLine(66, parmin[i_p], 66, parmax[i_p]);
     l2->SetLineColor(kBlack);
     l2->SetLineStyle(kDashed);
-    l2->Draw();
+    //l2->Draw();
 
     int isLog = 0;
     if(i_p == 1 ) isLog = 1;
@@ -181,5 +181,5 @@ void plotMMG()
     c->Clear();
   }
   
-
+  c->Destructor();
 }

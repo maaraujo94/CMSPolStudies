@@ -24,7 +24,7 @@ void plotLtPars()
   // read the fit results
   ifstream ifile;
   string data;
-  int pt_bins = 17;
+  int pt_bins = 19;
   double pt_min[pt_bins], pt_max[pt_bins], pt_avg[pt_bins], pt_err[pt_bins];
   double par[7][pt_bins], epar[7][pt_bins];
   double par_f[7][pt_bins], epar_f[7][pt_bins];
@@ -138,7 +138,7 @@ void plotLtPars()
     if(i == 2 || i == 3) c->SaveAs(Form("plots/lifetime/parf_%s.pdf", parlab[i].c_str()));
 
     fp->SetTitle(Form("2018 %s", partit[i].c_str()));
-
+    
     g_par_f[i]->SetMarkerStyle(20);
     g_par_f[i]->SetMarkerSize(.75);
     g_par_f[i]->SetMarkerColor(kBlue);
@@ -171,7 +171,7 @@ void plotLtPars()
   TGraphErrors *g_chi_f = new TGraphErrors(pt_bins, pt_avg, chiN[1], pt_err, zero);
   TGraphErrors *g_chi_b = new TGraphErrors(pt_bins, pt_avg, chiN[2], pt_err, zero);
 
-  TH1F *fchi = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 3);
+  TH1F *fchi = c->DrawFrame(pt_min[0]-5, 0, pt_max[pt_bins-1]+5, 4);
   fchi->SetXTitle("p_{T} (GeV)");
   fchi->SetYTitle("#chi^{2}/ndf");
   fchi->GetYaxis()->SetTitleOffset(1.5);
@@ -415,7 +415,7 @@ void plotLtPars()
   ofstream ftex;
   ftex.open(Form("text_output/tfit_res.tex"));
   ftex << "\\begin{tabular}{c||c|c|c|c|c|c|c||c|c}\n";
-  ftex << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $t_{NP}$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
+  ftex << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $t$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
   ftex << "\\hline\n";
   for(int i = 0; i < pt_bins; i++) {
     // pT bin
@@ -446,7 +446,7 @@ void plotLtPars()
   ofstream ftex_mf;
   ftex_mf.open(Form("text_output/tfit_mf_res.tex"));
   ftex_mf << "\\begin{tabular}{c||c|c|c|c|c|c|c||c|c}\n";
-  ftex_mf << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $t_{NP}$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
+  ftex_mf << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $t$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
   ftex_mf << "\\hline\n";
   for(int i = 0; i < pt_bins; i++) {
     // pT bin
@@ -477,7 +477,7 @@ void plotLtPars()
   ofstream ftex_bf;
   ftex_bf.open(Form("text_output/tfit_bf_res.tex"));
   ftex_bf << "\\begin{tabular}{c||c|c|c|c|c|c|c||c|c}\n";
-  ftex_bf << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $t_{NP}$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
+  ftex_bf << "$\\pt$ (GeV) & $N_{PR}$ & $N_{NP}$ & f (\\%) & $\\mu$ ($\\mu$m) & $\\sigma_1$ ($\\mu$m) & $\\sigma_2$ ($\\mu$m)  & $t$ ($\\mu$m) & $f_{NP}$ (\\%) & $\\chi^2$/ndf \\\\\n";
   ftex_bf << "\\hline\n";
   for(int i = 0; i < pt_bins; i++) {
     // pT bin

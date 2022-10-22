@@ -299,7 +299,7 @@ void mBkg()
     c->SetLogy(0);
     
     // plotting the pulls
-    TH1F *fl = c->DrawFrame(m_min[0], -9, m_max[2], 9);
+    TH1F *fl = c->DrawFrame(m_min[0], -20, m_max[2], 20);
     fl->SetXTitle("M(#mu#mu) (GeV)");
     fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);

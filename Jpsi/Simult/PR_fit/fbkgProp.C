@@ -110,7 +110,7 @@ void fbkgProp()
   h_fbkg->Draw("e1 same");
   
   c->SaveAs("plots/fBG_unc.pdf");
- 
+
   // PART 2: fitting f_bkg
 
   // the fit function
@@ -118,12 +118,47 @@ void fbkgProp()
   f_fit1->SetParNames("M", "a", "mu");
   f_fit1->SetParameters(10, 0.01, 1.);
   f_fit1->SetLineColor(kBlue);
+
+  //define tgraph to have bin centers
+  double ptInt[] = {27.17, 32.2, 37.23, 42.25, 47.27, 54.21, 64.30, 74.38, 92.76};
+  double ptLo[n_pt], ptHi[n_pt];
+  double yval[n_pt], eyval[n_pt];
+  for(int i = 0; i < n_pt; i++) {
+    ptLo[i] = ptInt[i]-ptBins[i];
+    ptHi[i] = ptBins[i+1]-ptInt[i];
+
+    yval[i] = h_fbkg->GetBinContent(i+1);
+    eyval[i] = h_fbkg->GetBinError(i+1);
+  }
+  TGraphAsymmErrors *g_fbkg = new TGraphAsymmErrors(n_pt, ptInt, yval, ptLo, ptHi, eyval, eyval);
+  TGraphErrors *g_fbkg_Av = new TGraphErrors(n_pt, g_par[0]->GetX(), yval, g_par[0]->GetEX(), eyval);
+  
+  // fitting with avg bin centers
   TFitResultPtr fitbgres = h_fbkg->Fit("fit_SB", "S0");
+  //g_fbkg_Av->Fit(f_fit1);
   f_fit1->SetRange(0, 125);
   f_fit1->Draw("same");
 
   c->SaveAs("plots/fBG_fit.pdf");
   c->Clear();
+  
+  // fitting with integrated bin centers
+  TH1F *frc = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 15);
+  frc->SetXTitle("p_{T} (GeV)");
+  frc->SetYTitle("f_{bkg} (%)");
+  frc->GetYaxis()->SetTitleOffset(1.3);
+  frc->GetYaxis()->SetLabelOffset(0.01);
+  frc->SetTitle("Run 2 f_{bkg} vs p_{T}");
+
+  g_fbkg->SetMarkerStyle(20);
+  g_fbkg->SetMarkerSize(.5);
+  g_fbkg->SetMarkerColor(kBlack);
+  g_fbkg->SetLineColor(kBlack);
+  g_fbkg->Fit(f_fit1);
+  g_fbkg->Draw("p same");
+  f_fit1->Draw("same");
+  c->SaveAs("plots/fBG_check.pdf");
+  c->Clear();  
 
   // PART 3: generate f_bkg histo
 

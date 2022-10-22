@@ -88,6 +88,7 @@ TH1D **h_d1d = new TH1D*[n_pt];
 
     // fill pT bin
     h_fbkg->SetBinContent(i_pt+1, fv/evt_all*100.);
+    cout << i_pt << " " << fv/evt_all*100. << endl;
     h_fbkg->SetBinError(i_pt+1, fe/evt_all*100.);
   }
 

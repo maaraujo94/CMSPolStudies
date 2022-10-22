@@ -35,6 +35,15 @@ void plotRes()
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("2018 #lambda_{#theta}");
 
+  // remove 45-47.5 bin in all lth plots
+  int i_cut = 0;
+  for(int ip= 0; ip < nBinspT; ip++) {
+    if(pTBins[ip] < 46 && pTBins[ip+1] > 46)
+      i_cut = ip;
+  }
+  for(int i = 0; i < 4; i++)
+    graph_lth[i]->RemovePoint(i_cut);
+
   int col[] = {kViolet, kRed, kBlack, kBlue};
   for(int i = 0; i < 4; i++) {
     graph_lth[i]->SetLineColor(col[i]);
@@ -49,11 +58,11 @@ void plotRes()
   TLine *trans1 = new TLine(46, -1, 46, 1);
   trans1->SetLineColor(kBlack);
   trans1->SetLineStyle(kDashed);
-  trans1->Draw();
+  //trans1->Draw();
   TLine *trans2 = new TLine(66, -1, 66, 1);
   trans2->SetLineColor(kBlack);
   trans2->SetLineStyle(kDashed);
-  trans2->Draw();
+  //trans2->Draw();
 
   TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
   leg->SetTextSize(0.03);
@@ -79,8 +88,8 @@ void plotRes()
   graph_lth[3]->Draw("p same");
 
   zero->Draw();
-  trans1->Draw();
-  trans2->Draw();
+  //trans1->Draw();
+  //trans2->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
   c->Clear();

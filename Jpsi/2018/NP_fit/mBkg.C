@@ -14,7 +14,7 @@ int do_round(double val)
 
 double gPI = TMath::Pi();
 //pt bins defined globally for access from functions
-const int nPtBins = 7;
+const int nPtBins = 9;
 double ptBins[nPtBins+1];
 
 // crystal ball function
@@ -89,41 +89,33 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 // MAIN
 void mBkg()
 {
-  // PART 1 : FILLING THE MASS HISTO
+  // PART 1 : FILLING THE MASS HIST
   // prepare binning and histograms for plots
-  for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
-  for(int i=0; i<4; i++) ptBins[i+3] = 46.+10.*i;
-  ptBins[7] = 120;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
-  cout << endl;
-
-  // prepare mass histograms
-  TH1D **h_d1d = new TH1D*[nPtBins];
+  TH2D *h_d2d = new TH2D();  
   TFile *fin = new TFile("files/mStore.root");
-  for(int ip = 0; ip < nPtBins; ip++) {
-    fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
-    h_d1d[ip]->SetDirectory(0);
-  }
+  fin->GetObject("mH", h_d2d);
+  h_d2d->SetDirectory(0);
   fin->Close();
 
-  int mbins = h_d1d[0]->GetNbinsX();
-  double lowm = h_d1d[0]->GetXaxis()->GetBinLowEdge(1);
-  double him = h_d1d[0]->GetXaxis()->GetBinUpEdge(mbins);
+  int mbins = h_d2d->GetNbinsX();
+  double lowm = h_d2d->GetXaxis()->GetBinLowEdge(1);
+  double him = h_d2d->GetXaxis()->GetBinUpEdge(mbins);
+  for(int i = 0; i <= nPtBins; i++) {
+    ptBins[i] = h_d2d->GetYaxis()->GetXbins()->GetArray()[i];
+    cout << ptBins[i] << ",";
+  }
+  cout << endl;
+
+  // Make 1d histos
+  TH1D **h_d1d = new TH1D*[nPtBins];
+  for(int i = 0; i < nPtBins; i++) {
+    h_d1d[i] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[i]), i+1, i+1);
+    h_d1d[i]->SetTitle(Form("2018 data M(#mu#mu) (%.1f < p_{T} < %.1f GeV)", ptBins[i], ptBins[i+1]));
+  }
 
   // define aux vals for plotting
   double m_min[] = {2.94, 3.0, 3.21};
   double m_max[] = {2.95, 3.2, 3.26};
-
-  // Fill 2d histo
-  TH2D *h_d2d = new TH2D("h_d2d", "2018 data M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
-
-  // scale 1d histos and fill 2d histo
-  for(int i = 0; i < nPtBins; i++) {
-    for(int j = 0; j < mbins; j++) {
-      h_d2d->SetBinContent(j+1, i+1, h_d1d[i]->GetBinContent(j+1));
-      h_d2d->SetBinError(j+1, i+1, h_d1d[i]->GetBinError(j+1));
-    }
-  } 
 
   // get the MC n and alpha values for fixing
   TFile *inMC = new TFile("../bkgFits/files/MCNPfit.root");
@@ -141,20 +133,20 @@ void mBkg()
   n_v = do_round(n_v*pow(10, nm))/pow(10, nm);
   nm = ceil(-log10(alpha_v))+3;	
   alpha_v = do_round(alpha_v*pow(10, nm))/pow(10, nm);
-  nm = ceil(-log10(fG_v))+3;
+  nm = ceil(-log10(fG_v))+3;	
   fG_v = do_round(fG_v*pow(10, nm))/pow(10, nm);
-  nm = ceil(-log10(sigG_v2))+3;
+  nm = ceil(-log10(sigG_v2))+3;	
   sigG_v2 = do_round(sigG_v2*pow(10, nm))/pow(10, nm);
   
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
   string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
-  double par_v[] =  {1., 0.5, 3.1, 1e-4, 1e-4, n_v, alpha_v, 1., 0.7, fG_v, sigG_v1};
+  double par_v[] =  {1., 0.5, 3.1, 1e-4, 1e-4, n_v, alpha_v, 1., 1., fG_v, sigG_v1};
   double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1.,      1., 1.,  1.,   sigG_v2};
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
     // normalizations
-    f_cb->SetParName(i, Form("NS_%d", i));
+    f_cb->SetParName(i, Form("N18_%d", i));
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
     f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
     f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/2.);
@@ -356,7 +348,7 @@ void mBkg()
     fd->SetYTitle("relative difference (%)");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Data J/#psi rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Data nass rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_dev = new TGraph(mbins, mv, dv);
     g_dev->SetLineColor(kBlack);
@@ -373,7 +365,7 @@ void mBkg()
     for(int j = 0; j < 2; j++) {
       limd[j]->SetLineColor(kRed);
       limd[j]->SetLineStyle(kDashed);
-      limd[j]->Draw();
+      //limd[j]->Draw();
     }
   
     c->SaveAs(Form("plots/mass/devs_pt%d.pdf", i_pt));
@@ -455,6 +447,30 @@ void mBkg()
   // sigma parameters - ONLY 1 and 2
   ofstream ftex2;
   ftex2.open("text_output/mfit_resA.tex");
+  /*ftex2 << "\\begin{tabular}{cc|cc|cc||c}\n";
+  ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} & \\multicolumn{2}{|c}{$\\sigma_G$}  & \\multirow{2}{*}{$\\chi^2/$ndf}\\\\\n";
+  ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & \\\\\n";
+  ftex2 << "\\hline\n";
+
+  for(int j = 3; j < 5; j++) {
+    double val = f_cb->GetParameter(j*nPtBins)*1e5;
+    double unc = f_cb->GetParError(j*nPtBins)*1e5;
+    int p_norm = ceil(-log10(unc))+1;	
+    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
+    val = f_cb->GetParameter(j*nPtBins+1)*1e3;
+    unc = f_cb->GetParError(j*nPtBins+1)*1e3;
+    p_norm = ceil(-log10(unc))+1;	
+    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
+    ftex2 << " & ";
+  }
+  for(int j = 10; j < 11; j++) {
+    double val = f_cb->GetParameter(j*nPtBins)*1e5;
+    int p_norm = ceil(-log10(val))+3;	
+    ftex2 << setprecision(p_norm) << fixed << val << " & ";
+    val = f_cb->GetParameter(j*nPtBins+1)*1e3;
+    p_norm = ceil(-log10(val))+3;	
+    ftex2 << setprecision(p_norm) << fixed << val << " & ";
+    }*/
   ftex2 << "\\begin{tabular}{cc|cc||c}\n";
   ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$}  & \\multirow{2}{*}{$\\chi^2/$ndf}\\\\\n";
   ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV)  & \\\\\n";

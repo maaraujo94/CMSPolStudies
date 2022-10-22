@@ -281,7 +281,7 @@ void plotMMseq()
       g_par[i_p][4]->SetFillColorAlpha(kRed, 0.5);
       g_par[i_p][4]->Draw("ce3");
     }
-    
+
     TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
     l1->SetLineColor(kBlack);
     l1->SetLineStyle(kDashed);
@@ -311,11 +311,11 @@ void plotMMseq()
   g_par[6][4]->SetMarkerStyle(20);
   g_par[6][4]->SetMarkerSize(.75);
   g_par[6][4]->Draw("p");
-
+  
   g_par[6][5]->SetLineColor(kRed);
   g_par[6][5]->SetFillColorAlpha(kRed, 0.5);
   g_par[6][5]->Draw("ce3");
-  
+
   TLine *l41 = new TLine(46, parmin[6], 46, parmax[6]);
   l41->SetLineColor(kBlack);
   l41->SetLineStyle(kDashed);
@@ -329,7 +329,7 @@ void plotMMseq()
   c->Clear();
   
   // plot all the chi^2 / ndf at the end
-  TH1F *fc = c->DrawFrame(pt_min, 0, pt_max, 8);
+  TH1F *fc = c->DrawFrame(pt_min, 0, pt_max, 15);
   fc->SetXTitle("p_{T} (GeV)");
   fc->SetYTitle("#chi^{2}/ndf");
   fc->GetYaxis()->SetTitleOffset(1.3);
@@ -385,6 +385,7 @@ void plotMMseq()
     c->SaveAs(Form("plots/MCMass/na_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }
+  c->Destructor();
 
   // also storing chi^2 as table
   ofstream ftex;

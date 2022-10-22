@@ -1,0 +1,169 @@
+// macro to plot the bkg fracs
+// f_bkg, f_bkg^NP, f_NP, f_NP^c
+void compBkgFrac()
+{
+  // get fit fBG
+  TH1D **fSB_b = new TH1D*[3];
+  TH1D **h_fSB = new TH1D*[3];
+
+  string basel = "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/";
+  string loc[3] = {"Simult", "2017", "2018"};
+  for(int i = 0; i < 3; i++) {
+    TFile *fin1 = new TFile(Form("%s%s/PR_fit/files/bkgFrac.root", basel.c_str(), loc[i].c_str()));
+    fSB_b[i] = (TH1D*)fin1->Get("fbkg_unc"); // wide-pT f_bkg
+    fSB_b[i]->SetDirectory(0);
+    TH2D* fSB2d = (TH2D*)fin1->Get("h_fbkg"); // fine-pT f_bkg
+    fSB2d->SetDirectory(0);
+    fin1->Close();
+
+    h_fSB[i] = fSB2d->ProjectionY(Form("fbkg_1d_%d", i), 1, 1);
+    h_fSB[i]->Scale(100.);
+    fSB_b[i]->Scale(100.);
+  }
+
+  TCanvas *c = new TCanvas("", "", 900, 900);
+
+  TH1F *fr1 = c->DrawFrame(20, 0.0, 125, 14);
+  fr1->SetXTitle("p_{T} (GeV)");
+  fr1->SetYTitle("f (%)");
+  fr1->GetYaxis()->SetTitleOffset(1.3);
+  fr1->GetYaxis()->SetLabelOffset(0.01);
+  fr1->SetTitle("f_{bkg} comparison");
+
+  string lbl[3] = {"Run ", "2017", "2018"};
+  
+  for(int i = 0; i < 3; i++) {
+    h_fSB[i]->SetLineColor(i+1);
+    h_fSB[i]->SetLineStyle(kDashed);
+    h_fSB[i]->SetMarkerColor(i+1);
+    h_fSB[i]->SetMarkerStyle(20);
+    h_fSB[i]->SetMarkerSize(.5);
+    h_fSB[i]->Draw("hist same c");
+    
+    fSB_b[i]->SetMarkerColor(i+1);
+    fSB_b[i]->SetLineColor(i+1);
+    fSB_b[i]->SetMarkerStyle(20);
+    fSB_b[i]->SetMarkerSize(.5);
+    fSB_b[i]->Draw("error same");
+  }
+  
+  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+  leg->SetTextSize(0.03);
+  for(int i = 0; i < 3; i++) 
+    leg->AddEntry(fSB_b[i], Form("%s", lbl[i].c_str()), "pl");
+  leg->Draw();
+  
+  c->SaveAs("fBG_comp.pdf");
+  c->Clear();
+
+  // get fit fBG^NP
+  TH1D **fSBN_b = new TH1D*[3];
+  TH1D **h_fSBN = new TH1D*[3];
+
+  for(int i = 0; i < 3; i++) {
+    TFile *fin1 = new TFile(Form("%s%s/NP_fit/files/bkgFrac.root", basel.c_str(), loc[i].c_str()));
+    fSBN_b[i] = (TH1D*)fin1->Get("fbkg_unc"); // wide-pT f_bkg
+    fSBN_b[i]->SetDirectory(0);
+    TH2D* fSB2d = (TH2D*)fin1->Get("h_fbkg"); // fine-pT f_bkg
+    fSB2d->SetDirectory(0);
+    fin1->Close();
+
+    h_fSBN[i] = fSB2d->ProjectionY(Form("fbkgN_1d_%d", i), 1, 1);
+    h_fSBN[i]->Scale(100.);
+    fSBN_b[i]->Scale(100.);
+  }
+
+  TH1F *fr1n = c->DrawFrame(20, 0.0, 125, 14);
+  fr1n->SetXTitle("p_{T} (GeV)");
+  fr1n->SetYTitle("f (%)");
+  fr1n->GetYaxis()->SetTitleOffset(1.3);
+  fr1n->GetYaxis()->SetLabelOffset(0.01);
+  fr1n->SetTitle("f_{bkg}^{NP} comparison");
+
+  for(int i = 0; i < 3; i++) {
+    h_fSBN[i]->SetLineColor(i+1);
+    h_fSBN[i]->SetLineStyle(kDashed);
+    h_fSBN[i]->SetMarkerColor(i+1);
+    h_fSBN[i]->SetMarkerStyle(20);
+    h_fSBN[i]->SetMarkerSize(.5);
+    h_fSBN[i]->Draw("hist same c");
+    
+    fSBN_b[i]->SetMarkerColor(i+1);
+    fSBN_b[i]->SetLineColor(i+1);
+    fSBN_b[i]->SetMarkerStyle(20);
+    fSBN_b[i]->SetMarkerSize(.5);
+    fSBN_b[i]->Draw("error same");
+  }
+  
+  leg->Draw();
+  
+  c->SaveAs("fBGN_comp.pdf");
+  c->Clear();
+
+  // get fit fNP
+  TH1D **h_fNP = new TH1D*[3];
+
+  for(int i = 0; i < 3; i++) {
+    TFile *fin1 = new TFile(Form("%s%s/PR_fit/files/NPFrac.root", basel.c_str(), loc[i].c_str()));
+    TH2D* fNP2d = (TH2D*)fin1->Get("h_fnp"); 
+    fNP2d->SetDirectory(0);
+    fin1->Close();
+
+    h_fNP[i] = fNP2d->ProjectionY(Form("fnp_1d_%d", i), 1, 1);
+    h_fNP[i]->Scale(100.);
+  }
+
+  TH1F *fr2 = c->DrawFrame(20, 0.0, 125, 40);
+  fr2->SetXTitle("p_{T} (GeV)");
+  fr2->SetYTitle("f (%)");
+  fr2->GetYaxis()->SetTitleOffset(1.3);
+  fr2->GetYaxis()->SetLabelOffset(0.01);
+  fr2->SetTitle("f_{NP} comparison");
+
+  for(int i = 0; i < 3; i++) {
+    h_fNP[i]->SetLineColor(i+1);
+    h_fNP[i]->SetMarkerColor(i+1);
+    h_fNP[i]->SetMarkerStyle(20);
+    h_fNP[i]->SetMarkerSize(.5);
+    h_fNP[i]->Draw("error same");
+  }
+  
+  leg->Draw();
+  
+  c->SaveAs("fNP_comp.pdf");
+  c->Clear();
+
+  // get fit fNP^c
+  TH1D **h_fNPc = new TH1D*[3];
+
+  for(int i = 0; i < 3; i++) {
+    TFile *fin1 = new TFile(Form("%s%s/PR_fit/files/NPFrac.root", basel.c_str(), loc[i].c_str()));
+    TH2D* fNP2d = (TH2D*)fin1->Get("h_fNPc"); 
+    fNP2d->SetDirectory(0);
+    fin1->Close();
+    
+    h_fNPc[i] = fNP2d->ProjectionY(Form("fnpc_1d_%d", i), 1, 1);
+    h_fNPc[i]->Scale(100.);
+  }
+
+  TH1F *fr2c = c->DrawFrame(20, 0.0, 125, 40);
+  fr2c->SetXTitle("p_{T} (GeV)");
+  fr2c->SetYTitle("f (%)");
+  fr2c->GetYaxis()->SetTitleOffset(1.3);
+  fr2c->GetYaxis()->SetLabelOffset(0.01);
+  fr2c->SetTitle("f_{NP}^{c} comparison");
+
+  for(int i = 0; i < 3; i++) {
+    h_fNPc[i]->SetLineColor(i+1);
+    h_fNPc[i]->SetMarkerColor(i+1);
+    h_fNPc[i]->SetMarkerStyle(20);
+    h_fNPc[i]->SetMarkerSize(.5);
+    h_fNPc[i]->Draw("error same");
+  }
+  
+  leg->Draw();
+  
+  c->SaveAs("fNPc_comp.pdf");
+  c->Clear();
+  c->Destructor();
+}

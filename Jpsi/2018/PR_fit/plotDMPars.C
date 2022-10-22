@@ -12,15 +12,14 @@ void plotDMPars()
   string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t", "f_{bkg}", "f_{G}", "#sigma_{G}"};
   string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
-  double parmin[] = {0,    8e0, 3090, 0,   32, 1.0, 2.0,  5e0, 0, 0.,  0,   0};
-  double parmax[] = {100., 2e4, 3100, 100, 46, 1.4, 2.25, 3e4, 5, 15., 100, 100};
+  double parmin[] = {0,    1e1, 3090, 0,   32, 1.0, 2.0,  1e1, 0, 0.,  0,   0};
+  double parmax[] = {100., 2e4, 3100, 100, 46, 1.4, 2.25, 1e5, 5, 15., 100, 100};
  
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
   for(int i_m = 0; i_m < n_m; i_m++) {
     g_par[i_m] = new TGraphErrors*[n_p];
     TFile *fin = new TFile(Form("files/mfit%s.root", modn[i_m].c_str()));
-    //int n_pv = i_m == 0 ? 10 : 12;
     int n_pv = n_p;
     for(int i_p = 0; i_p < n_pv; i_p++) {
       fin->GetObject(Form("fit_%s", parlab[i_p].c_str()), g_par[i_m][i_p]);

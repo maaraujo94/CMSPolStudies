@@ -37,7 +37,5 @@ void plotMassLt()
   hist->Draw("COL");
   c->SaveAs("plots/2dMaps/massLtMap.pdf");
   c->Clear();
-  c->Destructor();
- 
 
 }

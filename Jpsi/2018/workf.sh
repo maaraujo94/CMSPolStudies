@@ -4,68 +4,58 @@ echo "running MC fits\n"
 
 cd bkgFits
 
-root -l -b -q newMCmass_0.C
-root -l -b -q newMCmass_1.C
-root -l -b -q newMCmass_2.C
-root -l -b -q newMCmass_3.C
-root -l -b -q newMCmass_4.C
-root -l -b -q newMCmass_5.C
-root -l -b -q newMCmass_G.C
-root -l -b -q plotMMseq.C
-root -l -b -q plotnalpha.C
-root -l -b -q plotMMG.C
+#root -l -b -q newMCmass_0.C
+#root -l -b -q newMCmass_1.C
+#root -l -b -q newMCmass_2.C
+#root -l -b -q newMCmass_3.C
+#root -l -b -q newMCmass_4.C
+#root -l -b -q newMCmass_5.C
+#root -l -b -q newMCmass_G.C
+#root -l -b -q plotMMseq.C
+#root -l -b -q plotnalpha.C
+#root -l -b -q plotMMG.C
 
 echo "running NP MC fits\n"
 
-root -l -b -q NPMCmass.C
-root -l -b -q NPMCmass_hpt.C
-root -l -b -q NPMCmass_hp_fn.C
-root -l -b -q combNPRes.C
+#root -l -b -q NPMCmass.C
 
 echo "getting costh limits with fine binning\n"
 
 cd ../cosMax
-root -l -b -q histoSave.C
-root -l -b -q getCos.C
+#root -l -b -q histoSave.C
+#root -l -b -q getCos.C
 
 echo "saving the PR histos for fitting"
 
 cd ../PR_fit
-root -l -b -q histoSave.C
-root -l -b -q bkgSave.C
+#root -l -b -q histoSave.C
+#root -l -b -q bkgSave.C
 
 echo "fitting lifetime, mass distributions\n"
 
-root -l -b -q ltBkg.C
-root -l -b -q mBkg.C
+#root -l -b -q ltBkg2d.C
+#root -l -b -q plotLPars2d.C
+#root -l -b -q ltBkg.C
+#root -l -b -q mBkg.C
 
-echo "fitting mass bkg costh dists\n"
+echo "getting mass bkg dists in reg binning\n"
 
-root -l -b -q bkgCosth.C
-root -l -b -q fitBkgCosth.C
-root -l -b -q fitBkgCosth2d.C
-root -l -b -q plotCosPars_both.C
-
-echo "getting mass bkg fitted dists in reg binning\n"
-
-root -l -b -q getfL.C
-root -l -b -q genDist.C
+#root -l -b -q bkgCosth.C
+#root -l -b -q getfL.C
+#root -l -b -q genDist.C
 
 echo "getting bkg frac uncertainties\n"
 
-root -l -b -q fbkgProp.C
-root -l -b -q fnpProp.C
+#root -l -b -q fbkgProp.C
+#root -l -b -q fnpProp.C
 
 echo "running NP framework\n"
 
 cd ../NP_fit
 
-root -l -b -q bkgSave.C
-root -l -b -q mBkg.C
+#root -l -b -q bkgSave.C
+#root -l -b -q mBkg.C
 root -l -b -q bkgCosth.C
-root -l -b -q fitBkgCosth.C
-root -l -b -q fitBkgCosth2d.C
-root -l -b -q plotCosPars_both.C
 root -l -b -q getfL.C
 root -l -b -q genDist.C
 root -l -b -q fbkgProp.C

@@ -19,8 +19,8 @@ void plot2dHistos()
 
   // scaling Peak ratio
   double maxR[3];
-  int bin_min[] = {1,8,12};
-  int bin_max[] = {7,11,17};
+  int bin_min[] = {1,10,15};
+  int bin_max[] = {8,14,19};
   for(int i = 0; i < 3; i++) {
     h_Data->GetYaxis()->SetRange(bin_min[i], bin_max[i]);
     maxR[i] = h_Data->GetMaximum();
@@ -34,6 +34,8 @@ void plot2dHistos()
       for(int i = 0; i < 3; i++) 
 	if(i_y+1 >= bin_min[i] && i_y+1 <= bin_max[i]) 
 	  scalF = maxR[0]/maxR[i];
+      if(i_y+1 == 9)
+	scalF = 0;
       h_Data->SetBinContent(i_x+1, i_y+1, h_Data->GetBinContent(i_x+1, i_y+1)*scalF);
     }
   }
@@ -46,7 +48,7 @@ void plot2dHistos()
   c->SaveAs("plots/2dMaps/ratio_Peak.pdf");
   c->Clear();
 
-    // scaling NP ratio
+  // scaling NP ratio
   for(int i = 0; i < 3; i++) {
     h_NP->GetYaxis()->SetRange(bin_min[i], bin_max[i]);
     maxR[i] = h_NP->GetMaximum();
@@ -59,6 +61,8 @@ void plot2dHistos()
       for(int i = 0; i < 3; i++) 
 	if(i_y+1 >= bin_min[i] && i_y+1 <= bin_max[i]) 
 	  scalF = maxR[0]/maxR[i];
+      if(i_y+1 == 9)
+	scalF = 0;
       h_NP->SetBinContent(i_x+1, i_y+1, h_NP->GetBinContent(i_x+1, i_y+1)*scalF);
     }
   }

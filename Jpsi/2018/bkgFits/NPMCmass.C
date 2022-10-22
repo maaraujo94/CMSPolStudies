@@ -151,6 +151,8 @@ void NPMCmass()
   // first running the full fit
   f_cb->SetParameters(par_v);
   f_cb->SetParameter(0, h_mF->GetMaximum()/20.);
+  //f_cb->FixParameter(7, 0);
+  //f_cb->FixParameter(8, 1);
   f_cb->SetLineColor(kBlue);
   f_cb->SetNpx(1000);
   h_mF->Fit("f_cb", "R");
@@ -162,8 +164,11 @@ void NPMCmass()
     epars[j] = f_cb->GetParError(j);
   }
 
+  //c->SetLogy();
+  
   h_mF->SetMaximum(h_mF->GetMaximum()*1.1);
   h_mF->SetMinimum(0);
+  //h_mF->SetMinimum(h_mF->GetMaximum()*1e-5);
   h_mF->SetStats(0);
   h_mF->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
   h_mF->GetYaxis()->SetTitleOffset(1.8);
@@ -261,6 +266,8 @@ void NPMCmass()
   // then running just the NP range fit
   f_cb->SetParameters(par_v);
   f_cb->SetParameter(0, h_mNP->GetMaximum()/20.);
+  //f_cb->FixParameter(7, 0);
+  //f_cb->FixParameter(8, 1);
   h_mNP->Fit("f_cb", "R");
 
   // storing parameters
@@ -269,8 +276,11 @@ void NPMCmass()
     epars[j] = f_cb->GetParError(j);
   }
 
+  //c->SetLogy();
+  
   h_mNP->SetMaximum(h_mNP->GetMaximum()*1.1);
   h_mNP->SetMinimum(0);
+  //h_mNP->SetMinimum(h_mNP->GetMaximum()*1e-5);
   h_mNP->SetStats(0);
   h_mNP->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
   h_mNP->GetYaxis()->SetTitleOffset(1.8);

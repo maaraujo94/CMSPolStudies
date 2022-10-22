@@ -181,5 +181,5 @@ void plotMMG()
     c->Clear();
   }
   
-
+  c->Destructor();
 }

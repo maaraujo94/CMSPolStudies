@@ -60,13 +60,15 @@ void fnpProp()
   ptBins[n_pt] = g_par[0]->GetX()[n_pt-1]+g_par[0]->GetEX()[n_pt-1];
   
   // prepare lt histograms
+  TH2D *h_d2d = new TH2D();
   TH1D **h_d1d = new TH1D*[n_pt];
   TFile *fin = new TFile("files/ltStore.root");
-  for(int ip = 0; ip < n_pt; ip++) {
-    fin->GetObject(Form("ltH%.0f", ptBins[ip]), h_d1d[ip]);
-    h_d1d[ip]->SetDirectory(0);
-  }
+  fin->GetObject("ltH", h_d2d);
+  h_d2d->SetDirectory(0);
   fin->Close();
+  for(int ip = 0; ip < n_pt; ip++) {
+    h_d1d[ip] = h_d2d->ProjectionX(Form("ltH%.0f", ptBins[ip]), ip+1, ip+1);
+  }
 
   // fNP = integral / evt_all (in prompt region)
   double epsrel = 1e-6, error = 0;
@@ -106,13 +108,11 @@ void fnpProp()
       else dpar[i] = 0;
     }
     
-    for(int i = 0; i < n_par; i++)  {
-      for(int j = 0; j < n_par; j++) {
+    for(int i = 0; i < n_par; i++)  
+      for(int j = 0; j < n_par; j++) 
 	fe += dpar[i]*dpar[j]*cov[i][j];
-      }
-    }
     fe = sqrt(fe);
-    
+
     // fill pT bin
     h_fnp->SetBinContent(i_pt+1, fv/evt_all*100.);
     h_fnp->SetBinError(i_pt+1, fe/evt_all*100.);

@@ -5,9 +5,9 @@ void store_ANdists()
 {
   // PART 1 : creating the histograms
 
-  // five pT dists: PRSR data + the 4 MC
-  TH1D **h_pT = new TH1D*[5]; 
-  for(int i = 0; i < 5; i++)
+  // four pT dists: PRSR data + the 3 MC
+  TH1D **h_pT = new TH1D*[4]; 
+  for(int i = 0; i < 4; i++)
     h_pT[i] = new TH1D(Form("h_pT%d", i), Form("p_{T} distributions"), 100, 0, 200);
 
   // 6 y dists: PRSR data + MC over 3 pT regions
@@ -36,8 +36,6 @@ void store_ANdists()
   TTree *treeD = (TTree*)fin->Get("data_cos");
   TFile *fin2 = new TFile("../../Store_data_codes/MC18_cos.root");
   TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
-  TFile *fin2a = new TFile("../../Store_data_codes/MCm18_cos.root");
-  TTree *treeM1a = (TTree*)fin2a->Get("MC_cos");
   TFile *fin3 = new TFile("../../Store_data_codes/MCh18_cos.root");
   TTree *treeM2 = (TTree*)fin3->Get("MC_cos");
   TFile *fin4 = new TFile("../../Store_data_codes/MCvh18_cos.root");
@@ -45,7 +43,6 @@ void store_ANdists()
   
   int dEvt = treeD->GetEntries();
   int m1Evt = treeM1->GetEntries();
-  int m1aEvt = treeM1a->GetEntries();
   int m2Evt = treeM2->GetEntries();
   int m3Evt = treeM3->GetEntries();
   
@@ -64,12 +61,6 @@ void store_ANdists()
   treeM1->SetBranchAddress("Rap", &mc_y);
   treeM1->SetBranchAddress("Mass", &mc_m);
   treeM1->SetBranchAddress("lt", &mc_lt);
-
-  treeM1a->SetBranchAddress("theta", &mc_th);
-  treeM1a->SetBranchAddress("dimPt", &mc_pt);
-  treeM1a->SetBranchAddress("Rap", &mc_y);
-  treeM1a->SetBranchAddress("Mass", &mc_m);
-  treeM1a->SetBranchAddress("lt", &mc_lt);
 
   treeM2->SetBranchAddress("theta", &mc_th);
   treeM2->SetBranchAddress("dimPt", &mc_pt);
@@ -95,11 +86,11 @@ void store_ANdists()
 
       // fill the y histo
       if(data_m > 3.0 && data_m < 3.2 && abs(data_lt) < 0.005) {
-	if(data_pt > 25 && data_pt < 46) 
+	if(data_pt > 25 && data_pt < 47.5) 
 	  h_y[0]->Fill(data_y);
-	else if(data_pt > 46 && data_pt < 66) 
+	else if(data_pt > 47.5 && data_pt < 70) 
 	  h_y[1]->Fill(data_y);
-	else if(data_pt > 66 && data_pt < 120) 
+	else if(data_pt > 70 && data_pt < 120) 
 	  h_y[2]->Fill(data_y);
       }
       
@@ -107,21 +98,21 @@ void store_ANdists()
       if(abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
 	if(data_pt > 25 && data_pt < 120)
 	  h_m[6]->Fill(data_m);
-	if(data_pt > 25 && data_pt < 46) 
+	if(data_pt > 25 && data_pt < 47.5) 
 	  h_m[0]->Fill(data_m);
-	else if(data_pt > 46 && data_pt < 66) 
+	else if(data_pt > 47.5 && data_pt < 70) 
 	  h_m[1]->Fill(data_m);
-	else if(data_pt > 66 && data_pt < 120) 
+	else if(data_pt > 70 && data_pt < 120) 
 	  h_m[2]->Fill(data_m);
       }
       
       // fill the lt histo - in MICRON
       if(data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2) {
-	if(data_pt > 25 && data_pt < 46) 
+	if(data_pt > 25 && data_pt < 47.5) 
 	  h_lt[0]->Fill(data_lt*1e4);
-	else if(data_pt > 46 && data_pt < 66) 
+	else if(data_pt > 47.5 && data_pt < 70) 
 	  h_lt[1]->Fill(data_lt*1e4);
-	else if(data_pt > 66 && data_pt < 120) 
+	else if(data_pt > 70 && data_pt < 120) 
 	  h_lt[2]->Fill(data_lt*1e4);
 	if(data_pt > 25 && data_pt < 120) 
 	  h_lt[3]->Fill(data_lt*1e4);
@@ -129,22 +120,22 @@ void store_ANdists()
 
       // fill the costh histo - PRSR
       if(data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2 && abs(data_lt) < 0.005) {
-	if(data_pt > 25 && data_pt < 46) 
+	if(data_pt > 25 && data_pt < 47.5) 
 	  h_cos[0]->Fill(abs(cos(data_th)));
-	else if(data_pt > 46 && data_pt < 66) 
+	else if(data_pt > 47.5 && data_pt < 70) 
 	  h_cos[1]->Fill(abs(cos(data_th)));
-	else if(data_pt > 66 && data_pt < 120) 
+	else if(data_pt > 70 && data_pt < 120) 
 	  h_cos[2]->Fill(abs(cos(data_th)));
 	if(data_pt > 25 && data_pt < 120) 
 	  h_cos[3]->Fill(abs(cos(data_th)));
       }
       // fill the costh histo - NPSR
       if(data_m > 3.0 && data_m < 3.2 && abs(data_y) < 1.2 && data_lt > 0.01 && data_lt < 0.05) {
-	if(data_pt > 25 && data_pt < 46) 
+	if(data_pt > 25 && data_pt < 47.5) 
 	  h_cos[4]->Fill(abs(cos(data_th)));
-	else if(data_pt > 46 && data_pt < 66) 
+	else if(data_pt > 47.5 && data_pt < 70) 
 	  h_cos[5]->Fill(abs(cos(data_th)));
-	else if(data_pt > 66 && data_pt < 120) 
+	else if(data_pt > 70 && data_pt < 120) 
 	  h_cos[6]->Fill(abs(cos(data_th)));
 	if(data_pt > 25 && data_pt < 120) 
 	  h_cos[7]->Fill(abs(cos(data_th)));
@@ -163,33 +154,22 @@ void store_ANdists()
 
       // fill the y histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 25 && mc_pt < 46) 
+	if(mc_pt > 25 && mc_pt < 47.5) 
 	  h_y[3]->Fill(mc_y);
       }
 
       // fill the m histo
       if(abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
-	if(mc_pt > 25 && mc_pt < 46) 
+	if(mc_pt > 25 && mc_pt < 47.5) 
 	  h_m[3]->Fill(mc_m);
       }
 
       // fill the costh histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_y) < 1.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 25 && mc_pt < 46) {
+	if(mc_pt > 25 && mc_pt < 47.5) {
 	  h_cos[8]->Fill(abs(cos(mc_th)));
 	  h_cos[11]->Fill(abs(cos(mc_th)));
 	}
-      }
-
-    }
-
-    for(int i = 0; i < m1aEvt; i++)
-    {
-      treeM1a->GetEntry(i);
-
-      // fill the pT histo
-      if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
-	h_pT[2]->Fill(mc_pt);
       }
 
     }
@@ -200,23 +180,23 @@ void store_ANdists()
 
       // fill the pT histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
-	h_pT[3]->Fill(mc_pt);
+	h_pT[2]->Fill(mc_pt);
       }
 
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 46 && mc_pt < 66) 
+	if(mc_pt > 47.5 && mc_pt < 70) 
 	  h_y[4]->Fill(mc_y);
       }
       
       // fill the m histo
       if(abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
-	if(mc_pt > 46 && mc_pt < 66) 
+	if(mc_pt > 47.5 && mc_pt < 70) 
 	  h_m[4]->Fill(mc_m);
       }
       
       // fill the costh histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_y) < 1.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 46 && mc_pt < 66) {
+	if(mc_pt > 47.5 && mc_pt < 70) {
 	  h_cos[9]->Fill(abs(cos(mc_th)));
 	  h_cos[11]->Fill(abs(cos(mc_th)));
 	}
@@ -230,24 +210,24 @@ void store_ANdists()
 
       // fill the pT histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
-	h_pT[4]->Fill(mc_pt);
+	h_pT[3]->Fill(mc_pt);
       }
 
       // fill the y histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 66 && mc_pt < 120) 
+	if(mc_pt > 70 && mc_pt < 120) 
 	  h_y[5]->Fill(mc_y);
       }
 
       // fill the m histo
       if(abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
-	if(mc_pt > 66 && mc_pt < 120) 
+	if(mc_pt > 70 && mc_pt < 120) 
 	  h_m[5]->Fill(mc_m);
       }
 
       // fill the costh histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_y) < 1.2 && abs(mc_lt) < 0.005) {
-	if(mc_pt > 66 && mc_pt < 120) {
+	if(mc_pt > 70 && mc_pt < 120) {
 	  h_cos[10]->Fill(abs(cos(mc_th)));
 	  h_cos[11]->Fill(abs(cos(mc_th)));
 	}
@@ -263,8 +243,8 @@ void store_ANdists()
   TFile *fout = new TFile("files/store_ANdists.root", "recreate");
 
   // store the pT dists
-  string lbl_pt[] = {"Data", "lowPtMC", "midPtMC", "highPtMC", "vhighPtMC"};
-  for(int i = 0; i < 5; i++) {
+  string lbl_pt[] = {"Data", "lowPtMC", "midPtMC", "highPtMC"};
+  for(int i = 0; i < 4; i++) {
     h_pT[i]->Write(Form("h_pT_%s", lbl_pt[i].c_str()));
   }
 

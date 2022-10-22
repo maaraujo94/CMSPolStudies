@@ -9,7 +9,7 @@ void plotMMseq()
   string parlab[] = {"f", "N", "mu", "sig1", "sig2", "n", "alpha", "chiN"};
   string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha"};
   string parax[] = {"f (%)", "N per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha"};
-  double parmin[] = {0,   3e1, 3090,   0.0, 30., 0.6, 1.8};
+  double parmin[] = {0,   4e1, 3090,   0.0, 30., 0.6, 1.8};
   double parmax[] = {100, 2e3, 3100,   60., 55., 1.8, 2.5};
 
   // initialize tgraphs for parameters
@@ -329,7 +329,7 @@ void plotMMseq()
   c->Clear();
   
   // plot all the chi^2 / ndf at the end
-  TH1F *fc = c->DrawFrame(pt_min, 0, pt_max, 8);
+  TH1F *fc = c->DrawFrame(pt_min, 0, pt_max, 15);
   fc->SetXTitle("p_{T} (GeV)");
   fc->SetYTitle("#chi^{2}/ndf");
   fc->GetYaxis()->SetTitleOffset(1.3);
@@ -385,6 +385,7 @@ void plotMMseq()
     c->SaveAs(Form("plots/MCMass/na_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }
+  c->Destructor();
 
   // also storing chi^2 as table
   ofstream ftex;

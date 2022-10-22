@@ -1,7 +1,7 @@
 // macro to plot costh dists for slides
 void plotCosDist()
 {
-  // read the histos from subtraction - normalized by f_NP/f_bkg
+  // read the histos from subtraction - before normalization
   TFile *infile = new TFile("../PR_fit/files/bkgSubRes.root");
   TH2D **h_base = new TH2D*[5]; 
   string lbl[] = {"Data", "NP", "PR", "J", "SB"};
@@ -9,7 +9,6 @@ void plotCosDist()
     infile->GetObject(Form("h_%sB", lbl[i].c_str()), h_base[i]);
     h_base[i]->SetDirectory(0);
   }
-
   // read the RATIO histos from subtraction - normalized by f_NP/f_bkg
   TH2D **h_rat = new TH2D*[5]; 
   for(int i = 0; i < 5; i++) {
@@ -17,6 +16,11 @@ void plotCosDist()
     h_rat[i]->SetDirectory(0);
   }
   infile->Close();
+
+  TFile *infile2 = new TFile("../PR_fit/files/histoStore.root");
+  infile2->GetObject("NPH_ab", h_base[1]);
+  h_base[1]->SetDirectory(0);
+  infile2->Close();
 
   // get the binning
   int nBinsX = h_base[0]->GetNbinsX(), nBinsY = h_base[0]->GetNbinsY();
@@ -58,28 +62,20 @@ void plotCosDist()
     TLatex lcb1;
     lcb1.SetTextSize(0.04);
     lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "2018");
-    lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
+    lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.1f-%.1f GeV", pMin, pMax));
     lcb1.SetTextColor(cols[0]);
     lcb1.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
     
     c->SaveAs(Form("plots/ratioFinal/dists/bin1B_%d.pdf", i));
 
-    // peak + NP (norm) + (peak-NP) costh
+    // peak + NP costh
     h_base1d[1][i]->SetStats(0);
     h_base1d[1][i]->SetLineColor(cols[1]);
     h_base1d[1][i]->SetMarkerColor(cols[1]);
     h_base1d[1][i]->Draw("error same");
 
     lcb1.SetTextColor(cols[1]);
-    lcb1.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*1.1, "NP (scaled)");
-
-    h_base1d[2][i]->SetStats(0);
-    h_base1d[2][i]->SetLineColor(cols[2]);
-    h_base1d[2][i]->SetMarkerColor(cols[2]);
-    h_base1d[2][i]->Draw("error same");
-
-    lcb1.SetTextColor(cols[2]);
-    lcb1.DrawLatex(0.15, h_base1d[2][i]->GetMaximum()*0.7, "PR");
+    lcb1.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*0.8, "NP");
 
     c->SaveAs(Form("plots/ratioFinal/dists/bin2B_%d.pdf", i));    
     c->Clear();
@@ -90,19 +86,19 @@ void plotCosDist()
     TLatex lcb3;
     lcb3.SetTextSize(0.04);
     lcb3.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "2018");
-    lcb3.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
+    lcb3.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.1f-%.1f GeV", pMin, pMax));
     lcb3.SetTextColor(cols[0]);
-    lcb3.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.8, "Peak");
+    lcb3.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.7, "Peak");
 
     h_base1d[1][i]->Draw("error same");
 
     lcb3.SetTextColor(cols[1]);
-    lcb3.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*1.1, "NP (scaled)");
+    lcb3.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*1.1, "NP");
 
     h_base1d[2][i]->Draw("error same");
 
     lcb3.SetTextColor(cols[2]);
-    lcb3.DrawLatex(0.15, h_base1d[2][i]->GetMaximum()*1.0, "PR");
+    lcb3.DrawLatex(0.15, h_base1d[2][i]->GetMaximum()*0.875, "PR");
 
     h_base1d[3][i]->SetStats(0);
     h_base1d[3][i]->SetLineColor(cols[3]);
@@ -110,7 +106,7 @@ void plotCosDist()
     h_base1d[3][i]->Draw("error same");
 
     lcb3.SetTextColor(cols[3]);
-    lcb3.DrawLatex(0.15, h_base1d[3][i]->GetMaximum()*0.7, "J/#psi");
+    lcb3.DrawLatex(0.15, h_base1d[3][i]->GetMaximum()*0.75, "J/#psi");
 
     h_base1d[4][i]->SetStats(0);
     h_base1d[4][i]->SetLineColor(cols[4]);
@@ -118,7 +114,7 @@ void plotCosDist()
     h_base1d[4][i]->Draw("error same");
 
     lcb3.SetTextColor(cols[4]);
-    lcb3.DrawLatex(0.15, h_base1d[4][i]->GetMaximum()*1.1, "bkg (scaled)");
+    lcb3.DrawLatex(0.15, h_base1d[4][i]->GetMaximum()*1.1, "bkg");
 
     c->SaveAs(Form("plots/ratioFinal/dists/bin3B_%d.pdf", i));    
     c->Clear();
@@ -136,7 +132,7 @@ void plotCosDist()
     TLatex lcr1;
     lcr1.SetTextSize(0.04);
     lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.9, "2018");
-    lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.0f-%.0f GeV", pMin, pMax));
+    lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.1f-%.1f GeV", pMin, pMax));
     lcr1.SetTextColor(cols[0]);
     lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.8, "Peak/MC");
     

@@ -90,11 +90,11 @@ void plotMMseq()
     }
     else if (i_p == 4) continue;
     
-    TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
+    TLine *l1 = new TLine(47.5, parmin[i_p], 47.5, parmax[i_p]);
     l1->SetLineColor(kBlack);
     l1->SetLineStyle(kDashed);
     l1->Draw();
-    TLine *l2 = new TLine(66, parmin[i_p], 66, parmax[i_p]);
+    TLine *l2 = new TLine(70, parmin[i_p], 70, parmax[i_p]);
     l2->SetLineColor(kBlack);
     l2->SetLineStyle(kDashed);
     l2->Draw();
@@ -154,11 +154,11 @@ void plotMMseq()
     }
     else if (i_p == 4) continue;
     
-    TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
+    TLine *l1 = new TLine(47.5, parmin[i_p], 47.5, parmax[i_p]);
     l1->SetLineColor(kBlack);
     l1->SetLineStyle(kDashed);
     l1->Draw();
-    TLine *l2 = new TLine(66, parmin[i_p], 66, parmax[i_p]);
+    TLine *l2 = new TLine(70, parmin[i_p], 70, parmax[i_p]);
     l2->SetLineColor(kBlack);
     l2->SetLineStyle(kDashed);
     l2->Draw();
@@ -204,11 +204,11 @@ void plotMMseq()
   leg2->AddEntry(g_par[3+1][2], "#sigma_{2}", "pl");
   leg2->Draw();
   
-  TLine *l21 = new TLine(46, parmin[3], 46, parmax[3]);
+  TLine *l21 = new TLine(47.5, parmin[3], 47.5, parmax[3]);
   l21->SetLineColor(kBlack);
   l21->SetLineStyle(kDashed);
   l21->Draw();
-  TLine *l22 = new TLine(66, parmin[3], 66, parmax[3]);
+  TLine *l22 = new TLine(70, parmin[3], 70, parmax[3]);
   l22->SetLineColor(kBlack);
   l22->SetLineStyle(kDashed);
   l22->Draw();
@@ -245,11 +245,11 @@ void plotMMseq()
   leg2na->AddEntry(g_par[5+1][2], "#alpha", "pl");
   leg2na->Draw();
   
-  TLine *lna21 = new TLine(46, parmin[5], 46, parmax[6]);
+  TLine *lna21 = new TLine(47.5, parmin[5], 47.5, parmax[6]);
   lna21->SetLineColor(kBlack);
   lna21->SetLineStyle(kDashed);
   lna21->Draw();
-  TLine *lna22 = new TLine(66, parmin[5], 66, parmax[6]);
+  TLine *lna22 = new TLine(70, parmin[5], 70, parmax[6]);
   lna22->SetLineColor(kBlack);
   lna22->SetLineStyle(kDashed);
   lna22->Draw();
@@ -282,11 +282,11 @@ void plotMMseq()
       g_par[i_p][4]->Draw("ce3");
     }
 
-    TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
+    TLine *l1 = new TLine(47.5, parmin[i_p], 47.5, parmax[i_p]);
     l1->SetLineColor(kBlack);
     l1->SetLineStyle(kDashed);
     l1->Draw();
-    TLine *l2 = new TLine(66, parmin[i_p], 66, parmax[i_p]);
+    TLine *l2 = new TLine(70, parmin[i_p], 70, parmax[i_p]);
     l2->SetLineColor(kBlack);
     l2->SetLineStyle(kDashed);
     l2->Draw();
@@ -311,16 +311,19 @@ void plotMMseq()
   g_par[6][4]->SetMarkerStyle(20);
   g_par[6][4]->SetMarkerSize(.75);
   g_par[6][4]->Draw("p");
+
+  for(int i = 0; i < nv; i++) 
+    cout << i << " " << vx[i] << " "  << g_par[6][4]->GetY()[i] << endl;
   
   g_par[6][5]->SetLineColor(kRed);
   g_par[6][5]->SetFillColorAlpha(kRed, 0.5);
   g_par[6][5]->Draw("ce3");
 
-  TLine *l41 = new TLine(46, parmin[6], 46, parmax[6]);
+  TLine *l41 = new TLine(47.5, parmin[6], 47.5, parmax[6]);
   l41->SetLineColor(kBlack);
   l41->SetLineStyle(kDashed);
   l41->Draw();
-  TLine *l42 = new TLine(66, parmin[6], 66, parmax[6]);
+  TLine *l42 = new TLine(70, parmin[6], 70, parmax[6]);
   l42->SetLineColor(kBlack);
   l42->SetLineStyle(kDashed);
   l42->Draw();

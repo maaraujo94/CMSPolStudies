@@ -10,30 +10,23 @@ void calcSys()
   int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
   
-  // get the fit results - baseline; linear lbd_4; mu effs; 2017 vs 2018
-  TGraphErrors **graph_lth = new TGraphErrors*[6];
+  // get the fit results - baseline; mu effs; 2017 vs 2018
+  TGraphErrors **graph_lth = new TGraphErrors*[3];
   // 0 - get Run2 results
   TFile *fIndB = new TFile("../../PR_fit/files/finalFitRes.root");
   graph_lth[0] = (TGraphErrors*)fIndB->Get("graph_lambda_J");
   fIndB->Close();
-  // 1 - get results with linear lbd_4
-  TFile *fIndl4 = new TFile("../Linear_l4/files/finalFitRes.root");
-  graph_lth[1] = (TGraphErrors*)fIndl4->Get(Form("graph_lambda_J"));
-  fIndl4->Close();
   // 2 - get lambda values for each eff model
   TFile *fIndf1 = new TFile("../../../Simult_eff1/PR_fit/files/finalFitRes.root");
-  graph_lth[2] = (TGraphErrors*)fIndf1->Get(Form("graph_lambda_J"));
+  graph_lth[1] = (TGraphErrors*)fIndf1->Get(Form("graph_lambda_J"));
   fIndf1->Close();
   TFile *fIndf2 = new TFile("../../../Simult_eff2/PR_fit/files/finalFitRes.root");
-  graph_lth[3] = (TGraphErrors*)fIndf2->Get(Form("graph_lambda_J"));
+  graph_lth[2] = (TGraphErrors*)fIndf2->Get(Form("graph_lambda_J"));
   fIndf2->Close();
 
   // 2017 vs 2018 contribution has been fixed rather than calculated 
   double sigY = 0.01;
 
-  TCanvas *c = new TCanvas("", "", 700, 700);
-  c->SetLeftMargin(0.13);
-    
   // PART 2 - coarse-binned results (to expand)
   // get the histo limits
   TFile *fIn_c = new TFile("../deltaR/files/chistStore.root");
@@ -47,12 +40,12 @@ void calcSys()
   TGraphErrors **graph_lth_c = new TGraphErrors*[3];
   // 0 - get Run2 results
   TFile *fIndB_c = new TFile("../deltaR/files/finalFitRes.root");
-  graph_lth_c[0] = (TGraphErrors*)fIndB_c->Get("graph_lambda_B");
-  graph_lth_c[1] = (TGraphErrors*)fIndB_c->Get(Form("graph_lambda_T"));
-  graph_lth_c[2] = (TGraphErrors*)fIndB_c->Get(Form("graph_lambda_L"));
+  graph_lth_c[0] = (TGraphErrors*)fIndB_c->Get("graph_lambda_c_B");
+  graph_lth_c[1] = (TGraphErrors*)fIndB_c->Get(Form("graph_lambda_c_T"));
+  graph_lth_c[2] = (TGraphErrors*)fIndB_c->Get(Form("graph_lambda_c_L"));
   fIndB_c->Close();
 
-  // expand to the 17 pT bins
+  // expand to all pT bins
   double diff[nBinspT];
   for(int i = 0; i < nBinspT; i++) {
     double pt = graph_lth[0]->GetX()[i];
@@ -60,15 +53,17 @@ void calcSys()
       double pt_min = graph_lth_c[0]->GetX()[j]-graph_lth_c[0]->GetEX()[j];
       double pt_max = graph_lth_c[0]->GetX()[j]+graph_lth_c[0]->GetEX()[j];
       if(pt > pt_min && pt < pt_max) {
-	if(pt < 66) diff[i] = graph_lth_c[1]->GetY()[j]-graph_lth_c[0]->GetY()[j];
+	if(pt < 70) diff[i] = graph_lth_c[1]->GetY()[j]-graph_lth_c[0]->GetY()[j];
 	else diff[i] = graph_lth_c[2]->GetY()[j]-graph_lth_c[0]->GetY()[j];
       }
     }
   }
+
+  // PART 3: plotting results  
+  TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetLeftMargin(0.13);  
   
   // get the differences - positive and negative are the same
-  // linear lambda_4 -> variation is +/- sig contrib
-  TH1F *hs_sigL4 = new TH1F("h_sigL4", "h_sigL4", nBinspT, pTBins);
   // efficiency curves -> symmetrize, pos+neg
   TH1F *hs_sigEff = new TH1F("hs_sigEff", "hs_sigEff", nBinspT, pTBins);
   // 2017-2018 -> fixed value, symmetrize
@@ -76,28 +71,28 @@ void calcSys()
   // deltaR cuts -> one per pT region, symmetrize
   TH1F *hs_sigdR = new TH1F("hs_sigdR", "hs_sigdR", nBinspT, pTBins);
 
-  double aux;
+  double aux, ct_a = 0;
   for(int i = 0; i < nBinspT; i++) {
-    // lambda_4 lin
-    hs_sigL4->SetBinContent(i+1, abs(graph_lth[1]->GetY()[i] - graph_lth[0]->GetY()[i]));
     // muon eff curves
-    if(graph_lth[0]->GetX()[i] < 51)
-      aux = 0.5*(abs(graph_lth[2]->GetY()[i] - graph_lth[0]->GetY()[i])+abs(graph_lth[3]->GetY()[i] - graph_lth[0]->GetY()[i]));
-    else aux = 0;
+    //if(graph_lth[0]->GetX()[i] < 51)
+    aux = 0.5*(abs(graph_lth[1]->GetY()[i] - graph_lth[0]->GetY()[i])+abs(graph_lth[2]->GetY()[i] - graph_lth[0]->GetY()[i]));
+    //else aux = 0;
+    if(aux < 1e-3 || ct_a == 2) {
+      aux = 0;
+      ct_a = 1;
+    }
     hs_sigEff->SetBinContent(i+1, aux);
     // 2017 - 2018
     hs_sigD->SetBinContent(i+1, sigY);
     // dR cut
     aux = abs(diff[i]);
+    if(i == 8) aux = 0;
     hs_sigdR->SetBinContent(i+1, aux);
   }
 
   // draw the fit results
 
   // FIRST - set colors, styles for elements
-  hs_sigL4->SetFillColor(kRed);
-  hs_sigL4->SetLineColor(kRed);
-
   hs_sigEff->SetFillColor(kGreen+1);
   hs_sigEff->SetLineColor(kGreen+1);
  
@@ -108,18 +103,15 @@ void calcSys()
   hs_sigdR->SetLineColor(kOrange+1);
   
   // draw uncerts, squared and stacked
-  // positive conts: eff up to 46; lin lambda4; rho factor; constant 2017-2018
+  // positive conts: eff up to 46; rho factor; constant 2017-2018
   // negative cont: stat unc
   
   // get the systs
-  TH1F *f_sigL4 = new TH1F("f_sigL4", "f_sigL4", nBinspT, pTBins);
   TH1F *f_sigEff = new TH1F("f_sigEff", "f_sigEff", nBinspT, pTBins);
   TH1F *f_sigD = new TH1F("f_sigD", "f_sigD", nBinspT, pTBins);
   TH1F *f_sigdR = new TH1F("f_sigdR", "f_sigdR", nBinspT, pTBins);
   
   for(int i = 0; i < nBinspT; i++) {
-    // lambda_4 lin
-    f_sigL4->SetBinContent(i+1, pow(hs_sigL4->GetBinContent(i+1), 2));
     // eff (symmetric)
     f_sigEff->SetBinContent(i+1, pow(hs_sigEff->GetBinContent(i+1), 2));
     // 2017-2018 (symmetric)
@@ -135,10 +127,8 @@ void calcSys()
   }
   
   // draw stacks
-  double da_lim = 0.006;
+  double da_lim = 0.004;
   
-  f_sigL4->SetFillColor(kRed);
-  f_sigL4->SetLineColor(kRed);
   f_sigEff->SetFillColor(kGreen+1);
   f_sigEff->SetLineColor(kGreen+1);
   f_sigD->SetFillColor(kMagenta);
@@ -154,11 +144,10 @@ void calcSys()
   hstat->SetMinimum(-da_lim);
   hstat->SetMaximum(da_lim);
 
-  THStack *hsigP = new THStack("hsigP", "Stacked #sigma^{2}");
+  THStack *hsigP = new THStack("hsigP", "Stacked #sigma^{2} (prompt)");
   hsigP->SetMinimum(-da_lim);
   hsigP->Add(f_sigD);
   hsigP->Add(f_sigdR);
-  hsigP->Add(f_sigL4);
   hsigP->Add(f_sigEff);
   hsigP->SetMaximum(da_lim);
   
@@ -170,30 +159,29 @@ void calcSys()
 
   TLegend *legF = new TLegend(0.65, 0.7, 0.9, 0.9);
   legF->SetTextSize(0.03);
-  legF->AddEntry(hs_sigL4, "Linear #lambda_{4}", "l");
   legF->AddEntry(hs_sigEff, "Single #mu eff*", "l");
   legF->AddEntry(hs_sigdR, "#rho factor", "l");
   legF->AddEntry(hs_sigD, "2017-2018", "l");
   legF->AddEntry(f_stat, "stat", "l");
   legF->Draw();
 
-  c->SaveAs("lth_uncs_pos.pdf");
+  c->SaveAs("plots/lth_uncs_pos.pdf");
   c->Clear();  
     
   // tex table with sys uncerts per pt bin
   double sysp[nBinspT], sysn[nBinspT];
   ofstream ftex;
   ftex.open(Form("sys_unc.tex"));
-  ftex << "\\begin{tabular}{c||c|c|c|c||c|c}\n";
-  ftex << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\lambda_4}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^\\rho$ & $\\sigma_{\\text{sys}}$ & $\\sigma_{\\text{stat}}$ \\\\\n";
+  ftex << "\\begin{tabular}{c||c|c|c||c|c}\n";
+  ftex << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^\\rho$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$ & $\\sigma_{\\text{stat}}^{\\text{PR}}$ \\\\\n";
   ftex << "\\hline\n";
 
   int p_norm = 4;
-  double val_d, val_l4, val_eff, val_rho;
-  int rho_lims[4] = {0, 7, 11, 17};
+  double val_d, val_eff, val_rho;
+  int rho_lims[5] = {0, 8, 9, 14, 19};
   for(int i = 0; i < nBinspT; i++) {
     // pT bin
-    ftex << Form("$[%.0f, %.0f]$", pTBins[i], pTBins[i+1]);
+    ftex << Form("$[%.1f, %.1f]$", pTBins[i], pTBins[i+1]);
     // syst sources (start with fixed 3 decimal places
     ftex << setprecision(p_norm) << fixed;
     // combined years: same for all pT
@@ -202,14 +190,6 @@ void calcSys()
       ftex << Form(" & \\multirow{%d}{*}{$\\pm", nBinspT) << val_d << "$}";
     }
     else ftex << " & ";
-    // linear lambda_4: set to zero if < 0.001
-    val_l4 = hs_sigL4->GetBinContent(i+1);
-    if(val_l4 < 0.001) {
-      val_l4 = 0;
-      ftex << " & $-$";
-    }
-    else 
-      ftex << " & $\\pm" << val_l4 << "$";
     // single muon efficiency: already set to zero above
     val_eff = hs_sigEff->GetBinContent(i+1);
     if(val_eff == 0)
@@ -218,25 +198,28 @@ void calcSys()
       ftex << " & $\\pm" << val_eff << "$";
     // rho efficiency: constant in 3 pT bins
     int ct = 0;
-    for(int j = 0; j < 3; j++) {
+    for(int j = 0; j < 4; j++) {
       if(i == rho_lims[j]) {
 	ct++;
 	val_rho = hs_sigdR->GetBinContent(i+1);
-	ftex << Form(" & \\multirow{%d}{*}{$\\pm", rho_lims[j+1]-rho_lims[j]) << val_rho << "$}";
+	if(val_rho > 0)
+	  ftex << Form(" & \\multirow{%d}{*}{$\\pm", rho_lims[j+1]-rho_lims[j]) << val_rho << "$}";
+	else
+	  ftex << Form(" & \\multirow{%d}{*}{$-$}", rho_lims[j+1]-rho_lims[j]);	  
       }
     }
     if(ct == 0) ftex << " & ";
     // full syst (sum all sources)
-    double val = sqrt(pow(val_d,2)+pow(val_l4,2)+pow(val_eff,2)+pow(val_rho,2));
+    double val = sqrt(pow(val_d,2)+pow(val_eff,2)+pow(val_rho,2));
     sysp[i] = val;
     sysn[i] = val;
     ftex << " & $\\pm" << val << "$";
     // statistical uncertainty
     ftex << " & $\\pm" << graph_lth[0]->GetEY()[i] << "$";
     ftex << "\\\\";
-    for(int j = 0; j < 3; j++) 
+    for(int j = 0; j < 4; j++) 
       if(i+1 == rho_lims[j]) 
-	ftex << "\\cline{5-5}";
+	ftex << "\\cline{4-4}";
     ftex << "\n";
   }
   ftex << "\\end{tabular}\n";
@@ -250,8 +233,6 @@ void calcSys()
     double e_st = graph_lth[0]->GetEY()[i];
     err_tp[i] = sqrt(pow(sysp[i], 2) + pow(e_st, 2));
     err_tn[i] = sqrt(pow(sysn[i], 2) + pow(e_st, 2));
-
-    cout << i << " " << e_st/err_tp[i] << " " << e_st/err_tn[i] << endl;
   }
 
   // full unc only
@@ -272,7 +253,7 @@ void calcSys()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  c->SaveAs("lth_full_unc.pdf");
+  c->SaveAs("plots/lth_full_unc.pdf");
   c->Clear();
     
   // full in boxes, stat normal
@@ -292,7 +273,12 @@ void calcSys()
 
   zero->Draw();
 
-  c->SaveAs("lth_sep_unc.pdf");
+  c->SaveAs("plots/lth_sep_unc.pdf");
   c->Destructor();
+
+  TFile *outfile = new TFile("lthUnc.root", "recreate");
+  graph_lth[0]->SetName("graph_lambda");
+  graph_lth[0]->Write();
+  outfile->Close();
 
 }

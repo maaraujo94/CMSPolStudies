@@ -1,15 +1,17 @@
-// macro to plot and fit the 2017 J/psi lifetime distribution
+// macro to plot and fit the 2018 J/psi lifetime distribution
 // case where mu is fixed to zero
 
 // MAIN
-void ltPerPt_muFix(double binLow, double binHigh, double mu_avg)
+void ltPerPt_muFix(double binLow, double binHigh, int binN, double mu_avg)
 {
   // PART 1 : GETTING THE HISTOS
+  TH2D *hist2d = new TH2D();
   TH1D *ltHist = new TH1D();
   
   // open and read the histo store
   TFile *fin = new TFile("files/ltStore.root");
-  fin->GetObject(Form("ltH%.0f", binLow), ltHist);
+  fin->GetObject("ltH", hist2d);
+  ltHist = hist2d->ProjectionX(Form("ltH%.0f", binLow), binN+1, binN+1);
   ltHist->SetDirectory(0);
   fin->Close();
 

@@ -1,8 +1,7 @@
 double gPI = TMath::Pi();
 //pt bins defined globally for access from functions
-const int nPtBins = 17;
+const int nPtBins = 19;
 double ptBins[nPtBins+1];
-int DO_FILL = 0;
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
@@ -71,10 +70,10 @@ void newMCmass_G()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
-  for(int i = 0; i < 7; i++) ptBins[i] = 25 + 3.*i;
-  for(int i = 0; i < 6; i++) ptBins[i+7] = 46 + 5.*i;
-  for(int i = 0; i < 3; i++) ptBins[i+13] = 76 + 8.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 100 + 20.*i;
+  for(int i = 0; i < 10; i++) ptBins[i] = 25 + 2.5*i;
+  for(int i = 0; i < 6; i++) ptBins[i+10] = 50 + 5.*i;
+  for(int i = 0; i < 2; i++) ptBins[i+16] = 80 + 10.*i;
+  for(int i = 0; i < 2; i++) ptBins[i+18] = 100 + 20.*i;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -83,95 +82,18 @@ void newMCmass_G()
   double lowm = 2.9, him = 3.3;
   TH1D **h_m1d = new TH1D*[nPtBins];
   for(int ip = 0; ip < nPtBins; ip++)
-    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("2017 MC M(#mu#mu) (%.0f < p_{T} < %.0f GeV)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
+    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("Full MC M(#mu#mu) (%.1f < p_{T} < %.1f GeV)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
   
-  TH2D *h_m2d = new TH2D("h_m2d", "2017 MC M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
+  TH2D *h_m2d = new TH2D("h_m2d", "Full MC M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
  
   cout << "all MC mass histograms initialized" << endl;
 
-  if(DO_FILL == 1) {
-    // filling all the histos at once    
-    // open and read the data tree
-    TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MC17_old_cos.root");
-    TTree *tree1 = (TTree*)fin1->Get("MC_cos");
-    TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCh17_cos.root");
-    TTree *tree2 = (TTree*)fin2->Get("MC_cos");
-    TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvh17_cos.root");
-    TTree *tree3 = (TTree*)fin3->Get("MC_cos");
-
-    // MC 1
-    Double_t mc_pt, mc_lt, mc_m, mc_y;  
-
-    tree1->SetBranchAddress("dimPt", &mc_pt);
-    tree1->SetBranchAddress("Rap", &mc_y);
-    tree1->SetBranchAddress("Mass", &mc_m);
-    tree1->SetBranchAddress("lt", &mc_lt);
-    
-    // cycle over data , fill the lifetime histogram
-    int mEvt = tree1->GetEntries();
-    for(int i = 0; i < mEvt; i++)
-      {
-	tree1->GetEntry(i);
-	if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005) {
-	  for(int i_p = 0; i_p < nPtBins; i_p++)
-	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	      h_m1d[i_p]->Fill(mc_m);
-	}
-      }
-    fin1->Close();
-
-    // MC 2
-    tree2->SetBranchAddress("dimPt", &mc_pt);
-    tree2->SetBranchAddress("Rap", &mc_y);
-    tree2->SetBranchAddress("Mass", &mc_m);
-    tree2->SetBranchAddress("lt", &mc_lt);
-    
-    // cycle over data , fill the lifetime histogram
-    mEvt = tree2->GetEntries();
-    for(int i = 0; i < mEvt; i++)
-      {
-	tree2->GetEntry(i);
-	if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005) {
-	  for(int i_p = 0; i_p < nPtBins; i_p++)
-	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	      h_m1d[i_p]->Fill(mc_m);
-	}
-      }
-    fin2->Close();
-
-    // MC 3
-    tree3->SetBranchAddress("dimPt", &mc_pt);
-    tree3->SetBranchAddress("Rap", &mc_y);
-    tree3->SetBranchAddress("Mass", &mc_m);
-    tree3->SetBranchAddress("lt", &mc_lt);
-    
-    // cycle over data , fill the lifetime histogram
-    mEvt = tree3->GetEntries();
-    for(int i = 0; i < mEvt; i++)
-      {
-	tree3->GetEntry(i);
-	if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005) {
-	  for(int i_p = 0; i_p < nPtBins; i_p++)
-	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	      h_m1d[i_p]->Fill(mc_m);
-	}
-      }
-    fin3->Close();
-
-    TFile *fout = new TFile("files/mStore_MC.root", "recreate");
-    for(int ip = 0; ip < nPtBins; ip++) {
-      h_m1d[ip]->Write();	
-    }
-    fout->Close();
+  TFile *fin = new TFile("files/mStore_MC.root");
+  for(int ip = 0; ip < nPtBins; ip++) {
+    fin->GetObject(Form("mH%.0f", ptBins[ip]), h_m1d[ip]);
+    h_m1d[ip]->SetDirectory(0);
   }
-  else if (DO_FILL == 0) {
-    TFile *fin = new TFile("files/mStore_MC.root");
-    for(int ip = 0; ip < nPtBins; ip++) {
-      fin->GetObject(Form("mH%.0f", ptBins[ip]), h_m1d[ip]);
-      h_m1d[ip]->SetDirectory(0);
-    }
-    fin->Close();
-  }
+  fin->Close();
   
   cout << "all MC mass histograms filled" << endl << endl;
 
@@ -190,7 +112,7 @@ void newMCmass_G()
   TF2 *f_cb = new TF2("f_cb", cb_func, fit_i, fit_f, ptBins[0], ptBins[nPtBins], 9*nPtBins, 2);
 
   string par_n[] = {"N", "f", "mu", "sig1", "sig2", "n", "alpha", "fG", "sigG"};
-  double par_v[] = {1., 0.7, 3.097, 2e-2, 3e-2, 1., 2, 0.05, 8e-2};
+  double par_v[] = {1., 0.6, 3.097, 2e-2, 3e-2, 1., 2, 0.05, 5e-2};
   // define parameters - all free
   for(int i = 0; i < nPtBins; i++) {
     f_cb->SetParName(i, Form("N_%d", i));
@@ -221,7 +143,7 @@ void newMCmass_G()
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.12);
-
+  
   TFile *fout = new TFile("files/MCfit_G.root", "recreate");
   h_m2d->Fit("f_cb", "R");
 
@@ -249,10 +171,15 @@ void newMCmass_G()
       }
     }
     
+    //c->SetLogy();
+	  
     h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.1);
-    h_m1d[i_pt]->SetMinimum(0);
+    /*if(pt_val[i_pt] > 34 && pt_val[i_pt] < 37)
+      h_m1d[i_pt]->SetMaximum(18000);
+    if(pt_val[i_pt] > 76 && pt_val[i_pt] < 84)
+    h_m1d[i_pt]->SetMaximum(35000);*/
+    h_m1d[i_pt]->SetMinimum(0);//h_m1d[i_pt]->GetMaximum()*1e-5);
     h_m1d[i_pt]->SetStats(0);
-    h_m1d[i_pt]->SetTitle(Form("2017 MC M(#mu#mu) (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
     h_m1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
     h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.8);
     h_m1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
@@ -289,7 +216,7 @@ void newMCmass_G()
     fp3->SetLineStyle(kDashed);
     fp3->Draw("lsame");
 	  
-    c->SaveAs(Form("plots/MCMass/CBG_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_G/CBG_pt%d.pdf", i_pt));
     c->Clear();
 	  
     // calculating pulls
@@ -308,6 +235,7 @@ void newMCmass_G()
 	  
     c->SetLogy(0);
 
+    //    double lowmp = 2.94, himp = 3.2;
     double lowmp = fit_i, himp = fit_f;
 	  
     // plotting the pulls
@@ -316,7 +244,7 @@ void newMCmass_G()
     fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("MC mass fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fl->SetTitle(Form("MC mass fit pulls (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 	  
     TGraph *g_pull = new TGraph(mbins, mv, pv);
     g_pull->SetLineColor(kBlack);
@@ -342,7 +270,7 @@ void newMCmass_G()
     plim4->Draw("lsame");
 
 	  
-    c->SaveAs(Form("plots/MCMass/pullsG_pt%d_dep.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_G/pullsG_pt%d_dep.pdf", i_pt));
     c->Clear();
 
     // clean up parameters for plotting
@@ -392,7 +320,7 @@ void newMCmass_G()
   
   double sigV[2] = {f_cb->GetParameter(8*nPtBins), f_cb->GetParameter(8*nPtBins+1)};
 
-  TGraphErrors *g_s = new TGraphErrors(nPtBins, sigV, sigV, sigV, sigV);
+  TGraphErrors *g_s = new TGraphErrors(2, sigV, sigV, sigV, sigV);
   g_s->Write(Form("sigG_lin"));
   
   TLine *l_chiN = new TLine(ptBins[0], f_cb->GetChisquare()/f_cb->GetNDF(), ptBins[nPtBins], f_cb->GetChisquare()/f_cb->GetNDF());

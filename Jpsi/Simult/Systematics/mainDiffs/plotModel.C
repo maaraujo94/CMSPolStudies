@@ -29,10 +29,17 @@ void plotModel()
 
   // get the differences
   double diff[2][nBinspT], za[nBinspT];
+  double err[2][nBinspT];
   for(int i = 0; i < nBinspT; i++) {
     diff[0][i] = (graph_lth[1]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[1][i] = (graph_lth[2]->GetY()[i] - graph_lth[0]->GetY()[i]);
-    
+
+    double unc1 = graph_lth[0]->GetEY()[i];
+    double unc2 = graph_lth[1]->GetEY()[i];
+    err[0][i] = sqrt(abs(pow(unc1,2)-pow(unc2,2)));
+    unc2 = graph_lth[2]->GetEY()[i];
+    err[1][i] = sqrt(abs(pow(unc1,2)-pow(unc2,2)));
+
     za[i] = 0;
   }
   TGraphErrors *g_lthA = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[0], graph_lth[0]->GetEX(), za);
