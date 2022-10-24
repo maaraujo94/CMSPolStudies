@@ -1,6 +1,6 @@
 // code to plot the fit results
 
-void combIndSim()
+void combIndSim_NP()
 {
   // get the histo limits
   TFile *fIn = new TFile("../2017/PR_fit/files/bkgSubRes.root");
@@ -13,7 +13,7 @@ void combIndSim()
   // get the fit results
   // get lambda values for each bin
   const int n_lbl = 1;
-  string lbl[] = {"J"};
+  string lbl[] = {"NP"};
   TFile *fInd7 = new TFile("../2017/PR_fit/files/finalFitRes.root");
   TGraphErrors **graph_lth7 = new TGraphErrors*[n_lbl];
   for(int i_t = 0; i_t < n_lbl; i_t++) {
@@ -79,7 +79,7 @@ void combIndSim()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("prompt J/#psi #lambda_{#theta}");
+  fl->SetTitle("non-prompt J/#psi #lambda_{#theta}");
 
   graph_lth7[0]->SetLineColor(kBlue);
   graph_lth7[0]->SetMarkerStyle(20);
@@ -109,13 +109,13 @@ void combIndSim()
   leg->AddEntry(graph_lthS[0], "Run2", "pl");
   leg->Draw();
   
-  c->SaveAs("par_lth_all.pdf");
+  c->SaveAs("par_lthNP_all.pdf");
 
   g_unc->SetLineColor(kBlack);
   g_unc->SetFillColorAlpha(kBlack, 0.5);
   g_unc->Draw("3");
 
-  c->SaveAs("par_lth_all_band.pdf");
+  c->SaveAs("par_lthNP_all_band.pdf");
   
   flin->Draw("lsame");
   flinS->Draw("lsame");
@@ -135,7 +135,7 @@ void combIndSim()
 
     cout << flin->GetChisquare() << "/" << flin->GetNDF() << " -> " << TMath::Prob(flin->GetChisquare(), flin->GetNDF()) << endl;
 
-  c->SaveAs("fit_lth_all.pdf");
+  c->SaveAs("fit_lthNP_all.pdf");
   c->Clear();
   c->Destructor();
 

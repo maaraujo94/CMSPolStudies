@@ -16,7 +16,7 @@ void plot_ANdists()
   // PART 1 : reading the histograms
 
   // four pT dists: PRSR data + the 3 MC
-  TH1D **h_pT = new TH1D*[4]; 
+  TH1D **h_pT = new TH1D*[5]; 
   // 6 y dists: PRSR data + MC over 3 pT regions
   TH1D **h_y = new TH1D*[6]; 
   // 7 M dists: PR data + MC over 3 pT regions + full pT data
@@ -29,8 +29,8 @@ void plot_ANdists()
   TFile *fin = new TFile("files/store_ANdists.root");
  
   // read the pT dists
-  string lbl_pt[] = {"Data", "lowPtMC", "midPtMC", "highPtMC"};
-  for(int i = 0; i < 4; i++) {
+  string lbl_pt[] = {"Data", "lowPtMC", "midmidPtMC", "midPtMC", "highPtMC"};
+  for(int i = 0; i < 5; i++) {
     h_pT[i] = (TH1D*)fin->Get(Form("h_pT_%s", lbl_pt[i].c_str()));
   }
 
@@ -63,10 +63,10 @@ void plot_ANdists()
   // plot pT
   c->SetLogy();
   c->SetLeftMargin(0.11);
-  int colpt[] = {kBlack, kRed+1, kGreen+3, kBlue};
+  int colpt[] = {kBlack, kRed+1, kViolet+2, kGreen+3, kBlue};
   double ptlim[] = {25, 47.5, 70, 300};
 
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 5; i++) {
 
     h_pT[i]->SetStats(0);
     h_pT[i]->SetLineColor(colpt[i]);
@@ -99,11 +99,13 @@ void plot_ANdists()
   lcpt.SetTextColor(colpt[0]);
   lcpt.DrawLatex(120, 3.5e6, "Peak data");
   lcpt.SetTextColor(colpt[1]);
-  lcpt.DrawLatex(120, 1.5e6, "MC low p_{T}");
+  lcpt.DrawLatex(120, 1.5e6, "MC [25,46] GeV");
   lcpt.SetTextColor(colpt[2]);
-  lcpt.DrawLatex(120, 6e5, "MC mid p_{T}");
+  lcpt.DrawLatex(120, 6e5, "MC [40,52] GeV");
   lcpt.SetTextColor(colpt[3]);
-  lcpt.DrawLatex(120, 2.5e5, "MC low p_{T}");
+  lcpt.DrawLatex(120, 2.5e5, "MC >46 GeV");
+  lcpt.SetTextColor(colpt[4]);
+  lcpt.DrawLatex(120, 1.e5, "MC >66 GeV");
 
   TLine *ptL = new TLine(120, 0, 120,  exp(0.5*(log(h_pT[0]->GetMaximum())+log(h_pT[0]->GetMinimum()))));
   ptL->SetLineStyle(kDashed);

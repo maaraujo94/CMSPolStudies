@@ -145,7 +145,7 @@ void ang_MCmpt()
   fin7->Close();*/
 
   // 2018 tree
-  TFile *fin8 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18-40_52v1.root");
+  TFile *fin8 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18-40_52v2.root");
   TTree *tree8 = (TTree*)fin8->Get("jpsitree");
   
   tree8->SetBranchAddress("muP_p4", &muP_p4);

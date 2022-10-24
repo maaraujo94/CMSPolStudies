@@ -6,8 +6,8 @@ void store_ANdists()
   // PART 1 : creating the histograms
 
   // four pT dists: PRSR data + the 3 MC
-  TH1D **h_pT = new TH1D*[4]; 
-  for(int i = 0; i < 4; i++)
+  TH1D **h_pT = new TH1D*[5]; 
+  for(int i = 0; i < 5; i++)
     h_pT[i] = new TH1D(Form("h_pT%d", i), Form("p_{T} distributions"), 100, 0, 200);
 
   // 6 y dists: PRSR data + MC over 3 pT regions
@@ -36,6 +36,8 @@ void store_ANdists()
   TTree *treeD = (TTree*)fin->Get("data_cos");
   TFile *fin2 = new TFile("../../Store_data_codes/MC18_cos.root");
   TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
+  TFile *fin2a = new TFile("../../Store_data_codes/MCm18_cos.root");
+  TTree *treeM1a = (TTree*)fin2a->Get("MC_cos");
   TFile *fin3 = new TFile("../../Store_data_codes/MCh18_cos.root");
   TTree *treeM2 = (TTree*)fin3->Get("MC_cos");
   TFile *fin4 = new TFile("../../Store_data_codes/MCvh18_cos.root");
@@ -43,6 +45,7 @@ void store_ANdists()
   
   int dEvt = treeD->GetEntries();
   int m1Evt = treeM1->GetEntries();
+  int m1aEvt = treeM1a->GetEntries();
   int m2Evt = treeM2->GetEntries();
   int m3Evt = treeM3->GetEntries();
   
@@ -61,6 +64,12 @@ void store_ANdists()
   treeM1->SetBranchAddress("Rap", &mc_y);
   treeM1->SetBranchAddress("Mass", &mc_m);
   treeM1->SetBranchAddress("lt", &mc_lt);
+
+  treeM1a->SetBranchAddress("theta", &mc_th);
+  treeM1a->SetBranchAddress("dimPt", &mc_pt);
+  treeM1a->SetBranchAddress("Rap", &mc_y);
+  treeM1a->SetBranchAddress("Mass", &mc_m);
+  treeM1a->SetBranchAddress("lt", &mc_lt);
 
   treeM2->SetBranchAddress("theta", &mc_th);
   treeM2->SetBranchAddress("dimPt", &mc_pt);
@@ -174,6 +183,17 @@ void store_ANdists()
 
     }
 
+    for(int i = 0; i < m1aEvt; i++)
+    {
+      treeM1a->GetEntry(i);
+
+      // fill the pT histo
+      if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
+	h_pT[4]->Fill(mc_pt);
+      }
+
+    }
+
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
@@ -243,8 +263,8 @@ void store_ANdists()
   TFile *fout = new TFile("files/store_ANdists.root", "recreate");
 
   // store the pT dists
-  string lbl_pt[] = {"Data", "lowPtMC", "midPtMC", "highPtMC"};
-  for(int i = 0; i < 4; i++) {
+  string lbl_pt[] = {"Data", "lowPtMC", "midPtMC", "highPtMC", "midmidPtMC"};
+  for(int i = 0; i < 5; i++) {
     h_pT[i]->Write(Form("h_pT_%s", lbl_pt[i].c_str()));
   }
 
