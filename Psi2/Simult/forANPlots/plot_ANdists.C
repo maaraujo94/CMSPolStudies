@@ -68,12 +68,12 @@ void plot_ANdists()
     if(i == 0) h_pT[i]->Draw("histo");
     else {
       // set bins above pt_max to zero
-      int nb = h_pT[i]->GetNbinsX();
+      /*      int nb = h_pT[i]->GetNbinsX();
       for(int ib = 0; ib < nb; ib++) {
 	double pt = h_pT[i]->GetXaxis()->GetBinUpEdge(ib+1);
 	if (pt > ptlim[i-1])
 	  h_pT[i]->SetBinContent(ib+1, 0);
-      }
+	  }*/
     
     h_pT[i]->Draw("histo same");
     }

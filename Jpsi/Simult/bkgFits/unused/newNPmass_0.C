@@ -3,7 +3,7 @@
 // sigma_1,2 linear in pT
 // n, alpha fixed from the MC results
 
-#import "plotDMPars.C"
+#import "plotDMPars_NP.C"
 
 int do_round(double val)
 {
@@ -67,14 +67,13 @@ double mmod_func(double *x, double *par)
   double sig2 = par[4*nPtBins] * pt + par[4*nPtBins+1]; // sigmas linear in pt
   
   double n = par[5*nPtBins]; // n is constant in pt
-  double alpha = par[6*nPtBins]; // alpha is constant in pt
-  //double alpha = par[6*nPtBins+pt_bin]; // alpha is free in pt
+  double alpha = par[6*nPtBins+pt_bin]; // alpha is free in pt
 
   double NB = par[7*nPtBins+pt_bin];
   double ld = par[8*nPtBins+pt_bin];
 
-  double fG = par[9*nPtBins]; // fG constant in pT
-  double sigG = par[10*nPtBins] * pt + par[10*nPtBins+1]; // sigG linear in pT
+  double fG = par[9*nPtBins+pt_bin]; // fG, sigG free in pT
+  double sigG = par[10*nPtBins+pt_bin];
   
   double func = f * cb_exp(m, NS, sig1, mu, n, alpha) + (1.-f-fG) * cb_exp(m, NS, sig2, mu, n, alpha) + fG * g_exp(m, NS, sigG, mu) + bkg_exp(m, NB, ld);
   return func;
@@ -88,12 +87,12 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 
 
 // MAIN
-void mBkg()
+void newNPmass_0()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
   TH2D *h_d2d = new TH2D();
-  TFile *fin = new TFile("files/mStore.root");
+  TFile *fin = new TFile("../NP_fit/files/mStore.root");
   fin->GetObject("mH", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
@@ -118,55 +117,54 @@ void mBkg()
   double m_min[] = {2.94, 3.0, 3.21};
   double m_max[] = {2.95, 3.2, 3.26};
 
-  // get the MC n and alpha values for fixing
-  TFile *inMC = new TFile("../bkgFits/files/MCfit_G.root");
-  double n_v = ((TGraphErrors*)inMC->Get("fit_n"))->GetY()[0];
-  double alpha_v = ((TGraphErrors*)inMC->Get("fit_alpha"))->GetY()[0]; 
-  double fG_v = ((TGraphErrors*)inMC->Get("fit_fG"))->GetY()[0]/100.;
-  double sigG_v1 = ((TGraphErrors*)inMC->Get("sigG_lin"))->GetY()[0];
-  double sigG_v2 = ((TGraphErrors*)inMC->Get("sigG_lin"))->GetY()[1];
+  // get the MC gaussian values for fixing
+  TFile *inMC = new TFile("files/MCfit_Gfree.root");
+  double *fG_v = ((TGraphErrors*)inMC->Get("fit_fG"))->GetY();
+  double *sigG_v = ((TGraphErrors*)inMC->Get("fit_sigG"))->GetY();
   inMC->Close();
 
-  // fix with 3 decimal cases
-  int nm = ceil(-log10(n_v))+3;	
-  n_v = do_round(n_v*pow(10, nm))/pow(10, nm);
-  nm = ceil(-log10(fG_v))+3;	
-  fG_v = do_round(fG_v*pow(10, nm))/pow(10, nm);
-  nm = ceil(-log10(sigG_v1))+3;	
-  sigG_v1 = do_round(sigG_v1*pow(10, nm))/pow(10, nm);
-  nm = ceil(-log10(sigG_v2))+3;	
-  sigG_v2 = do_round(sigG_v2*pow(10, nm))/pow(10, nm);
+  //need to convert to our binning
+  double fG_vc[nPtBins], sigG_vc[nPtBins];
+  for(int i = 0; i < nPtBins-1; i++) {
+    fG_vc[i] = 0.5*(fG_v[2*i]+fG_v[2*i+1]);
+    sigG_vc[i] = 0.5*(sigG_v[2*i]+sigG_v[2*i+1]);
+  }
+  fG_vc[nPtBins-1] = (fG_v[2*(nPtBins-1)]+fG_v[2*(nPtBins-1)+1]+fG_v[2*(nPtBins-1)+1])/3.;
+  sigG_vc[nPtBins-1] = (sigG_v[2*(nPtBins-1)]+sigG_v[2*(nPtBins-1)+1]+sigG_v[2*(nPtBins-1)+2])/3.;
 
-  alpha_v = 2.;
-  
+  // fix n_v to a given value, give initial alpha
+  double n_v = 2.5, alpha_v = 1.5;
+
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
   string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
-  double par_v[] =  {1., 0.5, 3.1, 1e-4, 1e-4, n_v, alpha_v, 1., 0.7, fG_v, sigG_v1};
-  double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1.,      1., 1.,  1.,   sigG_v2};
+  double par_v[] =  {1., 0.5, 3.1, 1e-4, 1e-4, n_v, alpha_v, 1., 0.7, 1., 1.};
+  double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1., 1., 1.,  1., 1.};
+  
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
     // normalizations
     f_cb->SetParName(i, Form("NS_%d", i));
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
     f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
-    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/5.);
+    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/4.);
+    //f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/5.);
 
     for(int j = 1; j < 11; j++) { // between NS, NB
-      if(j != 7) { // removing NB and alpha
+      if(j != 7) { // removing NB
 	f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
 	f_cb->SetParameter(j*nPtBins+i, par_v[j]);
-	// fixing mu, f so only one value matters
-	if((j < 3 || j == 6)  && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-	// fixing n, fG to MC value
-	else if((j == 5 || j == 9)) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-
+	// setting the constant parameters f, mu
+	if(j < 3  && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	// setting the linear parameters sigma_1,2
 	else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	else if((j == 3 || j == 4) && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
-	// setting sigma_G from MC
-	else if((j == 10) && i != 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-	else if((j == 10) && i == 1) f_cb->FixParameter(j*nPtBins+i, par2_v[j]);
+	// fixing n
+	else if(j == 5) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+	// alpha, NB, lambda are fully free
+	// fG and sigG are defined by the MC values
+	else if(j == 9) f_cb->FixParameter(j*nPtBins+i, fG_vc[i]/100.);
+	else if(j == 10) f_cb->FixParameter(j*nPtBins+i, sigG_vc[i]/1000.);
       }
     }
   }
@@ -202,15 +200,15 @@ void mBkg()
 
      // storing parameters
     for(int j = 0; j < 11; j++) {
-      if(j == 0 || j == 7 || j == 8) { // free parameters NS, NB, lambda
+      if(j == 0 || j > 5) { // free parameters NS, alpha, NB, lambda, fG, sigG
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins+i_pt);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins+i_pt);
       }
-      else if ( j == 1 || j == 2 || j == 5 || j == 6 || j == 9) { // constant parameters mu, f, n, alpha, fG
+      else if ( j == 1 || j == 2 || j == 5) { // constant parameters mu, f, n
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins);
       }
-      else if ( j == 3 || j == 4 || j == 10) { // linear parameters sig1, sig2, sigG
+      else if ( j == 3 || j == 4) { // linear parameters sig1, sig2
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins) * pt_val[i_pt] + f_cb->GetParameter(j*nPtBins+1);
 	epars[j][i_pt] = sqrt(pow(f_cb->GetParError(j*nPtBins) * pt_val[i_pt], 2) + pow(f_cb->GetParError(j*nPtBins+1), 2));
       }
@@ -261,7 +259,7 @@ void mBkg()
     fp4->SetLineStyle(kDashed);
     fp4->Draw("lsame");
     
-    c->SaveAs(Form("plots/mass/fit_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/massNP/fit_0/fit_pt%d.pdf", i_pt));
     c->Clear();
 
     // get the bkg fraction in the signal region (3.0 - 3.2 GeV)
@@ -331,7 +329,7 @@ void mBkg()
     plim4->Draw("lsame");
 
     
-    c->SaveAs(Form("plots/mass/pulls_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/massNP/fit_0/pulls_pt%d.pdf", i_pt));
     c->Clear();
 
     // plotting the devs
@@ -351,12 +349,12 @@ void mBkg()
     // aux lines - pull = 0 and sigma limits
     zero->Draw("lsame");
 
-    c->SaveAs(Form("plots/mass/devs_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/massNP/fit_0/devs_pt%d.pdf", i_pt));
     c->Clear();
   }
   
   // storing the free parameters
-  TFile *fout = new TFile("files/mfit.root", "recreate");
+  TFile *fout = new TFile("files/mfit_NP0.root", "recreate");
   string parlab[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
 
   for(int i_p = 0; i_p < 11; i_p++) {
@@ -463,5 +461,5 @@ void mBkg()
 
   c->Destructor();
 
-  plotDMPars();
+  plotDMPars_NP();
 }

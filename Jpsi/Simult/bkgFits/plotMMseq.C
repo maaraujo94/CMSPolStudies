@@ -34,8 +34,9 @@ void plotMMseq()
   }
 
   // get params from fit result files
+  string lbls[] = {"0", "1", "2", "3", "4fix", "5"};
   for(int i_m = 0; i_m < n_m; i_m++) {
-    TFile *fin = new TFile(Form("files/MCfit_%d.root", i_m));
+    TFile *fin = new TFile(Form("files/MCfit_%s.root", lbls[i_m].c_str()));
     fin->GetObject("fit_chiN", l_chiN[i_m]);
     fin->GetObject("fit_chi", l_chi[i_m]);
     fin->GetObject("fit_ndf", l_ndf[i_m]);

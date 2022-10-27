@@ -1,6 +1,6 @@
 // macro to compare fit parameters w/ and w/o Gaussian
 // get relative position on an axis (pi, pf)
-void plotDMPars()
+void plotDMPars_NP()
 {
   // aux arrays
   int pc[] = {kBlack, kBlue, kViolet};
@@ -13,13 +13,13 @@ void plotDMPars()
   string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
   double parmin[] = {0,    1e1, 3090, 0,   32, 1.0, 2.0,  4e0, 0, 0.,  0,   0};
-  double parmax[] = {100., 2e4, 3100, 100, 46, 1.4, 2.25, 1e4, 20, 15., 100, 100};
+  double parmax[] = {100., 2e4, 3100, 100, 46, 1.4, 2.25, 2e4, 100, 15., 100, 100};
  
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
   for(int i_m = 0; i_m < n_m; i_m++) {
     g_par[i_m] = new TGraphErrors*[n_p];
-    TFile *fin = new TFile(Form("files/mfit%s.root", modn[i_m].c_str()));
+    TFile *fin = new TFile(Form("files/mfitNP%s.root", modn[i_m].c_str()));
     int n_pv = n_p;
     for(int i_p = 0; i_p < n_pv; i_p++) {
       fin->GetObject(Form("fit_%s", parlab[i_p].c_str()), g_par[i_m][i_p]);
@@ -81,7 +81,7 @@ void plotDMPars()
 
     // drawing base+G model
     // free pars
-    if(i_p == 1 || i_p == 7 || i_p == 8 || i_p == 9) {
+    if(i_p == 1 || i_p == 6 || i_p == 7 || i_p == 8 || i_p == 9) {
       g_par_s[0][i_p]->SetMarkerStyle(20);
       g_par_s[0][i_p]->SetMarkerSize(.75);
       g_par_s[0][i_p]->SetLineColor(kBlue);
@@ -149,7 +149,7 @@ void plotDMPars()
     int isLog = 0;
     if(i_p == 1 || i_p == 7 ) isLog = 1;
 
-    c->SaveAs(Form("plots/mass/par_%s.pdf", parlab[i_p].c_str()));
+    c->SaveAs(Form("plots/massNP/par_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }
   
