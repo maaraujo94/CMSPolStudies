@@ -56,8 +56,30 @@ void plotDMPars()
       g_par_s[i_m][i] = new TGraphErrors(n, xv, yv, xe, ye);
     }
   }
-
   
+  // for the NB estimate, get histogram maximum and integral as well
+  TH2D *h_d2d = new TH2D();
+  TFile *finh = new TFile("files/mStore_fine.root");
+  finh->GetObject("mH", h_d2d);
+  h_d2d->SetDirectory(0);
+  finh->Close();
+
+  const int nPtBins = h_d2d->GetNbinsY();
+  const double *ptBins = h_d2d->GetYaxis()->GetXbins()->GetArray();
+  
+  // Make 1d histos
+  TH1D **h_d1d = new TH1D*[nPtBins];
+  TH1D *h_di = new TH1D("h_di", "name", nPtBins, ptBins);
+  TH1D *h_dl = new TH1D("h_dl", "name", nPtBins, ptBins);
+  for(int i = 0; i < nPtBins; i++) {
+    h_d1d[i] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[i]), i+1, i+1);
+    double m_c = h_d1d[i]->Integral()/(ptBins[i+1]-ptBins[i]);
+    m_c /= (1.5*i+1);
+    h_di->SetBinContent(i+1, m_c);
+    m_c = 0.012*(ptBins[i+1]+ptBins[i])/2.+0.18;
+    h_dl->SetBinContent(i+1, m_c);
+  }
+
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.12);
 
@@ -79,8 +101,8 @@ void plotDMPars()
     leg->SetTextSize(0.03);
 
     // drawing base+G model
-    // free pars - NS, NB, lambda, fBG
-    if(i_p == 1 || i_p > 6) {
+    // free pars - NS
+    if(i_p == 1 || i_p == 9) {
       for(int i_n = 0; i_n < n_m; i_n++) {
 	g_par_s[i_n][i_p]->SetMarkerStyle(20);
 	g_par_s[i_n][i_p]->SetMarkerSize(.75);
@@ -89,6 +111,33 @@ void plotDMPars()
 	g_par_s[i_n][i_p]->Draw("p");
       }
     }
+
+    // free pars NB, lambda (just last fit)
+    else if(i_p == 7) {
+      for(int i_n = n_m-1; i_n < n_m; i_n++) {
+	g_par_s[i_n][i_p]->SetMarkerStyle(20);
+	g_par_s[i_n][i_p]->SetMarkerSize(.75);
+	g_par_s[i_n][i_p]->SetLineColor(pc[0]);
+	g_par_s[i_n][i_p]->SetMarkerColor(pc[0]);
+	g_par_s[i_n][i_p]->Draw("p");
+      }
+
+      //h_di->Draw("histo same");
+    }
+
+    else if(i_p == 8) {
+      for(int i_n = n_m-1; i_n < n_m; i_n++) {
+	g_par_s[i_n][i_p]->SetMarkerStyle(20);
+	g_par_s[i_n][i_p]->SetMarkerSize(.75);
+	g_par_s[i_n][i_p]->SetLineColor(pc[0]);
+	g_par_s[i_n][i_p]->SetMarkerColor(pc[0]);
+	g_par_s[i_n][i_p]->Draw("p");
+      }
+
+      //h_dl->Draw("histo same");
+
+    }
+
     // mixed free-constant - alpha
     else if(i_p == 6) {
       g_par_s[0][i_p]->SetMarkerStyle(20);
@@ -98,14 +147,15 @@ void plotDMPars()
       g_par_s[0][i_p]->Draw("p");
       
       for(int i_n = 1; i_n < 2; i_n++) {
-      g_par_s[i_n][i_p]->SetMarkerStyle(20);
-      g_par_s[i_n][i_p]->SetMarkerSize(.75);
-      g_par_s[i_n][i_p]->SetLineColor(kRed);
-      g_par_s[i_n][i_p]->SetMarkerColor(kRed);
-      g_par_s[i_n][i_p]->SetFillColorAlpha(kRed, 0.5);
-      g_par_s[i_n][i_p]->Draw("ce3");
+	g_par_s[i_n][i_p]->SetMarkerStyle(20);
+	g_par_s[i_n][i_p]->SetMarkerSize(.75);
+	g_par_s[i_n][i_p]->SetLineColor(kRed);
+	g_par_s[i_n][i_p]->SetMarkerColor(kRed);
+	g_par_s[i_n][i_p]->SetFillColorAlpha(kRed, 0.5);
+	g_par_s[i_n][i_p]->Draw("ce3");
       }
     }
+    
     // linear or constant pars - f, mu, n
     else if(i_p != 3) {
       for(int i_n = 0; i_n < n_m; i_n++) {
@@ -123,9 +173,10 @@ void plotDMPars()
     if( i_p == 0) {
       for(int i_n = 0; i_n < n_m; i_n++) {
 	g_par_s[i_n][10]->SetMarkerStyle(22);
-	g_par_s[i_n][10]->SetLineColor(pc[i_n]);
-	g_par_s[i_n][10]->SetMarkerColor(pc[i_n]);
-	g_par_s[i_n][10]->Draw("p");
+	g_par_s[i_n][i_p]->SetLineColor(pc[i_n]);
+	g_par_s[i_n][i_p]->SetMarkerColor(pc[i_n]);
+	g_par_s[i_n][i_p]->SetFillColorAlpha(pc[i_n], 0.5);
+	g_par_s[i_n][i_p]->Draw("pce3");
       }
       
       leg->AddEntry(g_par_s[0][0], "f_{CB1}", "pl");
@@ -152,7 +203,8 @@ void plotDMPars()
 	g_par_s[i_n][11]->SetMarkerStyle(29);
 	g_par_s[i_n][11]->SetMarkerColor(pc[i_n]);
 	g_par_s[i_n][11]->SetLineColor(pc[i_n]);
-	g_par_s[i_n][11]->Draw("p");
+	g_par_s[i_n][11]->SetFillColorAlpha(pc[i_n], 0.5);
+	g_par_s[i_n][11]->Draw("pce3");
       }
       
       leg->AddEntry(g_par_s[0][3], "#sigma_{1}", "pl");
