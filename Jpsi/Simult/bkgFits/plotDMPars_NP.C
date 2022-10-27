@@ -3,17 +3,17 @@
 void plotDMPars_NP()
 {
   // aux arrays
-  int pc[] = {kBlack, kRed, kBlue, kViolet};
-  const int n_p = 12, n_m = 4;
-  string modn[] = {"0", "2free", "1", "2"};
+  int pc[] = {kBlack, kBlue, kViolet};
+  const int n_p = 12, n_m = 1;
+  string modn[] = {""};
   string legn[] = {"no G", "with G"};
 
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fBG", "fG", "sigG"};
   string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t", "f_{bkg}", "f_{G}", "#sigma_{G}"};
   string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
-  double parmin[] = {0,    6e0, 3090, 0,   32, 1.0, 1.0, 1e0, 0, 0.,  0,   0};
-  double parmax[] = {100., 2e4, 3100, 100, 46, 1.4, 2.3, 1e7, 40, 15., 100, 100};
+  double parmin[] = {0,    6e0, 3090, 0,   32, 2.0, 1.0, 1e4, 0, 0.,  0,   0};
+  double parmax[] = {100., 2e4, 3100, 200, 46, 3.0, 2.3, 8e6, 1, 15., 100, 100};
  
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
@@ -57,6 +57,28 @@ void plotDMPars_NP()
       g_par_s[i_m][i] = new TGraphErrors(n, xv, yv, xe, ye);
     }
   }
+
+  // for the NB estimate, get histogram maximum and integral as well
+  TH2D *h_d2d = new TH2D();
+  TFile *finh = new TFile("files/mStore.root");
+  finh->GetObject("mH_NP", h_d2d);
+  h_d2d->SetDirectory(0);
+  finh->Close();
+
+  const int nPtBins = h_d2d->GetNbinsY();
+  const double *ptBins = h_d2d->GetYaxis()->GetXbins()->GetArray();
+  
+  // Make 1d histos
+  TH1D **h_d1d = new TH1D*[nPtBins];
+  TH1D *h_di = new TH1D("h_di", "name", nPtBins, ptBins);
+  for(int i = 0; i < nPtBins; i++) {
+    h_d1d[i] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[i]), i+1, i+1);
+    double m_c = h_d1d[i]->Integral()/(ptBins[i+1]-ptBins[i]);
+    //m_c /= (1.5*i+1);
+    m_c*=4;
+    h_di->SetBinContent(i+1, m_c);
+  }
+
   
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.12);
@@ -80,7 +102,7 @@ void plotDMPars_NP()
 
 
     // drawing base+G model
-    // free pars - NS, NB, alpha, lambda, fBG
+    // free pars - NS, NB, lambda
     if(i_p == 1 || i_p > 6) {
       for(int i_n = 0; i_n < n_m; i_n++) {
 	g_par_s[i_n][i_p]->SetMarkerStyle(20);
@@ -89,39 +111,19 @@ void plotDMPars_NP()
 	g_par_s[i_n][i_p]->SetMarkerColor(pc[i_n]);
 	g_par_s[i_n][i_p]->Draw("p");
       }
+
+      //if(i_p == 7) h_di->Draw("histo same");
+
     }
-    else if(i_p == 6) {
-      for(int i_n = 0; i_n < 2; i_n++) {
+    // linear or constant pars 
+    else if(i_p != 3) {
+      for(int i_n = 0; i_n < n_m; i_n++) {
 	g_par_s[i_n][i_p]->SetMarkerStyle(20);
 	g_par_s[i_n][i_p]->SetMarkerSize(.75);
 	g_par_s[i_n][i_p]->SetLineColor(pc[i_n]);
 	g_par_s[i_n][i_p]->SetMarkerColor(pc[i_n]);
-	g_par_s[i_n][i_p]->Draw("p");
-      }
-
-      for(int i_n = 2; i_n < n_m; i_n++) {
-      g_par_s[i_n][i_p]->SetMarkerStyle(20);
-      g_par_s[i_n][i_p]->SetMarkerSize(.75);
-      g_par_s[i_n][i_p]->SetLineColor(pc[i_n]);
-      g_par_s[i_n][i_p]->SetMarkerColor(pc[i_n]);
-      g_par_s[i_n][i_p]->SetFillColorAlpha(pc[i_n], 0.5);
-      g_par_s[i_n][i_p]->Draw("pce3");
-      }
-      
-      TF1 *fa = new TF1("fa", "[0]+[1]*x", 25, 120);
-      fa->SetParameters(2, -0.1);
-      //g_par_s[0][i_p]->Fit(fa);
-      //fa->Draw("lsame");
-    }
-   // linear or constant pars 
-    else if(i_p != 3) {
-      for(int i_n = 0; i_n < n_m; i_n++) {
-      g_par_s[i_n][i_p]->SetMarkerStyle(20);
-      g_par_s[i_n][i_p]->SetMarkerSize(.75);
-      g_par_s[i_n][i_p]->SetLineColor(pc[i_n]);
-      g_par_s[i_n][i_p]->SetMarkerColor(pc[i_n]);
-      g_par_s[i_n][i_p]->SetFillColorAlpha(pc[i_n], 0.5);
-      g_par_s[i_n][i_p]->Draw("pce3");
+	g_par_s[i_n][i_p]->SetFillColorAlpha(pc[i_n], 0.5);
+	g_par_s[i_n][i_p]->Draw("pce3");
       }
     }
 
@@ -132,7 +134,8 @@ void plotDMPars_NP()
 	g_par_s[i_n][10]->SetMarkerStyle(22);
 	g_par_s[i_n][10]->SetLineColor(pc[i_n]);
 	g_par_s[i_n][10]->SetMarkerColor(pc[i_n]);
-	g_par_s[i_n][10]->Draw("p");
+	g_par_s[i_n][10]->SetFillColorAlpha(pc[i_n], 0.5);
+	g_par_s[i_n][10]->Draw("pce3");
       }
       
       leg->AddEntry(g_par_s[0][0], "f_{CB1}", "pl");
@@ -159,7 +162,8 @@ void plotDMPars_NP()
 	g_par_s[i_n][11]->SetMarkerStyle(29);
 	g_par_s[i_n][11]->SetMarkerColor(pc[i_n]);
 	g_par_s[i_n][11]->SetLineColor(pc[i_n]);
-	g_par_s[i_n][11]->Draw("p");
+	g_par_s[i_n][11]->SetFillColorAlpha(pc[i_n], 0.5);
+	g_par_s[i_n][11]->Draw("pce3");
       }
       
       leg->AddEntry(g_par_s[0][3], "#sigma_{1}", "pl");

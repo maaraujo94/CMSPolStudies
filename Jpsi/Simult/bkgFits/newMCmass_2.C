@@ -1,7 +1,6 @@
+#import "../ptbins.C"
+
 double gPI = TMath::Pi();
-//pt bins defined globally for access from functions
-const int nPtBins = 19;
-double ptBins[nPtBins+1];
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
@@ -66,14 +65,6 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 void newMCmass_2()
 {
   // PART 1 : FILLING THE MASS HISTO
-  // prepare binning and histograms for plots
-  for(int i = 0; i < 10; i++) ptBins[i] = 25 + 2.5*i;
-  for(int i = 0; i < 6; i++) ptBins[i+10] = 50 + 5.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 80 + 10.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+18] = 100 + 20.*i;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
-  cout << endl;
-
   // prepare mass histograms
   int mbins = 80;
   double lowm = 2.9, him = 3.3;

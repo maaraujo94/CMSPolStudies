@@ -3,14 +3,13 @@ void plotMMseq()
 {
   // aux arrays
   const int n_p = 7;
-
-  int n_m = 6;
+  int n_m = 5;
   
   string parlab[] = {"f", "N", "mu", "sig1", "sig2", "n", "alpha", "chiN"};
   string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha"};
   string parax[] = {"f (%)", "N per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha"};
-  double parmin[] = {0,   7e1, 3090,   0.0, 30., 0.6, 1.8};
-  double parmax[] = {100, 4e3, 3100,   60., 55., 1.8, 2.5};
+  double parmin[] = {0,   7e1, 3090,   0.0, 30., 0.8, 2.};
+  double parmax[] = {100, 4e3, 3100,   60., 55., 1.5, 2.45};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_p];
@@ -34,7 +33,7 @@ void plotMMseq()
   }
 
   // get params from fit result files
-  string lbls[] = {"0", "1", "2", "3", "4fix", "5"};
+  string lbls[] = {"0", "1", "2", "3", "4"};
   for(int i_m = 0; i_m < n_m; i_m++) {
     TFile *fin = new TFile(Form("files/MCfit_%s.root", lbls[i_m].c_str()));
     fin->GetObject("fit_chiN", l_chiN[i_m]);
@@ -316,10 +315,6 @@ void plotMMseq()
   for(int i = 0; i < nv; i++) 
     cout << i << " " << vx[i] << " "  << g_par[6][4]->GetY()[i] << endl;
   
-  g_par[6][5]->SetLineColor(kRed);
-  g_par[6][5]->SetFillColorAlpha(kRed, 0.5);
-  g_par[6][5]->Draw("ce3");
-
   TLine *l41 = new TLine(47.5, parmin[6], 47.5, parmax[6]);
   l41->SetLineColor(kBlack);
   l41->SetLineStyle(kDashed);
@@ -352,7 +347,6 @@ void plotMMseq()
   legc->AddEntry(l_chiN[2], "#mu, f", "l");
   legc->AddEntry(l_chiN[3], "#mu, f, #sigma_{1,2}", "l");
   legc->AddEntry(l_chiN[4], "#mu, f, #sigma_{1,2}, n", "l");
-  legc->AddEntry(l_chiN[5], "#mu, f, #sigma_{1,2}, n, #alpha", "l");
   legc->Draw();
   
   c->SaveAs(Form("plots/MCMass/par_chiN.pdf"));
@@ -380,11 +374,6 @@ void plotMMseq()
 	if(c_val ==3) c_val++;
       }
     }
-
-    TLine *vl = new TLine(pt_min, g_par[i_p][5]->GetY()[0], pt_max, g_par[i_p][5]->GetY()[0]);
-    vl->SetLineStyle(kDashed);
-    vl->SetLineColor(kBlack);
-    vl->Draw();
    
     c->SaveAs(Form("plots/MCMass/na_%s.pdf", parlab[i_p].c_str()));
     c->Clear();

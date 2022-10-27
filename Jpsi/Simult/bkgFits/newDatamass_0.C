@@ -90,8 +90,8 @@ void newDatamass_0()
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
   TH2D *h_d2d = new TH2D();
-  TFile *fin = new TFile("../PR_fit/files/mStore.root");
-  fin->GetObject("mH", h_d2d);
+  TFile *fin = new TFile("files/mStore.root");
+  fin->GetObject("mH_C", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
 
@@ -275,7 +275,7 @@ void newDatamass_0()
     fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Data mass fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fl->SetTitle(Form("Data mass fit pulls (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 
     TGraph *g_pull = new TGraph(mbins, mv, pv);
     g_pull->SetLineColor(kBlack);
@@ -319,7 +319,7 @@ void newDatamass_0()
     fd->SetYTitle("relative difference (%)");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Data mass rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Data mass rel. difference (%.1f < p_{T} < %.1f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_dev = new TGraph(mbins, mv, dv);
     g_dev->SetLineColor(kBlack);
@@ -365,7 +365,7 @@ void newDatamass_0()
 
   for(int i = 0; i < nPtBins; i++) {
     // pT bin
-    ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
+    ftex << Form("$[%.1f, %.1f]$", ptBins[i], ptBins[i+1]);
     for(int i_p = 0; i_p < 11; i_p++) {
       // plot all pT values - N (0), sig1,2 (3,4), N_BG (7), lambda (8), sigG (10)
       if(i_p == 0 || i_p == 3 || i_p == 4 || i_p == 7 || i_p == 8 || i_p == 10) {

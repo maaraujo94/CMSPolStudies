@@ -59,7 +59,7 @@ void plotDMPars()
   
   // for the NB estimate, get histogram maximum and integral as well
   TH2D *h_d2d = new TH2D();
-  TFile *finh = new TFile("files/mStore_fine.root");
+  TFile *finh = new TFile("files/mStore.root");
   finh->GetObject("mH", h_d2d);
   h_d2d->SetDirectory(0);
   finh->Close();

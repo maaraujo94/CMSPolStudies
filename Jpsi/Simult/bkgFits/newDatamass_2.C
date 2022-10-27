@@ -3,17 +3,16 @@
 // sigma_1,2 linear in pT
 // n, alpha fixed from the MC results
 
+#import "../ptbins.C"
+
+double gPI = TMath::Pi();
+
 int do_round(double val)
 {
   int valR = (int)val;
   if (val-valR > 0.5) return valR+1;
   else return valR;
 }
-
-double gPI = TMath::Pi();
-//pt bins defined globally for access from functions
-const int nPtBins = 19;
-double ptBins[nPtBins+1];
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
@@ -90,7 +89,7 @@ void newDatamass_2()
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
   TH2D *h_d2d = new TH2D();
-  TFile *fin = new TFile("files/mStore_fine.root");
+  TFile *fin = new TFile("files/mStore.root");
   fin->GetObject("mH", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
@@ -131,7 +130,6 @@ void newDatamass_2()
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
     f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
     f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/(1.5*i+1));
-    cout << i << " " << f_cb->GetParameter(7*nPtBins+i) << endl;
     
     for(int j = 1; j < 11; j++) { // between NS, NB
       if(j != 7) { // removing NB
@@ -277,7 +275,7 @@ void newDatamass_2()
     fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Data mass fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fl->SetTitle(Form("Data mass fit pulls (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 
     TGraph *g_pull = new TGraph(mbins, mv, pv);
     g_pull->SetLineColor(kBlack);
@@ -321,7 +319,7 @@ void newDatamass_2()
     fd->SetYTitle("relative difference (%)");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Data mass rel. difference (%.0f < p_{T} < %.0f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Data mass rel. difference (%.1f < p_{T} < %.1f GeV)",  ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_dev = new TGraph(mbins, mv, dv);
     g_dev->SetLineColor(kBlack);
@@ -367,7 +365,7 @@ void newDatamass_2()
 
   for(int i = 0; i < nPtBins; i++) {
     // pT bin
-    ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
+    ftex << Form("$[%.1f, %.1f]$", ptBins[i], ptBins[i+1]);
     for(int i_p = 0; i_p < 11; i_p++) {
       // plot all pT values - N (0), sig1,2 (3,4), N_BG (7), lambda (8), sigG (10)
       if(i_p == 0 || i_p == 3 || i_p == 4 || i_p == 7 || i_p == 8 || i_p == 10) {

@@ -41,7 +41,7 @@ void fbkgProp()
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[n_pt];
   TH2D *h_d2d = new TH2D();
-  TFile *fin = new TFile("files/mStore_fine.root");
+  TFile *fin = new TFile("files/mStore.root");
   fin->GetObject("mH", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
@@ -136,24 +136,6 @@ void fbkgProp()
     }
 
   }
-
-  // plotting the 1d projection into pT
-  TH1D* h_fbkgpt = h_fbkg2d->ProjectionY("h_fbkgpd", 1, 1);
-
-  h_fbkgpt->SetStats(0);
-  h_fbkgpt->SetMinimum(0);
-  h_fbkgpt->SetMaximum(15);
-  h_fbkgpt->GetXaxis()->SetTitle("p_{T} (GeV)");
-  h_fbkgpt->GetYaxis()->SetTitle("f_{bkg} (%)");
-  h_fbkgpt->GetYaxis()->SetTitleOffset(1.3);
-  h_fbkgpt->GetYaxis()->SetLabelOffset(0.01);
-  h_fbkgpt->SetTitle("Run 2 f_{bkg} vs p_{T}");
-  h_fbkgpt->SetFillColorAlpha(kBlue, 0.5);
-  h_fbkgpt->Draw("e3");
-  h_fbkg->Draw("error same");
-  
-  c->SaveAs("plots/fBG_band.pdf");
-  c->Clear();
   c->Destructor();
 
   // scale fractions down from percentage

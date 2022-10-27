@@ -1,9 +1,7 @@
-#import "plotMMGfree.C"
+#import "../ptbins.C"
+#import "plotMMG.C"
 
 double gPI = TMath::Pi();
-//pt bins defined globally for access from functions
-const int nPtBins = 19;
-double ptBins[nPtBins+1];
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
@@ -55,7 +53,6 @@ double cb_func(double *x, double *par)
 
   // gaussian parameters free in pt
   double fG = par[7*nPtBins+pt_bin];
-  //double fG = par[7*nPtBins];
   double sigG = par[8*nPtBins+pt_bin];
   
   double func = f * cb_exp(m, N, sig1, mu, n, alpha) + (1.-f-fG) * cb_exp(m, N, sig2, mu, n, alpha) + fG * g_exp(m, N, sigG, mu);
@@ -70,17 +67,9 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 
 
 // MAIN
-void newMCmass_Gdata()
+void newMCmass_G()
 {
   // PART 1 : FILLING THE MASS HISTO
-  // prepare binning and histograms for plots
-  for(int i = 0; i < 10; i++) ptBins[i] = 25 + 2.5*i;
-  for(int i = 0; i < 6; i++) ptBins[i+10] = 50 + 5.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 80 + 10.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+18] = 100 + 20.*i;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
-  cout << endl;
-
   // prepare mass histograms
   int mbins = 80;
   double lowm = 2.9, him = 3.3;
@@ -116,7 +105,7 @@ void newMCmass_Gdata()
   TF2 *f_cb = new TF2("f_cb", cb_func, fit_i, fit_f, ptBins[0], ptBins[nPtBins], 9*nPtBins, 2);
 
   string par_n[] = {"N", "f", "mu", "sig1", "sig2", "n", "alpha", "fG", "sigG"};
-  double par_v[] = {1., 0.7, 3.097, 2e-2, 3e-2, 2.5, 2, 0.04, 5.4e-2};
+  double par_v[] = {1., 0.7, 3.097, 2e-2, 3e-2, 1.2, 2, 0.04, 5.4e-2};
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
     // N needs to be set separately
@@ -154,7 +143,7 @@ void newMCmass_Gdata()
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.12);
   
-  TFile *fout = new TFile("files/MCfit_Gdata.root", "recreate");
+  TFile *fout = new TFile("files/MCfit_G.root", "recreate");
   h_m2d->Fit("f_cb", "R");
 
   double pt_val[nPtBins], pt_err[nPtBins];
@@ -226,7 +215,7 @@ void newMCmass_Gdata()
     fp3->SetLineStyle(kDashed);
     fp3->Draw("lsame");
 	  
-    c->SaveAs(Form("plots/MCMass/fit_Gdata/CBG_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_G/CBG_pt%d.pdf", i_pt));
     c->Clear();
 	  
     // calculating pulls
@@ -280,7 +269,7 @@ void newMCmass_Gdata()
     plim4->Draw("lsame");
 
 	  
-    c->SaveAs(Form("plots/MCMass/fit_Gdata/pullsG_pt%d_dep.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_G/pullsG_pt%d_dep.pdf", i_pt));
     c->Clear();
 
     // clean up parameters for plotting
@@ -343,7 +332,7 @@ void newMCmass_Gdata()
 
   // output fit parameters as a table
   ofstream ftex;
-  ftex.open("text_output/mfit_MC_Gf.tex");
+  ftex.open("text_output/mfit_MC_G.tex");
   ftex << "\\begin{tabular}{c||c|c|c|c|c|c|c|c|c}\n";
   ftex << "$\\pt$ (GeV) & $N$ & $f_{CB1}$ (\\%)  & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ & $\\alpha$ & $f_G$ (\\%) & $\\sigma_G$ (MeV) \\\\\n";
   ftex << "\\hline\n";
@@ -378,7 +367,7 @@ void newMCmass_Gdata()
 
   // sigma parameters
   ofstream ftex2;
-  ftex2.open("text_output/mfit_MC_GfA.tex");
+  ftex2.open("text_output/mfit_MC_GA.tex");
   ftex2 << "\\begin{tabular}{cc|cc|cc||c}\n";
   ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} & \\multicolumn{2}{|c}{$\\sigma_G$}  & \\multirow{2}{*}{$\\chi^2/$ndf}\\\\\n";
   ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & \\\\\n";
@@ -415,4 +404,6 @@ void newMCmass_Gdata()
   fout->Close();
       
   c->Destructor();
+
+  plotMMG();
 }

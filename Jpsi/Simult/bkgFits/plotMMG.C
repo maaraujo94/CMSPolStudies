@@ -1,11 +1,17 @@
 // macro to draw all the fit parameters
 
-void plotMMGfree()
+// get relative position on an axis (pi, pf)
+double getPos(double pi, double pf, double mult, bool isLog) {
+  if(isLog) return pow(10, log10(pi)+mult*(log10(pf)-log10(pi)));
+  else return pi + mult*(pf-pi);
+}
+
+void plotMMG()
 {
   // aux arrays
   const int n_p = 9;
   int n_m = 2;
-  string lbls[] = {"4fix", "Gfree"};
+  string lbls[] = {"4", "G"};
   
   string parlab[] = {"f", "N", "mu", "sig1", "sig2", "n", "alpha", "fG" , "sigG"};
   string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "f_{G}", "#sigma_{G}"};
@@ -103,7 +109,7 @@ void plotMMGfree()
       // fit f_G with constant function
       TF1 *f_fg = new TF1("f_fg", "[0]+[1]*x", 25, 120);
       f_fg->FixParameter(1,0);
-      g_par[1][7]->Fit(f_fg, "R");
+      g_par[1][7]->Fit(f_fg, "R0");
 
       leg->AddEntry(g_par[1][0], "f_{CB1}", "p");
       leg->AddEntry(g_par[1][7], "f_{G}", "p");
@@ -148,7 +154,7 @@ void plotMMGfree()
 
       // fit sigma_G with linear function
       TF1 *f_sg = new TF1("f_sg", "[0]+[1]*x", 25, 120);
-      g_par[1][8]->Fit(f_sg, "R");
+      g_par[1][8]->Fit(f_sg, "R0");
 
       leg->AddEntry(g_par[1][3], "#sigma_{1}", "p");
       leg->AddEntry(g_par[1][4], "#sigma_{2}", "p");
@@ -168,8 +174,14 @@ void plotMMGfree()
 
     int isLog = 0;
     if(i_p == 1 ) isLog = 1;
+
+    TLatex lc;
+    lc.SetTextSize(0.03);
+    lc.DrawLatex(70, getPos(parmin[i_p], parmax[i_p], 0.9, isLog), "no G");
+    lc.SetTextColor(kBlue);
+    lc.DrawLatex(70, getPos(parmin[i_p], parmax[i_p], 0.83, isLog), "with G");
     
-    c->SaveAs(Form("plots/MCMass/parGf_%s.pdf", parlab[i_p].c_str()));
+    c->SaveAs(Form("plots/MCMass/parG_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }
   

@@ -21,7 +21,7 @@ void fbkgProp_NP()
   f_exp->SetParNames("NB", "lambda");
   
   // get fit parameters - need to know which params are being used
-  TFile *inBG = new TFile("files/mfit_NP2con.root");
+  TFile *inBG = new TFile("files/mfit_NP.root");
   int n_par = 2;
   TGraphErrors** g_par = new TGraphErrors*[n_par];
   for(int i = 0; i < n_par; i++) {
@@ -41,7 +41,7 @@ void fbkgProp_NP()
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[n_pt];
   TH2D *h_d2d = new TH2D();
-  TFile *fin = new TFile("files/mStore_fine.root");
+  TFile *fin = new TFile("files/mStore.root");
   fin->GetObject("mH_NP", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
@@ -109,7 +109,7 @@ void fbkgProp_NP()
   h_fbkg->SetLineColor(kBlack);
   h_fbkg->Draw("e1 same");
   
-  c->SaveAs("plots/fBGNP_unc_c.pdf");
+  c->SaveAs("plots/fBGNP_unc.pdf");
 
   // PART 2: generate f_bkg histo
 
@@ -137,23 +137,6 @@ void fbkgProp_NP()
 
   }
 
-  // plotting the 1d projection into pT
-  TH1D* h_fbkgpt = h_fbkg2d->ProjectionY("h_fbkgpd", 1, 1);
-
-  h_fbkgpt->SetStats(0);
-  h_fbkgpt->SetMinimum(0);
-  h_fbkgpt->SetMaximum(15);
-  h_fbkgpt->GetXaxis()->SetTitle("p_{T} (GeV)");
-  h_fbkgpt->GetYaxis()->SetTitle("f_{bkg} (%)");
-  h_fbkgpt->GetYaxis()->SetTitleOffset(1.3);
-  h_fbkgpt->GetYaxis()->SetLabelOffset(0.01);
-  h_fbkgpt->SetTitle("Run 2 f_{bkg} vs p_{T}");
-  h_fbkgpt->SetFillColorAlpha(kBlue, 0.5);
-  h_fbkgpt->Draw("e3");
-  h_fbkg->Draw("error same");
-  
-  c->SaveAs("plots/fBGNP_band.pdf");
-  c->Clear();
   c->Destructor();
 
   // scale fractions down from percentage

@@ -3,7 +3,8 @@
 // sigma_1,2 linear in pT
 // n, alpha fixed from the MC results
 
-#import "plotDMPars_NPf.C"
+#import "plotDMPars_NP.C"
+#import "../ptbins.C"
 
 int do_round(double val)
 {
@@ -13,9 +14,6 @@ int do_round(double val)
 }
 
 double gPI = TMath::Pi();
-//pt bins defined globally for access from functions
-const int nPtBins = 19;
-double ptBins[nPtBins+1];
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
@@ -64,7 +62,7 @@ double mmod_func(double *x, double *par)
 
   double mu = par[2*nPtBins]; // mu is constant in pt
   double sig1 = par[3*nPtBins] * pt + par[3*nPtBins+1]; 
-  double sig2 = par[4*nPtBins] * pt + par[4*nPtBins+1]; // sigmas linear in pt
+  double sig2 = par[3*nPtBins] * pt + par[4*nPtBins+1]; // sigmas linear in pt
   
   double n = par[5*nPtBins]; // n is constant in pt
   double alpha = par[6*nPtBins]; // alpha is constant in pt
@@ -72,8 +70,8 @@ double mmod_func(double *x, double *par)
   double NB = par[7*nPtBins+pt_bin];
   double ld = par[8*nPtBins+pt_bin];
 
-  double fG = par[9*nPtBins+pt_bin]; // fG, sigG free in pT
-  double sigG = par[10*nPtBins+pt_bin];
+  double fG = par[9*nPtBins]; // fG constant in pT
+  double sigG = par[3*nPtBins] * pt + par[10*nPtBins+1]; // sigma_G linear in pt - always sigma1 slope
   
   double func = f * cb_exp(m, NS, sig1, mu, n, alpha) + (1.-f-fG) * cb_exp(m, NS, sig2, mu, n, alpha) + fG * g_exp(m, NS, sigG, mu) + bkg_exp(m, NB, ld);
   return func;
@@ -85,14 +83,13 @@ double getPos(double pi, double pf, double mult, bool isLog) {
   else return pi + mult*(pf-pi);
 }
 
-
 // MAIN
-void newNPmass_2con()
+void newNPmass()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
   TH2D *h_d2d = new TH2D();
-  TFile *fin = new TFile("files/mStore_fine.root");
+  TFile *fin = new TFile("files/mStore.root");
   fin->GetObject("mH_NP", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
@@ -100,11 +97,6 @@ void newNPmass_2con()
   int mbins = h_d2d->GetNbinsX();
   double lowm = h_d2d->GetXaxis()->GetBinLowEdge(1);
   double him = h_d2d->GetXaxis()->GetBinUpEdge(mbins);
-  for(int i = 0; i <= nPtBins; i++) {
-    ptBins[i] = h_d2d->GetYaxis()->GetXbins()->GetArray()[i];
-    cout << ptBins[i] << ",";
-  }
-  cout << endl;
   
   // Make 1d histos
   TH1D **h_d1d = new TH1D*[nPtBins];
@@ -117,20 +109,14 @@ void newNPmass_2con()
   double m_min[] = {2.94, 3.0, 3.21};
   double m_max[] = {2.95, 3.2, 3.26};
 
-  // get the MC gaussian values for fixing
-  TFile *inMC = new TFile("files/MCfit_Gfree.root");
-  double *fG_v = ((TGraphErrors*)inMC->Get("fit_fG"))->GetY();
-  double *sigG_v = ((TGraphErrors*)inMC->Get("fit_sigG"))->GetY();
-  inMC->Close();
-
   // fix n_v to a given value, give initial alpha
-  double n_v = 2.5, alpha_v = 2.;
+  double n_v = 2.5, alpha_v = 1.9, fG_v = 0.035;
 
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
-  string par_n[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
-  double par_v[] =  {1., 0.5, 3.1, 1e-4, 1e-4, n_v, alpha_v, 1., 0.5, 1., 1.};
-  double par2_v[] = {1., 1.,  1.,  2e-2, 3e-2, 1.,  1.,      1., 1.,  1., 1.};
+  string par_n[] =  {"NS", "f",  "mu",  "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
+  double par_v[] =  {1.,   0.55, 3.095, 1e-4,   1e-4,   n_v, alpha_v, 1.,   0.3,      fG_v, 1.};
+  double par2_v[] = {1.,   1.,   1.,    2e-2,   3e-2,   1.,  1.,      1.,   1.,       1.,   8e-2};
   
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
@@ -138,8 +124,7 @@ void newNPmass_2con()
     f_cb->SetParName(i, Form("NS_%d", i));
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
     f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
-    //    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/4.);
-    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/(2.+i));
+    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral());
 
     for(int j = 1; j < 11; j++) { // between NS, NB
       if(j != 7) { // removing NB
@@ -147,15 +132,14 @@ void newNPmass_2con()
 	f_cb->SetParameter(j*nPtBins+i, par_v[j]);
 	// setting the constant parameters f, mu, alpha
 	if((j < 3 || j == 6)  && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-	// setting the linear parameters sigma_1,2
-	else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-	else if((j == 3 || j == 4) && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
-	// fixing n
-	else if(j == 5) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-	// NB, lambda are fully free
-	// fG and sigG are defined by the MC values
-	else if(j == 9) f_cb->FixParameter(j*nPtBins+i, fG_v[i]/100.);
-	else if(j == 10) f_cb->FixParameter(j*nPtBins+i, sigG_v[i]/1000.);
+	// setting the linear parameters sigma_1,2,G - shared slope, different intercept
+	else if(j == 3 && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+	else if(j == 3 && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
+	else if((j == 4 || j == 10) && i != 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+	else if((j == 4 || j == 10) && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
+	// fixing n, fG
+	else if(j == 5 || j == 9) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+	// lambda are fully free
       }
     }
   }
@@ -191,17 +175,17 @@ void newNPmass_2con()
 
      // storing parameters
     for(int j = 0; j < 11; j++) {
-      if(j == 0 || j > 6) { // free parameters NS, NB, lambda, fG, sigG
+      if(j == 0 || j == 7 || j == 8) { // free parameters NS, NB, lambda
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins+i_pt);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins+i_pt);
       }
-      else if ( j == 1 || j == 2 || j == 5 || j == 6) { // constant parameters mu, f, n, alpha
+      else if ( j == 1 || j == 2 || j == 5 || j == 6 || j == 9) { // constant parameters mu, f, n, alpha, fG
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins);
       }
-      else if ( j == 3 || j == 4) { // linear parameters sig1, sig2
-	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins) * pt_val[i_pt] + f_cb->GetParameter(j*nPtBins+1);
-	epars[j][i_pt] = sqrt(pow(f_cb->GetParError(j*nPtBins) * pt_val[i_pt], 2) + pow(f_cb->GetParError(j*nPtBins+1), 2));
+      else if ( j == 3 || j == 4 || j == 10) { // linear parameters sig1, sig2, sigG
+	pars[j][i_pt] = f_cb->GetParameter(3*nPtBins) * pt_val[i_pt] + f_cb->GetParameter(j*nPtBins+1);
+	epars[j][i_pt] = sqrt(pow(f_cb->GetParError(3*nPtBins) * pt_val[i_pt], 2) + pow(f_cb->GetParError(j*nPtBins+1), 2));
       }
     }
     
@@ -250,7 +234,7 @@ void newNPmass_2con()
     fp4->SetLineStyle(kDashed);
     fp4->Draw("lsame");
     
-    c->SaveAs(Form("plots/massNP/fit_2c/fit_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/massNP/fit/fit_pt%d.pdf", i_pt));
     c->Clear();
 
     // get the bkg fraction in the signal region (3.0 - 3.2 GeV)
@@ -320,7 +304,7 @@ void newNPmass_2con()
     plim4->Draw("lsame");
 
     
-    c->SaveAs(Form("plots/massNP/fit_2c/pulls_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/massNP/fit/pulls_pt%d.pdf", i_pt));
     c->Clear();
 
     // plotting the devs
@@ -340,12 +324,12 @@ void newNPmass_2con()
     // aux lines - pull = 0 and sigma limits
     zero->Draw("lsame");
 
-    c->SaveAs(Form("plots/massNP/fit_2c/devs_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/massNP/fit/devs_pt%d.pdf", i_pt));
     c->Clear();
   }
   
   // storing the free parameters
-  TFile *foutF = new TFile("files/mfit_NP2con.root", "recreate");
+  TFile *foutF = new TFile("files/mfit_NP.root", "recreate");
   string parlab[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
 
   for(int i_p = 0; i_p < 11; i_p++) {
@@ -452,5 +436,5 @@ void newNPmass_2con()
 
   c->Destructor();
 
-  plotDMPars_NPf();
+  plotDMPars_NP();
 }
