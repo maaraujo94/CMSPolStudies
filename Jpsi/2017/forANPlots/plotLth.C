@@ -19,12 +19,10 @@ void plotLth()
     graph_lth[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
   }    
   fInd->Close();
-  /*TFile *fIndN = new TFile("../NP_fit/files/finalFitRes.root");
-  graph_lth[1] = (TGraphErrors*)fIndN->Get("graph_lambda_NP");
-  fIndN->Close();*/
-
+  
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetRightMargin(0.03);
   int cols[] = {kViolet-1, kRed, kBlack, kBlue, kGreen};
 
   for(int i = 0; i < 4; i++) {
@@ -55,18 +53,18 @@ void plotLth()
 
   //leg->Draw(); 
   
-  c->SaveAs("plots/ratioFinal/lth1_S.pdf");
+  c->SaveAs("plots/ratioFinal/lth1_17.pdf");
 
   // add pr lambda_th
   graph_lth[1]->Draw("p same");
-  graph_lth[2]->Draw("p same");
+  //graph_lth[2]->Draw("p same");
   
-  c->SaveAs("plots/ratioFinal/lth2_S.pdf");
+  c->SaveAs("plots/ratioFinal/lth2_17.pdf");
   
   // add prompt jpsi lambda_th
   graph_lth[3]->Draw("p same");
   
-  c->SaveAs("plots/ratioFinal/lth3_S.pdf");
+  c->SaveAs("plots/ratioFinal/lth3_17.pdf");
   c->Clear();
 
   // now draw just prompt and non-prompt J/psi results

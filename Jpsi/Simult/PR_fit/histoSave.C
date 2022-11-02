@@ -17,18 +17,21 @@ void histoSave()
   // open files and read TTrees
   TFile *fin = new TFile("../../Store_data_codes/dataS_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
-  TFile *fin2 = new TFile("../../Store_data_codes/MCS_cos.root");
-  TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
+  TFile *fin1 = new TFile("../../Store_data_codes/MCS_cos.root");
+  TTree *treeM1 = (TTree*)fin1->Get("MC_cos");
+  TFile *fin2 = new TFile("../../Store_data_codes/MCmS_cos.root");
+  TTree *treeM2 = (TTree*)fin2->Get("MC_cos");
   TFile *fin3 = new TFile("../../Store_data_codes/MChS_cos.root");
-  TTree *treeM2 = (TTree*)fin3->Get("MC_cos");
+  TTree *treeM3 = (TTree*)fin3->Get("MC_cos");
   TFile *fin4 = new TFile("../../Store_data_codes/MCvhS_cos.root");
-  TTree *treeM3 = (TTree*)fin4->Get("MC_cos");
+  TTree *treeM4 = (TTree*)fin4->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();
   int m1Evt = treeM1->GetEntries();
   int m2Evt = treeM2->GetEntries();
   int m3Evt = treeM3->GetEntries();
-  
+  int m4Evt = treeM4->GetEntries(); 
+ 
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m, data_y;
   Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y;
@@ -56,6 +59,12 @@ void histoSave()
   treeM3->SetBranchAddress("Rap", &mc_y);
   treeM3->SetBranchAddress("Mass", &mc_m);
   treeM3->SetBranchAddress("lt", &mc_lt);
+
+  treeM4->SetBranchAddress("theta", &mc_th);
+  treeM4->SetBranchAddress("dimPt", &mc_pt);
+  treeM4->SetBranchAddress("Rap", &mc_y);
+  treeM4->SetBranchAddress("Mass", &mc_m);
+  treeM4->SetBranchAddress("lt", &mc_lt);
 
   // cycle over data and MC, fill the costh histogram acc to binning
   for(int i = 0; i < dEvt; i++)
@@ -88,7 +97,7 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 47.5 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > ptBins[0] && mc_pt < 45 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 	MCHist->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
@@ -97,7 +106,7 @@ void histoSave()
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(mc_pt > 47.5 && mc_pt < 70 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+      if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 	MCHist->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
@@ -106,6 +115,15 @@ void histoSave()
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
+      if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+	MCHist->Fill(abs(cos(mc_th)), mc_pt);
+      }
+    }
+
+  // MC sample 4
+  for(int i = 0; i < m4Evt; i++)
+    {
+      treeM4->GetEntry(i);
       if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 	MCHist->Fill(abs(cos(mc_th)), mc_pt);
       }
@@ -167,13 +185,4 @@ void histoSave()
   outfile->Close();
   
   cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events", PRHist->GetEntries(), NPHist->GetEntries(), MCHist->GetEntries()) << endl;
-
-  // split between pT ranges - must set by hand
-  
-  double pt_min[] = {PRHist->GetYaxis()->GetBinLowEdge(1), PRHist->GetYaxis()->GetBinLowEdge(10), PRHist->GetYaxis()->GetBinLowEdge(15)};
-  double pt_max[] = {PRHist->GetYaxis()->GetBinUpEdge(9), PRHist->GetYaxis()->GetBinUpEdge(14), PRHist->GetYaxis()->GetBinUpEdge(19)};
-  
-  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 1 [%.1f, %.1f] GeV", PRHist->Integral(1, 20, 1, 9), NPHist->Integral(1, 20, 1, 9), MCHist->Integral(1, 20, 1, 9), pt_min[0], pt_max[0]) << endl;
-  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 2 [%.1f, %.1f] GeV", PRHist->Integral(1, 20, 10, 14), NPHist->Integral(1, 20, 10, 14), MCHist->Integral(1, 20, 10, 14), pt_min[1], pt_max[1]) << endl;
-  cout << Form("%.0f data (PR) events, %.0f data (NP) events and %.0f MC events in pT range 3 [%.1f, %.1f] GeV", PRHist->Integral(1, 20, 15, 19), NPHist->Integral(1, 20, 15, 19), MCHist->Integral(1, 20, 15, 19), pt_min[2], pt_max[2]) << endl;
 }

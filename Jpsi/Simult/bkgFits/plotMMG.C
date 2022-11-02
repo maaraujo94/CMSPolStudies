@@ -14,8 +14,8 @@ void plotMMG()
   string lbls[] = {"4", "G"};
   
   string parlab[] = {"f", "N", "mu", "sig1", "sig2", "n", "alpha", "fG" , "sigG"};
-  string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "f_{G}", "#sigma_{G}"};
-  string parax[] = {"f (%)", "N per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "f_{G} (%)", "#sigma_{G} (MeV)"};
+  string partit[] = {"f", "N", "#mu_{m}", "#sigma", "#sigma_{2}", "n", "#alpha", "f_{G}", "#sigma_{G}"};
+  string parax[] = {"f (%)", "N per 1 GeV", "#mu_{m} (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "f_{G} (%)", "#sigma_{G} (MeV)"};
   double parmin[] = {0,   7e1, 3090, 0, 30., 0.6, 1.8, 0,   0};
   double parmax[] = {100, 4e3, 3100, 100, 55., 1.8, 2.5, 100, 100};
 
@@ -48,21 +48,24 @@ void plotMMG()
 
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.12);
+  c->SetRightMargin(0.03);
+  
   for(int i_p = 0; i_p < 7; i_p++) {
 
     TH1F *fl = c->DrawFrame(pt_min, parmin[i_p], pt_max, parmax[i_p]);
     fl->SetXTitle("p_{T} (GeV)");
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
+    if(i_p == 3) fl->GetYaxis()->SetTitleOffset(1.7);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
+    fl->SetTitle(Form("MC %s vs p_{T}", partit[i_p].c_str()));
 
     if (i_p == 4) continue;
     
     if(i_p == 1) c->SetLogy();
     else c->SetLogy(0);
 
-    TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+    TLegend *leg = new TLegend(0.77, 0.7, 0.97, 0.9);
     leg->SetTextSize(0.03);
 
     // drawing base model
@@ -111,8 +114,8 @@ void plotMMG()
       f_fg->FixParameter(1,0);
       g_par[1][7]->Fit(f_fg, "R0");
 
-      leg->AddEntry(g_par[1][0], "f_{CB1}", "p");
-      leg->AddEntry(g_par[1][7], "f_{G}", "p");
+      leg->AddEntry(g_par[1][0], "f_{CB1}", "l");
+      leg->AddEntry(g_par[1][7], "f_{G}", "pl");
       leg->Draw();
     }
 
@@ -140,14 +143,12 @@ void plotMMG()
       g_par[1][i_p]->Draw("pce3");
 
       g_par[1][4]->SetMarkerStyle(22);
-      g_par[1][4]->SetMarkerSize(.75);
       g_par[1][4]->SetMarkerColor(kBlue);
       g_par[1][4]->SetLineColor(kBlue);
       g_par[1][4]->SetFillColorAlpha(kBlue, 0.5);
       g_par[1][4]->Draw("pce3");
 
       g_par[1][8]->SetMarkerStyle(29);
-      g_par[1][8]->SetMarkerSize(.75);
       g_par[1][8]->SetLineColor(kBlue);
       g_par[1][8]->SetMarkerColor(kBlue);
       g_par[1][8]->Draw("p");	
@@ -156,8 +157,8 @@ void plotMMG()
       TF1 *f_sg = new TF1("f_sg", "[0]+[1]*x", 25, 120);
       g_par[1][8]->Fit(f_sg, "R0");
 
-      leg->AddEntry(g_par[1][3], "#sigma_{1}", "p");
-      leg->AddEntry(g_par[1][4], "#sigma_{2}", "p");
+      leg->AddEntry(g_par[1][3], "#sigma_{CB_{1}}", "p");
+      leg->AddEntry(g_par[1][4], "#sigma_{CB_{2}}", "p");
       leg->AddEntry(g_par[1][8], "#sigma_{G}", "p");
       leg->Draw();
 
@@ -166,11 +167,11 @@ void plotMMG()
     TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
     l1->SetLineColor(kBlack);
     l1->SetLineStyle(kDashed);
-    l1->Draw();
+    //l1->Draw();
     TLine *l2 = new TLine(66, parmin[i_p], 66, parmax[i_p]);
     l2->SetLineColor(kBlack);
     l2->SetLineStyle(kDashed);
-    l2->Draw();
+    //l2->Draw();
 
     int isLog = 0;
     if(i_p == 1 ) isLog = 1;

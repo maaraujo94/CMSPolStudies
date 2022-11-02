@@ -33,7 +33,7 @@ void plotLtParsBoth()
 
   // aux arrays
   string parlab[] = {"N_PR", "N_NP", "f", "mu", "sig1", "sig2", "lambda"};
-  string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma", "#sigma_{2}", "t_{NP}"};
+  string partit[] = {"N_{PR}", "N_{NP}", "f_{G_{1}}", "#mu_{c#tau}", "#sigma", "#sigma_{G_{2}}", "t_{NP}"};
   string par_unit[] = {" per 1 GeV", " per 1 GeV", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
 
   double parmin[] = {1e2, 8e2, 0,  -5., 0,  0,  300};
@@ -83,6 +83,7 @@ void plotLtParsBoth()
   TGraphErrors **g_par = new TGraphErrors*[n_p];
 
   TCanvas *c = new TCanvas("", "", 900, 900);
+  c->SetRightMargin(0.03);
   c->SetLeftMargin(0.11);
 
   for(int i = 0; i < n_p; i++) {
@@ -100,7 +101,7 @@ void plotLtParsBoth()
     fp->SetYTitle(Form("%s%s", partit[i].c_str(), par_unit[i].c_str()));
     fp->GetYaxis()->SetTitleOffset(1.5);
     fp->GetYaxis()->SetLabelOffset(0.01);
-    //fp->SetTitle(Form("2018 %s", partit[i].c_str()));
+    fp->SetTitle(Form("%s vs p_{T}", partit[i].c_str()));
 
     // drawing the 1d fit results
     g_par[i]->SetMarkerStyle(20);
@@ -139,8 +140,8 @@ void plotLtParsBoth()
       g_par_s[i+1]->Draw("psame");
 
       TLatex ls;
-      ls.DrawLatex(60, 11, "#sigma_{1}");
-      ls.DrawLatex(60, 21, "#sigma_{2}");
+      ls.DrawLatex(60, 11, "#sigma_{G_{1}}");
+      ls.DrawLatex(60, 21, "#sigma_{G_{2}}");
 
     }
 

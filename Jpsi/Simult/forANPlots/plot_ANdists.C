@@ -59,7 +59,9 @@ void plot_ANdists()
   }
 
   TCanvas *c = new TCanvas("", "", 900, 900);
-
+  c->SetRightMargin(0.03);
+  c->SetTopMargin(0.015);
+  
   // plot pT
   c->SetLogy();
   c->SetLeftMargin(0.11);
@@ -188,7 +190,7 @@ void plot_ANdists()
     h_lt[i]->SetStats(0);
     h_lt[i]->SetLineColor(coly[i]);
     h_lt[i]->SetMinimum(1e3);
-    h_lt[i]->SetMaximum(4e6);
+    h_lt[i]->SetMaximum(5e6);
     h_lt[i]->GetXaxis()->SetTitle("c#tau (#mum)");
     h_lt[i]->GetXaxis()->SetTitleOffset(1.1);
     h_lt[i]->GetYaxis()->SetTitle("dN/dc#tau");
@@ -233,7 +235,7 @@ void plot_ANdists()
   h_lt[3]->SetStats(0);
   h_lt[3]->SetLineColor(colpt[0]);
   h_lt[3]->SetMinimum(1e3);
-  h_lt[3]->SetMaximum(4e6);
+  h_lt[3]->SetMaximum(5e6);
   h_lt[3]->GetXaxis()->SetTitle("c#tau (#mum)");
   h_lt[3]->GetXaxis()->SetTitleOffset(1.1);
   h_lt[3]->GetYaxis()->SetTitle("dN/dc#tau");
@@ -248,7 +250,7 @@ void plot_ANdists()
   TLatex lcltf;
   lcltf.SetTextSize(0.04);
   lcltf.SetTextColor(colpt[0]);
-  lcltf.DrawLatex(300, 1.5e6, "Full Data");
+  lcltf.DrawLatex(300, 2e6, "Run 2 Data");
 
   c->SaveAs(Form("plots/ANdists/lt_full.pdf"));
   c->Clear();
@@ -289,63 +291,6 @@ void plot_ANdists()
   
 
   c->SaveAs(Form("plots/ANdists/lt_scale.pdf"));
-  c->Clear();
-
-  // plot M
-  c->SetLogy(0);
-  c->SetLeftMargin(0.12);
-
-  for(int i = 0; i < 6; i++) {
-    h_m[i]->SetStats(0);
-    h_m[i]->Scale(1./h_m[i]->Integral());
-    h_m[i]->Scale(h_m[i%3]->GetMaximum()/h_m[i]->GetMaximum());
-    h_m[i]->SetLineColor(coly[i%3]);
-    h_m[i]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
-    h_m[i]->GetXaxis()->SetTitleOffset(1.1);
-    h_m[i]->GetYaxis()->SetTitle("dN/dM (normalized)");
-    h_m[i]->SetTitle(Form("M (%s)", lbl_y[i].c_str()));
-    if(i > 2) h_m[i]->SetLineStyle(kDashed);
-  }
-  
-  for(int i = 0; i < 6; i++) {  
-    if(i%3==1) continue;
-    
-    h_m[i]->SetMinimum(0);
-    h_m[i]->SetMaximum(0.08);
-    if(i==0) h_m[i]->Draw("histo");
-    else h_m[i]->Draw("histo same");
-  }
-
-  TLatex lcm;
-  lcm.SetTextSize(0.04);
-  lcm.SetTextColor(coly[0]);
-  lcm.DrawLatex(3.17, 0.069, "low-p_{T}");
-  lcm.SetTextColor(coly[2]);
-  lcm.DrawLatex(3.17, 0.062, "high-p_{T}");
-  lcm.SetTextColor(kBlack);
-  lcm.DrawLatex(2.925, 0.073, "#minus Data");
-  lcm.DrawLatex(2.925, 0.066, "--MC");
-
-  
-  c->SaveAs(Form("plots/ANdists/m_scale.pdf"));
-  c->Clear();
-
-  h_m[6]->SetStats(0);
-  h_m[6]->SetLineColor(kBlack);
-  h_m[6]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
-  h_m[6]->GetXaxis()->SetTitleOffset(1.1);
-  h_m[6]->GetYaxis()->SetTitle("dN/dM");
-  h_m[6]->SetMaximum(1.2e6);
-  h_m[6]->SetTitle("");
-  h_m[6]->Draw("histo");  
-
-  TLatex lcmf;
-  lcmf.SetTextSize(0.04);
-  lcmf.SetTextColor(colpt[0]);
-  lcmf.DrawLatex(3.15, 1e6, "Full Data");
-
-  
-  c->SaveAs(Form("plots/ANdists/m_full.pdf"));
   c->Clear();
 
   // plot costh
@@ -428,6 +373,67 @@ void plot_ANdists()
 
   c->SaveAs(Form("plots/ANdists/cos_full.pdf"));
   c->Clear();
+
+  // plot M
+  c->SetLogy(0);
+  c->SetLeftMargin(0.12);
+
+  for(int i = 0; i < 6; i++) {
+    h_m[i]->SetStats(0);
+    h_m[i]->Scale(1./h_m[i]->Integral());
+    h_m[i]->Scale(h_m[i%3]->GetMaximum()/h_m[i]->GetMaximum());
+    h_m[i]->SetLineColor(coly[i%3]);
+    h_m[i]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
+    h_m[i]->GetXaxis()->SetTitleOffset(1.1);
+    h_m[i]->GetYaxis()->SetTitle("dN/dM (normalized)");
+    h_m[i]->SetTitle(Form("M (%s)", lbl_y[i].c_str()));
+    if(i > 2) h_m[i]->SetLineStyle(kDashed);
+  }
+  
+  for(int i = 0; i < 6; i++) {  
+    if(i%3==1) continue;
+    
+    h_m[i]->SetMinimum(0);
+    h_m[i]->SetMaximum(0.08);
+    if(i==0) h_m[i]->Draw("histo");
+    else h_m[i]->Draw("histo same");
+  }
+
+  TLatex lcm;
+  lcm.SetTextSize(0.04);
+  lcm.SetTextColor(coly[0]);
+  lcm.DrawLatex(3.17, 0.069, "low-p_{T}");
+  lcm.SetTextColor(coly[2]);
+  lcm.DrawLatex(3.17, 0.062, "high-p_{T}");
+  lcm.SetTextColor(kBlack);
+  lcm.DrawLatex(2.925, 0.073, "#minus Data");
+  lcm.DrawLatex(2.925, 0.066, "--MC");
+
+  
+  c->SaveAs(Form("plots/ANdists/m_scale.pdf"));
+  c->Clear();
+
+  c->SetTopMargin(0.04);
+
+  h_m[6]->SetStats(0);
+  h_m[6]->SetLineColor(kBlack);
+  h_m[6]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
+  h_m[6]->GetXaxis()->SetTitleOffset(1.1);
+  h_m[6]->GetYaxis()->SetTitle("dN/dM");
+  h_m[6]->GetYaxis()->SetTitleOffset(1.8);
+  h_m[6]->SetMaximum(1.2e6);
+  h_m[6]->SetTitle("");
+  h_m[6]->Draw("histo");  
+
+  TLatex lcmf;
+  lcmf.SetTextSize(0.04);
+  lcmf.SetTextColor(colpt[0]);
+  lcmf.DrawLatex(3.15, 1e6, "Run 2 Data");
+
+  
+  c->SaveAs(Form("plots/ANdists/m_full.pdf"));
+  c->Clear();
+
   c->Destructor();
 
   fin->Close();

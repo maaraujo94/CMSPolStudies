@@ -94,13 +94,14 @@ void fbkgProp()
 
   // plotting in pT
   TCanvas *c = new TCanvas("", "", 900, 900);
+  c->SetRightMargin(0.03);
 
   TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 15);
   fr1->SetXTitle("p_{T} (GeV)");
   fr1->SetYTitle("f_{bkg} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("Run 2 f_{bkg} vs p_{T}");
+  fr1->SetTitle("f_{bkg} vs p_{T}");
 
   h_fbkg->SetStats(0);
   h_fbkg->SetMarkerStyle(20);
@@ -116,7 +117,7 @@ void fbkgProp()
   // get costh binning from the stored data histos
   TFile *infile = new TFile("../PR_fit/files/histoStore.root");
   TH2D *hist = new TH2D();
-  infile->GetObject(Form("dataH_ab"), hist);
+  infile->GetObject(Form("PRH"), hist);
 
   // get the binning
   int nBinsX = hist->GetNbinsX();

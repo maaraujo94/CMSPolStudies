@@ -59,13 +59,6 @@ double cb_func(double *x, double *par)
   return func;
 }
 
-// get relative position on an axis (pi, pf)
-double getPos(double pi, double pf, double mult, bool isLog) {
-  if(isLog) return pow(10, log10(pi)+mult*(log10(pf)-log10(pi)));
-  else return pi + mult*(pf-pi);
-}
-
-
 // MAIN
 void newMCmass_G()
 {
@@ -141,7 +134,8 @@ void newMCmass_G()
 
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
-  c->SetLeftMargin(0.12);
+  c->SetLeftMargin(0.13);
+  c->SetRightMargin(0.03);
   
   TFile *fout = new TFile("files/MCfit_G.root", "recreate");
   h_m2d->Fit("f_cb", "R");
@@ -173,15 +167,16 @@ void newMCmass_G()
     //c->SetLogy();
 	  
     h_m1d[i_pt]->SetMaximum(h_m1d[i_pt]->GetMaximum()*1.1);
-    /*if(pt_val[i_pt] > 34 && pt_val[i_pt] < 37)
-      h_m1d[i_pt]->SetMaximum(18000);
-    if(pt_val[i_pt] > 76 && pt_val[i_pt] < 84)
-    h_m1d[i_pt]->SetMaximum(35000);*/
+    if(pt_val[i_pt] > 34 && pt_val[i_pt] < 38)
+      h_m1d[i_pt]->SetMaximum(35000);
+    if(pt_val[i_pt] > 69 && pt_val[i_pt] < 86)
+    h_m1d[i_pt]->SetMaximum(60000);
     h_m1d[i_pt]->SetMinimum(0);//h_m1d[i_pt]->GetMaximum()*1e-5);
     h_m1d[i_pt]->SetStats(0);
     h_m1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
-    h_m1d[i_pt]->GetYaxis()->SetTitleOffset(1.8);
+    h_m1d[i_pt]->GetYaxis()->SetTitleOffset(2.);
     h_m1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
+    h_m1d[i_pt]->SetTitle(Form("Run 2 MC M(#mu#mu) (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
     h_m1d[i_pt]->SetMarkerStyle(20);
     h_m1d[i_pt]->SetMarkerSize(0.75);
     h_m1d[i_pt]->SetMarkerColor(kBlack);

@@ -1,20 +1,13 @@
+#import "../ptbins.C"
+
 // plot the pT dists of peak, NP and SB data
 void plotYields()
 {
-  const int nPtBins = 19;
-  double ptBins[nPtBins+1];
-  for(int i = 0; i < 10; i++) ptBins[i] = 25 + 2.5*i;
-  for(int i = 0; i < 6; i++) ptBins[i+10] = 50 + 5.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 80 + 10.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+18] = 100 + 20.*i;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
-  cout << endl;
-
   // define the pT histos
-  TH1D *h_tot = new TH1D("totH", "Full Data", nPtBins, ptBins);
-  TH1D *h_NP  = new TH1D("npH",  "Full Data (NP)",  nPtBins, ptBins);
-  TH1D *h_LSB = new TH1D("lsbH", "Full Data (LSB)", nPtBins, ptBins);
-  TH1D *h_RSB = new TH1D("rsbH", "Full Data (RSB)", nPtBins, ptBins);
+  TH1D *h_tot = new TH1D("totH", "Run 2 Data", nPtBins, ptBins);
+  TH1D *h_NP  = new TH1D("npH",  "Run 2 Data (NP)",  nPtBins, ptBins);
+  TH1D *h_LSB = new TH1D("lsbH", "Run 2 Data (LSB)", nPtBins, ptBins);
+  TH1D *h_RSB = new TH1D("rsbH", "Run 2 Data (RSB)", nPtBins, ptBins);
   
   // open file, get data
   TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/dataS_cos.root");
@@ -63,7 +56,9 @@ void plotYields()
 
   // now the plotting
   TCanvas *c = new TCanvas("", "", 900, 900);
-  c->SetLeftMargin(0.11);
+  c->SetLeftMargin(0.15);
+  c->SetRightMargin(0.03);
+  c->SetTopMargin(0.015);
   c->SetLogy();
 
   h_tot->SetLineColor(kBlack);
@@ -98,7 +93,7 @@ void plotYields()
   TH1F *fr1 = c->DrawFrame(20, 0., 125, 1.);
   fr1->SetXTitle("p_{T} (GeV)");
   fr1->SetYTitle("Yield ratio (a.u.)");
-  fr1->GetYaxis()->SetTitleOffset(1.3);
+  fr1->GetYaxis()->SetTitleOffset(1.8);
   fr1->GetYaxis()->SetLabelOffset(0.01);
   fr1->SetTitle("Yield (NP) / Yield (Peak)");
 
@@ -117,9 +112,8 @@ void plotYields()
   TH1F *fr1c = c->DrawFrame(20, 0., 125, 0.02);
   fr1c->SetXTitle("p_{T} (GeV)");
   fr1c->SetYTitle("Yield ratio (a.u.)");
-  fr1c->GetYaxis()->SetTitleOffset(1.5);
+  fr1c->GetYaxis()->SetTitleOffset(2.);
   fr1c->GetYaxis()->SetLabelOffset(0.01);
-  fr1c->SetTitle("Yield (NP) / Yield (Peak)");
 
   f_NP->Scale(1./f_NP->Integral("width"));
   f_NP->SetLineColor(kBlue);
@@ -130,6 +124,12 @@ void plotYields()
   fit_fnp->SetLineColor(kBlack);
   fit_fnp->SetMarkerColor(kBlack);
   fit_fnp->Draw("error same");
+
+  TLegend *legNP = new TLegend(0.72, 0.785, 0.97, 0.985);
+  legNP->SetTextSize(0.03);
+  legNP->AddEntry(f_NP, "yield ratio", "pl");
+  legNP->AddEntry(fit_fnp, "f_{NP}", "pl");
+  legNP->Draw();
     
   c->SaveAs("plots/fitcomp_fNP.pdf");
   c->Clear();
@@ -142,7 +142,7 @@ void plotYields()
   fr2->GetYaxis()->SetLabelOffset(0.01);
   fr2->SetTitle("Yield (bkg) / Yield (Peak)");
 
-  TH1D *f_SB = new TH1D("f_SB", "Full Data f_{SB}", nPtBins, ptBins);
+  TH1D *f_SB = new TH1D("f_SB", "Run 2 Data f_{SB}", nPtBins, ptBins);
   f_SB->Sumw2();
   f_SB->Add(h_LSB, h_RSB, 1, 1);
   f_SB->Divide(h_tot);
@@ -158,9 +158,8 @@ void plotYields()
   TH1F *fr2c = c->DrawFrame(20, 0., 125, 0.02);
   fr2c->SetXTitle("p_{T} (GeV)");
   fr2c->SetYTitle("Yield ratio (a.u.)");
-  fr2c->GetYaxis()->SetTitleOffset(1.3);
+  fr2c->GetYaxis()->SetTitleOffset(2.);
   fr2c->GetYaxis()->SetLabelOffset(0.01);
-  fr2c->SetTitle("Yield (bkg) / Yield (Peak)");
 
   f_SB->Scale(1./f_SB->Integral("width"));
   f_SB->SetLineColor(kBlue);
@@ -171,7 +170,13 @@ void plotYields()
   fit_fsb->SetLineColor(kBlack);
   fit_fsb->SetMarkerColor(kBlack);
   fit_fsb->Draw("error same");
-    
+
+  TLegend *legSB = new TLegend(0.72, 0.785, 0.97, 0.985);
+  legSB->SetTextSize(0.03);
+  legSB->AddEntry(f_SB, "yield ratio", "pl");
+  legSB->AddEntry(fit_fsb, "f_{bkg}", "pl");
+  legSB->Draw();
+
   c->SaveAs("plots/fitcomp_fSB.pdf");
   c->Clear();
 

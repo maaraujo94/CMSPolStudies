@@ -7,7 +7,7 @@ void fNPcorr()
   inNP->Close();
   
   // get the f_bkg^NP from NP_fit folder
-  TFile *inSB = new TFile("../NP_fit/files/bkgFrac.root");
+  TFile *inSB = new TFile("../bkgFits/files/bkgFrac_NP.root");
   TH2D *h_fbkg = (TH2D*)inSB->Get("h_fbkg");
   h_fbkg->SetDirectory(0);
   inSB->Close();

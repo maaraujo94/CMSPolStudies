@@ -64,7 +64,7 @@ void ltPerPt(double binLow, double binHigh, int binN)
   // define the fit function as the sum of all contributions
   TF1 *fitS = new TF1("fitS", func_sum, lowt, hit, 7);
   fitS->SetParNames("N_PR", "N_NP", "f", "mu", "sigma1", "sigma2", "lambda");
-  fitS->SetParameters(ltHist->GetMaximum(), ltHist->GetMaximum()*5., 0.8, 0, 1e-2, 3e-2, 0.35);
+  fitS->SetParameters(ltHist->GetMaximum(), ltHist->GetMaximum()*5., 0.75, 0, 1e-2, 2e-2, 0.35);
   fitS->SetLineColor(kBlue);
   int fits = ltHist->Fit(fitS, "RQ");
   

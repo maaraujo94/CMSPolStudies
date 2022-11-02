@@ -35,15 +35,6 @@ void plotRes()
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("2018 #lambda_{#theta}");
 
-  // remove 45-47.5 bin in all lth plots
-  int i_cut = 0;
-  for(int ip= 0; ip < nBinspT; ip++) {
-    if(pTBins[ip] < 46 && pTBins[ip+1] > 46)
-      i_cut = ip;
-  }
-  for(int i = 0; i < 4; i++)
-    graph_lth[i]->RemovePoint(i_cut);
-
   int col[] = {kViolet, kRed, kBlack, kBlue};
   for(int i = 0; i < 4; i++) {
     graph_lth[i]->SetLineColor(col[i]);

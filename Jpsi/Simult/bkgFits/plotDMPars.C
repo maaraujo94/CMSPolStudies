@@ -56,6 +56,36 @@ void plotDMPars()
       g_par_s[i_m][i] = new TGraphErrors(n, xv, yv, xe, ye);
     }
   }
+
+  // get extra graph for alpha to make it prettier
+  int n = g_par_s[1][6]->GetN();
+  double *xv = g_par_s[1][6]->GetX();
+  double *xe = g_par_s[1][6]->GetEX();
+  double *yv = g_par_s[1][6]->GetY();
+  double *ye = g_par_s[1][6]->GetEY();
+
+  double xvf[n+2], xef[n+2], yvf[n+2], yef[n+2];
+  for(int i = 0; i < n+2; i++) {
+    if (i == 0) {
+      xvf[i] = xv[0]-xe[0];
+      xef[i] = 0;
+      yvf[i] = yv[0];
+      yef[i] = ye[0];
+    }
+    else if (i == n+1) {
+      xvf[i] = xv[n-1]+xe[n-1];
+      xef[i] = 0;
+      yvf[i] = yv[n-1];
+      yef[i] = ye[n-1];
+    }
+    else {
+      xvf[i] = xv[i-1];
+      xef[i] = xe[i-1];
+      yvf[i] = yv[i-1];
+      yef[i] = ye[i-1];
+    }
+  }
+  TGraphErrors *g_alpha = new TGraphErrors(n+2, xvf, yvf, xef, yef);
   
   // for the NB estimate, get histogram maximum and integral as well
   TH2D *h_d2d = new TH2D();
@@ -82,7 +112,8 @@ void plotDMPars()
 
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.12);
-
+  c->SetRightMargin(0.03);
+  
   for(int i_p = 0; i_p < 10; i_p++) {
 
     if(i_p == 4) continue;
@@ -95,7 +126,7 @@ void plotDMPars()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
+    fl->SetTitle(Form("%s vs p_{T}", partit[i_p].c_str()));
 
     TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
     leg->SetTextSize(0.03);
@@ -146,14 +177,12 @@ void plotDMPars()
       g_par_s[0][i_p]->SetMarkerColor(pc[0]);
       g_par_s[0][i_p]->Draw("p");
       
-      for(int i_n = 1; i_n < 2; i_n++) {
-	g_par_s[i_n][i_p]->SetMarkerStyle(20);
-	g_par_s[i_n][i_p]->SetMarkerSize(.75);
-	g_par_s[i_n][i_p]->SetLineColor(kRed);
-	g_par_s[i_n][i_p]->SetMarkerColor(kRed);
-	g_par_s[i_n][i_p]->SetFillColorAlpha(kRed, 0.5);
-	g_par_s[i_n][i_p]->Draw("ce3");
-      }
+      g_alpha->SetMarkerStyle(20);
+      g_alpha->SetMarkerSize(.75);
+      g_alpha->SetLineColor(kRed);
+      g_alpha->SetMarkerColor(kRed);
+      g_alpha->SetFillColorAlpha(kRed, 0.5);
+      g_alpha->Draw("ce3");
     }
     
     // linear or constant pars - f, mu, n

@@ -2,11 +2,9 @@
 void plotFracs()
 {
   // get fit fBG and fNP
-  TFile *fin1 = new TFile("../PR_fit/files/bkgFrac.root");
-  TH1D *fSB_b = (TH1D*)fin1->Get("fbkg_unc"); // wide-pT f_bkg
-  fSB_b->SetDirectory(0);
-  TH2D *fSB2d = (TH2D*)fin1->Get("h_fbkg"); // fine-pT f_bkg
-  fSB2d->SetDirectory(0);
+  TFile *fin1 = new TFile("../bkgFits/files/bkgFrac.root");
+  TH1D *h_fSB = (TH1D*)fin1->Get("fbkg_unc"); 
+  h_fSB->SetDirectory(0);
   fin1->Close();
   TFile *fin2 = new TFile("../PR_fit/files/NPFrac.root");
   TH2D *fNP2d = (TH2D*)fin2->Get("h_fnp");
@@ -21,13 +19,9 @@ void plotFracs()
   double minX = fNP2d->GetXaxis()->GetBinLowEdge(1);
   double maxX = fNP2d->GetXaxis()->GetBinUpEdge(nBinsX);
   
-  TH1D *h_fSB = fSB2d->ProjectionY("fbkg_1d", 1, 1);
   TH1D *h_fNP = fNP2d->ProjectionY("fnp_1d", 1, 1);
   TH1D *h_fNPc = fNPc2d->ProjectionY("fnpc_1d", 1, 1);
 
-  cout << "fNP = " << h_fNP->GetBinContent(1) << "; fNP_c = " << h_fNPc->GetBinContent(1) << endl;
-
-  
   // define prompt J/psi
   TH1D *h_fJ = new TH1D("h_fJ", "h_fJ", nBinsY, yBins);
   TH1D *h_fJc = new TH1D("h_fJc", "h_fJc", nBinsY, yBins);
@@ -45,18 +39,16 @@ void plotFracs()
   h_fNPc->Scale(100.);
   h_fJ->Scale(100.);
   h_fJc->Scale(100.);
-  fSB_b->Scale(100.);
 
-  cout << "fNP = " << h_fNP->GetBinContent(1) << "; fNP_c = " << h_fNPc->GetBinContent(1) << endl;
-  
   TCanvas *c = new TCanvas("", "", 900, 900);
-
+  c->SetRightMargin(0.03);
+  
   TH1F *fr1 = c->DrawFrame(20, 0.0, 125, 100);
   fr1->SetXTitle("p_{T} (GeV)");
-  fr1->SetYTitle("f (%)");
+  fr1->SetYTitle("fraction (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("Run 2 f comparison");
+  fr1->SetTitle("Run 2 J/#psi composition");
 
   h_fNP->SetLineColor(kRed);
   h_fNP->SetMarkerColor(kRed);
@@ -64,18 +56,11 @@ void plotFracs()
   h_fNP->SetMarkerSize(.5);
   h_fNP->Draw("error same");
 
-  h_fSB->SetLineColor(kBlack);
-  h_fSB->SetLineStyle(kDashed);
-  h_fSB->SetMarkerColor(kBlack);
+  h_fSB->SetMarkerColor(kGreen);
+  h_fSB->SetLineColor(kGreen);
   h_fSB->SetMarkerStyle(20);
   h_fSB->SetMarkerSize(.5);
-  h_fSB->Draw("hist same c");
-
-  fSB_b->SetMarkerColor(kGreen);
-  fSB_b->SetLineColor(kGreen);
-  fSB_b->SetMarkerStyle(20);
-  fSB_b->SetMarkerSize(.5);
-  fSB_b->Draw("error same");
+  h_fSB->Draw("error same");
   
   h_fJ->SetLineColor(kBlue);
   h_fJ->SetMarkerColor(kBlue);
@@ -83,11 +68,11 @@ void plotFracs()
   h_fJ->SetMarkerSize(.5);
   h_fJ->Draw("error same");
 
-  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.77, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(h_fJ, "prompt J/#psi", "pl");
   leg->AddEntry(h_fNP, "NP", "pl");
-  leg->AddEntry(fSB_b, "bkg", "pl");
+  leg->AddEntry(h_fSB, "bkg", "pl");
   leg->Draw();
 
   c->SaveAs("plots/f_comp.pdf");
@@ -96,10 +81,10 @@ void plotFracs()
   // now with double-subtraction corrected
   TH1F *fr2 = c->DrawFrame(20, 0.0, 125, 100);
   fr2->SetXTitle("p_{T} (GeV)");
-  fr2->SetYTitle("f (%)");
+  fr2->SetYTitle("fraction (%)");
   fr2->GetYaxis()->SetTitleOffset(1.3);
   fr2->GetYaxis()->SetLabelOffset(0.01);
-  fr2->SetTitle("Run 2 f comparison");
+  fr2->SetTitle("Run 2 J/#psi composition");
 
   h_fNPc->SetLineColor(kRed);
   h_fNPc->SetMarkerColor(kRed);
@@ -107,18 +92,11 @@ void plotFracs()
   h_fNPc->SetMarkerSize(.5);
   h_fNPc->Draw("error same");
 
-  h_fSB->SetLineColor(kBlack);
-  h_fSB->SetLineStyle(kDashed);
-  h_fSB->SetMarkerColor(kBlack);
+  h_fSB->SetMarkerColor(kGreen);
+  h_fSB->SetLineColor(kGreen);
   h_fSB->SetMarkerStyle(20);
   h_fSB->SetMarkerSize(.5);
-  h_fSB->Draw("hist same c");
-
-  fSB_b->SetMarkerColor(kGreen);
-  fSB_b->SetLineColor(kGreen);
-  fSB_b->SetMarkerStyle(20);
-  fSB_b->SetMarkerSize(.5);
-  fSB_b->Draw("error same");
+  h_fSB->Draw("error same");
   
   h_fJc->SetLineColor(kBlue);
   h_fJc->SetMarkerColor(kBlue);
@@ -126,11 +104,11 @@ void plotFracs()
   h_fJc->SetMarkerSize(.5);
   h_fJc->Draw("error same");
 
-  TLegend *legc = new TLegend(0.7, 0.7, 0.9, 0.9);
+  TLegend *legc = new TLegend(0.77, 0.7, 0.97, 0.9);
   legc->SetTextSize(0.03);
   legc->AddEntry(h_fJc, "prompt J/#psi", "pl");
   legc->AddEntry(h_fNPc, "NP^{c}", "pl");
-  legc->AddEntry(fSB_b, "bkg", "pl");
+  legc->AddEntry(h_fSB, "bkg", "pl");
   legc->Draw();
 
   c->SaveAs("plots/f_comp_corr.pdf");

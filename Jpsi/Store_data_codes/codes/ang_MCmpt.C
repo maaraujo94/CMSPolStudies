@@ -79,7 +79,7 @@ void ang_MCmpt()
   targ->SetPxPyPzE( 0., 0., -pbeam, Ebeam);
 
   // 2017 tree
-  /*  TFile *fin7 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL17-highpt.root");
+  TFile *fin7 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL17-40_52v1.root");
   TTree *tree7 = (TTree*)fin7->Get("jpsitree");
   
   tree7->SetBranchAddress("muP_p4", &muP_p4);
@@ -91,7 +91,7 @@ void ang_MCmpt()
   int mEvt = tree7->GetEntries();
   int perc = mEvt / 100;
 
-  TFile *fout7 = new TFile("MCh17_cos.root", "recreate");
+  TFile *fout7 = new TFile("MCm17_cos.root", "recreate");
   TTree *newtree7 = new TTree("MC_cos", "");
 
   newtree7->Branch("theta", &th);
@@ -142,7 +142,7 @@ void ang_MCmpt()
   
   fout7->Write();
   fout7->Close();
-  fin7->Close();*/
+  fin7->Close();
 
   // 2018 tree
   TFile *fin8 = new TFile("/eos/user/m/maaraujo/JpsiRun2/MC/filtered-all-psi-mc-LOCAL18-40_52v2.root");
@@ -154,8 +154,8 @@ void ang_MCmpt()
   tree8->SetBranchAddress("ctpv", &ct);
   tree8->SetBranchAddress("ctpv_error", &ctErr);
 
-  int mEvt = tree8->GetEntries();
-  int perc = mEvt / 100;
+  mEvt = tree8->GetEntries();
+  perc = mEvt / 100;
 
   TFile *fout8 = new TFile("MCm18_cos.root", "recreate");
   TTree *newtree8 = new TTree("MC_cos", "");

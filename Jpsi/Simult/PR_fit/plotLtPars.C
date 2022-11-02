@@ -95,7 +95,7 @@ void plotLtPars()
 
   // aux arrays
   string parlab[] = {"N_PR", "N_NP", "f", "mu", "sig1", "sig2", "t"};
-  string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma_{1}", "#sigma_{2}", "t_{NP}"};
+  string partit[] = {"N_{PR}", "N_{NP}", "f_{G_{1}}", "#mu_{c#tau}", "#sigma_{G_{1}}", "#sigma_{G_{2}}", "t_{NP}"};
   string par_unit[] = {" per 1 GeV", " per 1 GeV", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
 
   double parmin[] = {1e2, 8e2, 0,  -5., 0,  0,  300};
@@ -108,6 +108,7 @@ void plotLtPars()
   TFile *fout = new TFile("files/ltfit.root", "recreate");
 
   TCanvas *c = new TCanvas("", "", 900, 900);
+  c->SetRightMargin(0.03);
   c->SetLeftMargin(0.11);
 
   for(int i = 0; i < n_p; i++) {
@@ -124,7 +125,7 @@ void plotLtPars()
     fp->SetYTitle(Form("%s%s", partit[i].c_str(), par_unit[i].c_str()));
     fp->GetYaxis()->SetTitleOffset(1.5);
     fp->GetYaxis()->SetLabelOffset(0.01);
-    fp->SetTitle(Form("Run 2 %s", partit[i].c_str()));
+    fp->SetTitle(Form("%s vs p_{T}", partit[i].c_str()));
 
     g_par[i]->SetMarkerStyle(20);
     g_par[i]->SetMarkerSize(.75);
@@ -134,6 +135,8 @@ void plotLtPars()
 
     g_par[i]->SetName(Form("fit_%s", parlab[i].c_str()));
     g_par[i]->Write();
+
+    if(i == 2 || i == 3) c->SaveAs(Form("plots/lifetime/parf_%s.pdf", parlab[i].c_str()));
 
     g_par_f[i]->SetMarkerStyle(20);
     g_par_f[i]->SetMarkerSize(.75);

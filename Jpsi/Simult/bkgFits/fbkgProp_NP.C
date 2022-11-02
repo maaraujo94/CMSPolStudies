@@ -116,7 +116,7 @@ void fbkgProp_NP()
   // get costh binning from the stored data histos
   TFile *infile = new TFile("../PR_fit/files/histoStore.root");
   TH2D *hist = new TH2D();
-  infile->GetObject(Form("dataH_ab"), hist);
+  infile->GetObject(Form("PRH"), hist);
 
   // get the binning
   int nBinsX = hist->GetNbinsX();

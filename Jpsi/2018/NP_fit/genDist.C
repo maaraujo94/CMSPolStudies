@@ -4,28 +4,22 @@ void genDist()
 {
   // get binning from the stored data histos
   TFile *infile = new TFile("../PR_fit/files/histoStore.root");
-  TH2D *hist = new TH2D();
-  infile->GetObject(Form("dataH_ab"), hist);
-  hist->SetDirectory(0);
-  infile->Close();
-
-  int nBinsX = hist->GetNbinsX(), nBinsY = hist->GetNbinsY();
-  const double *yBins = hist->GetYaxis()->GetXbins()->GetArray();
-  double minX = hist->GetXaxis()->GetBinLowEdge(1);
-  double maxX = hist->GetXaxis()->GetBinUpEdge(nBinsX);
-  double dX = (maxX-minX)/nBinsX;
-
-  // get fit parameters from storage
-  TFile *infL = new TFile("files/store_fL.root");
-  double fL = ((TGraphErrors*)infL->Get("g_fL"))->GetY()[0];
-  infL->Close();
-  // get LSB and RSB histograms
-  TFile *inSB = new TFile("files/bkgHist.root");
-  TH2D *h_LSB = (TH2D*)inSB->Get("dataH0_ab");
-  TH2D *h_RSB = (TH2D*)inSB->Get("dataH1_ab");
+  TH2D *h_LSB = (TH2D*)infile->Get("NPLH");
+  TH2D *h_RSB = (TH2D*)infile->Get("NPRH");
   h_LSB->SetDirectory(0);
   h_RSB->SetDirectory(0);
-  inSB->Close();
+  infile->Close();
+
+ int nBinsX = h_LSB->GetNbinsX(), nBinsY = h_LSB->GetNbinsY();
+  const double *yBins = h_LSB->GetYaxis()->GetXbins()->GetArray();
+  double minX = h_LSB->GetXaxis()->GetBinLowEdge(1);
+  double maxX = h_LSB->GetXaxis()->GetBinUpEdge(nBinsX);
+  double dX = (maxX-minX)/nBinsX;
+
+   // get fit parameters from storage
+  TFile *infL = new TFile("files/store_fL.root");
+  double *fL = ((TGraphErrors*)infL->Get("g_fL"))->GetY();
+  infL->Close();
 
   // get the 1d sb histos and scale to nr events
   TH1D **h_LSB1d = new TH1D*[nBinsY];
@@ -43,7 +37,7 @@ void genDist()
     h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("2018 SB cos#theta (%.0f < p_{T} < %.0f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
     
     h_SB[i_pt]->Sumw2();
-    h_SB[i_pt]->Add(h_LSB1d[i_pt], h_RSB1d[i_pt], fL, 1.-fL);
+    h_SB[i_pt]->Add(h_LSB1d[i_pt], h_RSB1d[i_pt], fL[i_pt], 1.-fL[i_pt]);
   }
 
   cout << "all SB histos filled" << endl;

@@ -82,10 +82,12 @@ void newMCmass_0()
   // open and read the data tree
   TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCOS_cos.root");
   TTree *tree1 = (TTree*)fin1->Get("MC_cos");
-  TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MChS_cos.root");
+  TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCmS_cos.root");
   TTree *tree2 = (TTree*)fin2->Get("MC_cos");
-  TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvhS_cos.root");
+  TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MChS_cos.root");
   TTree *tree3 = (TTree*)fin3->Get("MC_cos");
+  TFile *fin4 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvhS_cos.root");
+  TTree *tree4 = (TTree*)fin4->Get("MC_cos");
   
   // MC 1
   Double_t mc_pt, mc_lt, mc_m, mc_y;  
@@ -94,57 +96,70 @@ void newMCmass_0()
   tree1->SetBranchAddress("Rap", &mc_y);
   tree1->SetBranchAddress("Mass", &mc_m);
   tree1->SetBranchAddress("lt", &mc_lt);
-    
-  // cycle over data , fill the lifetime histogram
-  int mEvt = tree1->GetEntries();
-  for(int i = 0; i < mEvt; i++)
-    {
-      tree1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005) {
-	for(int i_p = 0; i_p < nPtBins; i_p++)
-	  if(ptBins[i_p] < 46 && mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	    h_m1d[i_p]->Fill(mc_m);
-      }
-    }
-  fin1->Close();
 
-  // MC 2
   tree2->SetBranchAddress("dimPt", &mc_pt);
   tree2->SetBranchAddress("Rap", &mc_y);
   tree2->SetBranchAddress("Mass", &mc_m);
   tree2->SetBranchAddress("lt", &mc_lt);
-    
-  // cycle over data , fill the lifetime histogram
-  mEvt = tree2->GetEntries();
-  for(int i = 0; i < mEvt; i++)
-    {
-      tree2->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005) {
-	for(int i_p = 0; i_p < nPtBins; i_p++)
-	  if(ptBins[i_p] > 46 && ptBins[i_p] < 66 && mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	    h_m1d[i_p]->Fill(mc_m);
-      }
-    }
-  fin2->Close();
 
-  // MC 3
   tree3->SetBranchAddress("dimPt", &mc_pt);
   tree3->SetBranchAddress("Rap", &mc_y);
   tree3->SetBranchAddress("Mass", &mc_m);
   tree3->SetBranchAddress("lt", &mc_lt);
     
-  // cycle over data , fill the lifetime histogram
+  tree4->SetBranchAddress("dimPt", &mc_pt);
+  tree4->SetBranchAddress("Rap", &mc_y);
+  tree4->SetBranchAddress("Mass", &mc_m);
+  tree4->SetBranchAddress("lt", &mc_lt);
+    
+  // cycle over events , fill the lifetime histogram
+  int mEvt = tree1->GetEntries();
+  for(int i = 0; i < mEvt; i++)
+    {
+      tree1->GetEntry(i);
+      if(mc_pt > 25 && mc_pt < 45 && abs(mc_lt) < 0.005) {
+	for(int i_p = 0; i_p < nPtBins; i_p++)
+	  if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
+	    h_m1d[i_p]->Fill(mc_m);
+      }
+    }
+  fin1->Close();
+
+  mEvt = tree2->GetEntries();
+  for(int i = 0; i < mEvt; i++)
+    {
+      tree2->GetEntry(i);
+      if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005) {
+	for(int i_p = 0; i_p < nPtBins; i_p++)
+	  if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
+	    h_m1d[i_p]->Fill(mc_m);
+      }
+    }
+  fin2->Close();
+
   mEvt = tree3->GetEntries();
   for(int i = 0; i < mEvt; i++)
     {
       tree3->GetEntry(i);
-      if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005) {
+      if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005) {
 	for(int i_p = 0; i_p < nPtBins; i_p++)
-	  if(ptBins[i_p] > 66 && mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
+	  if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
 	    h_m1d[i_p]->Fill(mc_m);
       }
     }
   fin3->Close();
+
+  mEvt = tree4->GetEntries();
+  for(int i = 0; i < mEvt; i++)
+    {
+      tree4->GetEntry(i);
+      if(mc_pt > 70 && mc_pt < 120 && abs(mc_lt) < 0.005) {
+	for(int i_p = 0; i_p < nPtBins; i_p++)
+	  if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
+	    h_m1d[i_p]->Fill(mc_m);
+      }
+    }
+  fin4->Close();
 
   TFile *fout_s = new TFile("files/mStore_MC.root", "recreate");
   for(int ip = 0; ip < nPtBins; ip++) {

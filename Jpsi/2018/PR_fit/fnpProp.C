@@ -142,7 +142,7 @@ void fnpProp()
   // get costh binning from the stored data histos
   TFile *infile = new TFile("files/histoStore.root");
   TH2D *hist = new TH2D();
-  infile->GetObject(Form("dataH_ab"), hist);
+  infile->GetObject(Form("PRH"), hist);
 
   // get the binning
   int nBinsX = hist->GetNbinsX();
@@ -162,23 +162,6 @@ void fnpProp()
     }
   }
 
-  // plotting the 1d projection into pT
-  TH1D* h_fnppt = h_fnp2d->ProjectionY("h_fnppt", 1, 1);
-
-  h_fnppt->SetStats(0);
-  h_fnppt->SetMinimum(0);
-  h_fnppt->SetMaximum(50);
-  h_fnppt->GetXaxis()->SetTitle("p_{T} (GeV)");
-  h_fnppt->GetYaxis()->SetTitle("f_{NP} (%)");
-  h_fnppt->GetYaxis()->SetTitleOffset(1.3);
-  h_fnppt->GetYaxis()->SetLabelOffset(0.01);
-  h_fnppt->SetTitle("2018 f_{NP}");
-  h_fnppt->SetFillColorAlpha(kBlue, 0.5);
-  h_fnppt->Draw("e3");
-  h_fnp->Draw("error same");
-
-  c->SaveAs("plots/fNP_band.pdf");
-  c->Clear();
   c->Destructor();
 
   // scale fractions down from percentage

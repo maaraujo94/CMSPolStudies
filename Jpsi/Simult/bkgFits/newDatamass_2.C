@@ -153,6 +153,8 @@ void newDatamass_2()
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.12);
+  c->SetRightMargin(0.03);
+  
   f_cb->SetNpx(1000);
   TFitResultPtr fitres = h_d2d->Fit("f_cb", "RS");
 
@@ -212,7 +214,7 @@ void newDatamass_2()
     h_d1d[i_pt]->SetMinimum(0);
     h_d1d[i_pt]->SetStats(0);
     h_d1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
-    h_d1d[i_pt]->GetYaxis()->SetTitleOffset(1.8);
+    h_d1d[i_pt]->GetYaxis()->SetTitleOffset(1.7);
     h_d1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
     h_d1d[i_pt]->GetXaxis()->SetRangeUser(m_min[0], m_max[2]);
     h_d1d[i_pt]->SetMarkerStyle(20);
