@@ -4,10 +4,10 @@
 // background function
 double bkg_exp(double m, double p1, double p2)
 {
-  return p1 * exp( - m / p2 );
+  return p2 * ( - p1 * m + 1.);
 }
 
-void fbkgProp()
+void fbkgProp_NP()
 {
   // PART 1: get the uncertainty of the f_bkg
   
@@ -18,10 +18,10 @@ void fbkgProp()
 
   // bkg function
   TF1 *f_exp = new TF1("f_exp", "bkg_exp(x,[0],[1])", m_min[0], m_max[2]);
-  f_exp->SetParNames("NB", "lambda");
+  f_exp->SetParNames("m_bkg", "b_bkg");
   
   // get fit parameters - need to know which params are being used
-  TFile *inBG = new TFile("files/mfit.root");
+  TFile *inBG = new TFile("files/mfit_NP.root");
   int n_par = 2;
   TGraphErrors** g_par = new TGraphErrors*[n_par];
   for(int i = 0; i < n_par; i++) {
@@ -41,16 +41,16 @@ void fbkgProp()
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[n_pt];
   TH2D *h_d2d = new TH2D();
-  TFile *fin = new TFile("../../PR_fit/files/mStore.root");
-  fin->GetObject("mH", h_d2d);
+  TFile *fin = new TFile("../../bkgFits/files/mStore.root");
+  fin->GetObject("mH_NP", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
   for(int ip = 0; ip < n_pt; ip++) {
     h_d1d[ip] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[ip]), ip+1, ip+1);
   }
-
+  
   // fbkg = integral / evt_all (in signal region)
-  TH1D *h_fbkg = new TH1D("h_fbkg", "Full f_{bkg}", n_pt, ptBins);
+  TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{bkg}", n_pt, ptBins);
   double ln = 10000;
   const int n_p = 2;
   double fit_v[n_p], dpar[n_p];
@@ -69,6 +69,7 @@ void fbkgProp()
 	cov[i][j] = fitres->GetCovarianceMatrix()[(7+i)*n_pt+i_pt][(7+j)*n_pt+i_pt];
       }
     }
+
     // integral is a function of NB and lambda
     f_exp->SetParameters(fit_v);
     double fv = f_exp->Integral(m_min[1], m_max[1]), fe = 0;
@@ -99,7 +100,7 @@ void fbkgProp()
   fr1->SetYTitle("f_{bkg} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("Full f_{bkg} vs p_{T}");
+  fr1->SetTitle("Run 2 f_{bkg} vs p_{T}");
 
   h_fbkg->SetStats(0);
   h_fbkg->SetMarkerStyle(20);
@@ -108,107 +109,43 @@ void fbkgProp()
   h_fbkg->SetLineColor(kBlack);
   h_fbkg->Draw("e1 same");
   
-  c->SaveAs("plots/fBG_unc.pdf");
- 
-  // PART 2: fitting f_bkg
+  c->SaveAs("plots/fBGNP_unc.pdf");
 
-  // the fit function
-  TF1 *f_fit1 = new TF1("fit_SB", "[0]*(1-exp(-[1]*(x-[2])))", 0, 125);
-  f_fit1->SetParNames("M", "a", "mu");
-  f_fit1->SetParameters(10, 0.01, 1.);
-  f_fit1->SetLineColor(kBlue);
-  TFitResultPtr fitbgres = h_fbkg->Fit("fit_SB", "S0");
-  f_fit1->SetRange(0, 125);
-  f_fit1->Draw("same");
+  // PART 2: generate f_bkg histo
 
-  c->SaveAs("plots/fBG_fit.pdf");
-  c->Clear();
-
-  // PART 3: generate f_bkg histo
-
-  // now to generate an uncertainty band over the 17 pT bins
-  const int n_p2 = 3;
-  double fit_v2[n_p2];
-  double cov_v2[n_p2][n_p2];
-  for(int i = 0; i < n_p2; i++) {
-    fit_v2[i] = f_fit1->GetParameter(i);
-    for(int j = 0; j < n_p2; j++) {
-      cov_v2[i][j] = fitbgres->GetCovarianceMatrix()[i][j];
-    }
-  }
-
-  // get binning from the stored data histos
+  // get costh binning from the stored data histos
   TFile *infile = new TFile("../../PR_fit/files/histoStore.root");
   TH2D *hist = new TH2D();
-  infile->GetObject(Form("dataH_ab"), hist);
-  hist->SetDirectory(0);
-  infile->Close();
+  infile->GetObject(Form("PRH"), hist);
 
   // get the binning
-  int nBinsX = hist->GetNbinsX(), nBinsY = hist->GetNbinsY();
-  const double *yBins = hist->GetYaxis()->GetXbins()->GetArray();
+  int nBinsX = hist->GetNbinsX();
   double minX = hist->GetXaxis()->GetBinLowEdge(1);
   double maxX = hist->GetXaxis()->GetBinUpEdge(nBinsX);
   double dX = (maxX-minX)/nBinsX;
 
-  // f_bkg(pT) but generating 2d map so it's easier to apply uncertainties
-  TH2D *h_fbkg2d = new TH2D("h_fbkg2d", "Full f_{bkg}", nBinsX, minX, maxX, nBinsY, yBins);
-  double dpar_v2[n_p2];
-  for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
-    double pt = 0.5*(yBins[i_pt+1]+yBins[i_pt]);
-    double xpar[] = {pt};
-    double fv = f_fit1->Eval(pt), fe = 0;
-    
-    // get the function deviation for each parameter
-    for(int i = 0; i < n_p2; i++) {
-      fit_v2[i]+=sqrt(cov_v2[i][i])/ln;
-      dpar_v2[i] = (f_fit1->EvalPar(xpar, fit_v2)-fv)/(sqrt(cov_v2[i][i])/ln);
-      fit_v2[i]-=sqrt(cov_v2[i][i])/ln;
-    }
+  infile->Close();
 
-    for(int i = 0; i < n_p2; i++) 
-      for(int j = 0; j < n_p2; j++) {
-	fe += dpar_v2[i]*dpar_v2[j]*cov_v2[i][j];
-      }
-    fe = sqrt(fe);
-    
+  // f_bkg(pT) but generating 2d map so it's easier to apply uncertainties
+  TH2D *h_fbkg2d = new TH2D("h_fbkg2d", "Run 2 f_{bkg}", nBinsX, minX, maxX, n_pt, ptBins);
+  for(int i_pt = 0; i_pt < n_pt; i_pt++) {
     // same result for all costh bins
     for(int i_cos = 0; i_cos < nBinsX; i_cos++) {
-      h_fbkg2d->SetBinContent(i_cos+1, i_pt+1, fv);
-      h_fbkg2d->SetBinError(i_cos+1, i_pt+1, fe);
+      h_fbkg2d->SetBinContent(i_cos+1, i_pt+1, h_fbkg->GetBinContent(i_pt+1));
+      h_fbkg2d->SetBinError(i_cos+1, i_pt+1, h_fbkg->GetBinError(i_pt+1));
     }
 
   }
 
-  // plotting the 1d projection into pT
-  TH1D* h_fbkgpt = h_fbkg2d->ProjectionY("h_fbkgpd", 1, 1);
-
-  h_fbkgpt->SetMinimum(0);
-  h_fbkgpt->SetMaximum(15);
-  h_fbkgpt->GetXaxis()->SetTitle("p_{T} (GeV)");
-  h_fbkgpt->GetYaxis()->SetTitle("f_{bkg} (%)");
-  h_fbkgpt->GetYaxis()->SetTitleOffset(1.3);
-  h_fbkgpt->GetYaxis()->SetLabelOffset(0.01);
-  h_fbkgpt->SetTitle("Full f_{bkg} vs p_{T}");
-  h_fbkgpt->SetStats(0);
-  h_fbkgpt->SetFillColorAlpha(kBlue, 0.5);
-  h_fbkgpt->Draw("e3");
-  //f_fit1->Draw("same");
-  h_fbkg->Draw("e0 same");
-  
-  c->SaveAs("plots/fBG_band.pdf");
-  c->Clear();
   c->Destructor();
 
   // scale fractions down from percentage
   h_fbkg->Scale(1./100.);
-  f_fit1->SetParameter(0, f_fit1->GetParameter(0)/100.);
   h_fbkg2d->Scale(1./100.);
 
-  TFile *fout = new TFile("files/bkgFrac.root", "recreate");
+  TFile *fout = new TFile("files/bkgFrac_NP.root", "recreate");
   h_fbkg->SetName("fbkg_unc");
   h_fbkg->Write();
-  f_fit1->Write();
   h_fbkg2d->SetName("h_fbkg");
   h_fbkg2d->Write();
   fout->Close();

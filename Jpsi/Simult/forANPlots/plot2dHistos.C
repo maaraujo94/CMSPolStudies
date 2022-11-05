@@ -5,12 +5,12 @@ void plot2dHistos()
   // get everything from histoStore
   TFile *fin2 = new TFile("../PR_fit/files/histoStore.root");
   // first the ratios
-  TH2D *h_Data = (TH2D*)fin2->Get("ratioH_ab");
-  TH2D *h_NP = (TH2D*)fin2->Get("ratNPH_ab"); // ORIGINAL RATIO: not including bkg sub
+  TH2D *h_Data = (TH2D*)fin2->Get("rPRH");
+  TH2D *h_NP = (TH2D*)fin2->Get("rNPH"); // ORIGINAL RATIO: not including bkg sub
   // then the base dists
-  TH2D *h_Data2 = (TH2D*)fin2->Get("dataH_ab");
-  TH2D *h_NP2 = (TH2D*)fin2->Get("NPH_ab");
-  TH2D *h_MC2 = (TH2D*)fin2->Get("mcH_ab");
+  TH2D *h_Data2 = (TH2D*)fin2->Get("PRH");
+  TH2D *h_NP2 = (TH2D*)fin2->Get("NPH");
+  TH2D *h_MC2 = (TH2D*)fin2->Get("MCH");
 
   // first draw the ratios
   TCanvas *c = new TCanvas("", "", 900, 900);
@@ -21,14 +21,14 @@ void plot2dHistos()
   double maxR[3];
   int bin_min[] = {1,10,15};
   int bin_max[] = {8,14,19};
-  for(int i = 0; i < 3; i++) {
+  /*  for(int i = 0; i < 3; i++) {
     h_Data->GetYaxis()->SetRange(bin_min[i], bin_max[i]);
     maxR[i] = h_Data->GetMaximum();
   }
-  h_Data->GetYaxis()->SetRange(bin_min[0], bin_max[2]);
+  h_Data->GetYaxis()->SetRange(bin_min[0], bin_max[2]);*/
 
   double scalF;
-  for(int i_x = 0; i_x < h_Data->GetNbinsX(); i_x++) {
+  /*  for(int i_x = 0; i_x < h_Data->GetNbinsX(); i_x++) {
     for(int i_y = 0; i_y < h_Data->GetNbinsY(); i_y++){
       // get scaling factor
       for(int i = 0; i < 3; i++) 
@@ -38,7 +38,7 @@ void plot2dHistos()
 	scalF = 0;
       h_Data->SetBinContent(i_x+1, i_y+1, h_Data->GetBinContent(i_x+1, i_y+1)*scalF);
     }
-  }
+    }*/
 
   h_Data->SetStats(0);
   h_Data->GetXaxis()->SetTitle("|cos#theta_{HX}|");
@@ -49,7 +49,7 @@ void plot2dHistos()
   c->Clear();
 
   // scaling NP ratio
-  for(int i = 0; i < 3; i++) {
+  /*  for(int i = 0; i < 3; i++) {
     h_NP->GetYaxis()->SetRange(bin_min[i], bin_max[i]);
     maxR[i] = h_NP->GetMaximum();
   }
@@ -66,7 +66,7 @@ void plot2dHistos()
       h_NP->SetBinContent(i_x+1, i_y+1, h_NP->GetBinContent(i_x+1, i_y+1)*scalF);
     }
   }
-
+  */
   h_NP->SetStats(0);
   h_NP->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   h_NP->GetYaxis()->SetTitle("p_{T} (GeV)");

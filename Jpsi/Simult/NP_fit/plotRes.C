@@ -26,22 +26,22 @@ void plotRes()
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
-
+  c->SetRightMargin(0.03);
+  
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
   fl->SetXTitle("p_{T} (GeV)");
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Run 2 #lambda_{#theta}");
+  fl->SetTitle("#lambda_{#theta} vs p_{T}");
     
-  int col[] = {kRed, kRed+3};
+  int col[] = {kRed+3, kRed};
   for(int i = 0; i < 2; i++) {
     graph_lth[i]->SetLineColor(col[i]);
     graph_lth[i]->SetMarkerColor(col[i]);
     graph_lth[i]->Draw("p same");
   }
-
 
   TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
   zero->SetLineColor(kBlack);
@@ -56,10 +56,10 @@ void plotRes()
   trans2->SetLineStyle(kDashed);
   //trans2->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.7, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "NP", "pl");
-  leg->AddEntry(graph_lth[1], "pure NP", "pl");
+  leg->AddEntry(graph_lth[1], "non-prompt J/#psi", "pl");
   leg->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
@@ -71,7 +71,7 @@ void plotRes()
   fl2->SetYTitle("#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #lambda_{#theta} (pure NP J/#psi)");
+  fl2->SetTitle("Run 2 #lambda_{#theta} (non-prompt J/#psi)");
 
   graph_lth[1]->SetLineColor(kBlack);
   graph_lth[1]->SetMarkerColor(kBlack);

@@ -18,19 +18,15 @@ void plotfNP()
   TH1F *fp = c->DrawFrame(ptBins[0]-5, 0, ptBins[nPtBins], 50);
   fp->SetXTitle("p_{T} (GeV)");
   fp->SetYTitle("f_{NP} (%)");
-  fp->GetYaxis()->SetTitleOffset(1.5);
+  fp->GetYaxis()->SetTitleOffset(1.4);
   fp->GetYaxis()->SetLabelOffset(0.01);
   fp->SetTitle(Form("f_{NP} vs p_{T}"));
 
   h_f2d->Scale(100);
-  //h_f2d->SetMarkerStyle(20);
-  //h_f2d->SetMarkerSize(.75);
   h_f2d->SetMarkerColor(kBlack);
   h_f2d->SetLineColor(kBlack);
   h_f2d->Draw("error same");
 
-  //g_f1d->SetMarkerStyle(20);
-  //g_f1d->SetMarkerSize(.5);
   g_f1d->SetMarkerColor(kRed);
   g_f1d->SetLineColor(kRed);
   g_f1d->Draw("psame");

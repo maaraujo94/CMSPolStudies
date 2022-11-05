@@ -1,23 +1,23 @@
 // code to plot the fit results
 
-void plotRes()
+void plotRes_NP()
 {
   // get the histo limits
-  TFile *fIn = new TFile("files/bkgSubRes.root");
+  TFile *fIn = new TFile("files/bkgSubRes_NP.root");
   TH2D* rHist;
-  fIn->GetObject("h_Data", rHist);
+  fIn->GetObject("h_NP", rHist);
   
   int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
   
   // get the fit results
   // get A, lambda, chiProb values for each bin
-  string lbl[] = {"Data", "NP", "PR", "J"};
-  TFile *fInd = new TFile("files/finalFitRes.root");
-  TGraphErrors **graph_A = new TGraphErrors*[4];
-  TGraphErrors **graph_lth = new TGraphErrors*[4];
-  TGraph **graph_chi = new TGraph*[4];
-  for(int i_t = 0; i_t < 4; i_t++) {
+  string lbl[] = {"NP", "NPc"};
+  TFile *fInd = new TFile("files/finalFitRes_NP.root");
+  TGraphErrors **graph_A = new TGraphErrors*[2];
+  TGraphErrors **graph_lth = new TGraphErrors*[2];
+  TGraph **graph_chi = new TGraph*[2];
+  for(int i_t = 0; i_t < 2; i_t++) {
     graph_A[i_t] = (TGraphErrors*)fInd->Get(Form("graph_A_%s", lbl[i_t].c_str()));
     graph_lth[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
     graph_chi[i_t] = (TGraph*)fInd->Get(Form("graph_chiP_%s", lbl[i_t].c_str()));
@@ -26,13 +26,9 @@ void plotRes()
 
   // get the final lth from the base SB/MC fit
   TFile *fIndB = new TFile("../../PR_fit/files/finalFitRes.root");
-  TGraphErrors *graph_lthBase = (TGraphErrors*)fIndB->Get("graph_lambda_J");
+  TGraphErrors *graph_lthBase = (TGraphErrors*)fIndB->Get("graph_lambda_NP");
   fIndB->Close();
   
-  for(int i = 0; i < graph_lthBase->GetN(); i++) {
-    cout << graph_lthBase->GetX()[i] << " " << graph_lthBase->GetY()[i] << " " << graph_lth[3]->GetY()[i] << endl;
-  }
-
   // slightly shifting the central x values
   int nB = graph_lthBase->GetN();
   double xB[nB], exlB[nB], exhB[nB];
@@ -46,11 +42,10 @@ void plotRes()
   // get the difference between models
   double val[nBinspT];
   for(int i = 0; i < nBinspT; i++) { 
-    val[i] = graph_lth[3]->GetY()[i] - graph_lthBase->GetY()[i];
+    val[i] = graph_lth[1]->GetY()[i] - graph_lthBase->GetY()[i];
   }
   TGraphErrors *g_lthD = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val, graph_lthBase->GetEX(), graph_lthBase->GetEY());
-
-
+  
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
 
@@ -61,24 +56,14 @@ void plotRes()
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("Run 2 #lambda_{#theta}");
-
-  // remove 45-47.5 bin in all lth plots
-  int i_cut = 0;
-  for(int ip= 0; ip < nBinspT; ip++) {
-    if(pTBins[ip] < 46 && pTBins[ip+1] > 46)
-      i_cut = ip;
-  }
-  for(int i = 0; i < 4; i++)
-    graph_lth[i]->RemovePoint(i_cut);
-  graph_lthBase->RemovePoint(i_cut);
-  g_lthD->RemovePoint(i_cut);
-  
-  int col[] = {kViolet, kRed, kBlack, kBlue};
-  for(int i = 0; i < 4; i++) {
+    
+  int col[] = {kRed, kRed+3};
+  for(int i = 0; i < 2; i++) {
     graph_lth[i]->SetLineColor(col[i]);
     graph_lth[i]->SetMarkerColor(col[i]);
     graph_lth[i]->Draw("p same");
   }
+
 
   TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
   zero->SetLineColor(kBlack);
@@ -87,24 +72,22 @@ void plotRes()
   TLine *trans1 = new TLine(46, -1, 46, 1);
   trans1->SetLineColor(kBlack);
   trans1->SetLineStyle(kDashed);
-  trans1->Draw();
+  //trans1->Draw();
   TLine *trans2 = new TLine(66, -1, 66, 1);
   trans2->SetLineColor(kBlack);
   trans2->SetLineStyle(kDashed);
-  trans2->Draw();
+  //trans2->Draw();
 
   TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
   leg->SetTextSize(0.03);
-  leg->AddEntry(graph_lth[0], "total", "pl");
-  leg->AddEntry(graph_lth[1], "NP contrib", "pl");
-  leg->AddEntry(graph_lth[2], "prompt", "pl");
-  leg->AddEntry(graph_lth[3], "prompt J/#psi", "pl");
+  leg->AddEntry(graph_lth[0], "NP", "pl");
+  leg->AddEntry(graph_lth[1], "pure NP", "pl");
   leg->Draw();
   
-  c->SaveAs("plots/ratioFinal/par_lth.pdf");
+  c->SaveAs("plots/ratioFinal_NP/par_lth.pdf");
   c->Clear();
 
-  // draw just final lambda_th(pT) - comp btw std, alt
+  // draw just final lambda_th(pT)
   double d_lim = 0.2;
   
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
@@ -112,8 +95,8 @@ void plotRes()
   fl2->SetYTitle("#delta#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #delta#lambda_{#theta} (prompt J/#psi)");
-  
+  fl2->SetTitle("Run 2 #delta#lambda_{#theta} (non-prompt J/#psi)");
+
   g_lthD->SetLineColor(kBlack);
   g_lthD->SetMarkerColor(kBlack);
   g_lthD->SetMarkerStyle(20);
@@ -121,16 +104,10 @@ void plotRes()
   g_lthD->Draw("p same");
 
   zero->Draw();
-  TLine *trans1D = new TLine(46, -d_lim, 46, d_lim);
-  trans1D->SetLineColor(kBlack);
-  trans1D->SetLineStyle(kDashed);
-  trans1D->Draw();
-  TLine *trans2D = new TLine(66, -d_lim, 66, d_lim);
-  trans2D->SetLineColor(kBlack);
-  trans2D->SetLineStyle(kDashed);
-  trans2D->Draw();
-
-  c->SaveAs("par_lth_F.pdf");
+  //trans1->Draw();
+  //trans2->Draw();
+  
+  c->SaveAs("par_lthNP_F.pdf");
   c->Clear();
 
   // draw A(pT)
@@ -143,7 +120,7 @@ void plotRes()
   fa->SetTitle("Run 2 A");
 
   // combine both lambda_th distributions
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 2; i++) {
     graph_A[i]->SetLineColor(col[i]);
     graph_A[i]->SetMarkerColor(col[i]);
     graph_A[i]->Draw("p same");
@@ -158,7 +135,7 @@ void plotRes()
   trans2_A->SetLineStyle(kDashed);
   trans2_A->Draw();
 
-  c->SaveAs("plots/ratioFinal/par_A.pdf");
+  c->SaveAs("plots/ratioFinal_NP/par_A.pdf");
   c->Clear();
 
   // draw chiProb(pT)
@@ -171,7 +148,7 @@ void plotRes()
   fc->SetTitle("Run 2 P(#chi^{2}, ndf)");
 
   // combine both lambda_th distributions
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 2; i++) {
     graph_chi[i]->SetLineColor(col[i]);
     graph_chi[i]->SetMarkerColor(col[i]);
     graph_chi[i]->SetMarkerStyle(20);
@@ -188,7 +165,7 @@ void plotRes()
   trans2_C->SetLineStyle(kDashed);
   trans2_C->Draw();
 
-  c->SaveAs("plots/ratioFinal/par_chiP.pdf");
+  c->SaveAs("plots/ratioFinal_NP/par_chiP.pdf");
   c->Clear();
   c->Destructor();
   

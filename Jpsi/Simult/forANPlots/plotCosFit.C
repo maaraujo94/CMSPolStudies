@@ -110,5 +110,104 @@ void plotCosFit()
     c->Clear();
   }
   
+  // now plot the final results (from the bkgSub file)
+  // read the histos from subtraction - after
+  TFile *infile2 = new TFile("../PR_fit/files/bkgSubRes.root");
+  const int n_inp2 = 5;
+  TH2D **h_rat2 = new TH2D*[n_inp2]; 
+  string lbl2[] = {"Data", "NP", "PR", "SB", "J"};
+  for(int i = 0; i < n_inp2; i++) {
+    infile2->GetObject(Form("h_%s", lbl2[i].c_str()), h_rat2[i]);
+    h_rat2[i]->SetDirectory(0);
+  }
+  infile2->Close();
+
+  // get the 1d plots
+  TH1D *h_rat1d2[n_inp2][nBinsY];
+  for(int i_t = 0; i_t < n_inp2; i_t++) {
+    for(int i = 1; i <= nBinsY; i++) {
+      h_rat1d2[i_t][i-1] = h_rat2[i_t]->ProjectionX(Form("bin2%d_%d", i, i_t+1), i, i);
+    }
+  }
+
+  // the fit function to be used
+  TF1 **fit1d2 = new TF1*[n_inp2];
+  for(int i = 0; i < n_inp2; i++) {
+    fit1d2[i] = new TF1(Form("fit2_%d", i), "[0]*(1+[1]*x*x)", 0, 1);
+    fit1d2[i]->SetParNames("A", "l_th");
+  }
+
+  
+  // the cycle to plot each bin
+  int cols2[] = {kViolet-1, kRed, kBlack, kGreen, kBlue};
+  
+  for(int i = 0; i < nBinsY; i++) {
+    // get pt vars
+    double pMin = h_rat2[0]->GetYaxis()->GetBinLowEdge(i+1);
+    double pMax = h_rat2[0]->GetYaxis()->GetBinUpEdge(i+1);
+
+    // get max costheta
+    double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
+
+    // fit the 5 functions
+    for(int i_t = 0; i_t < n_inp2; i_t++) {
+      fit1d2[i_t]->SetRange(0, cMaxVal);
+      fit1d2[i_t]->SetParameters(h_rat1d2[i_t][i]->GetBinContent(1)*1.1, 0.1);
+
+      h_rat1d2[i_t][i]->Fit(fit1d2[i_t], "R0");
+    }
+
+    // draw all
+    h_rat1d2[0][i]->SetTitle("");
+    h_rat1d2[0][i]->SetStats(0);
+    h_rat1d2[0][i]->SetLineColor(cols2[0]);
+    h_rat1d2[0][i]->SetMarkerColor(cols2[0]);
+    h_rat1d2[0][i]->SetMinimum(0);
+    h_rat1d2[0][i]->SetMaximum(h_rat1d2[0][i]->GetBinContent(1)*1.5);
+    h_rat1d2[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+    h_rat1d2[0][i]->Draw("error");
+    fit1d2[0]->SetLineColor(cols2[0]);
+    fit1d2[0]->SetLineStyle(kDashed);
+    fit1d2[0]->Draw("same");
+
+    for(int j = 1; j < 5; j++) {
+      h_rat1d2[j][i]->SetLineColor(cols2[j]);
+      h_rat1d2[j][i]->SetMarkerColor(cols2[j]);
+      h_rat1d2[j][i]->Draw("same error");
+      if(j != 3) {
+	fit1d2[j]->SetLineColor(cols2[j]);
+	fit1d2[j]->SetLineStyle(kDashed);
+	fit1d2[j]->Draw("same");
+      }
+    }
+
+    TLatex lcb1;
+    lcb1.SetTextSize(0.04);
+    lcb1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.9, "Run 2");
+    lcb1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.1f-%.1f GeV", pMin, pMax));
+
+
+    lcb1.SetTextColor(cols2[0]);
+    lcb1.DrawLatex(0.15, h_rat1d2[0][i]->GetMaximum()*0.75, "Peak/MC");
+    lcb1.DrawLatex(0.15, h_rat1d2[0][i]->GetMaximum()*0.7, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d2[0]->GetParameter(1), fit1d2[0]->GetParError(1)));
+
+    lcb1.SetTextColor(cols2[1]);
+    lcb1.DrawLatex(0.15, h_rat1d2[1][i]->GetMaximum()*1.45, "NP/MC");
+    lcb1.DrawLatex(0.15, h_rat1d2[1][i]->GetMaximum()*1.15, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d2[1]->GetParameter(1), fit1d2[1]->GetParError(1)));
+    
+    lcb1.SetTextColor(cols2[2]);
+    lcb1.DrawLatex(0.15, h_rat1d2[2][i]->GetMaximum()*1.025, "PR/MC");
+    lcb1.DrawLatex(0.15, h_rat1d2[2][i]->GetMaximum()*0.95, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d2[2]->GetParameter(1), fit1d2[2]->GetParError(1)));
+
+    lcb1.SetTextColor(cols2[3]);
+    lcb1.DrawLatex(0.15, h_rat1d2[3][i]->GetMaximum()*1.4, "bkg/MC");
+
+    lcb1.SetTextColor(cols2[4]);
+    lcb1.DrawLatex(0.15, h_rat1d2[4][i]->GetMaximum()*0.8, "(prompt J/#psi)/MC");
+    lcb1.DrawLatex(0.15, h_rat1d2[4][i]->GetMaximum()*0.7, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d2[4]->GetParameter(1), fit1d2[4]->GetParError(1)));
+
+    c->SaveAs(Form("plots/ratioFinal/fits/bin3F_%d.pdf", i));
+    c->Clear();
+  }
   c->Destructor();
 }

@@ -2,6 +2,8 @@
 // f_bkg, f_bkg^NP, f_NP, f_NP^c
 void compBkgFrac()
 {
+  int cols[] = {kBlack, kBlue, kRed};
+  
   // get fit fBG
   TH1D **fSB_b = new TH1D*[3];
   TH1D **h_fSB = new TH1D*[3];
@@ -9,15 +11,11 @@ void compBkgFrac()
   string basel = "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/";
   string loc[3] = {"Simult", "2017", "2018"};
   for(int i = 0; i < 3; i++) {
-    TFile *fin1 = new TFile(Form("%s%s/PR_fit/files/bkgFrac.root", basel.c_str(), loc[i].c_str()));
-    fSB_b[i] = (TH1D*)fin1->Get("fbkg_unc"); // wide-pT f_bkg
+    TFile *fin1 = new TFile(Form("%s%s/bkgFits/files/bkgFrac.root", basel.c_str(), loc[i].c_str()));
+    fSB_b[i] = (TH1D*)fin1->Get("fbkg_unc");
     fSB_b[i]->SetDirectory(0);
-    TH2D* fSB2d = (TH2D*)fin1->Get("h_fbkg"); // fine-pT f_bkg
-    fSB2d->SetDirectory(0);
     fin1->Close();
 
-    h_fSB[i] = fSB2d->ProjectionY(Form("fbkg_1d_%d", i), 1, 1);
-    h_fSB[i]->Scale(100.);
     fSB_b[i]->Scale(100.);
   }
 
@@ -30,18 +28,11 @@ void compBkgFrac()
   fr1->GetYaxis()->SetLabelOffset(0.01);
   fr1->SetTitle("f_{bkg} comparison");
 
-  string lbl[3] = {"Run ", "2017", "2018"};
+  string lbl[3] = {"Run 2", "2017", "2018"};
   
   for(int i = 0; i < 3; i++) {
-    h_fSB[i]->SetLineColor(i+1);
-    h_fSB[i]->SetLineStyle(kDashed);
-    h_fSB[i]->SetMarkerColor(i+1);
-    h_fSB[i]->SetMarkerStyle(20);
-    h_fSB[i]->SetMarkerSize(.5);
-    h_fSB[i]->Draw("hist same c");
-    
-    fSB_b[i]->SetMarkerColor(i+1);
-    fSB_b[i]->SetLineColor(i+1);
+    fSB_b[i]->SetMarkerColor(cols[i]);
+    fSB_b[i]->SetLineColor(cols[i]);
     fSB_b[i]->SetMarkerStyle(20);
     fSB_b[i]->SetMarkerSize(.5);
     fSB_b[i]->Draw("error same");
@@ -53,7 +44,7 @@ void compBkgFrac()
     leg->AddEntry(fSB_b[i], Form("%s", lbl[i].c_str()), "pl");
   leg->Draw();
   
-  c->SaveAs("fBG_comp.pdf");
+  c->SaveAs("plots/fBG_comp.pdf");
   c->Clear();
 
   // get fit fBG^NP
@@ -61,15 +52,11 @@ void compBkgFrac()
   TH1D **h_fSBN = new TH1D*[3];
 
   for(int i = 0; i < 3; i++) {
-    TFile *fin1 = new TFile(Form("%s%s/NP_fit/files/bkgFrac.root", basel.c_str(), loc[i].c_str()));
-    fSBN_b[i] = (TH1D*)fin1->Get("fbkg_unc"); // wide-pT f_bkg
+    TFile *fin1 = new TFile(Form("%s%s/bkgFits/files/bkgFrac_NP.root", basel.c_str(), loc[i].c_str()));
+    fSBN_b[i] = (TH1D*)fin1->Get("fbkg_unc");
     fSBN_b[i]->SetDirectory(0);
-    TH2D* fSB2d = (TH2D*)fin1->Get("h_fbkg"); // fine-pT f_bkg
-    fSB2d->SetDirectory(0);
     fin1->Close();
 
-    h_fSBN[i] = fSB2d->ProjectionY(Form("fbkgN_1d_%d", i), 1, 1);
-    h_fSBN[i]->Scale(100.);
     fSBN_b[i]->Scale(100.);
   }
 
@@ -81,15 +68,8 @@ void compBkgFrac()
   fr1n->SetTitle("f_{bkg}^{NP} comparison");
 
   for(int i = 0; i < 3; i++) {
-    h_fSBN[i]->SetLineColor(i+1);
-    h_fSBN[i]->SetLineStyle(kDashed);
-    h_fSBN[i]->SetMarkerColor(i+1);
-    h_fSBN[i]->SetMarkerStyle(20);
-    h_fSBN[i]->SetMarkerSize(.5);
-    h_fSBN[i]->Draw("hist same c");
-    
-    fSBN_b[i]->SetMarkerColor(i+1);
-    fSBN_b[i]->SetLineColor(i+1);
+    fSBN_b[i]->SetMarkerColor(cols[i]);
+    fSBN_b[i]->SetLineColor(cols[i]);
     fSBN_b[i]->SetMarkerStyle(20);
     fSBN_b[i]->SetMarkerSize(.5);
     fSBN_b[i]->Draw("error same");
@@ -97,7 +77,7 @@ void compBkgFrac()
   
   leg->Draw();
   
-  c->SaveAs("fBGN_comp.pdf");
+  c->SaveAs("plots/fBGN_comp.pdf");
   c->Clear();
 
   // get fit fNP
@@ -121,8 +101,8 @@ void compBkgFrac()
   fr2->SetTitle("f_{NP} comparison");
 
   for(int i = 0; i < 3; i++) {
-    h_fNP[i]->SetLineColor(i+1);
-    h_fNP[i]->SetMarkerColor(i+1);
+    h_fNP[i]->SetLineColor(cols[i]);
+    h_fNP[i]->SetMarkerColor(cols[i]);
     h_fNP[i]->SetMarkerStyle(20);
     h_fNP[i]->SetMarkerSize(.5);
     h_fNP[i]->Draw("error same");
@@ -130,7 +110,7 @@ void compBkgFrac()
   
   leg->Draw();
   
-  c->SaveAs("fNP_comp.pdf");
+  c->SaveAs("plots/fNP_comp.pdf");
   c->Clear();
 
   // get fit fNP^c
@@ -154,8 +134,8 @@ void compBkgFrac()
   fr2c->SetTitle("f_{NP}^{c} comparison");
 
   for(int i = 0; i < 3; i++) {
-    h_fNPc[i]->SetLineColor(i+1);
-    h_fNPc[i]->SetMarkerColor(i+1);
+    h_fNPc[i]->SetLineColor(cols[i]);
+    h_fNPc[i]->SetMarkerColor(cols[i]);
     h_fNPc[i]->SetMarkerStyle(20);
     h_fNPc[i]->SetMarkerSize(.5);
     h_fNPc[i]->Draw("error same");
@@ -163,7 +143,7 @@ void compBkgFrac()
   
   leg->Draw();
   
-  c->SaveAs("fNPc_comp.pdf");
+  c->SaveAs("plots/fNPc_comp.pdf");
   c->Clear();
   c->Destructor();
 }

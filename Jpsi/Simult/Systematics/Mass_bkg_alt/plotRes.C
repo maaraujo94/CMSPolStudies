@@ -29,10 +29,6 @@ void plotRes()
   TGraphErrors *graph_lthBase = (TGraphErrors*)fIndB->Get("graph_lambda_J");
   fIndB->Close();
   
-  for(int i = 0; i < graph_lthBase->GetN(); i++) {
-    cout << graph_lthBase->GetX()[i] << " " << graph_lthBase->GetY()[i] << " " << graph_lth[3]->GetY()[i] << endl;
-  }
-
   // slightly shifting the central x values
   int nB = graph_lthBase->GetN();
   double xB[nB], exlB[nB], exhB[nB];
@@ -49,7 +45,7 @@ void plotRes()
     val[i] = graph_lth[3]->GetY()[i] - graph_lthBase->GetY()[i];
   }
   TGraphErrors *g_lthD = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val, graph_lthBase->GetEX(), graph_lthBase->GetEY());
-
+  
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
 
@@ -59,18 +55,7 @@ void plotRes()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Full #lambda_{#theta}");
-
-    // remove 45-47.5 bin in all lth plots
-  int i_cut = 0;
-  for(int ip= 0; ip < nBinspT; ip++) {
-    if(pTBins[ip] < 46 && pTBins[ip+1] > 46)
-      i_cut = ip;
-  }
-  for(int i = 0; i < 4; i++)
-    graph_lth[i]->RemovePoint(i_cut);
-  graph_lthBase->RemovePoint(i_cut);
-  g_lthD->RemovePoint(i_cut);
+  fl->SetTitle("Run 2 #lambda_{#theta}");
 
   int col[] = {kViolet, kRed, kBlack, kBlue};
   for(int i = 0; i < 4; i++) {
@@ -86,11 +71,11 @@ void plotRes()
   TLine *trans1 = new TLine(46, -1, 46, 1);
   trans1->SetLineColor(kBlack);
   trans1->SetLineStyle(kDashed);
-  trans1->Draw();
+  //trans1->Draw();
   TLine *trans2 = new TLine(66, -1, 66, 1);
   trans2->SetLineColor(kBlack);
   trans2->SetLineStyle(kDashed);
-  trans2->Draw();
+  //trans2->Draw();
 
   TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
   leg->SetTextSize(0.03);
@@ -103,7 +88,7 @@ void plotRes()
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
   c->Clear();
 
-  // draw just final lambda_th(pT) - comp btw std, alt
+  // draw just final lambda_th(pT)
   double d_lim = 0.2;
   
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
@@ -112,7 +97,7 @@ void plotRes()
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
   fl2->SetTitle("Run 2 #delta#lambda_{#theta} (prompt J/#psi)");
-  
+
   g_lthD->SetLineColor(kBlack);
   g_lthD->SetMarkerColor(kBlack);
   g_lthD->SetMarkerStyle(20);
@@ -120,14 +105,8 @@ void plotRes()
   g_lthD->Draw("p same");
 
   zero->Draw();
-  TLine *trans1D = new TLine(46, -d_lim, 46, d_lim);
-  trans1D->SetLineColor(kBlack);
-  trans1D->SetLineStyle(kDashed);
-  trans1D->Draw();
-  TLine *trans2D = new TLine(66, -d_lim, 66, d_lim);
-  trans2D->SetLineColor(kBlack);
-  trans2D->SetLineStyle(kDashed);
-  trans2D->Draw();
+  //trans1->Draw();
+  //trans2->Draw();
   
   c->SaveAs("par_lth_F.pdf");
   c->Clear();
@@ -139,7 +118,7 @@ void plotRes()
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
   fa->GetYaxis()->SetLabelOffset(0.01);
-  fa->SetTitle("Full A");
+  fa->SetTitle("Run 2 A");
 
   // combine both lambda_th distributions
   for(int i = 0; i < 4; i++) {
@@ -167,7 +146,7 @@ void plotRes()
   fc->SetYTitle("P(#chi^{2}, ndf)");
   fc->GetYaxis()->SetTitleOffset(1.3);
   fc->GetYaxis()->SetLabelOffset(0.01);
-  fc->SetTitle("Full P(#chi^{2}, ndf)");
+  fc->SetTitle("Run 2 P(#chi^{2}, ndf)");
 
   // combine both lambda_th distributions
   for(int i = 0; i < 4; i++) {

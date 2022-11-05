@@ -147,6 +147,8 @@ void newNPmass()
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.12);
+  c->SetRightMargin(0.03);
+  
   f_cb->SetNpx(1000);
   TFitResultPtr fitres = h_d2d->Fit("f_cb", "RS");
 
@@ -269,7 +271,7 @@ void newNPmass()
     fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Data mass fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fl->SetTitle(Form("Data mass fit pulls (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 
     TGraph *g_pull = new TGraph(mbins, mv, pv);
     g_pull->SetLineColor(kBlack);

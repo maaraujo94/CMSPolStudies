@@ -3,19 +3,19 @@
 void bkgSub()
 {
   // PART 1 - all the inputs
-  // PR SR data distribution over all pT bins
+  // PR SR data and MC distribution over all pT bins
   TH2D *h_PR2d = new TH2D(); // base PR SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
   TFile *inHist = new TFile("../../PR_fit/files/histoStore.root");
-  inHist->GetObject("dataH_ab", h_PR2d);
+  inHist->GetObject("PRH", h_PR2d);
   h_PR2d->SetDirectory(0);
-  inHist->GetObject("mcH_ab", h_MC2d);
+  inHist->GetObject("MCH", h_MC2d);
   h_MC2d->SetDirectory(0);
   inHist->Close();
 
   // NP distribution corrected for mass bkg contamination
   TH2D *h_NP2d = new TH2D(); // base NP SR 2d map
-  TFile *inNP = new TFile("../../NP_fit/files/bkgSubRes.root");
+  TFile *inNP = new TFile("files/bkgSubRes_NP.root");
   inNP->GetObject("h_NPcB", h_NP2d);
   h_NP2d->SetDirectory(0);
   inNP->Close();
@@ -43,11 +43,12 @@ void bkgSub()
   inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
   inFracSB->Close();
-  TFile *inFracNP = new TFile("../../PR_fit/files/NPFrac.root");
+  TFile *inFracNP = new TFile("files/NPFrac.root");
   inFracNP->GetObject("h_fNPc", h_fnp2d);
   h_fnp2d->SetDirectory(0);
   inFracNP->Close();
-  
+
+  // prepare output
   TFile *fout = new TFile("files/bkgSubRes.root", "recreate");
   TCanvas *c =  new TCanvas("", "", 900, 900);
   

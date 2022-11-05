@@ -9,7 +9,7 @@ void plotnalpha()
   string partit[] = {"n", "#alpha"};
   string parax[] = {"n", "#alpha"};
   double parmin[] = {0.8, 2.};
-  double parmax[] = {1.5, 2.45};
+  double parmax[] = {2., 2.4};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_p];
@@ -46,6 +46,8 @@ void plotnalpha()
   // do the plotting
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.12);
+  c->SetRightMargin(0.03);
+  
   int col[] = {kBlack, kBlue, kViolet, kRed};
   string cond[] = {"free", "#mu", "#mu, f", "#mu, f, #sigma_{1,2}"};
 
@@ -75,7 +77,7 @@ void plotnalpha()
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle(Form("Run 2 %s vs %s", partit[0].c_str(), partit[1].c_str()));
   
-  TLegend *leg = new TLegend(0.65, 0.7, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.72, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   
   // free mode always plots points

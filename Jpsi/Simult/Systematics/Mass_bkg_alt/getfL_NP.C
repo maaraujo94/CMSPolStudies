@@ -7,21 +7,21 @@ int do_round(double val)
   else return valR;
 }
 
-void getfL()
+void getfL_NP()
 {
   // get the mass background fit function
-  TF1 *fMass = new TF1("fMass", "exp(-x/[0])", 2.9, 3.3);
+  TF1 *fMass = new TF1("fMass", "1.-x*[0]", 2.9, 3.3);
   // define same function as above but *m
-  TF1 *mMass = new TF1("mMass", "exp(-x/[0])*x", 2.9, 3.3);
+  TF1 *mMass = new TF1("mMass", "(1.-x*[0])*x", 2.9, 3.3);
   // get fMass parameters
-  TFile *inFMass = new TFile("files/mfit.root");
-  TGraphErrors *m_ld = (TGraphErrors*)inFMass->Get("fit_lambda");
+  TFile *inFMass = new TFile("files/mfit_NP.root");
+  TGraphErrors *m_ld = (TGraphErrors*)inFMass->Get("fit_m_bkg");
   inFMass->Close();
 
   // get the binning
   int nBinsY = m_ld->GetN();
   const double *yBins = m_ld->GetX();
-  
+
   // this part is done for every pT bin
   double avg_LSB[nBinsY], avg_RSB[nBinsY], fL[nBinsY];
   double pt_v[nBinsY], pt_e[nBinsY], zeros[nBinsY];
@@ -58,7 +58,7 @@ void getfL()
   fmL->SetYTitle("<m_{LSB}> (GeV)");
   fmL->GetYaxis()->SetTitleOffset(1.3);
   fmL->GetYaxis()->SetLabelOffset(0.01);
-  fmL->SetTitle("Full <m_{LSB}> (p_{T})");
+  fmL->SetTitle("Run 2 <m_{LSB}> (p_{T})");
 
   g_mL->SetLineColor(kBlack);
   g_mL->SetMarkerStyle(20);
@@ -73,7 +73,7 @@ void getfL()
   fmR->SetYTitle("<m_{RSB}> (GeV)");
   fmR->GetYaxis()->SetTitleOffset(1.3);
   fmR->GetYaxis()->SetLabelOffset(0.01);
-  fmR->SetTitle("Full <m_{RSB}> (p_{T})");
+  fmR->SetTitle("Run 2 <m_{RSB}> (p_{T})");
 
   g_mR->SetLineColor(kBlue);
   g_mR->SetMarkerStyle(20);
@@ -88,7 +88,7 @@ void getfL()
   ffL->SetYTitle("f_{L} (%)");
   ffL->GetYaxis()->SetTitleOffset(1.3);
   ffL->GetYaxis()->SetLabelOffset(0.01);
-  ffL->SetTitle("Full f_{L} (p_{T})");
+  ffL->SetTitle("Run 2 f_{L} (p_{T})");
 
   g_fL->SetLineColor(kRed);
   g_fL->SetMarkerStyle(20);
@@ -96,22 +96,13 @@ void getfL()
   g_fL->SetMarkerColor(kRed);
   g_fL->Draw("psame");
   
-  c2->SaveAs(Form("plots/fL.pdf"));
+  c2->SaveAs(Form("plots/fL_NP.pdf"));
   c2->Clear();
   c2->Destructor();
 
-  TFile *fout = new TFile("files/store_fL.root", "recreate");
+  TFile *fout = new TFile("files/store_fL_NP.root", "recreate");
 
-  TF1 *fc = new TF1("fc", "[0]", yBins[0], yBins[nBinsY]);
-  fc->SetParameter(0,50);
-  g_fL->Fit(fc);
-  double f_avg = fc->GetParameter(0)/100.;
-  int nm = ceil(-log10(f_avg))+2;	
-  f_avg = do_round(f_avg*pow(10, nm))/pow(10, nm);
-
-  double fl_fix[nBinsY];
-  for(int i = 0; i < nBinsY; i++) fl_fix[i] = f_avg;  
-  TGraphErrors *g_flF = new TGraphErrors(nBinsY, pt_v, fl_fix, pt_e, zeros);
-  g_flF->Write("g_fL");
+  for(int i = 0; i < nBinsY; i++) g_fL->GetY()[i]/=100.;
+  g_fL->Write("g_fL");
   fout->Close();
 }

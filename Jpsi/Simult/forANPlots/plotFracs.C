@@ -71,7 +71,7 @@ void plotFracs()
   TLegend *leg = new TLegend(0.77, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(h_fJ, "prompt J/#psi", "pl");
-  leg->AddEntry(h_fNP, "NP", "pl");
+  leg->AddEntry(h_fNP, "NP J/#psi", "pl");
   leg->AddEntry(h_fSB, "bkg", "pl");
   leg->Draw();
 
@@ -104,10 +104,10 @@ void plotFracs()
   h_fJc->SetMarkerSize(.5);
   h_fJc->Draw("error same");
 
-  TLegend *legc = new TLegend(0.77, 0.7, 0.97, 0.9);
+  TLegend *legc = new TLegend(0.7, 0.7, 0.97, 0.9);
   legc->SetTextSize(0.03);
   legc->AddEntry(h_fJc, "prompt J/#psi", "pl");
-  legc->AddEntry(h_fNPc, "NP^{c}", "pl");
+  legc->AddEntry(h_fNPc, "non-prompt J/#psi", "pl");
   legc->AddEntry(h_fSB, "bkg", "pl");
   legc->Draw();
 

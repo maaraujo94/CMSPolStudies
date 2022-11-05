@@ -1,13 +1,13 @@
 void fNPcorr()
 {
   // get the base f_NP
-  TFile *inNP = new TFile("files/NPFrac.root");
+  TFile *inNP = new TFile("../../PR_fit/files/NPFrac.root");
   TH2D *h_fnp = (TH2D*)inNP->Get("h_fnp");
   h_fnp->SetDirectory(0);
   inNP->Close();
   
   // get the f_bkg^NP from NP_fit folder
-  TFile *inSB = new TFile("../bkgFits/files/bkgFrac_NP.root");
+  TFile *inSB = new TFile("files/bkgFrac_NP.root");
   TH2D *h_fbkg = (TH2D*)inSB->Get("h_fbkg");
   h_fbkg->SetDirectory(0);
   inSB->Close();
@@ -33,8 +33,7 @@ void fNPcorr()
 
   // plot the comparison
   TCanvas *c = new TCanvas("", "", 900, 900);
-  c->SetRightMargin(0.03);
-  
+
   TH1D *h_fnp1d = h_fnp->ProjectionY("h_fnp1d", 1, 1);
   TH1D *h_fbkg1d = h_fbkg->ProjectionY("h_fbkg1d", 1, 1);
   TH1D *h_fnpc1d = h_fNPc->ProjectionY("h_fnpc1d", 1, 1);
@@ -43,8 +42,6 @@ void fNPcorr()
   h_fbkg1d->Scale(100.);
   h_fnpc1d->Scale(100.);
 
-  cout << h_fnp1d->GetBinError(1) << " " << h_fbkg1d->GetBinError(1) << " "<< h_fnpc1d->GetBinError(1) << endl;
-  
   h_fnp1d->SetStats(0);
   h_fnp1d->SetMinimum(0);
   h_fnp1d->SetMaximum(50);
@@ -52,9 +49,9 @@ void fNPcorr()
   h_fnp1d->GetYaxis()->SetTitle("f (%)");
   h_fnp1d->GetYaxis()->SetTitleOffset(1.3);
   h_fnp1d->GetYaxis()->SetLabelOffset(0.01);
-  h_fnp1d->SetTitle("f_{NP}^{c} vs p_{T}");
-  h_fnp1d->SetLineColor(kRed+3);
-  h_fnp1d->SetMarkerColor(kRed+3);
+  h_fnp1d->SetTitle("Run 2 f_{NP}^{corr}");
+  h_fnp1d->SetLineColor(kRed);
+  h_fnp1d->SetMarkerColor(kRed);
   h_fnp1d->SetLineStyle(kDashed);
   h_fnp1d->SetMarkerStyle(20);
   h_fnp1d->SetMarkerSize(.75);
@@ -72,7 +69,7 @@ void fNPcorr()
   h_fnpc1d->SetMarkerSize(.75);
   h_fnpc1d->Draw("error same");
 
-  TLegend *leg = new TLegend(0.77, 0.6, 0.97, 0.9);
+  TLegend *leg = new TLegend(0.7, 0.6, 0.9, 0.9);
   leg->SetTextSize(0.04);
   leg->AddEntry(h_fnp1d, "f_{NP}", "pl");
   leg->AddEntry(h_fbkg1d, "f_{bkg}^{NP}", "pl");
@@ -82,7 +79,7 @@ void fNPcorr()
   c->SaveAs("plots/f_NP_corr.pdf");
   c->Destructor();
   
-  TFile *fout = new TFile("files/NPFrac.root", "update");
+  TFile *fout = new TFile("files/NPFrac.root", "recreate");
   h_fNPc->Write(0, TObject::kOverwrite);
   fout->Close();
 }

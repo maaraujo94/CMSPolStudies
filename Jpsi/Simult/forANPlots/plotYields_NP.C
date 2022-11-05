@@ -1,19 +1,12 @@
+#import "../ptbins.C"
+
 // plot the pT dists of NP peak and SB data
 void plotYields_NP()
 {
-  const int nPtBins = 19;
-  double ptBins[nPtBins+1];
-  for(int i = 0; i < 10; i++) ptBins[i] = 25 + 2.5*i;
-  for(int i = 0; i < 6; i++) ptBins[i+10] = 50 + 5.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 80 + 10.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+18] = 100 + 20.*i;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
-  cout << endl;
-
   // define the pT histos
-  TH1D *h_NP  = new TH1D("npH",  "Full NP",  nPtBins, ptBins);
-  TH1D *h_LSB = new TH1D("lsbH", "Full NP (LSB)", nPtBins, ptBins);
-  TH1D *h_RSB = new TH1D("rsbH", "Full NP (RSB)", nPtBins, ptBins);
+  TH1D *h_NP  = new TH1D("npH",  "Run 2 NP",  nPtBins, ptBins);
+  TH1D *h_LSB = new TH1D("lsbH", "Run 2 NP (LSB)", nPtBins, ptBins);
+  TH1D *h_RSB = new TH1D("rsbH", "Run 2 NP (RSB)", nPtBins, ptBins);
   
   // open file, get data
   TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/dataS_cos.root");
@@ -47,12 +40,6 @@ void plotYields_NP()
     }
   
   //compare with fit results
-  /*  TFile *fin_sb = new TFile("../bkgFits/files/mfit_NP2.root");
-  TGraphErrors *fit_fsb = (TGraphErrors*)fin_sb->Get("fit_fBG");
-  fin_sb->Close();
-  TFile *fin_sbf = new TFile("../bkgFits/files/mfit_NP2free.root");
-  TGraphErrors *fit_fsbf = (TGraphErrors*)fin_sbf->Get("fit_fBG");
-  fin_sbf->Close();*/
   TFile *fin_sbc = new TFile("../bkgFits/files/bkgFrac_NP.root");
   TH1D *fit_fsbc = (TH1D*)fin_sbc->Get("fbkg_unc");
   fit_fsbc->SetDirectory(0);
@@ -60,7 +47,9 @@ void plotYields_NP()
 
   // now the plotting
   TCanvas *c = new TCanvas("", "", 900, 900);
-  c->SetLeftMargin(0.11);
+  c->SetLeftMargin(0.15);
+  c->SetRightMargin(0.03);
+  c->SetTopMargin(0.015);
   c->SetLogy();
 
   h_NP->SetLineColor(kRed);
@@ -95,7 +84,7 @@ void plotYields_NP()
   fr2->GetYaxis()->SetLabelOffset(0.01);
   fr2->SetTitle("Yield (bkg) / Yield (Peak)");
 
-  TH1D *f_SB = new TH1D("f_SB", "Full NP f_{SB}", nPtBins, ptBins);
+  TH1D *f_SB = new TH1D("f_SB", "Run 2 NP f_{SB}", nPtBins, ptBins);
   f_SB->Sumw2();
   f_SB->Add(h_LSB, h_RSB, 1, 1);
   f_SB->Divide(h_NP);
@@ -111,9 +100,8 @@ void plotYields_NP()
   TH1F *fr2c = c->DrawFrame(20, 0., 125, 0.02);
   fr2c->SetXTitle("p_{T} (GeV)");
   fr2c->SetYTitle("Yield ratio (a.u.)");
-  fr2c->GetYaxis()->SetTitleOffset(1.3);
+  fr2c->GetYaxis()->SetTitleOffset(2.);
   fr2c->GetYaxis()->SetLabelOffset(0.01);
-  fr2c->SetTitle("Yield (bkg) / Yield (Peak)");
 
   f_SB->Scale(1./f_SB->Integral("width"));
   f_SB->SetLineColor(kBlue);
@@ -124,6 +112,12 @@ void plotYields_NP()
   fit_fsbc->SetLineColor(kBlack);
   fit_fsbc->SetMarkerColor(kBlack);
   fit_fsbc->Draw("error same");
+
+  TLegend *legSB = new TLegend(0.72, 0.785, 0.97, 0.985);
+  legSB->SetTextSize(0.03);
+  legSB->AddEntry(f_SB, "yield ratio", "pl");
+  legSB->AddEntry(fit_fsbc, "f_{bkg}^{NP}", "pl");
+  legSB->Draw();
   
   c->SaveAs("plots/fitcomp_NP_fSB.pdf");
   c->Clear();

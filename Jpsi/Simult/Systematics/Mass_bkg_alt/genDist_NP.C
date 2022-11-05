@@ -1,9 +1,9 @@
 // macro to generate the sideband costh dists in the final binning, with unc
 
-void genDist()
+void genDist_NP()
 {
   // get binning from the stored data histos
-  TFile *infile = new TFile("../PR_fit/files/histoStore.root");
+  TFile *infile = new TFile("../../PR_fit/files/histoStore.root");
   TH2D *h_LSB = (TH2D*)infile->Get("NPLH");
   TH2D *h_RSB = (TH2D*)infile->Get("NPRH");
   h_LSB->SetDirectory(0);
@@ -17,7 +17,7 @@ void genDist()
   double dX = (maxX-minX)/nBinsX;
 
   // get fit parameters from storage
-  TFile *infL = new TFile("files/store_fL.root");
+  TFile *infL = new TFile("files/store_fL_NP.root");
   double *fL = ((TGraphErrors*)infL->Get("g_fL"))->GetY();
   infL->Close();
 
@@ -34,7 +34,7 @@ void genDist()
   // get the sideband histos by summing with proportion fL
   TH1D **h_SB = new TH1D*[nBinsY];
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
-    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("bkg^{NP} |cos#theta| (%.1f < p_{T} < %.1f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
+    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("bkg |cos#theta| (%.1f < p_{T} < %.1f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
     
     h_SB[i_pt]->Sumw2();
     h_SB[i_pt]->Add(h_LSB1d[i_pt], h_RSB1d[i_pt], fL[i_pt], 1.-fL[i_pt]);
@@ -42,7 +42,7 @@ void genDist()
 
   cout << "all SB histos filled" << endl;
   
-  TFile *fout = new TFile("files/bkgCosModel.root", "recreate");
+  TFile *fout = new TFile("files/bkgCosModel_NP.root", "recreate");
   for(int i = 0; i < nBinsY; i++) {
     h_SB[i]->Write();
   }
@@ -50,7 +50,7 @@ void genDist()
 
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetRightMargin(0.03);
-
+  
   h_SB[4]->SetStats(0);
   h_SB[4]->SetLineColor(kGreen+1);
   h_SB[4]->SetMinimum(0);
@@ -70,7 +70,7 @@ void genDist()
   leg->AddEntry(h_SB[4], "bkg", "l");
   leg->Draw();
 
-  c->SaveAs("plots/SB_base_full_4.pdf");
+  c->SaveAs("plots/SBNP_base_full_4.pdf");
   c->Clear();
 
   h_SB[14]->SetStats(0);
@@ -87,8 +87,7 @@ void genDist()
 
   leg->Draw();
 
-  c->SaveAs("plots/SB_base_full_14.pdf");
+  c->SaveAs("plots/SBNP_base_full_14.pdf");
   c->Clear();
   c->Destructor();
-
 }
