@@ -9,15 +9,11 @@ void compBkgFrac()
   string basel = "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/";
   string loc[3] = {"Simult", "Simult_dR2", "Simult_dR1"};
   for(int i = 0; i < 3; i++) {
-    TFile *fin1 = new TFile(Form("%s%s/PR_fit/files/bkgFrac.root", basel.c_str(), loc[i].c_str()));
-    fSB_b[i] = (TH1D*)fin1->Get("fbkg_unc"); // wide-pT f_bkg
+    TFile *fin1 = new TFile(Form("%s%s/bkgFits/files/bkgFrac.root", basel.c_str(), loc[i].c_str()));
+    fSB_b[i] = (TH1D*)fin1->Get("fbkg_unc");
     fSB_b[i]->SetDirectory(0);
-    TH2D* fSB2d = (TH2D*)fin1->Get("h_fbkg"); // fine-pT f_bkg
-    fSB2d->SetDirectory(0);
     fin1->Close();
 
-    h_fSB[i] = fSB2d->ProjectionY(Form("fbkg_1d_%d", i), 1, 1);
-    h_fSB[i]->Scale(100.);
     fSB_b[i]->Scale(100.);
   }
 
@@ -33,13 +29,6 @@ void compBkgFrac()
   string lbl[3] = {"no cut", "#DeltaR>0.15", "#DeltaR>0.17"};
   
   for(int i = 0; i < 3; i++) {
-    h_fSB[i]->SetLineColor(i+1);
-    h_fSB[i]->SetLineStyle(kDashed);
-    h_fSB[i]->SetMarkerColor(i+1);
-    h_fSB[i]->SetMarkerStyle(20);
-    h_fSB[i]->SetMarkerSize(.5);
-    h_fSB[i]->Draw("hist same c");
-    
     fSB_b[i]->SetMarkerColor(i+1);
     fSB_b[i]->SetLineColor(i+1);
     fSB_b[i]->SetMarkerStyle(20);
@@ -58,18 +47,13 @@ void compBkgFrac()
 
   // get fit fBG^NP
   TH1D **fSBN_b = new TH1D*[3];
-  TH1D **h_fSBN = new TH1D*[3];
 
   for(int i = 0; i < 3; i++) {
-    TFile *fin1 = new TFile(Form("%s%s/NP_fit/files/bkgFrac.root", basel.c_str(), loc[i].c_str()));
+    TFile *fin1 = new TFile(Form("%s%s/bkgFits/files/bkgFrac_NP.root", basel.c_str(), loc[i].c_str()));
     fSBN_b[i] = (TH1D*)fin1->Get("fbkg_unc"); // wide-pT f_bkg
     fSBN_b[i]->SetDirectory(0);
-    TH2D* fSB2d = (TH2D*)fin1->Get("h_fbkg"); // fine-pT f_bkg
-    fSB2d->SetDirectory(0);
     fin1->Close();
 
-    h_fSBN[i] = fSB2d->ProjectionY(Form("fbkgN_1d_%d", i), 1, 1);
-    h_fSBN[i]->Scale(100.);
     fSBN_b[i]->Scale(100.);
   }
 
@@ -81,13 +65,6 @@ void compBkgFrac()
   fr1n->SetTitle("Run 2 f_{bkg}^{NP} comparison");
 
   for(int i = 0; i < 3; i++) {
-    h_fSBN[i]->SetLineColor(i+1);
-    h_fSBN[i]->SetLineStyle(kDashed);
-    h_fSBN[i]->SetMarkerColor(i+1);
-    h_fSBN[i]->SetMarkerStyle(20);
-    h_fSBN[i]->SetMarkerSize(.5);
-    h_fSBN[i]->Draw("hist same c");
-    
     fSBN_b[i]->SetMarkerColor(i+1);
     fSBN_b[i]->SetLineColor(i+1);
     fSBN_b[i]->SetMarkerStyle(20);

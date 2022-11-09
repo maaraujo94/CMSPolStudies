@@ -24,21 +24,28 @@ void histoSave()
   // open files and read TTrees
   TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/dataS_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
-  TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCS_cos.root");
-  TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
+  
+  TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCS_cos.root");
+  TTree *treeM1 = (TTree*)fin1->Get("MC_cos");
+  
+  TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCmS_cos.root");
+  TTree *treeM2 = (TTree*)fin2->Get("MC_cos");
+  
   TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MChS_cos.root");
-  TTree *treeM2 = (TTree*)fin3->Get("MC_cos");
+  TTree *treeM3 = (TTree*)fin3->Get("MC_cos");
+  
   TFile *fin4 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvhS_cos.root");
-  TTree *treeM3 = (TTree*)fin4->Get("MC_cos");
+  TTree *treeM4 = (TTree*)fin4->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();
   int m1Evt = treeM1->GetEntries();
   int m2Evt = treeM2->GetEntries();
-  int m3Evt = treeM3->GetEntries();
+  int m3Evt = treeM3->GetEntries(); 
+  int m4Evt = treeM4->GetEntries();
   
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m;
-Double_t dR;
+  Double_t dR;
   Double_t mc_th, mc_pt, mc_lt, mc_m;
   
   treeD->SetBranchAddress("theta", &data_th);
@@ -53,53 +60,71 @@ Double_t dR;
   treeM1->SetBranchAddress("lt", &mc_lt);
   treeM1->SetBranchAddress("DeltaR", &dR);
 
-  // cycle over data and MC, fill the costh histogram acc to binning
-  for(int i = 0; i < dEvt; i++)
-    {
-      treeD->GetEntry(i);
-if(dR > r_cut)
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2) {      
-	dataHist_ab->Fill(abs(cos(data_th)), data_pt);
-      }
-    }
-  
-  for(int i = 0; i < m1Evt; i++)
-    {
-      treeM1->GetEntry(i);
-if(dR > r_cut)
-      if(mc_pt > ptBins[0] && mc_pt < 47.5 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-      }
-    }
-
   treeM2->SetBranchAddress("theta", &mc_th);
   treeM2->SetBranchAddress("dimPt", &mc_pt);
   treeM2->SetBranchAddress("Mass", &mc_m);
   treeM2->SetBranchAddress("lt", &mc_lt);
   treeM2->SetBranchAddress("DeltaR", &dR);
 
-  for(int i = 0; i < m2Evt; i++)
-    {
-      treeM2->GetEntry(i);
-if(dR > r_cut)
-      if(mc_pt > 47.5 && mc_pt < 70 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
-      }
-    }
-
   treeM3->SetBranchAddress("theta", &mc_th);
   treeM3->SetBranchAddress("dimPt", &mc_pt);
   treeM3->SetBranchAddress("Mass", &mc_m);
   treeM3->SetBranchAddress("lt", &mc_lt);
   treeM3->SetBranchAddress("DeltaR", &dR);
+
+  treeM4->SetBranchAddress("theta", &mc_th);
+  treeM4->SetBranchAddress("dimPt", &mc_pt);
+  treeM4->SetBranchAddress("Mass", &mc_m);
+  treeM4->SetBranchAddress("lt", &mc_lt);
+  treeM4->SetBranchAddress("DeltaR", &dR);
+
+  // cycle over data and MC, fill the costh histogram acc to binning
+  for(int i = 0; i < dEvt; i++)
+    {
+      treeD->GetEntry(i);
+      if(dR > r_cut)
+	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2) {      
+	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
+	}
+    }
+  
+  for(int i = 0; i < m1Evt; i++)
+    {
+      treeM1->GetEntry(i);
+      if(dR > r_cut)
+	if(mc_pt > ptBins[0] && mc_pt < 45 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
+	}
+    }
+
+
+  for(int i = 0; i < m2Evt; i++)
+    {
+      treeM2->GetEntry(i);
+      if(dR > r_cut)
+	if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
+	}
+    }
+
   
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-if(dR > r_cut)
-      if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-      }
+      if(dR > r_cut)
+	if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
+	}
+    }
+  
+
+  for(int i = 0; i < m4Evt; i++)
+    {
+      treeM4->GetEntry(i);
+      if(dR > r_cut)
+	if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
+	}
     }
   
   dataHist_ab->SetStats(0);

@@ -34,7 +34,7 @@ void indFit()
   for(int i_t = 0; i_t < 5; i_t++) {
     for(int i = 1; i <= nBinsY; i++) {
       pHist[i_t][i-1] = h_fit[i_t]->ProjectionX(Form("bin%d_%d", i, i_t+1), i, i);
-      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.0f, %.0f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
+      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.1f, %.1f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
     }
   }
   
@@ -105,7 +105,7 @@ fit1d[i_t]->SetRange(cMinVal, cMaxVal);
     }
 
     // plotting everything
-    pHist[0][i]->SetTitle(Form("data/MC |cos#theta| (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
+    pHist[0][i]->SetTitle(Form("data/MC |cos#theta| (%.1f < p_{T} < %.1f GeV)", pMin, pMax));
     pHist[0][i]->SetStats(0);
     pHist[0][i]->SetLineColor(kViolet);
     pHist[0][i]->SetMarkerColor(kViolet);
@@ -120,20 +120,20 @@ fit1d[i_t]->SetRange(cMinVal, cMaxVal);
 
     pHist[1][i]->SetLineColor(kRed);
     pHist[1][i]->SetMarkerColor(kRed);
-    pHist[1][i]->Draw("same");
+    pHist[1][i]->Draw("error same");
 
     pHist[2][i]->SetLineColor(kBlack);
     pHist[2][i]->SetMarkerColor(kBlack);
-    pHist[2][i]->Draw("same");
+    pHist[2][i]->Draw("error same");
 
     pHist[4][i]->SetLineColor(kGreen);
     pHist[4][i]->SetMarkerColor(kGreen);
-    pHist[4][i]->Draw("same");
+    pHist[4][i]->Draw("error same");
 
     pHist[3][i]->SetLineColor(kBlue);
     pHist[3][i]->SetMarkerColor(kBlue);
-    pHist[3][i]->Draw("same");
     pHist[3][i]->SetMinimum(0);
+    pHist[3][i]->Draw("error same");
     fit1d[3]->SetLineColor(kBlue);
     fit1d[3]->SetLineStyle(kDashed);
     fit1d[3]->Draw("same");

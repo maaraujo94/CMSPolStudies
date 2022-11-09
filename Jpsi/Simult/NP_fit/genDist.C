@@ -22,12 +22,14 @@ void genDist()
   infL->Close();
 
   // get the 1d sb histos and scale to nr events
+  double n_s[nBinsY];
   TH1D **h_LSB1d = new TH1D*[nBinsY];
   TH1D **h_RSB1d = new TH1D*[nBinsY];
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
     h_LSB1d[i_pt] = h_LSB->ProjectionX(Form("h_LSB_%d", i_pt), i_pt+1, i_pt+1);
-    h_LSB1d[i_pt]->Scale(1./h_LSB1d[i_pt]->GetEntries());
     h_RSB1d[i_pt] = h_RSB->ProjectionX(Form("h_RSB_%d", i_pt), i_pt+1, i_pt+1);
+    n_s[i_pt] = fL[i_pt] * h_LSB1d[i_pt]->GetEntries() + (1.-fL[i_pt])*h_RSB1d[i_pt]->GetEntries();
+    h_LSB1d[i_pt]->Scale(1./h_LSB1d[i_pt]->GetEntries());
     h_RSB1d[i_pt]->Scale(1./h_RSB1d[i_pt]->GetEntries());
   }
 
@@ -38,6 +40,10 @@ void genDist()
     
     h_SB[i_pt]->Sumw2();
     h_SB[i_pt]->Add(h_LSB1d[i_pt], h_RSB1d[i_pt], fL[i_pt], 1.-fL[i_pt]);
+    
+    h_SB[i_pt]->Scale(n_s[i_pt]);
+    h_LSB1d[i_pt]->Scale(n_s[i_pt]);
+    h_RSB1d[i_pt]->Scale(n_s[i_pt]);
   }
 
   cout << "all SB histos filled" << endl;

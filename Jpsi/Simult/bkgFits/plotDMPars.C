@@ -9,8 +9,8 @@ void plotDMPars()
   string legn[] = {"#alpha free", "#alpha constant", "fine bins"};
 
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fBG", "fG", "sigG"};
-  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t", "f_{bkg}", "f_{G}", "#sigma_{G}"};
-  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
+  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t_{bkg}", "f_{bkg}", "f_{G}", "#sigma_{G}"};
+  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t_{bkg} (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
   double parmin[] = {0,    7e0, 3090, 0,   32, 2.0, 1.3, 1e1, 0, 0.,  0,   0};
   double parmax[] = {100., 2e4, 3100, 100, 46, 3.0, 2.3, 3e6, 4, 15., 100, 100};
@@ -30,6 +30,10 @@ void plotDMPars()
   // scale all graphs for plotting
   TGraphErrors ***g_par_s = new TGraphErrors**[n_m];
   double pt_min, pt_max;
+  // f_CB1, f_bkg, f_G are percentages
+  // mu_m, sigma_CB1, sigma_CB2, sigma_G GeV->MeV
+  // N_SR and N_BG scaled by bin width
+  // n, alpha, t_bkg (GeV) not scaled from original
   double mult[] = {100., 1., 1e3, 1e3, 1e3, 1., 1., 1., 1., 100., 100., 1e3};
   for(int i_m = 0; i_m < n_m; i_m++) {
     double *xv = g_par[i_m][0]->GetX();
@@ -125,6 +129,7 @@ void plotDMPars()
     fl->SetXTitle("p_{T} (GeV)");
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
+    if(i_p == 8)    fl->GetYaxis()->SetTitleOffset(1.6);
     fl->GetYaxis()->SetLabelOffset(0.01);
     fl->SetTitle(Form("%s vs p_{T}", partit[i_p].c_str()));
 

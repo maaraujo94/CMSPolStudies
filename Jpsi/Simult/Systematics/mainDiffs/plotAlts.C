@@ -127,7 +127,7 @@ void plotAlts()
 
   }
 
-
+  // all the tgraphs with the deviations
   TGraphErrors *g_lthY = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffY, graph_lth[0]->GetEX(), errY);
   TGraphErrors *g_lthF = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[0], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthFI = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[1], graph_lth[0]->GetEX(), za);
@@ -215,9 +215,6 @@ void plotAlts()
   fl12->GetYaxis()->SetTitleOffset(1.3);
   fl12->GetYaxis()->SetLabelOffset(0.01);
   fl12->SetTitle("#Delta#lambda_{#theta} (#rho factor)");
-
-  g_lthR->RemovePoint(8);
-  g_lthR_c->RemovePoint(1);
   
   g_lthR->SetLineColor(kBlue);
   g_lthR->SetMarkerColor(kBlue);
@@ -231,7 +228,6 @@ void plotAlts()
   g_lthR_c->SetMarkerSize(.75);
   g_lthR_c->Draw("p same");
 
-  //g_unc->Draw("ce3");
   zero->Draw();
 
   TLine *trans22A = new TLine(70, -da_lim, 70, da_lim);

@@ -26,9 +26,10 @@ void plotRes()
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetRightMargin(0.03);
 
   // draw lambda_th(pT)
-  TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
+  TH1F *fl = c->DrawFrame(pTBins[0]-5, -1., pTBins[nBinspT], 1.);
   fl->SetXTitle("p_{T} (GeV)");
   fl->SetYTitle("#lambda_{#phi}");
   fl->GetYaxis()->SetTitleOffset(1.3);
@@ -46,16 +47,8 @@ void plotRes()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  TLine *trans1 = new TLine(46, -1, 46, 1);
-  trans1->SetLineColor(kBlack);
-  trans1->SetLineStyle(kDashed);
-  //trans1->Draw();
-  TLine *trans2 = new TLine(66, -1, 66, 1);
-  trans2->SetLineColor(kBlack);
-  trans2->SetLineStyle(kDashed);
-  //trans2->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.77, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "total", "pl");
   leg->AddEntry(graph_lth[1], "NP contrib", "pl");
@@ -78,22 +71,7 @@ void plotRes()
   graph_lth[3]->SetMarkerColor(kBlack);
   graph_lth[3]->Draw("p same");
 
-  TF1 *cons = new TF1("constant", "[0]", pTBins[0], pTBins[nBinspT]);
-  cons->SetLineColor(kBlue);
-  cons->SetLineWidth(1);
-  cons->SetParameter(0, 0.1);
-  //graph_lth[3]->Fit(cons);
-
   zero->Draw();
-  //trans1->Draw();
-  //trans2->Draw();
-  
-  /*TLatex lc;
-  lc.SetTextSize(0.03);
-  lc.SetTextColor(kBlack);
-  lc.DrawLatex(70, 0.85, Form("#lambda_{#phi}^{PR} = %.3f #pm %.3f", cons->GetParameter(0), cons->GetParError(0)));
-  lc.DrawLatex(70, 0.7, Form("#chi^{2}/ndf = %.0f/%d", cons->GetChisquare(), cons->GetNDF()));
-  lc.DrawLatex(70, 0.55, Form("P(#chi^{2},ndf) = %.1f%%", 100*TMath::Prob(cons->GetChisquare(), cons->GetNDF())));*/
 
   c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
   c->Clear();

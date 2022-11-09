@@ -171,10 +171,10 @@ void plotCosFit()
     fit1d2[0]->Draw("same");
 
     for(int j = 1; j < 5; j++) {
-      h_rat1d2[j][i]->SetLineColor(cols2[j]);
-      h_rat1d2[j][i]->SetMarkerColor(cols2[j]);
-      h_rat1d2[j][i]->Draw("same error");
       if(j != 3) {
+	h_rat1d2[j][i]->SetLineColor(cols2[j]);
+	h_rat1d2[j][i]->SetMarkerColor(cols2[j]);
+	h_rat1d2[j][i]->Draw("same error");
 	fit1d2[j]->SetLineColor(cols2[j]);
 	fit1d2[j]->SetLineStyle(kDashed);
 	fit1d2[j]->Draw("same");
@@ -199,8 +199,8 @@ void plotCosFit()
     lcb1.DrawLatex(0.15, h_rat1d2[2][i]->GetMaximum()*1.025, "PR/MC");
     lcb1.DrawLatex(0.15, h_rat1d2[2][i]->GetMaximum()*0.95, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d2[2]->GetParameter(1), fit1d2[2]->GetParError(1)));
 
-    lcb1.SetTextColor(cols2[3]);
-    lcb1.DrawLatex(0.15, h_rat1d2[3][i]->GetMaximum()*1.4, "bkg/MC");
+    //lcb1.SetTextColor(cols2[3]);
+    // lcb1.DrawLatex(0.15, h_rat1d2[3][i]->GetMaximum()*1.4, "bkg/MC");
 
     lcb1.SetTextColor(cols2[4]);
     lcb1.DrawLatex(0.15, h_rat1d2[4][i]->GetMaximum()*0.8, "(prompt J/#psi)/MC");

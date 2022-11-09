@@ -7,9 +7,9 @@ void bkgSub()
   TH2D *h_PR2d = new TH2D(); // base PR SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
   TFile *inHist = new TFile("files/histoStore.root");
-  inHist->GetObject("dataH_ab", h_PR2d);
+  inHist->GetObject("PRH", h_PR2d);
   h_PR2d->SetDirectory(0);
-  inHist->GetObject("mcH_ab", h_MC2d);
+  inHist->GetObject("MCH", h_MC2d);
   h_MC2d->SetDirectory(0);
   inHist->Close();
 
@@ -28,7 +28,7 @@ void bkgSub()
 
   // get the bkg distributions
   TH1D **h_SB = new TH1D*[nBinsY]; // SB background 1d histos
-  TFile *inBkg = new TFile("files/bkgCosModel.root");
+  TFile *inBkg = new TFile("../../Simult/PR_fit/files/bkgCosModel.root");
   for(int i = 0; i < nBinsY; i++) {
     inBkg->GetObject(Form("h_SB_%d", i), h_SB[i]);
     h_SB[i]->SetDirectory(0);
@@ -39,11 +39,11 @@ void bkgSub()
   // NP fraction in NP SR - corrected for mass bkg contamination
   TH2D *h_fb2d = new TH2D();
   TH2D *h_fnp2d = new TH2D();
-  TFile *inFracSB = new TFile("files/bkgFrac.root");
+  TFile *inFracSB = new TFile("../../Simult/bkgFits/files/bkgFrac.root");
   inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
   inFracSB->Close();
-  TFile *inFracNP = new TFile("files/NPFrac.root");
+  TFile *inFracNP = new TFile("../../Simult/PR_fit/files/NPFrac.root");
   inFracNP->GetObject("h_fNPc", h_fnp2d);
   h_fnp2d->SetDirectory(0);
   inFracNP->Close();

@@ -40,10 +40,10 @@ void getCoarse()
   double maxX = h_data[0]->GetXaxis()->GetBinUpEdge(nBinsX);
   
   // the new binning
-  const int nBinsY = 4;
-  int binMin[nBinsY]     = { 1,  9, 10,   15};
-  int binMax[nBinsY]     = { 8,  9, 14,   19};
-  double binsY[nBinsY+1] = {25, 45, 47.5, 70, 120};
+  const int nBinsY = 3;
+  int binMin[nBinsY]     = { 1,  9, 15};
+  int binMax[nBinsY]     = { 8, 14, 19};
+  double binsY[nBinsY+1] = {25, 45, 70, 120};
 
   // new histos
   string lbl[3] = {"coarse bins baseline",

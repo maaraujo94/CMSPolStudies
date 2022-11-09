@@ -14,7 +14,7 @@ void getfL()
   // define same function as above but *m
   TF1 *mMass = new TF1("mMass", "exp(-x/[0])*x", 2.9, 3.3);
   // get fMass parameters
-  TFile *inFMass = new TFile("files/mfit.root");
+  TFile *inFMass = new TFile("../bkgFits/files/mfit_NP.root");
   TGraphErrors *m_ld = (TGraphErrors*)inFMass->Get("fit_lambda");
   inFMass->Close();
 
@@ -102,16 +102,7 @@ void getfL()
 
   TFile *fout = new TFile("files/store_fL.root", "recreate");
 
-  TF1 *fc = new TF1("fc", "[0]", yBins[0]-m_ld->GetEX()[0], yBins[nBinsY-1]+m_ld->GetEX()[nBinsY-1]);
-  fc->SetParameter(0,50);
-  g_fL->Fit(fc);
-  double f_avg = fc->GetParameter(0)/100.;
-  int nm = ceil(-log10(f_avg))+2;	
-  f_avg = do_round(f_avg*pow(10, nm))/pow(10, nm);
-
-  double fl_fix[nBinsY];
-  for(int i = 0; i < nBinsY; i++) fl_fix[i] = f_avg;  
-  TGraphErrors *g_flF = new TGraphErrors(nBinsY, pt_v, fl_fix, pt_e, zeros);
-  g_flF->Write("g_fL");
+  for(int i = 0; i < nBinsY; i++) g_fL->GetY()[i]/=100.;
+  g_fL->Write("g_fL");
   fout->Close();
 }

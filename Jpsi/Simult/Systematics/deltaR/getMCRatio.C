@@ -2,19 +2,19 @@ void getMCRatio()
 {
   // get the baseline MC
   TFile *fIn1 = new TFile("../../PR_fit/files/histoStore.root");
-  TH2D *mc_1 = (TH2D*)fIn1->Get("mcH_ab");
+  TH2D *mc_1 = (TH2D*)fIn1->Get("MCH");
   mc_1->SetDirectory(0);
   fIn1->Close();
 
   // get the loose cut MC
   TFile *fIn2 = new TFile("../../../Simult_dR2/PR_fit/files/histoStore.root");
-  TH2D *mc_2 = (TH2D*)fIn2->Get("mcH_ab");
+  TH2D *mc_2 = (TH2D*)fIn2->Get("MCH");
   mc_2->SetDirectory(0);
   fIn2->Close();
 
   // get the tight cut MC
   TFile *fIn3 = new TFile("../../../Simult_dR1/PR_fit/files/histoStore.root");
-  TH2D *mc_3 = (TH2D*)fIn3->Get("mcH_ab");
+  TH2D *mc_3 = (TH2D*)fIn3->Get("MCH");
   mc_3->SetDirectory(0);
   fIn3->Close();
 

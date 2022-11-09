@@ -49,9 +49,12 @@ void plotCos()
   h_inv->SetStats(0);
   h_inv->GetXaxis()->SetTitle("p_{T} (GeV)");
   h_inv->GetYaxis()->SetTitle("|cos#theta|");
+  h_inv->SetMaximum(h_inv->GetMaximum(2));
   h_inv->Draw("colz");
   cosMin->Draw("lsame");
   cosMax->Draw("lsame");
 
   c->SaveAs("plotCos.pdf");
+  c->Clear();
+  c->Destructor();
 }

@@ -7,7 +7,7 @@ void fNPcorr()
   inNP->Close();
   
   // get the f_bkg^NP from NP_fit folder
-  TFile *inSB = new TFile("../NP_fit/files/bkgFrac.root");
+  TFile *inSB = new TFile("../bkgFits/files/bkgFrac_NP.root");
   TH2D *h_fbkg = (TH2D*)inSB->Get("h_fbkg");
   h_fbkg->SetDirectory(0);
   inSB->Close();
@@ -23,22 +23,18 @@ void fNPcorr()
   for(int i_x = 0; i_x < nBinsX; i_x++) {
     for(int i_y = 0; i_y < nBinsY; i_y++) {
       h_fc->SetBinContent(i_x+1, i_y+1, 1.-h_fbkg->GetBinContent(i_x+1, i_y+1));
-      //h_fc->SetBinError(i_x+1, i_y+1, h_fbkg->GetBinError(i_x+1, i_y+1));
       h_fc->SetBinError(i_x+1, i_y+1, 0);
     }
   }
 
   // get corrected f_NP
   TH2D *h_fNPc = (TH2D*)h_fnp->Clone("h_fNPc");
-  //for(int i = 0; i < nBinsY; i++) cout << h_fNPc->GetBinError(1, i+1) << " ";
-  //cout << endl;
   h_fNPc->Multiply(h_fc);
-  //for(int i = 0; i < nBinsY; i++) cout << h_fNPc->GetBinError(1, i+1) << " ";
-  //cout << endl;
 
   // plot the comparison
   TCanvas *c = new TCanvas("", "", 900, 900);
-
+  c->SetRightMargin(0.03);
+  
   TH1D *h_fnp1d = h_fnp->ProjectionY("h_fnp1d", 1, 1);
   TH1D *h_fbkg1d = h_fbkg->ProjectionY("h_fbkg1d", 1, 1);
   TH1D *h_fnpc1d = h_fNPc->ProjectionY("h_fnpc1d", 1, 1);
@@ -56,9 +52,9 @@ void fNPcorr()
   h_fnp1d->GetYaxis()->SetTitle("f (%)");
   h_fnp1d->GetYaxis()->SetTitleOffset(1.3);
   h_fnp1d->GetYaxis()->SetLabelOffset(0.01);
-  h_fnp1d->SetTitle("Run 2 f_{NP}^{corr}");
-  h_fnp1d->SetLineColor(kRed);
-  h_fnp1d->SetMarkerColor(kRed);
+  h_fnp1d->SetTitle("f_{NP}^{c} vs p_{T}");
+  h_fnp1d->SetLineColor(kRed+3);
+  h_fnp1d->SetMarkerColor(kRed+3);
   h_fnp1d->SetLineStyle(kDashed);
   h_fnp1d->SetMarkerStyle(20);
   h_fnp1d->SetMarkerSize(.75);
@@ -76,7 +72,7 @@ void fNPcorr()
   h_fnpc1d->SetMarkerSize(.75);
   h_fnpc1d->Draw("error same");
 
-  TLegend *leg = new TLegend(0.7, 0.6, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.77, 0.6, 0.97, 0.9);
   leg->SetTextSize(0.04);
   leg->AddEntry(h_fnp1d, "f_{NP}", "pl");
   leg->AddEntry(h_fbkg1d, "f_{bkg}^{NP}", "pl");

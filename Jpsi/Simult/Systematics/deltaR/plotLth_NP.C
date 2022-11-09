@@ -70,27 +70,21 @@ void plotLth_NP()
     if(binsX[i] > 70 && binsX[i-1] < 70) cut_val = i;
   }
 
-  graph_lth[0]->RemovePoint(8);
   for(int i = cut_val; i < nBinspT; i++){
     g_lthD1->RemovePoint(cut_val);
     graph_lth[1]->RemovePoint(cut_val);
   }
-  g_lthD1->RemovePoint(8);
-  graph_lth[1]->RemovePoint(8);
   for(int i = 0; i < cut_val; i++) {
     g_lthD2->RemovePoint(0);
     graph_lth[2]->RemovePoint(0);
   }
 
   //same thing for coarse bins
-  graph_lth_c[0]->RemovePoint(1);
-  for(int i = 3; i < nBinspT_c; i++){
-    g_lthD1_c->RemovePoint(3);
-    graph_lth_c[1]->RemovePoint(3);
+  for(int i = 2; i < nBinspT_c; i++){
+    g_lthD1_c->RemovePoint(2);
+    graph_lth_c[1]->RemovePoint(2);
   }
-  g_lthD1_c->RemovePoint(1);
-  graph_lth_c[1]->RemovePoint(1);
-  for(int i = 0; i < 3; i++) {
+  for(int i = 0; i < 2; i++) {
     g_lthD2_c->RemovePoint(0);
     graph_lth_c[2]->RemovePoint(0);
   }

@@ -77,7 +77,7 @@ void plotLth()
 
   zero->Draw();
   
-  TLegend *leg2 = new TLegend(0.6, 0.7, 0.9, 0.9);
+  TLegend *leg2 = new TLegend(0.67, 0.7, 0.97, 0.9);
   leg2->SetTextSize(0.03);
   leg2->AddEntry(graph_lth[3], "prompt J/#psi", "pl");
   leg2->AddEntry(graph_lth[1], "non-prompt J/#psi", "pl");

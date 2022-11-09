@@ -7,9 +7,9 @@ void bkgSub()
   TH2D *h_PR2d = new TH2D(); // base PR SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
   TFile *inHist = new TFile("files/histoStore.root");
-  inHist->GetObject("dataH_ab", h_PR2d);
+  inHist->GetObject("PRH", h_PR2d);
   h_PR2d->SetDirectory(0);
-  inHist->GetObject("mcH_ab", h_MC2d);
+  inHist->GetObject("MCH", h_MC2d);
   h_MC2d->SetDirectory(0);
   inHist->Close();
 
@@ -39,7 +39,7 @@ void bkgSub()
   // NP fraction in NP SR - corrected for mass bkg contamination
   TH2D *h_fb2d = new TH2D();
   TH2D *h_fnp2d = new TH2D();
-  TFile *inFracSB = new TFile("files/bkgFrac.root");
+  TFile *inFracSB = new TFile("../bkgFits/files/bkgFrac.root");
   inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
   inFracSB->Close();
@@ -87,12 +87,12 @@ void bkgSub()
 
     // PART 4 - signal extraction
     // define the pure PR histo
-    TH1D *h_justPR = new TH1D(Form("h_justPR_%d", i), "prompt #phi", nBinsX, minX, maxX);
+    TH1D *h_justPR = new TH1D(Form("h_justPR_%d", i), "prompt cos#theta", nBinsX, minX, maxX);
     // subtract the background dist from the data dist
     h_justPR->Sumw2();
     h_justPR->Add(h_PR, h_NP, 1, -1); // NP part
     // define the pure PR histo
-    TH1D *h_purePR = new TH1D(Form("h_purePR_%d", i), "prompt J/#psi #phi", nBinsX, minX, maxX);
+    TH1D *h_purePR = new TH1D(Form("h_purePR_%d", i), "prompt J/#psi cos#theta", nBinsX, minX, maxX);
     // subtract the background dist from the data dist
     h_purePR->Sumw2();
     h_purePR->Add(h_justPR, h_SB[i], 1, -1); // sideband part

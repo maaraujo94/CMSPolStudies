@@ -39,7 +39,7 @@ void histoSave()
   int m1Evt = treeM1->GetEntries();
   int m2Evt = treeM2->GetEntries();
   int m3Evt = treeM3->GetEntries(); 
-  int m4Evt = treeM3->GetEntries();
+  int m4Evt = treeM4->GetEntries();
  
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m;
