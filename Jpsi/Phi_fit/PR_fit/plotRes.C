@@ -29,12 +29,12 @@ void plotRes()
   c->SetRightMargin(0.03);
 
   // draw lambda_th(pT)
-  TH1F *fl = c->DrawFrame(pTBins[0]-5, -1., pTBins[nBinspT], 1.);
+  TH1F *fl = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
   fl->SetXTitle("p_{T} (GeV)");
   fl->SetYTitle("#lambda_{#phi}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Run 2 #lambda_{#phi}");
+  fl->SetTitle("Run 2 #lambda_{#phi} (PR)");
 
   int col[] = {kViolet, kRed, kBlack, kBlue};
   for(int i = 0; i < 4; i++) {
@@ -60,7 +60,7 @@ void plotRes()
   c->Clear();
 
   // draw just final lambda_th(pT)
-  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
+  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
   fl2->SetXTitle("p_{T} (GeV)");
   fl2->SetYTitle("#lambda_{#phi}");
   fl2->GetYaxis()->SetTitleOffset(1.3);

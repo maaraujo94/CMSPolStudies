@@ -99,6 +99,7 @@ void newMCmass_G()
 
   string par_n[] = {"N", "f", "mu", "sig1", "sig2", "n", "alpha", "fG", "sigG"};
   double par_v[] = {1., 0.7, 3.097, 2e-2, 3e-2, 1.2, 2, 0.04, 5.4e-2};
+
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
     // N needs to be set separately
