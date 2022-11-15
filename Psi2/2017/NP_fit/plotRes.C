@@ -34,8 +34,8 @@ void plotRes()
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("2017 #lambda_{#theta}");
-
-  int col[] =  {kRed, kRed+3};
+    
+  int col[] = {kRed, kRed+3};
   for(int i = 0; i < 2; i++) {
     graph_lth[i]->SetLineColor(col[i]);
     graph_lth[i]->SetMarkerColor(col[i]);
@@ -49,7 +49,11 @@ void plotRes()
   TLine *trans1 = new TLine(46, -1, 46, 1);
   trans1->SetLineColor(kBlack);
   trans1->SetLineStyle(kDashed);
-  trans1->Draw();
+  //trans1->Draw();
+  TLine *trans2 = new TLine(66, -1, 66, 1);
+  trans2->SetLineColor(kBlack);
+  trans2->SetLineStyle(kDashed);
+  //trans2->Draw();
 
   TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
   leg->SetTextSize(0.03);
@@ -72,20 +76,17 @@ void plotRes()
   graph_lth[1]->SetMarkerColor(kBlack);
   graph_lth[1]->Draw("p same");
 
-  TF1 *cons = new TF1("constant", "[0]", pTBins[0], pTBins[nBinspT]);
-  cons->SetLineColor(kBlue);
-  cons->SetLineWidth(1);
-  cons->SetParameter(0, -0.1);
 
   zero->Draw();
-  trans1->Draw();
+  //trans1->Draw();
+  //trans2->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
   c->Clear();
 
   // draw A(pT)
   c->SetLogy();
-  TH1F *fa = c->DrawFrame(pTBins[0], 1e-2, pTBins[nBinspT], 4e-1);
+  TH1F *fa = c->DrawFrame(pTBins[0], 1e-2, pTBins[nBinspT], 6e-1);
   fa->SetXTitle("p_{T} (GeV)");
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
@@ -99,10 +100,14 @@ void plotRes()
     graph_A[i]->Draw("p same");
   }
 
-  TLine *trans1_A = new TLine(46, 1e-2, 46, 4e-1);
+  TLine *trans1_A = new TLine(46, 1e-2, 46, 6e-1);
   trans1_A->SetLineColor(kBlack);
   trans1_A->SetLineStyle(kDashed);
   trans1_A->Draw();
+  TLine *trans2_A = new TLine(66, 1e-2, 66, 6e-1);
+  trans2_A->SetLineColor(kBlack);
+  trans2_A->SetLineStyle(kDashed);
+  trans2_A->Draw();
 
   c->SaveAs("plots/ratioFinal/par_A.pdf");
   c->Clear();
@@ -129,6 +134,10 @@ void plotRes()
   trans1_C->SetLineColor(kBlack);
   trans1_C->SetLineStyle(kDashed);
   trans1_C->Draw();
+  TLine *trans2_C = new TLine(66, 0, 66, 1);
+  trans2_C->SetLineColor(kBlack);
+  trans2_C->SetLineStyle(kDashed);
+  trans2_C->Draw();
 
   c->SaveAs("plots/ratioFinal/par_chiP.pdf");
   c->Clear();

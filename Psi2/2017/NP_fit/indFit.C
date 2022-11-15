@@ -65,7 +65,7 @@ void indFit()
     ept[i] = (pMax-pMin)/2.;
 
     // get max costheta
-    double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin))-0.05;
+    double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
 
     // fit the 2 functions
     for(int i_t = 0; i_t < 2; i_t++) {
@@ -84,12 +84,13 @@ void indFit()
     }
 
     // plotting everything
-    pHist[0][i]->SetTitle(Form("Signal extraction (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
+    pHist[0][i]->SetTitle(Form("data/MC |cos#theta| (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
     pHist[0][i]->SetStats(0);
     pHist[0][i]->SetLineColor(kRed);
     pHist[0][i]->SetMarkerColor(kRed);
     pHist[0][i]->SetMinimum(0);
     pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.5);
+    pHist[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     pHist[0][i]->Draw("error");
     fit1d[0]->SetLineColor(kRed);
     fit1d[0]->SetLineStyle(kDashed);
@@ -105,7 +106,7 @@ void indFit()
     pHist[2][i]->SetLineColor(kGreen);
     pHist[2][i]->SetMarkerColor(kGreen);
     pHist[2][i]->Draw("same");
-    
+
     TLatex lc;
     lc.SetTextSize(0.03);
     lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{NP} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
@@ -119,7 +120,7 @@ void indFit()
     TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
     leg->SetTextSize(0.03);
     leg->AddEntry(pHist[0][i], "NP", "pl");
-    leg->AddEntry(pHist[2][i], "SB contrib", "pl");
+    leg->AddEntry(pHist[2][i], "bkg", "pl");
     leg->AddEntry(pHist[1][i], "pure NP", "pl");
     leg->Draw();
 

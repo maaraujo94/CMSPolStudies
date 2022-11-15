@@ -9,39 +9,28 @@ int do_round(double val)
 
 void getfL()
 {
-  // get the binning
-  TH2D *h_pr = new TH2D();
-  TFile *inPR = new TFile("files/bkgHist.root");
-  inPR->GetObject("ratioH0_ab", h_pr);
-  h_pr->SetDirectory(0);
-
-  int nBinsX = h_pr->GetNbinsX(), nBinsY = h_pr->GetNbinsY();
-  const double *yBins = h_pr->GetYaxis()->GetXbins()->GetArray();
-  double minX = h_pr->GetXaxis()->GetBinLowEdge(1);
-  double maxX = h_pr->GetXaxis()->GetBinUpEdge(nBinsX);
-  double dX = (maxX-minX)/(double)nBinsX;
-
-  inPR->Close();
-
-  // define aux vals for plotting
-  double m_min[] = {3.4, 3.57, 3.82};
-  double m_max[] = {3.52, 3.81, 4.0};
-
-  // now get the mass background fit function
+  // get the mass background fit function
   TF1 *fMass = new TF1("fMass", "exp(-x/[0])", 3.35, 4.0);
   // define same function as above but *m
   TF1 *mMass = new TF1("mMass", "exp(-x/[0])*x", 3.35, 4.0);
   // get fMass parameters
-  TFile *inFMass = new TFile("files/mfit.root");
+  TFile *inFMass = new TFile("../bkgFits/files/mfit_2.root");
   TGraphErrors *m_ld = (TGraphErrors*)inFMass->Get("fit_lambda");
   inFMass->Close();
+
+  // get the binning
+  int nBinsY = m_ld->GetN();
+  const double *yBins = m_ld->GetX();
+
+  double m_min[] = {3.4, 3.57, 3.82};
+  double m_max[] = {3.52, 3.81, 4.0};
   
   // this part is done for every pT bin
   double avg_LSB[nBinsY], avg_RSB[nBinsY], fL[nBinsY];
   double pt_v[nBinsY], pt_e[nBinsY], zeros[nBinsY];
   for(int i = 0; i < nBinsY; i++) {
-    pt_v[i] = 0.5*(yBins[i+1]+yBins[i]);
-    pt_e[i] = 0.5*(yBins[i+1]-yBins[i]);
+    pt_v[i] = yBins[i];
+    pt_e[i] = m_ld->GetEX()[i];
     zeros[i] = 1e-4;
     
     // set the parameters of the binned functions
@@ -68,7 +57,7 @@ void getfL()
   c2->Divide(1, 3);
   c2->cd(1);
   
-  TH1F *fmL = gPad->DrawFrame(20, m_min[0], 125, m_max[0]);
+  TH1F *fmL = gPad->DrawFrame(15, m_min[0], 105, m_max[0]);
   fmL->SetXTitle("p_{T} (GeV)");
   fmL->SetYTitle("<m_{LSB}> (GeV)");
   fmL->GetYaxis()->SetTitleOffset(1.3);
@@ -83,7 +72,7 @@ void getfL()
 
   c2->cd(2);
   
-  TH1F *fmR = gPad->DrawFrame(20, m_min[2], 125, m_max[2]);
+  TH1F *fmR = gPad->DrawFrame(15, m_min[2], 105, m_max[2]);
   fmR->SetXTitle("p_{T} (GeV)");
   fmR->SetYTitle("<m_{RSB}> (GeV)");
   fmR->GetYaxis()->SetTitleOffset(1.3);
@@ -98,7 +87,7 @@ void getfL()
 
   c2->cd(3);
   
-  TH1F *ffL = gPad->DrawFrame(20, 50, 125, 55);
+  TH1F *ffL = gPad->DrawFrame(15, 50, 105, 55);
   ffL->SetXTitle("p_{T} (GeV)");
   ffL->SetYTitle("f_{L} (%)");
   ffL->GetYaxis()->SetTitleOffset(1.3);
@@ -113,21 +102,11 @@ void getfL()
   
   c2->SaveAs(Form("plots/fL.pdf"));
   c2->Clear();
+  c2->Destructor();
 
   TFile *fout = new TFile("files/store_fL.root", "recreate");
 
-  TF1 *fc = new TF1("fc", "[0]", yBins[0], yBins[nBinsY]);
-  fc->SetParameter(0,50);
-  g_fL->Fit(fc);
-  double f_avg = fc->GetParameter(0)/100.;
-  int nm = ceil(-log10(f_avg))+2;	
-  f_avg = do_round(f_avg*pow(10, nm))/pow(10, nm);
-
-  double fl_fix[nBinsY];
-  for(int i = 0; i < nBinsY; i++) fl_fix[i] = f_avg;  
-  TGraphErrors *g_flF = new TGraphErrors(nBinsY, pt_v, fl_fix, pt_e, zeros);
-  g_flF->Write("g_fL");
+  for(int i = 0; i < nBinsY; i++) g_fL->GetY()[i]/=100.;
+  g_fL->Write("g_fL");
   fout->Close();
-
-  c2->Destructor();
 }

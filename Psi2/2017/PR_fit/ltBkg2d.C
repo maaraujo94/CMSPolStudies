@@ -1,6 +1,5 @@
 //pt bins defined globally for access from functions
-const int nPtBins = 7;
-double ptBins[nPtBins+1];
+#import "../ptbins.C"
 
 // functions to access within other functions
 TF1 *fres;
@@ -52,42 +51,33 @@ double sum_1d(double *xx, double *pp)
   return fres->Eval(lt) + fNP->Eval(lt);
 }
 
+
 void ltBkg2d()
 {
   // prepare binning and histograms for plots
-  for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
-  for(int i=0; i<4; i++) ptBins[i+3] = 46.+10.*i;
-  ptBins[7] = 120;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
-  cout << endl;
-
-  TH1D **h_d1d = new TH1D*[nPtBins];  
+  TH2D *h_d2d = new TH2D();  
   TFile *fin = new TFile("files/ltStore.root");
-  for(int ip = 0; ip < nPtBins; ip++) {
-    fin->GetObject(Form("ltH%.0f", ptBins[ip]), h_d1d[ip]);
-    h_d1d[ip]->SetDirectory(0);
-  }
+  fin->GetObject("ltH", h_d2d);
+  h_d2d->SetDirectory(0);
   fin->Close();
 
-  int tbins = h_d1d[0]->GetNbinsX();
-  double lowt = h_d1d[0]->GetXaxis()->GetBinLowEdge(1);
-  double hit = h_d1d[0]->GetXaxis()->GetBinUpEdge(tbins);
+  int tbins = h_d2d->GetNbinsX();
+  double lowt = h_d2d->GetXaxis()->GetBinLowEdge(1);
+  double hit = h_d2d->GetXaxis()->GetBinUpEdge(tbins);
   double wbin = (hit-lowt)/(double)tbins;
 
+  // Make 1d histos
+  TH1D **h_d1d = new TH1D*[nPtBins];
+  for(int i = 0; i < nPtBins; i++) {
+    h_d1d[i] = h_d2d->ProjectionX(Form("ltH%.0f", ptBins[i]), i+1, i+1);
+    h_d1d[i]->SetTitle(Form("2017 data c#tau (%.1f < p_{T} < %.1f GeV)", ptBins[i], ptBins[i+1]));
+  }
+  
   // define aux vals for plotting
   double pr_lim = 0.05;
   double np_lim = 0.1;
   double lowPlot = -0.1;
 
-  // Fill 2d histo
-  TH2D *h_d2d = new TH2D("h_d2d", "2017 data c#tau", tbins, lowt, hit, nPtBins, ptBins);
-
-  for(int i = 0; i < nPtBins; i++) {
-    for(int j = 0; j < tbins; j++) {
-      h_d2d->SetBinContent(j+1, i+1, h_d1d[i]->GetBinContent(j+1));
-      h_d2d->SetBinError(j+1, i+1, h_d1d[i]->GetBinError(j+1));
-    }
-  }
   // define the resolution (=PR) function
   fres = new TF1("fres", "[0]*([1]*TMath::Gaus(x, [2],[3]) + (1.-[1])*TMath::Gaus(x, [2], [4]))", 5*lowt, 5*hit);
   
@@ -102,7 +92,7 @@ void ltBkg2d()
 
   // define constant parameters - f, mu
   fitS->SetParName(2*nPtBins, "f");
-  fitS->SetParameter(2*nPtBins, 0.8);
+  fitS->SetParameter(2*nPtBins, 0.75);
   fitS->SetParName(2*nPtBins+1, "mu");
   fitS->SetParameter(2*nPtBins+1, 0);
   
@@ -121,13 +111,16 @@ void ltBkg2d()
     fitS->SetParameter(i+3*nPtBins+2, 2.5e-2);
 
     fitS->SetParName(i+4*nPtBins+2, Form("lambda_%d", i));
-    fitS->SetParameter(i+4*nPtBins+2, 0.36);
+    fitS->SetParameter(i+4*nPtBins+2, 0.35);
   }
+
   // fit the 2d function to the lifetime:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
   TFitResultPtr fitres = h_d2d->Fit("fitS", "SVR");
 
-  // tf1 for plotting in the 1D bins
+  cout << "output right after fit" << endl;
+
+  // tf1 and th1 for plotting in the 1D bins
   // separate parts of the fit function - given by fres and fNP
   TF1 *f_1d = new TF1("f_1d", sum_1d, lowt, hit, 7);
   f_1d->SetParNames("N_PR", "N_NP", "f", "mu", "sigma1", "sigma2", "lambda");
@@ -138,6 +131,8 @@ void ltBkg2d()
 
   // cycle over all pT bins
   for(int i_pt = 0; i_pt < nPtBins; i_pt++) {
+    cout << i_pt << endl;
+
     pt_val[i_pt] = 0.5*(ptBins[i_pt+1]+ptBins[i_pt]);
     pt_err[i_pt] = 0.5*(ptBins[i_pt+1]-ptBins[i_pt]);
 
@@ -165,13 +160,13 @@ void ltBkg2d()
 			pars[4][i_pt],
 			pars[5][i_pt],
 			pars[6][i_pt]);
-    
+
+
     c->SetLogy();
      
     h_d1d[i_pt]->SetMaximum(h_d1d[i_pt]->GetMaximum()*1.2);
     h_d1d[i_pt]->SetMinimum(h_d1d[i_pt]->GetMaximum()*5e-4);
 
-    
     TH1F *fh = c->DrawFrame(lowPlot, h_d1d[i_pt]->GetMinimum(), hit, h_d1d[i_pt]->GetMaximum());
     fh->SetXTitle("c#tau (mm)");
     fh->SetYTitle(Form("Events per %.0f #mum", wbin*1000.));
@@ -242,7 +237,7 @@ void ltBkg2d()
     fp->SetYTitle("pulls");
     fp->GetYaxis()->SetTitleOffset(1.3);
     fp->GetYaxis()->SetLabelOffset(0.01);
-    fp->SetTitle(Form("Lifetime fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fp->SetTitle(Form("Lifetime fit pulls (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_pull = new TGraph(tbins, tv, pv);
     g_pull->SetLineColor(kBlack);
@@ -290,7 +285,7 @@ void ltBkg2d()
     fd->SetYTitle("deviation");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Lifetime fit deviations (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Lifetime fit deviations (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 
     TGraph *g_dev = new TGraph(tbins, tv, dv);
     g_dev->SetLineColor(kBlack);
@@ -341,7 +336,7 @@ void ltBkg2d()
 
   for(int i = 0; i < nPtBins; i++) {
     // pT bin
-    ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
+    ftex << Form("$[%.1f, %.1f]$", ptBins[i], ptBins[i+1]);
     for(int i_p = 0; i_p < 7; i_p++) {
       // plot fixed values - f (2), mu (3)
       if((i_p == 2 || i_p == 3) && i == 0) {

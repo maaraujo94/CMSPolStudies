@@ -7,7 +7,7 @@ void fNPcorr()
   inNP->Close();
   
   // get the f_bkg^NP from NP_fit folder
-  TFile *inSB = new TFile("../NP_fit/files/bkgFrac.root");
+  TFile *inSB = new TFile("../bkgFits/files/bkgFrac_NP.root");
   TH2D *h_fbkg = (TH2D*)inSB->Get("h_fbkg");
   h_fbkg->SetDirectory(0);
   inSB->Close();
@@ -23,18 +23,13 @@ void fNPcorr()
   for(int i_x = 0; i_x < nBinsX; i_x++) {
     for(int i_y = 0; i_y < nBinsY; i_y++) {
       h_fc->SetBinContent(i_x+1, i_y+1, 1.-h_fbkg->GetBinContent(i_x+1, i_y+1));
-      //h_fc->SetBinError(i_x+1, i_y+1, h_fbkg->GetBinError(i_x+1, i_y+1));
       h_fc->SetBinError(i_x+1, i_y+1, 0);
     }
   }
 
   // get corrected f_NP
   TH2D *h_fNPc = (TH2D*)h_fnp->Clone("h_fNPc");
-  //for(int i = 0; i < nBinsY; i++) cout << h_fNPc->GetBinError(1, i+1) << " ";
-  //cout << endl;
   h_fNPc->Multiply(h_fc);
-  //for(int i = 0; i < nBinsY; i++) cout << h_fNPc->GetBinError(1, i+1) << " ";
-  //cout << endl;
 
   // plot the comparison
   TCanvas *c = new TCanvas("", "", 900, 900);
@@ -47,6 +42,8 @@ void fNPcorr()
   h_fbkg1d->Scale(100.);
   h_fnpc1d->Scale(100.);
 
+  cout << h_fnp1d->GetBinError(1) << " " << h_fbkg1d->GetBinError(1) << " "<< h_fnpc1d->GetBinError(1) << endl;
+  
   h_fnp1d->SetStats(0);
   h_fnp1d->SetMinimum(0);
   h_fnp1d->SetMaximum(50);
@@ -57,6 +54,7 @@ void fNPcorr()
   h_fnp1d->SetTitle("2017 f_{NP}^{corr}");
   h_fnp1d->SetLineColor(kRed);
   h_fnp1d->SetMarkerColor(kRed);
+  h_fnp1d->SetLineStyle(kDashed);
   h_fnp1d->SetMarkerStyle(20);
   h_fnp1d->SetMarkerSize(.75);
   h_fnp1d->Draw("error");
@@ -67,12 +65,19 @@ void fNPcorr()
   h_fbkg1d->SetMarkerSize(.75);
   h_fbkg1d->Draw("error same");
     
-  h_fnpc1d->SetLineColor(kRed+2);
-  h_fnpc1d->SetMarkerColor(kRed+2);
+  h_fnpc1d->SetLineColor(kRed);
+  h_fnpc1d->SetMarkerColor(kRed);
   h_fnpc1d->SetMarkerStyle(20);
   h_fnpc1d->SetMarkerSize(.75);
   h_fnpc1d->Draw("error same");
 
+  TLegend *leg = new TLegend(0.7, 0.6, 0.9, 0.9);
+  leg->SetTextSize(0.04);
+  leg->AddEntry(h_fnp1d, "f_{NP}", "pl");
+  leg->AddEntry(h_fbkg1d, "f_{bkg}^{NP}", "pl");
+  leg->AddEntry(h_fnpc1d, "f_{NP}^{c}", "pl");
+  leg->Draw();
+  
   c->SaveAs("plots/f_NP_corr.pdf");
   c->Destructor();
   
