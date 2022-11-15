@@ -1,17 +1,15 @@
 // macro to subtract background for pol correction
 
-#import "../cosMax/imp_jumpF.C"
-
 void bkgSub()
 {
   // PART 1 - all the inputs
-  // PR SR data distribution over all pT bins
+  // PR SR data and MC distribution over all pT bins
   TH2D *h_PR2d = new TH2D(); // base PR SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
   TFile *inHist = new TFile("files/histoStore.root");
-  inHist->GetObject("dataH_ab", h_PR2d);
+  inHist->GetObject("PRH", h_PR2d);
   h_PR2d->SetDirectory(0);
-  inHist->GetObject("mcH_ab", h_MC2d);
+  inHist->GetObject("MCH", h_MC2d);
   h_MC2d->SetDirectory(0);
   inHist->Close();
 
@@ -21,7 +19,7 @@ void bkgSub()
   inNP->GetObject("h_NPcB", h_NP2d);
   h_NP2d->SetDirectory(0);
   inNP->Close();
-
+  
   // get the binning
   int nBinsX = h_PR2d->GetNbinsX(), nBinsY = h_PR2d->GetNbinsY();
   const double *yBins = h_PR2d->GetYaxis()->GetXbins()->GetArray();
@@ -36,25 +34,12 @@ void bkgSub()
     h_SB[i]->SetDirectory(0);
   }
   inBkg->Close();
-  
-  // get the fit range from our cosmax(pT)
-  ifstream in;
-  string dataS;
-  in.open("../cosMax/cosMaxFitRes.txt");
-  getline(in, dataS);
-  getline(in, dataS);
-  double maxPar[3], aux;
-  in >> maxPar[0] >> aux >> maxPar[1] >> aux >> maxPar[2];
-  in.close();
-  
-  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", yBins[0]-10, yBins[nBinsY]+10);
-  cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
-
+    
   // bkg fraction in PR SR
   // NP fraction in NP SR - corrected for mass bkg contamination
   TH2D *h_fb2d = new TH2D();
   TH2D *h_fnp2d = new TH2D();
-  TFile *inFracSB = new TFile("files/bkgFrac.root");
+  TFile *inFracSB = new TFile("../bkgFits/files/bkgFrac.root");
   inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
   inFracSB->Close();
@@ -62,7 +47,8 @@ void bkgSub()
   inFracNP->GetObject("h_fNPc", h_fnp2d);
   h_fnp2d->SetDirectory(0);
   inFracNP->Close();
-  
+
+  // prepare output
   TFile *fout = new TFile("files/bkgSubRes.root", "recreate");
   TCanvas *c =  new TCanvas("", "", 900, 900);
   
@@ -81,21 +67,18 @@ void bkgSub()
     // get number of data events in PR SR
     double N_sig = h_PR2d->Integral(1, nBinsX, i+1, i+1);
     
-    // getting the max costh value for the fit, cR
-    double cMaxVal = jumpF(cosMax->Integral(pt_min, pt_max)/(pt_max-pt_min))-0.05;
-    
-    // get the base data and MC 1d projections
+    // get the data and MC 1d projections
     TH1D *h_PR = h_PR2d->ProjectionX(Form("h_PRSR_%d", i), i+1, i+1);
     TH1D *h_NP = h_NP2d->ProjectionX(Form("h_NP_%d", i), i+1, i+1);
     TH1D *h_MC = h_MC2d->ProjectionX(Form("h_MC_%d", i), i+1, i+1);
     // get the fbkg 1d projections - easier to propagate unc
     TH1D *h_fbkg = h_fb2d->ProjectionX(Form("h_fbkg_%d", i), i+1, i+1);
     TH1D *h_fNP = h_fnp2d->ProjectionX(Form("h_fNP_%d", i), i+1, i+1);
-
+    
     // scale background dists to unity integral;
     h_NP->Scale(1. / h_NP->Integral());
     h_SB[i]->Scale(1. / h_SB[i]->Integral());
-    
+
     // PART 3 - scaling background
     h_NP->Multiply(h_fNP); // propagating unc
     h_NP->Scale(N_sig);

@@ -14,7 +14,7 @@ void histoSave()
   cout << endl;
 
   double m_min = 3.57, m_max = 3.81;
-  
+
   // histograms for data and MC
   TH2D *dataHist_ab = new TH2D("dataH_ab", "2018 Data (PR)", 20, 0, 1., nPtBins, ptBins);
   TH2D *mcHist_ab = new TH2D("mcH_ab", "2018 MC", 20, 0, 1., nPtBins, ptBins);
@@ -22,14 +22,11 @@ void histoSave()
   // open files and read TTrees
   TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/data18_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
-  TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/MC18_cos.root");
-  TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
-  TFile *fin4 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/MCvh18_cos.root");
-  TTree *treeM3 = (TTree*)fin4->Get("MC_cos");
+  TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/MCm18_cos.root");
+  TTree *treeM2 = (TTree*)fin2->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();
-  int m1Evt = treeM1->GetEntries();
-  int m3Evt = treeM3->GetEntries();
+  int m2Evt = treeM2->GetEntries();
   
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m;
@@ -40,10 +37,10 @@ void histoSave()
   treeD->SetBranchAddress("Mass", &data_m);
   treeD->SetBranchAddress("lt", &data_lt);
   
-  treeM1->SetBranchAddress("theta", &mc_th);
-  treeM1->SetBranchAddress("dimPt", &mc_pt);
-  treeM1->SetBranchAddress("Mass", &mc_m);
-  treeM1->SetBranchAddress("lt", &mc_lt);
+  treeM2->SetBranchAddress("theta", &mc_th);
+  treeM2->SetBranchAddress("dimPt", &mc_pt);
+  treeM2->SetBranchAddress("Mass", &mc_m);
+  treeM2->SetBranchAddress("lt", &mc_lt);
 
   // cycle over data and MC, fill the costh histogram acc to binning
   for(int i = 0; i < dEvt; i++)
@@ -54,27 +51,15 @@ void histoSave()
       }
     }
   
-  for(int i = 0; i < m1Evt; i++)
+  for(int i = 0; i < m2Evt; i++)
     {
-      treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && mc_m > m_min && mc_m < m_max) {
-	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
+      treeM2->GetEntry(i);
+      if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > m_min && mc_m < m_max) {
+	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
       }
     }
+  
 
-  treeM3->SetBranchAddress("theta", &mc_th);
-  treeM3->SetBranchAddress("dimPt", &mc_pt);
-  treeM3->SetBranchAddress("Mass", &mc_m);
-  treeM3->SetBranchAddress("lt", &mc_lt);
-  
-  for(int i = 0; i < m3Evt; i++)
-    {
-      treeM3->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > m_min && mc_m < m_max) {
-	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-      }
-    }
-  
   dataHist_ab->SetStats(0);
   dataHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   dataHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");

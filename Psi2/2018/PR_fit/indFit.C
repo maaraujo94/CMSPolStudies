@@ -24,7 +24,7 @@ void indFit()
   for(int i_t = 0; i_t < 5; i_t++) {
     for(int i = 1; i <= nBinsY; i++) {
       pHist[i_t][i-1] = h_fit[i_t]->ProjectionX(Form("bin%d_%d", i, i_t+1), i, i);
-      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.0f, %.0f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
+      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.1f, %.1f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
     }
   }
   
@@ -65,12 +65,12 @@ void indFit()
     ept[i] = (pMax-pMin)/2.;
 
     // get max costheta
-    double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin))-0.05;
+    double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
 
     // fit the 4 functions
     for(int i_t = 0; i_t < 4; i_t++) {
       fit1d[i_t]->SetRange(0, cMaxVal);
-      fit1d[i_t]->SetParameters(pHist[i_t][i]->GetBinContent(1)*1.1, 0.01);
+      fit1d[i_t]->SetParameters(pHist[i_t][i]->GetBinContent(1)*1.1, 0.1);
 
       pHist[i_t][i]->Fit(fit1d[i_t], "R0");
 
@@ -84,12 +84,13 @@ void indFit()
     }
 
     // plotting everything
-    pHist[0][i]->SetTitle(Form("Signal extraction (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
+    pHist[0][i]->SetTitle(Form("data/MC |cos#theta| (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
     pHist[0][i]->SetStats(0);
     pHist[0][i]->SetLineColor(kViolet);
     pHist[0][i]->SetMarkerColor(kViolet);
     pHist[0][i]->SetMinimum(0);
-    pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*2.0);
+    pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.5);
+    pHist[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     pHist[0][i]->Draw("error");
     fit1d[0]->SetLineColor(kViolet);
     fit1d[0]->SetLineStyle(kDashed);
@@ -118,20 +119,20 @@ void indFit()
     TLatex lc;
     lc.SetTextSize(0.03);
     lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{total} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
-    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#theta}^{prompt #psi(2S)} = %.3f #pm %.3f", parL[3][i], eparL[3][i]));
+    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#theta}^{prompt J/#psi} = %.3f #pm %.3f", parL[3][i], eparL[3][i]));
     
     TLine *c_lim = new TLine(cMaxVal, 0, cMaxVal, pHist[0][i]->GetMaximum());
     c_lim->SetLineStyle(kDashed);
     c_lim->SetLineColor(kBlack);
     c_lim->Draw();
 
-    TLegend *leg = new TLegend(0.675, 0.7, 0.9, 0.9);
+    TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
     leg->SetTextSize(0.03);
     leg->AddEntry(pHist[0][i], "total", "pl");
     leg->AddEntry(pHist[1][i], "NP contrib", "pl");
     leg->AddEntry(pHist[2][i], "prompt", "pl");
     leg->AddEntry(pHist[4][i], "SB contrib", "pl");
-    leg->AddEntry(pHist[3][i], "prompt #psi(2S)", "pl");
+    leg->AddEntry(pHist[3][i], "prompt J/#psi", "pl");
     leg->Draw();
 
     for(int i_t = 0; i_t < 5; i_t++)

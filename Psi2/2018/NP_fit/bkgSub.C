@@ -1,27 +1,25 @@
 // macro to subtract background for pol correction
 
-#import "../cosMax/imp_jumpF.C"
-
 void bkgSub()
 {
   // PART 1 - all the inputs
-  // PR SR data distribution over all pT bins
+  // PR SR data and MC distribution over all pT bins
   TH2D *h_NP2d = new TH2D(); // base NP SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
   TFile *inHist = new TFile("../PR_fit/files/histoStore.root");
-  inHist->GetObject("NPH_ab", h_NP2d);
+  inHist->GetObject("NPH", h_NP2d);
   h_NP2d->SetDirectory(0);
-  inHist->GetObject("mcH_ab", h_MC2d);
+  inHist->GetObject("MCH", h_MC2d);
   h_MC2d->SetDirectory(0);
   inHist->Close();
-  
+
   // get the binning
   int nBinsX = h_NP2d->GetNbinsX(), nBinsY = h_NP2d->GetNbinsY();
   const double *yBins = h_NP2d->GetYaxis()->GetXbins()->GetArray();
   double minX = h_NP2d->GetXaxis()->GetBinLowEdge(1);
   double maxX = h_NP2d->GetXaxis()->GetBinUpEdge(nBinsX);
 
-  // get the bkg dists
+  // get the bkg distributions
   TH1D **h_SB = new TH1D*[nBinsY]; // SB background 1d histos
   TFile *inBkg = new TFile("files/bkgCosModel.root");
   for(int i = 0; i < nBinsY; i++) {
@@ -29,27 +27,15 @@ void bkgSub()
     h_SB[i]->SetDirectory(0);
   }
   inBkg->Close();
-
-  // get the fit range from our cosmax(pT)
-  ifstream in;
-  string dataS;
-  in.open("../cosMax/cosMaxFitRes.txt");
-  getline(in, dataS);
-  getline(in, dataS);
-  double maxPar[3], aux;
-  in >> maxPar[0] >> aux >> maxPar[1] >> aux >> maxPar[2];
-  in.close();
-  
-  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", yBins[0]-10, yBins[nBinsY]+10);
-  cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
-  
-  // bkg fraction in NP SR
+    
+  // bkg fraction in PR SR
   TH2D *h_fb2d = new TH2D();
-  TFile *inFracS = new TFile("files/bkgFrac.root");
-  inFracS->GetObject("h_fbkg", h_fb2d);
+  TFile *inFracSB = new TFile("../bkgFits/files/bkgFrac_NP.root");
+  inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
-  inFracS->Close();
+  inFracSB->Close();
 
+  // prepare output
   TFile *fout = new TFile("files/bkgSubRes.root", "recreate");
   TCanvas *c =  new TCanvas("", "", 900, 900);
   
@@ -66,30 +52,27 @@ void bkgSub()
     // get number of data events in PR SR
     double N_sig = h_NP2d->Integral(1, nBinsX, i+1, i+1);
     
-    // getting the max costh value for the fit, cR
-    double cMaxVal = jumpF(cosMax->Integral(pt_min, pt_max)/(pt_max-pt_min));
-    
-    // get the base data and MC 1d projections
+    // get the data and MC 1d projections
     TH1D *h_NP = h_NP2d->ProjectionX(Form("h_NP_%d", i), i+1, i+1);
     TH1D *h_MC = h_MC2d->ProjectionX(Form("h_MC_%d", i), i+1, i+1);
     // get the fbkg 1d projections - easier to propagate unc
     TH1D *h_fbkg = h_fb2d->ProjectionX(Form("h_fbkg_%d", i), i+1, i+1);
-
-    // scale SB dist to unity integral;
+    
+    // scale background dists to unity integral;
     h_SB[i]->Scale(1. / h_SB[i]->Integral());
 
-    // get the proper scaling factor out of the f_bkg
+    // PART 3 - scaling background
     h_SB[i]->Multiply(h_fbkg); // propagating unc
     h_SB[i]->Scale(N_sig);
 
     // PART 4 - signal extraction
-    // define the pure PR histo
+    // define the pure NP histo
     TH1D *h_NPc = new TH1D(Form("h_NPc_%d", i), "pure NP cos#theta", nBinsX, minX, maxX);
     // subtract the background dist from the data dist
     h_NPc->Sumw2();
     h_NPc->Add(h_NP, h_SB[i], 1, -1); // NP part
- 
-    // PART 5 - storing    
+
+    // PART 5 - storing
     // fill the 2d histos
     for(int iX = 0; iX < nBinsX; iX++) {
       h_NPs->SetBinContent(iX+1, i+1, h_NP->GetBinContent(iX+1));
@@ -126,7 +109,7 @@ void bkgSub()
   h_NPcs->Sumw2();
   h_NPcs->Divide(h_MC2d);
   h_NPcs->Write();
-
+  
   fout->Close();
 
 }
