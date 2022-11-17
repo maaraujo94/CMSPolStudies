@@ -46,10 +46,6 @@ void plotRes()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  TLine *trans1 = new TLine(46, -1, 46, 1);
-  trans1->SetLineColor(kBlack);
-  trans1->SetLineStyle(kDashed);
-  //trans1->Draw();
 
   TLegend *leg = new TLegend(0.7, 0.12, 0.9, 0.32);
   leg->SetTextSize(0.03);

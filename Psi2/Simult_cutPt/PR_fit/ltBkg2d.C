@@ -1,6 +1,5 @@
 //pt bins defined globally for access from functions
-const int nPtBins = 7;
-double ptBins[nPtBins+1];
+#import "../ptbins.C"
 
 // functions to access within other functions
 TF1 *fres;
@@ -55,39 +54,28 @@ double sum_1d(double *xx, double *pp)
 void ltBkg2d()
 {
   // prepare binning and histograms for plots
-  for(int i=0; i<3; i++) ptBins[i] = 7.*i+25.;
-  for(int i=0; i<4; i++) ptBins[i+3] = 46.+10.*i;
-  ptBins[7] = 120;
-  for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
-  cout << endl;
-
-  TH1D **h_d1d = new TH1D*[nPtBins];  
+  TH2D *h_d2d = new TH2D();  
   TFile *fin = new TFile("files/ltStore.root");
-  for(int ip = 0; ip < nPtBins; ip++) {
-    fin->GetObject(Form("ltH%.0f", ptBins[ip]), h_d1d[ip]);
-    h_d1d[ip]->SetDirectory(0);
-  }
+  fin->GetObject("ltH", h_d2d);
+  h_d2d->SetDirectory(0);
   fin->Close();
 
-  int tbins = h_d1d[0]->GetNbinsX();
-  double lowt = h_d1d[0]->GetXaxis()->GetBinLowEdge(1);
-  double hit = h_d1d[0]->GetXaxis()->GetBinUpEdge(tbins);
+  int tbins = h_d2d->GetNbinsX();
+  double lowt = h_d2d->GetXaxis()->GetBinLowEdge(1);
+  double hit = h_d2d->GetXaxis()->GetBinUpEdge(tbins);
   double wbin = (hit-lowt)/(double)tbins;
+
+  // Make 1d histos
+  TH1D **h_d1d = new TH1D*[nPtBins];
+  for(int i = 0; i < nPtBins; i++) {
+    h_d1d[i] = h_d2d->ProjectionX(Form("ltH%.0f", ptBins[i]), i+1, i+1);
+    h_d1d[i]->SetTitle(Form("2018 data c#tau (%.1f < p_{T} < %.1f GeV)", ptBins[i], ptBins[i+1]));
+  }
 
   // define aux vals for plotting
   double pr_lim = 0.05;
   double np_lim = 0.1;
   double lowPlot = -0.1;
-
-  // Fill 2d histo
-  TH2D *h_d2d = new TH2D("h_d2d", "Run 2 data c#tau", tbins, lowt, hit, nPtBins, ptBins);
-
-  for(int i = 0; i < nPtBins; i++) {
-    for(int j = 0; j < tbins; j++) {
-      h_d2d->SetBinContent(j+1, i+1, h_d1d[i]->GetBinContent(j+1));
-      h_d2d->SetBinError(j+1, i+1, h_d1d[i]->GetBinError(j+1));
-    }
-  }
 
   // define the resolution (=PR) function
   fres = new TF1("fres", "[0]*([1]*TMath::Gaus(x, [2],[3]) + (1.-[1])*TMath::Gaus(x, [2], [4]))", 5*lowt, 5*hit);
@@ -126,7 +114,8 @@ void ltBkg2d()
   }
   // fit the 2d function to the lifetime:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
-  TFitResultPtr fitres = h_d2d->Fit("fitS", "SR");
+  cout << "starting fit" << endl;
+  TFitResultPtr fitres = h_d2d->Fit("fitS", "SVR");
 
   cout << "output right after fit" << endl;
   

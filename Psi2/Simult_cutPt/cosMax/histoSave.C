@@ -1,6 +1,5 @@
 // code to get the 2d fine-binned data/mc ratio hist for |costh|max
 // saves ratio (|costh|)
-
 #import "../ptcut.C"
 
 void histoSave()
@@ -24,13 +23,10 @@ void histoSave()
   // open files and read TTrees
   TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/dataS_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
-  TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/MCS_cos.root");
-  TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
-  TFile *fin4 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/MCvhS_cos.root");
+  TFile *fin4 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/MCmS_cos.root");
   TTree *treeM3 = (TTree*)fin4->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();
-  int m1Evt = treeM1->GetEntries();
   int m3Evt = treeM3->GetEntries();
   
   // definitions to store data and MC events
@@ -42,52 +38,37 @@ void histoSave()
   treeD->SetBranchAddress("dimPt", &data_pt);
   treeD->SetBranchAddress("Mass", &data_m);
   treeD->SetBranchAddress("lt", &data_lt);
-  treeD->SetBranchAddress("muonPPt", &mPPt);
-  treeD->SetBranchAddress("muonMPt", &mMPt);
   treeD->SetBranchAddress("muonPEta", &mPEta);
   treeD->SetBranchAddress("muonMEta", &mMEta);
-
-  treeM1->SetBranchAddress("theta", &mc_th);
-  treeM1->SetBranchAddress("dimPt", &mc_pt);
-  treeM1->SetBranchAddress("Mass", &mc_m);
-  treeM1->SetBranchAddress("lt", &mc_lt);
-  treeM1->SetBranchAddress("muonPPt", &mPPt);
-  treeM1->SetBranchAddress("muonMPt", &mMPt);
-  treeM1->SetBranchAddress("muonPEta", &mPEta);
-  treeM1->SetBranchAddress("muonMEta", &mMEta);
-
-  // cycle over data and MC, fill the costh histogram acc to binning
-  for(int i = 0; i < dEvt; i++)
-    {
-      treeD->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > m_min && data_m < m_max && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {      
-	dataHist_ab->Fill(abs(cos(data_th)), data_pt);
-      }
-    }
-  
-  for(int i = 0; i < m1Evt; i++)
-    {
-      treeM1->GetEntry(i);
-      if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005 && mc_m > m_min && mc_m < m_max && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
-	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-      }
-    }
+  treeD->SetBranchAddress("muonPPt", &mPPt);
+  treeD->SetBranchAddress("muonMPt", &mMPt);
 
   treeM3->SetBranchAddress("theta", &mc_th);
   treeM3->SetBranchAddress("dimPt", &mc_pt);
   treeM3->SetBranchAddress("Mass", &mc_m);
   treeM3->SetBranchAddress("lt", &mc_lt);
-  treeM3->SetBranchAddress("muonPPt", &mPPt);
-  treeM3->SetBranchAddress("muonMPt", &mMPt);
   treeM3->SetBranchAddress("muonPEta", &mPEta);
   treeM3->SetBranchAddress("muonMEta", &mMEta);
+  treeM3->SetBranchAddress("muonPPt", &mPPt);
+  treeM3->SetBranchAddress("muonMPt", &mMPt);
 
+  // cycle over data and MC, fill the costh histogram acc to binning
+  for(int i = 0; i < dEvt; i++)
+    {
+      treeD->GetEntry(i);
+      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > m_min && data_m < m_max) {      
+	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
+	}
+    }
+  
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(mc_pt > 46 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > m_min && mc_m < m_max && (abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
-	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-      }
+      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+	if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > m_min && mc_m < m_max) {
+	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
+	}
     }
   
   dataHist_ab->SetStats(0);

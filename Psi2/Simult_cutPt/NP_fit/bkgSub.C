@@ -1,7 +1,5 @@
 // macro to subtract background for pol correction
 
-#import "../cosMax/imp_jumpF.C"
-
 void bkgSub()
 {
   // PART 1 - all the inputs
@@ -9,9 +7,9 @@ void bkgSub()
   TH2D *h_NP2d = new TH2D(); // base NP SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
   TFile *inHist = new TFile("../PR_fit/files/histoStore.root");
-  inHist->GetObject("NPH_ab", h_NP2d);
+  inHist->GetObject("NPH", h_NP2d);
   h_NP2d->SetDirectory(0);
-  inHist->GetObject("mcH_ab", h_MC2d);
+  inHist->GetObject("MCH", h_MC2d);
   h_MC2d->SetDirectory(0);
   inHist->Close();
   
@@ -29,26 +27,13 @@ void bkgSub()
     h_SB[i]->SetDirectory(0);
   }
   inBkg->Close();
-
-  // get the fit range from our cosmax(pT)
-  ifstream in;
-  string dataS;
-  in.open("../cosMax/cosMaxFitRes.txt");
-  getline(in, dataS);
-  getline(in, dataS);
-  double maxPar[3], aux;
-  in >> maxPar[0] >> aux >> maxPar[1] >> aux >> maxPar[2];
-  in.close();
-  
-  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", yBins[0]-10, yBins[nBinsY]+10);
-  cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
   
   // bkg fraction in NP SR
   TH2D *h_fb2d = new TH2D();
-  TFile *inFracS = new TFile("files/bkgFrac.root");
-  inFracS->GetObject("h_fbkg", h_fb2d);
+  TFile *inFracSB = new TFile("../bkgFits/files/bkgFrac_NP.root");
+  inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
-  inFracS->Close();
+  inFracSB->Close();
 
   TFile *fout = new TFile("files/bkgSubRes.root", "recreate");
   TCanvas *c =  new TCanvas("", "", 900, 900);
@@ -65,9 +50,6 @@ void bkgSub()
     
     // get number of data events in PR SR
     double N_sig = h_NP2d->Integral(1, nBinsX, i+1, i+1);
-    
-    // getting the max costh value for the fit, cR
-    double cMaxVal = jumpF(cosMax->Integral(pt_min, pt_max)/(pt_max-pt_min));
     
     // get the base data and MC 1d projections
     TH1D *h_NP = h_NP2d->ProjectionX(Form("h_NP_%d", i), i+1, i+1);
