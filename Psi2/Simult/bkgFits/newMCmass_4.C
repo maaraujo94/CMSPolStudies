@@ -1,8 +1,7 @@
 double gPI = TMath::Pi();
 //pt bins defined globally for access from functions
-const int nPtBins = 17;
+const int nPtBins = 19;
 double ptBins[nPtBins+1];
-int DO_FILL = 0;
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
@@ -68,10 +67,10 @@ void newMCmass_4()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
-  for(int i = 0; i < 7; i++) ptBins[i] = 25 + 3.*i;
-  for(int i = 0; i < 6; i++) ptBins[i+7] = 46 + 5.*i;
-  for(int i = 0; i < 3; i++) ptBins[i+13] = 76 + 8.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 100 + 20.*i;
+  for(int i = 0; i < 10; i++) ptBins[i] = 25 + 2.5*i;
+  for(int i = 0; i < 6; i++) ptBins[i+10] = 50 + 5.*i;
+  for(int i = 0; i < 2; i++) ptBins[i+16] = 80 + 10.*i;
+  for(int i = 0; i < 2; i++) ptBins[i+18] = 100 + 20.*i;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -86,89 +85,12 @@ void newMCmass_4()
  
   cout << "all MC mass histograms initialized" << endl;
 
-  if(DO_FILL == 1) {
-    // filling all the histos at once    
-    // open and read the data tree
-    TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCS_old_cos.root");
-    TTree *tree1 = (TTree*)fin1->Get("MC_cos");
-    TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MChS_cos.root");
-    TTree *tree2 = (TTree*)fin2->Get("MC_cos");
-    TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvhS_cos.root");
-    TTree *tree3 = (TTree*)fin3->Get("MC_cos");
-
-    // MC 1
-    Double_t mc_pt, mc_lt, mc_m, mc_y;  
-
-    tree1->SetBranchAddress("dimPt", &mc_pt);
-    tree1->SetBranchAddress("Rap", &mc_y);
-    tree1->SetBranchAddress("Mass", &mc_m);
-    tree1->SetBranchAddress("lt", &mc_lt);
-    
-    // cycle over data , fill the lifetime histogram
-    int mEvt = tree1->GetEntries();
-    for(int i = 0; i < mEvt; i++)
-      {
-	tree1->GetEntry(i);
-	if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005) {
-	  for(int i_p = 0; i_p < nPtBins; i_p++)
-	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	      h_m1d[i_p]->Fill(mc_m);
-	}
-      }
-    fin1->Close();
-
-    // MC 2
-    tree2->SetBranchAddress("dimPt", &mc_pt);
-    tree2->SetBranchAddress("Rap", &mc_y);
-    tree2->SetBranchAddress("Mass", &mc_m);
-    tree2->SetBranchAddress("lt", &mc_lt);
-    
-    // cycle over data , fill the lifetime histogram
-    mEvt = tree2->GetEntries();
-    for(int i = 0; i < mEvt; i++)
-      {
-	tree2->GetEntry(i);
-	if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005) {
-	  for(int i_p = 0; i_p < nPtBins; i_p++)
-	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	      h_m1d[i_p]->Fill(mc_m);
-	}
-      }
-    fin2->Close();
-
-    // MC 3
-    tree3->SetBranchAddress("dimPt", &mc_pt);
-    tree3->SetBranchAddress("Rap", &mc_y);
-    tree3->SetBranchAddress("Mass", &mc_m);
-    tree3->SetBranchAddress("lt", &mc_lt);
-    
-    // cycle over data , fill the lifetime histogram
-    mEvt = tree3->GetEntries();
-    for(int i = 0; i < mEvt; i++)
-      {
-	tree3->GetEntry(i);
-	if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005) {
-	  for(int i_p = 0; i_p < nPtBins; i_p++)
-	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	      h_m1d[i_p]->Fill(mc_m);
-	}
-      }
-    fin3->Close();
-
-    TFile *fout = new TFile("files/mStore_MC.root", "recreate");
-    for(int ip = 0; ip < nPtBins; ip++) {
-      h_m1d[ip]->Write();	
-    }
-    fout->Close();
+  TFile *fin = new TFile("files/mStore_MC.root");
+  for(int ip = 0; ip < nPtBins; ip++) {
+    fin->GetObject(Form("mH%.0f", ptBins[ip]), h_m1d[ip]);
+    h_m1d[ip]->SetDirectory(0);
   }
-  else if (DO_FILL == 0) {
-    TFile *fin = new TFile("files/mStore_MC.root");
-    for(int ip = 0; ip < nPtBins; ip++) {
-      fin->GetObject(Form("mH%.0f", ptBins[ip]), h_m1d[ip]);
-      h_m1d[ip]->SetDirectory(0);
-    }
-    fin->Close();
-  }
+  fin->Close();
   
   cout << "all MC mass histograms filled" << endl << endl;
 
@@ -183,11 +105,13 @@ void newMCmass_4()
   double fit_i = 3.38;
   double fit_f = 3.9;
 
+  double n_v = 1.2;
+
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", cb_func, fit_i, fit_f, ptBins[0], ptBins[nPtBins], 7*nPtBins, 2);
 
   string par_n[] = {"N", "f", "mu", "sig1", "sig2", "n", "alpha"};
-  double par_v[] = {1., 0.7, 3.686, 2e-2, 4e-2, 1., 2};
+  double par_v[] = {1., 0.7, 3.686, 2e-2, 4e-2, n_v, 2};
   // define parameters - all free
   for(int i = 0; i < nPtBins; i++) {
     f_cb->SetParName(i, Form("N_%d", i));
@@ -196,8 +120,11 @@ void newMCmass_4()
     for(int j = 1; j < 7; j++) {
       f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
       f_cb->SetParameter(j*nPtBins+i, par_v[j]);
+      // fixing n to given value
+      if(j==5 && i == 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
       // fixing mu, n, f so only one value matters
       if((j < 3 || j == 5 ) && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+      // fixing sig1,2 to linear in pt
       else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
       else if((j == 3 || j == 4) && i == 0) f_cb->SetParameter(j*nPtBins+i, par_v[j]/200.);
 

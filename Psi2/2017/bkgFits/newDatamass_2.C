@@ -120,7 +120,7 @@ void newDatamass_2()
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
   string par_n[] =  {"NS", "f",  "mu",  "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
-  double par_v[] =  {1.,   0.55, 3.7,  1e-4,   1e-4,   n_v, alpha_v, 1.,   2.,      fG_v, 1.};
+  double par_v[] =  {1.,   0.65, 3.7,  1e-4,   1e-4,   n_v, alpha_v, 1.,   2.,      fG_v, 1.};
   double par2_v[] = {1.,   1.,   1.,    2e-2,   3e-2,   1.,  1.,      1.,   1.,       1.,   1e-1};
   
   // define parameters

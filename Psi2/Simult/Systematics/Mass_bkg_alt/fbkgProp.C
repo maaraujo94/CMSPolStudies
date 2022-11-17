@@ -40,13 +40,15 @@ void fbkgProp()
   
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[n_pt];
-  TFile *fin = new TFile("../../PR_fit/files/mStore.root");
-  for(int ip = 0; ip < n_pt; ip++) {
-    fin->GetObject(Form("mH%.0f", ptBins[ip]), h_d1d[ip]);
-    h_d1d[ip]->SetDirectory(0);
-  }
+  TH2D *h_d2d = new TH2D();
+  TFile *fin = new TFile("../../bkgFits/files/mStore.root");
+  fin->GetObject("mH", h_d2d);
+  h_d2d->SetDirectory(0);
   fin->Close();
-
+  for(int ip = 0; ip < n_pt; ip++) {
+    h_d1d[ip] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[ip]), ip+1, ip+1);
+  }
+  
   // fbkg = integral / evt_all (in signal region)
   TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{bkg}", n_pt, ptBins);
   double ln = 10000;
@@ -67,7 +69,8 @@ void fbkgProp()
 	cov[i][j] = fitres->GetCovarianceMatrix()[(7+i)*n_pt+i_pt][(7+j)*n_pt+i_pt];
       }
     }
-    // integral is a function of m_bkg and b_bkg
+
+    // integral is a function of NB and lambda
     f_exp->SetParameters(fit_v);
     double fv = f_exp->Integral(m_min[1], m_max[1]), fe = 0;
 
@@ -91,13 +94,14 @@ void fbkgProp()
 
   // plotting in pT
   TCanvas *c = new TCanvas("", "", 900, 900);
+  c->SetRightMargin(0.03);
 
-  TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 100);
+  TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 15);
   fr1->SetXTitle("p_{T} (GeV)");
   fr1->SetYTitle("f_{bkg} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("Run 2 f_{bkg} vs p_{T}");
+  fr1->SetTitle("f_{bkg} vs p_{T}");
 
   h_fbkg->SetStats(0);
   h_fbkg->SetMarkerStyle(20);
@@ -107,13 +111,13 @@ void fbkgProp()
   h_fbkg->Draw("e1 same");
   
   c->SaveAs("plots/fBG_unc.pdf");
- 
-  // PART 2: generate f_bkg 2d histo
+
+  // PART 2: generate f_bkg histo
 
   // get costh binning from the stored data histos
   TFile *infile = new TFile("../../PR_fit/files/histoStore.root");
   TH2D *hist = new TH2D();
-  infile->GetObject(Form("dataH_ab"), hist);
+  infile->GetObject(Form("PRH"), hist);
 
   // get the binning
   int nBinsX = hist->GetNbinsX();
@@ -131,25 +135,8 @@ void fbkgProp()
       h_fbkg2d->SetBinContent(i_cos+1, i_pt+1, h_fbkg->GetBinContent(i_pt+1));
       h_fbkg2d->SetBinError(i_cos+1, i_pt+1, h_fbkg->GetBinError(i_pt+1));
     }
+
   }
-
-  // plotting the 1d projection into pT
-  TH1D* h_fbkgpt = h_fbkg2d->ProjectionY("h_fbkgpd", 1, 1);
-
-  h_fbkgpt->SetMinimum(0);
-  h_fbkgpt->SetMaximum(100);
-  h_fbkgpt->GetXaxis()->SetTitle("p_{T} (GeV)");
-  h_fbkgpt->GetYaxis()->SetTitle("f_{bkg} (%)");
-  h_fbkgpt->GetYaxis()->SetTitleOffset(1.3);
-  h_fbkgpt->GetYaxis()->SetLabelOffset(0.01);
-  h_fbkgpt->SetTitle("Run 2 f_{bkg} vs p_{T}");
-  h_fbkgpt->SetStats(0);
-  h_fbkgpt->SetFillColorAlpha(kBlue, 0.5);
-  h_fbkgpt->Draw("e3");
-  h_fbkg->Draw("e0 same");
-  
-  c->SaveAs("plots/fBG_band.pdf");
-  c->Clear();
   c->Destructor();
 
   // scale fractions down from percentage

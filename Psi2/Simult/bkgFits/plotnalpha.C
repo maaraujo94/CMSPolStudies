@@ -75,7 +75,7 @@ void plotnalpha()
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle(Form("Run 2 %s vs %s", partit[0].c_str(), partit[1].c_str()));
   
-  TLegend *leg = new TLegend(0.65, 0.7, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.72, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   
   // free mode always plots points

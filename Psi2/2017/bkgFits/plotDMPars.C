@@ -11,8 +11,8 @@ void plotDMPars()
   string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t", "f_{bkg}", "f_{G}", "#sigma_{G}"};
   string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
-  double parmin[] = {0,    1e0, 3650, 0,   32, 2.0, 0, 3e1, 0, 0.,  0,   0};
-  double parmax[] = {100., 2e3, 3750, 100, 46, 3.0, 5, 3e4, 4, 100., 100, 100};
+  double parmin[] = {0,    7e-1, 3650, 0,   32, 2.0, 0, 2e1, 0, 0.,  0,   0};
+  double parmax[] = {100., 8e2,  3750, 100, 46, 3.0, 5, 1e4, 4, 100., 100, 100};
  
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
@@ -94,7 +94,7 @@ void plotDMPars()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
+    fl->SetTitle(Form("2017 %s", partit[i_p].c_str()));
 
     TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
     leg->SetTextSize(0.03);

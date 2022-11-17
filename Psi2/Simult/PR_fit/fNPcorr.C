@@ -7,7 +7,7 @@ void fNPcorr()
   inNP->Close();
   
   // get the f_bkg^NP from NP_fit folder
-  TFile *inSB = new TFile("../NP_fit/files/bkgFrac.root");
+  TFile *inSB = new TFile("../bkgFits/files/bkgFrac_NP.root");
   TH2D *h_fbkg = (TH2D*)inSB->Get("h_fbkg");
   h_fbkg->SetDirectory(0);
   inSB->Close();
@@ -33,6 +33,7 @@ void fNPcorr()
 
   // plot the comparison
   TCanvas *c = new TCanvas("", "", 900, 900);
+  c->SetRightMargin(0.03);
 
   TH1D *h_fnp1d = h_fnp->ProjectionY("h_fnp1d", 1, 1);
   TH1D *h_fbkg1d = h_fbkg->ProjectionY("h_fbkg1d", 1, 1);
@@ -50,8 +51,9 @@ void fNPcorr()
   h_fnp1d->GetYaxis()->SetTitleOffset(1.3);
   h_fnp1d->GetYaxis()->SetLabelOffset(0.01);
   h_fnp1d->SetTitle("Run 2 f_{NP}^{corr}");
-  h_fnp1d->SetLineColor(kRed);
-  h_fnp1d->SetMarkerColor(kRed);
+  h_fnp1d->SetLineColor(kRed+3);
+  h_fnp1d->SetMarkerColor(kRed+3);
+  h_fnp1d->SetLineStyle(kDashed);
   h_fnp1d->SetMarkerStyle(20);
   h_fnp1d->SetMarkerSize(.75);
   h_fnp1d->Draw("error");
@@ -62,8 +64,8 @@ void fNPcorr()
   h_fbkg1d->SetMarkerSize(.75);
   h_fbkg1d->Draw("error same");
     
-  h_fnpc1d->SetLineColor(kRed+2);
-  h_fnpc1d->SetMarkerColor(kRed+2);
+  h_fnpc1d->SetLineColor(kRed);
+  h_fnpc1d->SetMarkerColor(kRed);
   h_fnpc1d->SetMarkerStyle(20);
   h_fnpc1d->SetMarkerSize(.75);
   h_fnpc1d->Draw("error same");

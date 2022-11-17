@@ -119,7 +119,7 @@ void indFit()
     TLatex lc;
     lc.SetTextSize(0.03);
     lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{total} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
-    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#theta}^{prompt J/#psi} = %.3f #pm %.3f", parL[3][i], eparL[3][i]));
+    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#theta}^{prompt #psi(2S)} = %.3f #pm %.3f", parL[3][i], eparL[3][i]));
     
     TLine *c_lim = new TLine(cMaxVal, 0, cMaxVal, pHist[0][i]->GetMaximum());
     c_lim->SetLineStyle(kDashed);
@@ -132,7 +132,7 @@ void indFit()
     leg->AddEntry(pHist[1][i], "NP contrib", "pl");
     leg->AddEntry(pHist[2][i], "prompt", "pl");
     leg->AddEntry(pHist[4][i], "SB contrib", "pl");
-    leg->AddEntry(pHist[3][i], "prompt J/#psi", "pl");
+    leg->AddEntry(pHist[3][i], "prompt #psi(2S)", "pl");
     leg->Draw();
 
     for(int i_t = 0; i_t < 5; i_t++)

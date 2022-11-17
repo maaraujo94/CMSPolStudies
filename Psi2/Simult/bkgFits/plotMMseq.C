@@ -4,11 +4,11 @@ void plotMMseq()
   // aux arrays
   const int n_p = 7;
 
-  int n_m = 6;
+  int n_m = 5;
   
   string parlab[] = {"f", "N", "mu", "sig1", "sig2", "n", "alpha", "chiN"};
-  string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha"};
-  string parax[] = {"f (%)", "N per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha"};
+  string partit[] = {"f_{CB_{1}}", "N", "#mu_{m}", "#sigma", "#sigma_{2}", "n", "#alpha"};
+  string parax[] = {"f_{CB_{1}} (%)", "N per 1 GeV", "#mu_{m} (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha"};
   double parmin[] = {0,   8,   3650,   0.0, 30., 0.6, 1.8};
   double parmax[] = {100, 3e3, 3750,   60., 55., 1.8, 2.5};
 
@@ -55,6 +55,8 @@ void plotMMseq()
 
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.12);
+  c->SetRightMargin(0.03);
+
   for(int i_p = 0; i_p < n_p; i_p++) {
 
     TH1F *fl = c->DrawFrame(pt_min, parmin[i_p], pt_max, parmax[i_p]);
@@ -62,7 +64,7 @@ void plotMMseq()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
+    fl->SetTitle(Form("MC %s vs p_{T}", partit[i_p].c_str()));
 
     if(i_p == 1) c->SetLogy();
     else c->SetLogy(0);
@@ -82,18 +84,13 @@ void plotMMseq()
       g_par[i_p+1][0]->SetMarkerSize(.75);
       g_par[i_p+1][0]->Draw("p");
       
-      TLegend *leg = new TLegend(0.75, 0.3, 0.9, 0.45);
+      TLegend *leg = new TLegend(0.82, 0.3, 0.97, 0.45);
       leg->SetTextSize(0.03);
       leg->AddEntry(g_par[i_p][0], "#sigma_{1}", "pl");
       leg->AddEntry(g_par[i_p+1][0], "#sigma_{2}", "pl");
       leg->Draw();
     }
     else if (i_p == 4) continue;
-    
-    TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
-    l1->SetLineColor(kBlack);
-    l1->SetLineStyle(kDashed);
-    l1->Draw();
     
     c->SaveAs(Form("plots/MCMass/par_%s.pdf", parlab[i_p].c_str()));
 
@@ -117,8 +114,8 @@ void plotMMseq()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Run 2 %s (#mu constant)", partit[i_p].c_str()));
-
+    fl->SetTitle(Form("MC %s vs p_{T} (#mu_{m} constant)", partit[i_p].c_str()));
+    
     c->SetLogy(0);
 
     // free mode always plots points
@@ -142,18 +139,13 @@ void plotMMseq()
       g_par[i_p+1][1]->SetMarkerSize(.75);
       g_par[i_p+1][1]->Draw("p");
       
-      TLegend *leg = new TLegend(0.75, 0.3, 0.9, 0.45);
+      TLegend *leg = new TLegend(0.82, 0.3, 0.97, 0.45);
       leg->SetTextSize(0.03);
       leg->AddEntry(g_par[i_p][1], "#sigma_{1}", "pl");
       leg->AddEntry(g_par[i_p+1][1], "#sigma_{2}", "pl");
       leg->Draw();
     }
     else if (i_p == 4) continue;
-    
-    TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
-    l1->SetLineColor(kBlack);
-    l1->SetLineStyle(kDashed);
-    l1->Draw();
     
     c->SaveAs(Form("plots/MCMass/par_1_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
@@ -165,7 +157,7 @@ void plotMMseq()
   f2->SetYTitle(parax[3].c_str());
   f2->GetYaxis()->SetTitleOffset(1.8);
   f2->GetYaxis()->SetLabelOffset(0.01);
-  f2->SetTitle(Form("Run 2 %s (#mu, f constant)", partit[3].c_str()));
+  f2->SetTitle(Form("MC %s vs p_{T} (#mu_{m}, f_{CB_{1}} constant)", partit[3].c_str()));
 
   c->SetLogy(0);
   
@@ -190,17 +182,12 @@ void plotMMseq()
   g_par[3+1][3]->SetFillColorAlpha(kRed, 0.5);
   g_par[3+1][3]->Draw("ce3");
 
-  TLegend *leg2 = new TLegend(0.75, 0.3, 0.9, 0.45);
+  TLegend *leg2 = new TLegend(0.75, 0.25, 0.9, 0.4);
   leg2->SetTextSize(0.03);
-  leg2->AddEntry(g_par[3][2], "#sigma_{1}", "pl");
-  leg2->AddEntry(g_par[3+1][2], "#sigma_{2}", "pl");
+  leg2->AddEntry(g_par[3][2], "#sigma_{CB_{1}}", "pl");
+  leg2->AddEntry(g_par[3+1][2], "#sigma_{CB_{2}}", "pl");
   leg2->Draw();
   
-  TLine *l21 = new TLine(46, parmin[3], 46, parmax[3]);
-  l21->SetLineColor(kBlack);
-  l21->SetLineStyle(kDashed);
-  l21->Draw();
-    
   c->SaveAs("plots/MCMass/par_2.pdf");
   c->Clear();
 
@@ -227,17 +214,12 @@ void plotMMseq()
   g_par[5+1][2]->SetMarkerSize(.75);
   g_par[5+1][2]->Draw("p");
 
-  TLegend *leg2na = new TLegend(0.75, 0.5, 0.9, 0.65);
+  TLegend *leg2na = new TLegend(0.82, 0.5, 0.97, 0.65);
   leg2na->SetTextSize(0.03);
   leg2na->AddEntry(g_par[5][2], "n", "pl");
   leg2na->AddEntry(g_par[5+1][2], "#alpha", "pl");
   leg2na->Draw();
   
-  TLine *lna21 = new TLine(46, parmin[5], 46, parmax[6]);
-  lna21->SetLineColor(kBlack);
-  lna21->SetLineStyle(kDashed);
-  lna21->Draw();
-    
   c->SaveAs("plots/MCMass/par_2_na.pdf");
   c->Clear();
 
@@ -266,11 +248,6 @@ void plotMMseq()
       g_par[i_p][4]->Draw("ce3");
     }
 
-    TLine *l1 = new TLine(46, parmin[i_p], 46, parmax[i_p]);
-    l1->SetLineColor(kBlack);
-    l1->SetLineStyle(kDashed);
-    l1->Draw();
-    
     c->SaveAs(Form("plots/MCMass/par_3_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }
@@ -292,15 +269,6 @@ void plotMMseq()
   g_par[6][4]->SetMarkerSize(.75);
   g_par[6][4]->Draw("p");
   
-  g_par[6][5]->SetLineColor(kRed);
-  g_par[6][5]->SetFillColorAlpha(kRed, 0.5);
-  g_par[6][5]->Draw("ce3");
-
-  TLine *l41 = new TLine(46, parmin[6], 46, parmax[6]);
-  l41->SetLineColor(kBlack);
-  l41->SetLineStyle(kDashed);
-  l41->Draw();
-    
   c->SaveAs("plots/MCMass/par_4.pdf");
   c->Clear();
   
@@ -324,7 +292,6 @@ void plotMMseq()
   legc->AddEntry(l_chiN[2], "#mu, f", "l");
   legc->AddEntry(l_chiN[3], "#mu, f, #sigma_{1,2}", "l");
   legc->AddEntry(l_chiN[4], "#mu, f, #sigma_{1,2}, n", "l");
-  legc->AddEntry(l_chiN[5], "#mu, f, #sigma_{1,2}, n, #alpha", "l");
   legc->Draw();
   
   c->SaveAs(Form("plots/MCMass/par_chiN.pdf"));
@@ -338,7 +305,7 @@ void plotMMseq()
     flna->SetYTitle(parax[i_p].c_str());
     flna->GetYaxis()->SetTitleOffset(1.8);
     flna->GetYaxis()->SetLabelOffset(0.01);
-    flna->SetTitle(Form("Run 2 %s", partit[i_p].c_str()));
+    flna->SetTitle(Form("MC %s vs p_{T}", partit[i_p].c_str()));
 
     int c_val = 1;
     for(int i_m = 0; i_m < 4; i_m++) {
@@ -353,11 +320,6 @@ void plotMMseq()
       }
     }
 
-    TLine *vl = new TLine(pt_min, g_par[i_p][5]->GetY()[0], pt_max, g_par[i_p][5]->GetY()[0]);
-    vl->SetLineStyle(kDashed);
-    vl->SetLineColor(kBlack);
-    vl->Draw();
-   
     c->SaveAs(Form("plots/MCMass/na_%s.pdf", parlab[i_p].c_str()));
     c->Clear();
   }

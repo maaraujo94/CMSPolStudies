@@ -29,10 +29,6 @@ void plotRes()
   TGraphErrors *graph_lthBase = (TGraphErrors*)fIndB->Get("graph_lambda_J");
   fIndB->Close();
   
-  for(int i = 0; i < graph_lthBase->GetN(); i++) {
-    cout << graph_lthBase->GetX()[i] << " " << graph_lthBase->GetY()[i] << " " << graph_lth[3]->GetY()[i] << endl;
-  }
-
   // slightly shifting the central x values
   int nB = graph_lthBase->GetN();
   double xB[nB], exlB[nB], exhB[nB];
@@ -43,6 +39,13 @@ void plotRes()
   }
   TGraphAsymmErrors *graph_lthB = new TGraphAsymmErrors(nB, xB, graph_lthBase->GetY(), exlB, exhB, graph_lthBase->GetEY(), graph_lthBase->GetEY());
 
+  // get the difference between models
+  double val[nBinspT];
+  for(int i = 0; i < nBinspT; i++) { 
+    val[i] = graph_lth[3]->GetY()[i] - graph_lthBase->GetY()[i];
+  }
+  TGraphErrors *g_lthD = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val, graph_lthBase->GetEX(), graph_lthBase->GetEY());
+  
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
 
@@ -68,9 +71,13 @@ void plotRes()
   TLine *trans1 = new TLine(46, -1, 46, 1);
   trans1->SetLineColor(kBlack);
   trans1->SetLineStyle(kDashed);
-  trans1->Draw();
+  //trans1->Draw();
+  TLine *trans2 = new TLine(66, -1, 66, 1);
+  trans2->SetLineColor(kBlack);
+  trans2->SetLineStyle(kDashed);
+  //trans2->Draw();
 
-  TLegend *leg = new TLegend(0.65, 0.12, 0.9, 0.32);
+  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "total", "pl");
   leg->AddEntry(graph_lth[1], "NP contrib", "pl");
@@ -81,18 +88,12 @@ void plotRes()
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
   c->Clear();
 
-  // draw just final lambda_th(pT) - comp btw std, alt
-  double val[nBinspT];
-  for(int i = 0; i < nBinspT; i++) { 
-    val[i] = graph_lth[3]->GetY()[i] - graph_lthBase->GetY()[i];
-  }
-  TGraphErrors *g_lthD = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val, graph_lthBase->GetEX(), graph_lthBase->GetEY());
-
-  double d_lim = 0.4;
-
+  // draw just final lambda_th(pT)
+  double d_lim = 0.2;
+  
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
   fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("#lambda_{#theta}");
+  fl2->SetYTitle("#delta#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
   fl2->SetTitle("Run 2 #delta#lambda_{#theta} (prompt #psi(2S))");
@@ -104,17 +105,15 @@ void plotRes()
   g_lthD->Draw("p same");
 
   zero->Draw();
-  TLine *trans1D = new TLine(46, -d_lim, 46, d_lim);
-  trans1D->SetLineColor(kBlack);
-  trans1D->SetLineStyle(kDashed);
-  trans1D->Draw();
+  //trans1->Draw();
+  //trans2->Draw();
   
   c->SaveAs("par_lth_F.pdf");
   c->Clear();
 
   // draw A(pT)
   c->SetLogy();
-  TH1F *fa = c->DrawFrame(pTBins[0], 1e-2, pTBins[nBinspT], 4e-1);
+  TH1F *fa = c->DrawFrame(pTBins[0], 1e-2, pTBins[nBinspT], 6e-1);
   fa->SetXTitle("p_{T} (GeV)");
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
@@ -132,6 +131,10 @@ void plotRes()
   trans1_A->SetLineColor(kBlack);
   trans1_A->SetLineStyle(kDashed);
   trans1_A->Draw();
+  TLine *trans2_A = new TLine(66, 1e-2, 66, 6e-1);
+  trans2_A->SetLineColor(kBlack);
+  trans2_A->SetLineStyle(kDashed);
+  trans2_A->Draw();
 
   c->SaveAs("plots/ratioFinal/par_A.pdf");
   c->Clear();
@@ -158,6 +161,10 @@ void plotRes()
   trans1_C->SetLineColor(kBlack);
   trans1_C->SetLineStyle(kDashed);
   trans1_C->Draw();
+  TLine *trans2_C = new TLine(66, 0, 66, 1);
+  trans2_C->SetLineColor(kBlack);
+  trans2_C->SetLineStyle(kDashed);
+  trans2_C->Draw();
 
   c->SaveAs("plots/ratioFinal/par_chiP.pdf");
   c->Clear();

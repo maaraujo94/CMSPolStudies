@@ -1,8 +1,7 @@
 double gPI = TMath::Pi();
 //pt bins defined globally for access from functions
-const int nPtBins = 17;
+const int nPtBins = 19;
 double ptBins[nPtBins+1];
-int DO_FILL = 0;
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
@@ -50,10 +49,11 @@ double cb_func(double *x, double *par)
   double sig2 = par[4*nPtBins] * pt + par[4*nPtBins+1]; // sigmas linear in pt
   
   double n = par[5*nPtBins]; // n is constant in pt
-  double alpha = par[6*nPtBins]; // alpha is constant in pt
+  double alpha = par[6*nPtBins+pt_bin]; // alpha is free in pt
 
-  double fG = par[7*nPtBins];
-  double sigG = par[8*nPtBins] * pt + par[8*nPtBins+1];;
+  // gaussian parameters free in pt
+  double fG = par[7*nPtBins+pt_bin];
+  double sigG = par[8*nPtBins+pt_bin];
   
   double func = f * cb_exp(m, N, sig1, mu, n, alpha) + (1.-f-fG) * cb_exp(m, N, sig2, mu, n, alpha) + fG * g_exp(m, N, sigG, mu);
   return func;
@@ -71,10 +71,10 @@ void newMCmass_G()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
-  for(int i = 0; i < 7; i++) ptBins[i] = 25 + 3.*i;
-  for(int i = 0; i < 6; i++) ptBins[i+7] = 46 + 5.*i;
-  for(int i = 0; i < 3; i++) ptBins[i+13] = 76 + 8.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 100 + 20.*i;
+  for(int i = 0; i < 10; i++) ptBins[i] = 25 + 2.5*i;
+  for(int i = 0; i < 6; i++) ptBins[i+10] = 50 + 5.*i;
+  for(int i = 0; i < 2; i++) ptBins[i+16] = 80 + 10.*i;
+  for(int i = 0; i < 2; i++) ptBins[i+18] = 100 + 20.*i;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -89,89 +89,12 @@ void newMCmass_G()
  
   cout << "all MC mass histograms initialized" << endl;
 
-  if(DO_FILL == 1) {
-    // filling all the histos at once    
-    // open and read the data tree
-    TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCOS_cos.root");
-    TTree *tree1 = (TTree*)fin1->Get("MC_cos");
-    TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MChS_cos.root");
-    TTree *tree2 = (TTree*)fin2->Get("MC_cos");
-    TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvhS_cos.root");
-    TTree *tree3 = (TTree*)fin3->Get("MC_cos");
-
-    // MC 1
-    Double_t mc_pt, mc_lt, mc_m, mc_y;  
-
-    tree1->SetBranchAddress("dimPt", &mc_pt);
-    tree1->SetBranchAddress("Rap", &mc_y);
-    tree1->SetBranchAddress("Mass", &mc_m);
-    tree1->SetBranchAddress("lt", &mc_lt);
-    
-    // cycle over data , fill the lifetime histogram
-    int mEvt = tree1->GetEntries();
-    for(int i = 0; i < mEvt; i++)
-      {
-	tree1->GetEntry(i);
-	if(mc_pt > ptBins[0] && mc_pt < 46 && abs(mc_lt) < 0.005) {
-	  for(int i_p = 0; i_p < nPtBins; i_p++)
-	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	      h_m1d[i_p]->Fill(mc_m);
-	}
-      }
-    fin1->Close();
-
-    // MC 2
-    tree2->SetBranchAddress("dimPt", &mc_pt);
-    tree2->SetBranchAddress("Rap", &mc_y);
-    tree2->SetBranchAddress("Mass", &mc_m);
-    tree2->SetBranchAddress("lt", &mc_lt);
-    
-    // cycle over data , fill the lifetime histogram
-    mEvt = tree2->GetEntries();
-    for(int i = 0; i < mEvt; i++)
-      {
-	tree2->GetEntry(i);
-	if(mc_pt > 46 && mc_pt < 66 && abs(mc_lt) < 0.005) {
-	  for(int i_p = 0; i_p < nPtBins; i_p++)
-	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	      h_m1d[i_p]->Fill(mc_m);
-	}
-      }
-    fin2->Close();
-
-    // MC 3
-    tree3->SetBranchAddress("dimPt", &mc_pt);
-    tree3->SetBranchAddress("Rap", &mc_y);
-    tree3->SetBranchAddress("Mass", &mc_m);
-    tree3->SetBranchAddress("lt", &mc_lt);
-    
-    // cycle over data , fill the lifetime histogram
-    mEvt = tree3->GetEntries();
-    for(int i = 0; i < mEvt; i++)
-      {
-	tree3->GetEntry(i);
-	if(mc_pt > 66 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005) {
-	  for(int i_p = 0; i_p < nPtBins; i_p++)
-	    if(mc_pt > ptBins[i_p] && mc_pt < ptBins[i_p+1])
-	      h_m1d[i_p]->Fill(mc_m);
-	}
-      }
-    fin3->Close();
-
-    TFile *fout = new TFile("files/mStore_MC.root", "recreate");
-    for(int ip = 0; ip < nPtBins; ip++) {
-      h_m1d[ip]->Write();	
-    }
-    fout->Close();
+  TFile *fin = new TFile("files/mStore_MC.root");
+  for(int ip = 0; ip < nPtBins; ip++) {
+    fin->GetObject(Form("mH%.0f", ptBins[ip]), h_m1d[ip]);
+    h_m1d[ip]->SetDirectory(0);
   }
-  else if (DO_FILL == 0) {
-    TFile *fin = new TFile("files/mStore_MC.root");
-    for(int ip = 0; ip < nPtBins; ip++) {
-      fin->GetObject(Form("mH%.0f", ptBins[ip]), h_m1d[ip]);
-      h_m1d[ip]->SetDirectory(0);
-    }
-    fin->Close();
-  }
+  fin->Close();
   
   cout << "all MC mass histograms filled" << endl << endl;
 
@@ -190,8 +113,9 @@ void newMCmass_G()
   TF2 *f_cb = new TF2("f_cb", cb_func, fit_i, fit_f, ptBins[0], ptBins[nPtBins], 9*nPtBins, 2);
 
   string par_n[] = {"N", "f", "mu", "sig1", "sig2", "n", "alpha", "fG", "sigG"};
-  double par_v[] = {1., 0.7, 3.686, 2e-2, 3e-2, 1.1, 2.1, 0.05, 1e-1};
-  // define parameters - all free
+  double par_v[] = {1., 0.7, 3.686, 2e-2, 3e-2, 1.2, 2., 0.04, 5.4e-2};
+
+  // define parameters
   for(int i = 0; i < nPtBins; i++) {
     f_cb->SetParName(i, Form("N_%d", i));
     f_cb->SetParameter(i, h_m1d[i]->GetMaximum()/20.);
@@ -199,10 +123,17 @@ void newMCmass_G()
     for(int j = 1; j < 9; j++) {
       f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
       f_cb->SetParameter(j*nPtBins+i, par_v[j]);
-      // fixing f, mu, n, alpha, fG so only one value matters
-      if((j < 3 || ( j  > 4 && j < 8) ) && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-      else if((j == 3 || j == 4 || j == 8) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
-      else if((j == 3 || j == 4 || j == 8) && i == 0) f_cb->SetParameter(j*nPtBins+i, par_v[j]/200.);
+
+      // suggest linearity for sigma_G
+      if(j == 8) f_cb->SetParameter(j*nPtBins+i, par_v[j]+i*1e-3);
+      // fix n to determined value
+      if(j == 5) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+
+      // fixing f, mu so only one value matters
+      if(j < 3 && i > 0) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+      // setting sigma_1,2 to linear in pt
+      else if((j == 3 || j == 4) && i > 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+      else if((j == 3 || j == 4) && i == 0) f_cb->SetParameter(j*nPtBins+i, par_v[j]/200.);
     }
   }
 
@@ -235,15 +166,15 @@ void newMCmass_G()
 
     // storing parameters
     for(int j = 0; j < 9; j++) {
-      if(j == 0) { // free parameters NS
+      if(j == 0 || j > 5) { // free parameters NS, alpha, fG, sigG
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins+i_pt);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins+i_pt);
       }
-      else if ( j == 1 || j == 2 || j == 5 || j == 6 || j == 7) { // constant parameters mu, f, n, alpha, fG
+      else if ( j == 1 || j == 2 || j == 5) { // constant parameters mu, f, n
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins);
       }
-      else if ( j == 3 || j == 4 || j == 8) { // linear parameters sig1, sig2, sigG
+      else if ( j == 3 || j == 4) { // linear parameters sig1, sig2
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins) * pt_val[i_pt] + f_cb->GetParameter(j*nPtBins+1);
 	epars[j][i_pt] = sqrt(pow(f_cb->GetParError(j*nPtBins) * pt_val[i_pt], 2) + pow(f_cb->GetParError(j*nPtBins+1), 2));
       }
