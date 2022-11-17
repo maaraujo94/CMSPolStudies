@@ -21,7 +21,7 @@ void plotAlts()
   int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
 
-  // get the fit results - 8 sets
+  // get the fit results - 10 sets
   TGraphErrors **graph_lth = new TGraphErrors*[10];
   // 0 - get Run2 results
   TFile *fIndB = new TFile("../../PR_fit/files/finalFitRes.root");
@@ -55,9 +55,28 @@ void plotAlts()
   graph_lth[8] = (TGraphErrors*)fIndR->Get(Form("graph_lambda_L"));
   graph_lth[9] = (TGraphErrors*)fIndR->Get(Form("graph_lambda_B"));
   fIndR->Close();
+  
+  // the phi reweighing is for PR or NP depending on the cuts
+  TGraphErrors **graph_phi = new TGraphErrors*[5];
+
+  // get lambda values for each phi reweighing model
+  TFile *fIndph = new TFile("../../../Simult/PR_fit/files/finalFitRes.root");
+  graph_phi[0] = (TGraphErrors*)fIndph->Get(Form("graph_lambda_J"));
+  graph_phi[1] = (TGraphErrors*)fIndph->Get(Form("graph_lambda_NP"));
+  fIndph->Close();
+  TFile *fIndph1 = new TFile("../../../Simult_phi1/PR_fit/files/finalFitRes.root");
+  graph_phi[2] = (TGraphErrors*)fIndph1->Get(Form("graph_lambda_J"));
+  fIndph1->Close();
+  TFile *fIndph2 = new TFile("../../../Simult_phi2/PR_fit/files/finalFitRes.root");
+  graph_phi[3] = (TGraphErrors*)fIndph2->Get(Form("graph_lambda_J"));
+  fIndph2->Close();
+  TFile *fIndph3 = new TFile("../../../Simult_phi3/PR_fit/files/finalFitRes.root");
+  graph_phi[4] = (TGraphErrors*)fIndph3->Get(Form("graph_lambda_NP"));
+  fIndph3->Close();
 
   // get the differences
   double diff[5][nBinspT], za[nBinspT], uncR[nBinspT];
+  double diffP[3][nBinspT];
   double diffY[nBinspT], errY[nBinspT];
   for(int i = 0; i < nBinspT; i++) {
     diff[0][i] = (graph_lth[3]->GetY()[i] - graph_lth[0]->GetY()[i]);
@@ -84,6 +103,13 @@ void plotAlts()
     double err7 = graph_lth[1]->GetEY()[i];
     double err8 = graph_lth[2]->GetEY()[i];
     errY[i] = sqrt(pow(err7, 2) + pow(err8, 2));
+
+    //phi part done separately
+    diffP[0][i] = (graph_phi[2]->GetY()[i] - graph_phi[0]->GetY()[i]);
+    diffP[1][i] = (graph_phi[3]->GetY()[i] - graph_phi[0]->GetY()[i]);
+    diffP[2][i] = (graph_phi[4]->GetY()[i] - graph_phi[1]->GetY()[i]);
+
+    cout << i << " " << diffP[0][i] << " " << diffP[1][i] << " / " << diffP[2][i] << endl;
     
     za[i] = 0;
   }
@@ -135,8 +161,12 @@ void plotAlts()
   TGraphErrors *g_lthEta = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[3], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthR = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[4], graph_lth[0]->GetEX(), uncR);
   TGraphErrors *g_lthR_c = new TGraphErrors(nBinspT_c, graph_lth_c[0]->GetX(), diff_c, graph_lth_c[0]->GetEX(), err_c);
+  TGraphErrors *g_lthPhi1 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[0], graph_lth[0]->GetEX(), za);
+  TGraphErrors *g_lthPhi2 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[1], graph_lth[0]->GetEX(), za);
+  TGraphErrors *g_lthPhiNP = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[2], graph_lth[0]->GetEX(), za);
   
   TGraphErrors *g_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_lth[0]->GetEY());
+  TGraphErrors *g_uncNP = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_phi[1]->GetEY());
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
@@ -188,6 +218,7 @@ void plotAlts()
   c->SaveAs("plots/lth_absDiff_muEff.pdf");
   c->Clear();
 
+  // eta variation
   TH1F *flE = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
   flE->SetXTitle("p_{T} (GeV)");
   flE->SetYTitle("#Delta#lambda_{#theta}");
@@ -261,7 +292,63 @@ void plotAlts()
   
   c->SaveAs("plots/lth_absDiff_Y.pdf");
   c->Clear();
+
+  // phi-based variation
+  TH1F *fl3 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
+  fl3->SetXTitle("p_{T} (GeV)");
+  fl3->SetYTitle("#Delta#lambda_{#theta}");
+  fl3->GetYaxis()->SetTitleOffset(1.3);
+  fl3->GetYaxis()->SetLabelOffset(0.01);
+  fl3->SetTitle("prompt #Delta#lambda_{#theta} (#lambda_{#phi} weight)");
   
+  g_lthPhi1->SetLineColor(kBlue);
+  g_lthPhi1->SetMarkerColor(kBlue);
+  g_lthPhi1->SetMarkerStyle(20);
+  g_lthPhi1->SetMarkerSize(.75);
+  g_lthPhi1->Draw("p same");
+
+  g_lthPhi2->SetLineColor(kRed);
+  g_lthPhi2->SetMarkerColor(kRed);
+  g_lthPhi2->SetMarkerStyle(20);
+  g_lthPhi2->SetMarkerSize(.75);
+  g_lthPhi2->Draw("p same");
+
+  g_unc->Draw("ce3");
+
+  TLegend *legp = new TLegend(0.72, 0.7, 0.97, 0.9);
+  legp->SetTextSize(0.03);
+  legp->AddEntry(g_lthPhi1, "#beta = -0.005", "pl");
+  legp->AddEntry(g_lthPhi2, "#beta = -0.015", "pl");
+  legp->Draw();
+
+  c->SaveAs("plots/lth_absDiff_phi.pdf");
+  c->Clear();
+
+  TH1F *fl4 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
+  fl4->SetXTitle("p_{T} (GeV)");
+  fl4->SetYTitle("#Delta#lambda_{#theta}");
+  fl4->GetYaxis()->SetTitleOffset(1.3);
+  fl4->GetYaxis()->SetLabelOffset(0.01);
+  fl4->SetTitle("non-prompt #Delta#lambda_{#theta} (#lambda_{#phi} weight)");
+  
+  g_lthPhiNP->SetLineColor(kBlue);
+  g_lthPhiNP->SetMarkerColor(kBlue);
+  g_lthPhiNP->SetMarkerStyle(20);
+  g_lthPhiNP->SetMarkerSize(.75);
+  g_lthPhiNP->Draw("p same");
+
+  g_uncNP->SetLineColor(kBlack);
+  g_uncNP->SetFillColorAlpha(kBlack, 0.1);
+  g_uncNP->Draw("ce3");
+
+  TLegend *legpn = new TLegend(0.72, 0.7, 0.97, 0.9);
+  legpn->SetTextSize(0.03);
+  legpn->AddEntry(g_lthPhiNP, "#beta = 0.02", "pl");
+  legpn->Draw();
+
+  c->SaveAs("plots/lthNP_absDiff_phi.pdf");
+  c->Clear();
+
   c->Destructor();
 
 }
