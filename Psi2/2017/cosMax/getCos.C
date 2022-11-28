@@ -82,6 +82,7 @@ void getCos()
   }
   costh->SetLineColor(kBlack);
   costh->SetStats(0);
+  costh->GetYaxis()->SetRangeUser(0.49, 0.91);
   
   // the fit function: a logarithm
   fitf = new TF1("fitf", "[0]*log([1]+[2]*x)", yBins[0], yBins[nBinsY]);

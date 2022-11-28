@@ -29,7 +29,7 @@ void plotLth()
     graph_lth[i]->SetLineColor(cols[i]);
     graph_lth[i]->SetMarkerColor(cols[i]);
   }
-  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.77, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "Peak", "pl");
   leg->AddEntry(graph_lth[1], "NP", "pl");
@@ -87,7 +87,7 @@ void plotLth()
 
   zero->Draw();
   
-  TLegend *leg2 = new TLegend(0.6, 0.7, 0.9, 0.9);
+  TLegend *leg2 = new TLegend(0.67, 0.7, 0.97, 0.9);
   leg2->SetTextSize(0.03);
   leg2->AddEntry(graph_lth[3], "prompt J/#psi", "pl");
   leg2->AddEntry(graph_lth[1], "non-prompt J/#psi", "pl");
