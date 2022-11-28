@@ -137,10 +137,11 @@ void calcSys()
   hstatN->SetMinimum(-da_lim);
   hstatN->SetMaximum(da_lim);
 
-  THStack *hsigP = new THStack("hsigP", "Stacked #sigma^{2} (prompt, positive)");
+  THStack *hsigP = new THStack("hsigP", "Stacked #sigma^{2} (prompt)");
   hsigP->SetMinimum(-da_lim);
   hsigP->Add(f_sigD);
   hsigP->Add(f_sigEff);
+  hsigP->Add(f_sigPhiPR);
   hsigP->SetMaximum(da_lim);
   
   hsigP->Draw();
@@ -154,34 +155,17 @@ void calcSys()
   legF->AddEntry(hs_sigEff, "Single #mu eff", "l");
   legF->AddEntry(hs_sigD, "2017-2018", "l");
   legF->AddEntry(f_statP, "stat", "l");
+  legF->AddEntry(hs_sigD, "#lambda_{#phi}", "l");
   legF->Draw();
 
-  c->SaveAs("plots/lth_uncs_pos.pdf");
+  c->SaveAs("plots/lth_uncs_stack.pdf");
   c->Clear();
 
-  hsigP->SetTitle("Stacked #sigma^{2} (prompt, negative)");
-  hsigP->Add(f_sigPhiPR);
-  hsigP->Draw();
-  hsigP->GetXaxis()->SetTitle("p_{T} (GeV)");
-  hsigP->GetYaxis()->SetTitle("#sigma^{2}");
-  hsigP->GetYaxis()->SetTitleOffset(2.);
-  hstatP->Draw("same");
-  
-  TLegend *legFP = new TLegend(0.72, 0.7, 0.97, 0.9);
-  legFP->SetTextSize(0.03);
-  legFP->AddEntry(hs_sigEff, "Single #mu eff", "l");
-  legFP->AddEntry(hs_sigD, "2017-2018", "l");
-  legFP->AddEntry(hs_sigD, "#lambda_{#phi}", "l");
-  legFP->AddEntry(f_statP, "stat", "l");
-  legFP->Draw();
-
-  c->SaveAs("plots/lth_uncs_neg.pdf");
-  c->Clear();
-
-  THStack *hsigN = new THStack("hsigN", "Stacked #sigma^{2} (non-prompt, negative)");
+  THStack *hsigN = new THStack("hsigN", "Stacked #sigma^{2} (non-prompt)");
   hsigN->SetMinimum(-da_lim);
   hsigN->Add(f_sigD);
   hsigN->Add(f_sigEff);
+  hsigN->Add(f_sigPhiNP);
   hsigN->SetMaximum(da_lim);
   
   hsigN->Draw();
@@ -192,20 +176,7 @@ void calcSys()
 
   legF->Draw();
 
-  c->SaveAs("plots/lthNP_uncs_neg.pdf");
-  c->Clear();
-
-  hsigP->SetTitle("Stacked #sigma^{2} (non-prompt, positive)");
-  hsigP->Add(f_sigPhiNP);
-  hsigP->Draw();
-  hsigP->GetXaxis()->SetTitle("p_{T} (GeV)");
-  hsigP->GetYaxis()->SetTitle("#sigma^{2}");
-  hsigP->GetYaxis()->SetTitleOffset(2.);
-  hstatN->Draw("same");
-
-  legFP->Draw();
-
-  c->SaveAs("plots/lthNP_uncs_pos.pdf");
+  c->SaveAs("plots/lthNP_uncs_stack.pdf");
   c->Clear();
 
   // tex table with sys uncerts per pt bin
