@@ -1,7 +1,5 @@
 // macro to subtract background for pol correction
 
-#import "../cosMax/imp_jumpF.C"
-
 void bkgSub()
 {
   // PART 1 - all the inputs
@@ -9,9 +7,9 @@ void bkgSub()
   TH2D *h_PR2d = new TH2D(); // base PR SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
   TFile *inHist = new TFile("files/histoStore.root");
-  inHist->GetObject("dataH_ab", h_PR2d);
+  inHist->GetObject("PRH", h_PR2d);
   h_PR2d->SetDirectory(0);
-  inHist->GetObject("mcH_ab", h_MC2d);
+  inHist->GetObject("MCH", h_MC2d);
   h_MC2d->SetDirectory(0);
   inHist->Close();
 
@@ -30,35 +28,22 @@ void bkgSub()
 
   // get the bkg distributions
   TH1D **h_SB = new TH1D*[nBinsY]; // SB background 1d histos
-  TFile *inBkg = new TFile("files/bkgCosModel.root");
+  TFile *inBkg = new TFile("../../Simult/PR_fit/files/bkgCosModel.root");
   for(int i = 0; i < nBinsY; i++) {
     inBkg->GetObject(Form("h_SB_%d", i), h_SB[i]);
     h_SB[i]->SetDirectory(0);
   }
   inBkg->Close();
   
-  // get the fit range from our cosmax(pT)
-  ifstream in;
-  string dataS;
-  in.open("../cosMax/cosMaxFitRes.txt");
-  getline(in, dataS);
-  getline(in, dataS);
-  double maxPar[3], aux;
-  in >> maxPar[0] >> aux >> maxPar[1] >> aux >> maxPar[2];
-  in.close();
-  
-  TF1 *cosMax = new TF1("cosMax", "[0]*log([1]+[2]*x)", yBins[0]-10, yBins[nBinsY]+10);
-  cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
-  
   // bkg fraction in PR SR
   // NP fraction in NP SR - corrected for mass bkg contamination
   TH2D *h_fb2d = new TH2D();
   TH2D *h_fnp2d = new TH2D();
-  TFile *inFracSB = new TFile("files/bkgFrac.root");
+  TFile *inFracSB = new TFile("../../Simult/bkgFits/files/bkgFrac.root");
   inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
   inFracSB->Close();
-  TFile *inFracNP = new TFile("files/NPFrac.root");
+  TFile *inFracNP = new TFile("../../Simult/PR_fit/files/NPFrac.root");
   inFracNP->GetObject("h_fNPc", h_fnp2d);
   h_fnp2d->SetDirectory(0);
   inFracNP->Close();
@@ -72,7 +57,7 @@ void bkgSub()
   TH2D *h_NPs = new TH2D("h_NP", "NP/MC", nBinsX, minX, maxX, nBinsY, yBins);
   TH2D *h_SBs = new TH2D("h_SB", "SB/MC", nBinsX, minX, maxX, nBinsY, yBins);
   TH2D *h_PRs = new TH2D("h_PR", "Prompt/MC", nBinsX, minX, maxX, nBinsY, yBins);
-  TH2D *h_Js = new TH2D("h_J", "Prompt J/#psi/MC", nBinsX, minX, maxX, nBinsY, yBins);
+  TH2D *h_Js = new TH2D("h_J", "Prompt #psi(2S)/MC", nBinsX, minX, maxX, nBinsY, yBins);
 
   // this part is done for every pT bin
   for(int i = 0; i < nBinsY; i++) {
@@ -110,7 +95,7 @@ void bkgSub()
     h_justPR->Sumw2();
     h_justPR->Add(h_PR, h_NP, 1, -1); // NP part
     // define the pure PR histo
-    TH1D *h_purePR = new TH1D(Form("h_purePR_%d", i), "prompt J/#psi cos#theta", nBinsX, minX, maxX);
+    TH1D *h_purePR = new TH1D(Form("h_purePR_%d", i), "prompt #psi(2S) cos#theta", nBinsX, minX, maxX);
     // subtract the background dist from the data dist
     h_purePR->Sumw2();
     h_purePR->Add(h_justPR, h_SB[i], 1, -1); // sideband part

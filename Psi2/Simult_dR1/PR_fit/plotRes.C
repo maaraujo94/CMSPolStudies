@@ -1,5 +1,4 @@
 // code to plot the fit results
-#import "../rcut.C"
 
 void plotRes()
 {
@@ -34,7 +33,7 @@ void plotRes()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle(Form("Run 2 #lambda_{#theta}"));
+  fl->SetTitle("Run 2 #lambda_{#theta}");
 
   int col[] = {kViolet, kRed, kBlack, kBlue};
   for(int i = 0; i < 4; i++) {
@@ -47,10 +46,6 @@ void plotRes()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  TLine *trans1 = new TLine(46, -1, 46, 1);
-  trans1->SetLineColor(kBlack);
-  trans1->SetLineStyle(kDashed);
-  //trans1->Draw();
 
   TLegend *leg = new TLegend(0.7, 0.12, 0.9, 0.32);
   leg->SetTextSize(0.03);

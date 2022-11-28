@@ -26,8 +26,8 @@ void plotLtPars2d()
   string partit[] = {"N_{PR}", "N_{NP}", "f", "#mu", "#sigma_{1}", "#sigma_{2}", "t_{NP}"};
   string par_unit[] = {" per 1 GeV", " per 1 GeV", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
 
-  double parmin[] = {2e1, 7e1, 0,  -5, 0,  0,  300};
-  double parmax[] = {2e4, 5e4, 100, 5, 20, 40, 400};
+  double parmin[] = {6e1, 2e2, 0,  -5, 0,  0,  300};
+  double parmax[] = {3e4, 1e5, 100, 5, 20, 40, 400};
 
   // initialize tgraphs for parameters
   TGraphErrors **g_par = new TGraphErrors*[n_p];

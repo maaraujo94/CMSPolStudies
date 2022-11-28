@@ -7,9 +7,9 @@ void bkgSub()
   TH2D *h_NP2d = new TH2D(); // base NP SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
   TFile *inHist = new TFile("../PR_fit/files/histoStore.root");
-  inHist->GetObject("NPH_ab", h_NP2d);
+  inHist->GetObject("NPH", h_NP2d);
   h_NP2d->SetDirectory(0);
-  inHist->GetObject("mcH_ab", h_MC2d);
+  inHist->GetObject("MCH", h_MC2d);
   h_MC2d->SetDirectory(0);
   inHist->Close();
   
@@ -30,10 +30,10 @@ void bkgSub()
   
   // bkg fraction in NP SR
   TH2D *h_fb2d = new TH2D();
-  TFile *inFracS = new TFile("files/bkgFrac.root");
-  inFracS->GetObject("h_fbkg", h_fb2d);
+  TFile *inFracSB = new TFile("../bkgFits/files/bkgFrac_NP.root");
+  inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
-  inFracS->Close();
+  inFracSB->Close();
 
   TFile *fout = new TFile("files/bkgSubRes.root", "recreate");
   TCanvas *c =  new TCanvas("", "", 900, 900);

@@ -62,11 +62,12 @@ void fnpProp()
   // prepare lt histograms
   TH1D **h_d1d = new TH1D*[n_pt];
   TFile *fin = new TFile("files/ltStore.root");
-  for(int ip = 0; ip < n_pt; ip++) {
-    fin->GetObject(Form("ltH%.0f", ptBins[ip]), h_d1d[ip]);
-    h_d1d[ip]->SetDirectory(0);
-  }
+  fin->GetObject("ltH", h_d2d);
+  h_d2d->SetDirectory(0);
   fin->Close();
+  for(int ip = 0; ip < n_pt; ip++) {
+    h_d1d[ip] = h_d2d->ProjectionX(Form("ltH%.0f", ptBins[ip]), ip+1, ip+1);
+  }
 
   // fNP = integral / evt_all (in prompt region)
   double epsrel = 1e-6, error = 0;
@@ -140,7 +141,7 @@ void fnpProp()
   // get costh binning from the stored data histos
   TFile *infile = new TFile("files/histoStore.root");
   TH2D *hist = new TH2D();
-  infile->GetObject(Form("dataH_ab"), hist);
+  infile->GetObject(Form("PRH"), hist);
 
   // get the binning
   int nBinsX = hist->GetNbinsX();
@@ -160,23 +161,6 @@ void fnpProp()
     }
   }
 
-  // plotting the 1d projection into pT
-  TH1D* h_fnppt = h_fnp2d->ProjectionY("h_fnppt", 1, 1);
-
-  h_fnppt->SetStats(0);
-  h_fnppt->SetMinimum(0);
-  h_fnppt->SetMaximum(50);
-  h_fnppt->GetXaxis()->SetTitle("p_{T} (GeV)");
-  h_fnppt->GetYaxis()->SetTitle("f_{NP} (%)");
-  h_fnppt->GetYaxis()->SetTitleOffset(1.3);
-  h_fnppt->GetYaxis()->SetLabelOffset(0.01);
-  h_fnppt->SetTitle("Run 2 f_{NP}");
-  h_fnppt->SetFillColorAlpha(kBlue, 0.5);
-  h_fnppt->Draw("e3");
-  h_fnp->Draw("error same");
-
-  c->SaveAs("plots/fNP_band.pdf");
-  c->Clear();
   c->Destructor();
 
   // scale fractions down from percentage

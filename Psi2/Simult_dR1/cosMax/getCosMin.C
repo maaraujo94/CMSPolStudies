@@ -23,7 +23,7 @@ void getCosMin()
   double aux = 0;
 
   ofstream fout;
-  fout.open("cos_max.txt");
+  fout.open("cos_min.txt");
   fout.close();  
   
   // read the coarse histos in |costh|
@@ -45,7 +45,7 @@ void getCosMin()
   for(int i = nBinsY-1; i >= 0; i--) {
     int nBinsX = pHist[i]->GetNbinsX();
     for(int j = 1; j < nBinsX; j++) {
-      if(pHist[i]->GetBinError(j) > 2.*pHist[i]->GetBinError(j+1) && i == nBinsY-1) {
+      if(pHist[i]->GetBinError(j) > 1.5*pHist[i]->GetBinError(j+1) && i == nBinsY-1) {
 	cosMax[i] = pHist[i]->GetBinLowEdge(j+1);
 	cout << i+1 << " " << yBins[i] << " " << yBins[i+1] << " " << cosMax[i] << endl;
 	break;
@@ -88,10 +88,9 @@ void getCosMin()
   
   // the fit function: a logarithm
   // fitf = new TF1("fitf", "[0]*log([1]+[2]*x)", aux, yBins[nBinsY]);
-  //fitf = new TF1("fitf", "[0]*sqrt(abs([1]+[2]*x))", aux, yBins[nBinsY]);
+  // fitf = new TF1("fitf", "[0]*sqrt(abs([1]+[2]*x))", aux, yBins[nBinsY]);
   fitf = new TF1("fitf", "[0]*(1-exp([1]+[2]*x))", aux, yBins[nBinsY]);
   fitf->SetParameters(10, -1, -6e-2);
-  // fitf->SetParameters(10, 1, 0.1);
   fitf->SetLineColor(kBlue);
   costh->Fit("fitf", "R");
   costh->Draw();
@@ -102,12 +101,9 @@ void getCosMin()
   fit_j->SetLineColor(kGreen);
   fit_j->Draw("same");
 
-  cout << fit_j->Eval(120) << endl;
-
   
   can->SaveAs("costh_min.pdf");
   can->Clear();
-  can->Destructor();
   
   // save the fit results to a txt file
   ofstream outfile;

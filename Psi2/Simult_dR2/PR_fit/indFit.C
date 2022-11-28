@@ -1,3 +1,5 @@
+#import "../rcut.C"
+
 #import "../cosMax/imp_jumpF.C"
 
 // code to do the individual fit (1d costheta maps)
@@ -43,7 +45,7 @@ void indFit()
     fit1d[i]->SetParNames("A", "l_th");
   }
   
-  // get the fit range from our cosmax(pT), cosmin(pT)
+  // get the fit range from our cosmax(pT)
   ifstream in;
   string dataS;
   in.open("../cosMax/cosMaxFitRes.txt");
@@ -62,7 +64,7 @@ void indFit()
   double minPar[4];
   in >> minPar[0] >> aux >> minPar[1] >> aux >> minPar[2] >> aux >> minPar[3];
   in.close();
-  
+
   TF1 *cosMin = new TF1("cosMin", "cminf(x, [0], [1], [2], [3])", yBins[0]-10, yBins[nBinsY]+10);
   cosMin->SetParameters(minPar[0], minPar[1], minPar[2], minPar[3]);
  
@@ -83,7 +85,7 @@ void indFit()
     ept[i] = (pMax-pMin)/2.;
 
     // get max costheta
-    double cMaxVal = jumpF(cosMax->Eval(pMin))-0.05;
+    double cMaxVal = jumpF(cosMax->Eval(pMin));
     double cMinVal = jumpF(cosMin->Eval(pMax));
 
     // fit the 4 functions
@@ -108,7 +110,9 @@ void indFit()
     pHist[0][i]->SetLineColor(kViolet);
     pHist[0][i]->SetMarkerColor(kViolet);
     pHist[0][i]->SetMinimum(0);
-    pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(11)*2.0);
+    pHist[0][i]->SetMaximum(parA[0][i]*1.5);
+    if(i == nBinsY-1) pHist[0][i]->SetMaximum(pHist[0][i]->GetMaximum()*1.5);
+    pHist[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     pHist[0][i]->Draw("error");
     fit1d[0]->SetLineColor(kViolet);
     fit1d[0]->SetLineStyle(kDashed);
