@@ -78,8 +78,8 @@ void comb_years()
   fData->Write();
   fData->Close();
 
-  // PART 2 : the low-pt MC
-  TFile *fMC = new TFile("../MCS_cos.root", "recreate");
+  // PART 2 : MC
+  TFile *fMC = new TFile("../MCmS_cos.root", "recreate");
   TTree *tMC = new TTree("MC_cos", "");
   
   tMC->Branch("theta", &th);
@@ -96,7 +96,7 @@ void comb_years()
   tMC->Branch("DeltaR", &dR);
   
   // open files and read TTrees - 2017
-  TFile *finM7 = new TFile("../MC17_cos.root");
+  TFile *finM7 = new TFile("../MCm17_cos.root");
   TTree *treeM7 = (TTree*)finM7->Get("MC_cos");
 
   tEvt = treeM7->GetEntries();
@@ -117,12 +117,12 @@ void comb_years()
   for(int i = 0; i < tEvt; i++) {
     treeM7->GetEntry(i);
     tMC->Fill();
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2017 MC (low-pT)" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2017 MC" << endl; 
   }
   finM7->Close();
 
   // open files and read TTrees - 2018
-  TFile *finM8 = new TFile("../MC18_cos.root");
+  TFile *finM8 = new TFile("../MCm18_cos.root");
   TTree *treeM8 = (TTree*)finM8->Get("MC_cos");
 
   tEvt = treeM8->GetEntries();
@@ -143,82 +143,10 @@ void comb_years()
   for(int i = 0; i < tEvt; i++) {
     treeM8->GetEntry(i);
     tMC->Fill();
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2018 MC (low-pT)" << endl; 
+    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2018 MC" << endl; 
   }
   finM8->Close();
 
   fMC->Write();
   fMC->Close();
-
-  // PART 4 : the high-pt MC
-  TFile *fMCvh = new TFile("../MCvhS_cos.root", "recreate");
-  TTree *tMCvh = new TTree("MC_cos", "");
-  
-  tMCvh->Branch("theta", &th);
-  tMCvh->Branch("phi", &phi);
-  tMCvh->Branch("dimPt", &mmPt);
-  tMCvh->Branch("lt", &lt);
-  tMCvh->Branch("lterr", &lterr);
-  tMCvh->Branch("Mass", &mass);
-  tMCvh->Branch("Rap", &rap);
-  tMCvh->Branch("muonPPt", &mPPt);
-  tMCvh->Branch("muonPEta", &mPEta);
-  tMCvh->Branch("muonMPt", &mMPt);
-  tMCvh->Branch("muonMEta", &mMEta);
-  tMCvh->Branch("DeltaR", &dR);
-
-  // open files and read TTrees - 2017
-  TFile *finMvh7 = new TFile("../MCvh17_cos.root");
-  TTree *treeMvh7 = (TTree*)finMvh7->Get("MC_cos");
-
-  tEvt = treeMvh7->GetEntries();
-  perc = tEvt / 100;
-  treeMvh7->SetBranchAddress("dimPt", &mmPt);
-  treeMvh7->SetBranchAddress("theta", &th);
-  treeMvh7->SetBranchAddress("phi", &phi);
-  treeMvh7->SetBranchAddress("lt", &lt);
-  treeMvh7->SetBranchAddress("lterr", &lterr);
-  treeMvh7->SetBranchAddress("Mass", &mass);
-  treeMvh7->SetBranchAddress("Rap", &rap);
-  treeMvh7->SetBranchAddress("muonPPt", &mPPt);
-  treeMvh7->SetBranchAddress("muonPEta", &mPEta);
-  treeMvh7->SetBranchAddress("muonMPt", &mMPt);
-  treeMvh7->SetBranchAddress("muonMEta", &mMEta);
-  treeMvh7->SetBranchAddress("DeltaR", &dR);
-
-  for(int i = 0; i < tEvt; i++) {
-    treeMvh7->GetEntry(i);
-    tMCvh->Fill();
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2017 MC (high-pT)" << endl; 
-  }
-  finMvh7->Close();
-
-  // open files and read TTrees - 2018
-  TFile *finMvh8 = new TFile("../MCvh18_cos.root");
-  TTree *treeMvh8 = (TTree*)finMvh8->Get("MC_cos");
-
-  tEvt = treeMvh8->GetEntries();
-  perc = tEvt / 100;
-  treeMvh8->SetBranchAddress("dimPt", &mmPt);
-  treeMvh8->SetBranchAddress("theta", &th);
-  treeMvh8->SetBranchAddress("phi", &phi);
-  treeMvh8->SetBranchAddress("lt", &lt);
-  treeMvh8->SetBranchAddress("lterr", &lterr);
-  treeMvh8->SetBranchAddress("Mass", &mass);
-  treeMvh8->SetBranchAddress("Rap", &rap);
-  treeMvh8->SetBranchAddress("muonPPt", &mPPt);
-  treeMvh8->SetBranchAddress("muonPEta", &mPEta);
-  treeMvh8->SetBranchAddress("muonMPt", &mMPt);
-  treeMvh8->SetBranchAddress("muonMEta", &mMEta);
-  treeMvh8->SetBranchAddress("DeltaR", &dR);
-
-  for(int i = 0; i < tEvt; i++) {
-    treeMvh8->GetEntry(i);
-    tMCvh->Fill();
-    if((i+1)%perc == 0) cout << (i+1)/perc << "% done with 2018 MC (high-pT)" << endl; 
-  }
-  finMvh8->Close();
-
-  fMCvh->Write();
-  fMCvh->Close();
 }

@@ -3,7 +3,7 @@
 void plotDMPars()
 {
   // aux arrays
-  int pc[] = {kBlack, kBlue};
+  int pc[] = {kBlack, kRed};
   const int n_p = 12, n_m = 2;
   string modn[] = {"_0", "_1"};
   string legn[] = {"#alpha free", "#alpha constant"};
@@ -12,8 +12,8 @@ void plotDMPars()
   string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t_{bkg}", "f_{bkg}", "f_{G}", "#sigma_{G}"};
   string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t_{bkg} (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
-  double parmin[] = {0,    7e0, 3600, 0,   32, 2.0, 1.3, 1e1, 0, 0.,  0,   0};
-  double parmax[] = {100., 2e4, 3700, 100, 46, 3.0, 2.3, 3e6, 4, 15., 100, 100};
+  double parmin[] = {0,    2e0, 3600, 0,   32, 2.0, 1.3, 6e1, 0, 0.,  0,   0};
+  double parmax[] = {100., 2e3, 3700, 100, 46, 3.0, 2.3, 3e4, 4, 100., 100, 100};
  
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
@@ -206,13 +206,6 @@ void plotDMPars()
     // if we're plotting f, add fG
     if( i_p == 0) {
       for(int i_n = 0; i_n < n_m; i_n++) {
-	g_par_s[i_n][i_p]->SetMarkerStyle(20);
-	g_par_s[i_n][i_p]->SetMarkerSize(.75);
-	g_par_s[i_n][i_p]->SetLineColor(pc[i_n]);
-	g_par_s[i_n][i_p]->SetMarkerColor(pc[i_n]);
-	g_par_s[i_n][i_p]->SetFillColorAlpha(pc[i_n], 0.5);
-	g_par_s[i_n][i_p]->Draw("pce3");
-
 	g_par_s[i_n][10]->SetMarkerStyle(22);
 	g_par_s[i_n][10]->SetLineColor(pc[i_n]);
 	g_par_s[i_n][10]->SetMarkerColor(pc[i_n]);

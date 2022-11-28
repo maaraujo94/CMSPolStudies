@@ -112,13 +112,13 @@ void newDatamass_0()
   double m_max[] = {3.52, 3.81, 4.0};
 
   // fix n_v to a given value, give initial alpha
-  double n_v = 2.5, alpha_v = 1.9;
+  double n_v = 2.5, alpha_v = 1.9, fG_v = 0.025;
 
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
   string par_n[] =  {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG",  "sigG"};
-  double par_v[] =  {1.,   0.5, 3.7,  1e-4,   1e-4,   n_v, alpha_v, 1.,   0.7,      0.035, 1.};
-  double par2_v[] = {1.,   1.,  1.,   2e-2,   3e-2,   1.,  1.,      1.,   1.,       1.,    1e-1};
+  double par_v[] =  {1.,   0.55, 3.65,  1e-4,   1e-4,   n_v, alpha_v, 1.,   2.,      fG_v, 1.};
+  double par2_v[] = {1.,   1.,  1.,   2e-2,   3e-2,   1.,  1.,      1.,   1.,       1.,    6e-2};
   
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
@@ -126,7 +126,7 @@ void newDatamass_0()
     f_cb->SetParName(i, Form("NS_%d", i));
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
     f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
-    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/4.);
+    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/4);
 
     for(int j = 1; j < 11; j++) { // between NS, NB
       if(j != 7) { // removing NB

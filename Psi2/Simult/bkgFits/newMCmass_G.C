@@ -1,7 +1,9 @@
 double gPI = TMath::Pi();
 //pt bins defined globally for access from functions
-const int nPtBins = 19;
+const int nPtBins = 20;
 double ptBins[nPtBins+1];
+
+//#import "plotMMG.C"
 
 // crystal ball function
 double cb_exp(double m, double N, double sig, double m0, double n, double alpha)
@@ -59,22 +61,14 @@ double cb_func(double *x, double *par)
   return func;
 }
 
-// get relative position on an axis (pi, pf)
-double getPos(double pi, double pf, double mult, bool isLog) {
-  if(isLog) return pow(10, log10(pi)+mult*(log10(pf)-log10(pi)));
-  else return pi + mult*(pf-pi);
-}
-
-
 // MAIN
 void newMCmass_G()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
-  for(int i = 0; i < 10; i++) ptBins[i] = 25 + 2.5*i;
-  for(int i = 0; i < 6; i++) ptBins[i+10] = 50 + 5.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 80 + 10.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+18] = 100 + 20.*i;
+  for(int i = 0; i < 12; i++) ptBins[i] = 20 + 2.5*i;
+  for(int i = 0; i < 6; i++) ptBins[i+12] = 50 + 5.*i;
+  for(int i = 0; i < 3; i++) ptBins[i+18] = 80 + 10.*i;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -113,7 +107,7 @@ void newMCmass_G()
   TF2 *f_cb = new TF2("f_cb", cb_func, fit_i, fit_f, ptBins[0], ptBins[nPtBins], 9*nPtBins, 2);
 
   string par_n[] = {"N", "f", "mu", "sig1", "sig2", "n", "alpha", "fG", "sigG"};
-  double par_v[] = {1., 0.7, 3.686, 2e-2, 3e-2, 1.2, 2., 0.04, 5.4e-2};
+  double par_v[] = {1., 0.6, 3.686, 2e-2, 3e-2, 1.2, 2., 0.03, 8e-2};
 
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
@@ -225,7 +219,7 @@ void newMCmass_G()
     fp3->SetLineStyle(kDashed);
     fp3->Draw("lsame");
 	  
-    c->SaveAs(Form("plots/MCMass/CBG_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_G/CBG_pt%d.pdf", i_pt));
     c->Clear();
 	  
     // calculating pulls
@@ -279,7 +273,7 @@ void newMCmass_G()
     plim4->Draw("lsame");
 
 	  
-    c->SaveAs(Form("plots/MCMass/pullsG_pt%d_dep.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_G/pullsG_pt%d_dep.pdf", i_pt));
     c->Clear();
 
     // clean up parameters for plotting
@@ -413,5 +407,7 @@ void newMCmass_G()
 
   fout->Close();
       
-  c->Destructor(); 
+  c->Destructor();
+
+  //  plotMMG();
 }

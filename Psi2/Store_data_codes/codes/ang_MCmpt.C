@@ -80,7 +80,7 @@ void ang_MCmpt()
   targ->SetPxPyPzE( 0., 0., -pbeam, Ebeam);
 
   // 2017 tree
-  /*TFile *fin7 = new TFile("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-mc-LOCAL17.root");
+  TFile *fin7 = new TFile("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-mc-LOCAL17-midpt-v1.root");
   TTree *tree7 = (TTree*)fin7->Get("psi2stree");
 
   tree7->SetBranchAddress("muP_p4", &muP_p4);
@@ -92,7 +92,7 @@ void ang_MCmpt()
   mEvt = tree7->GetEntries();
   perc = mEvt / 100;
 
-  TFile *fout7 = new TFile("MC17_cos.root", "recreate");
+  TFile *fout7 = new TFile("MCm17_cos.root", "recreate");
   TTree *newtree7 = new TTree("MC_cos", "");
 
   newtree7->Branch("theta", &th);
@@ -143,7 +143,7 @@ void ang_MCmpt()
 
   fout7->Write();
   fout7->Close();
-  fin7->Close();*/
+  fin7->Close();
   
   // 2018 tree
   TFile *fin8 = new TFile("/eos/user/m/maaraujo/Psi2SRun2/filtered-all-psi2s-mc-LOCAL18-midpt-v1.root");
@@ -210,5 +210,4 @@ void ang_MCmpt()
   fout8->Write();
   fout8->Close();
   fin8->Close();
-  
 }

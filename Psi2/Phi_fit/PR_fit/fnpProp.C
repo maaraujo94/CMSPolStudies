@@ -40,7 +40,7 @@ void fnpProp()
   fNP->SetParNames("N_NP", "f", "mu", "sig1", "sig2", "lambda");
   
   // get fit parameters - need to know which params are being used
-  TFile *inNP = new TFile("files/ltfitres2d.root");
+  TFile *inNP = new TFile("../../Simult/PR_fit/files/ltfitres2d.root");
   int n_par = fNP->GetNpar(); 
   TGraphErrors** g_par = new TGraphErrors*[n_par];
   for(int i = 0; i < n_par; i++) {
@@ -62,7 +62,7 @@ void fnpProp()
   // prepare lt histograms
   TH2D *h_d2d = new TH2D();
   TH1D **h_d1d = new TH1D*[n_pt];
-  TFile *fin = new TFile("files/ltStore.root");
+  TFile *fin = new TFile("../../Simult/PR_fit/files/ltStore.root");
   fin->GetObject("ltH", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();

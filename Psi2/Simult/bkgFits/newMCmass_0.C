@@ -1,4 +1,4 @@
-const int nPtBins = 19;
+const int nPtBins = 20;
 double ptBins[nPtBins+1];
 
 double gPI = TMath::Pi();
@@ -68,10 +68,9 @@ void newMCmass_0()
 {
   // PART 1 : FILLING THE MASS HISTO
   // prepare binning and histograms for plots
-  for(int i = 0; i < 10; i++) ptBins[i] = 25 + 2.5*i;
-  for(int i = 0; i < 6; i++) ptBins[i+10] = 50 + 5.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 80 + 10.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+18] = 100 + 20.*i;
+  for(int i = 0; i < 12; i++) ptBins[i] = 20 + 2.5*i;
+  for(int i = 0; i < 6; i++) ptBins[i+12] = 50 + 5.*i;
+  for(int i = 0; i < 3; i++) ptBins[i+18] = 80 + 10.*i;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 
@@ -112,11 +111,11 @@ void newMCmass_0()
     }
   fin1->Close();
   
-  TFile *fout = new TFile("files/mStore_MC.root", "recreate");
+  TFile *fout_s = new TFile("files/mStore_MC.root", "recreate");
   for(int ip = 0; ip < nPtBins; ip++) {
     h_m1d[ip]->Write();	
   }
-  fout->Close();
+  fout_s->Close();
   
   cout << "all MC mass histograms filled" << endl << endl;
 
@@ -135,7 +134,7 @@ void newMCmass_0()
   TF2 *f_cb = new TF2("f_cb", cb_func, fit_i, fit_f, ptBins[0], ptBins[nPtBins], 7*nPtBins, 2);
 
   string par_n[] = {"N", "f", "mu", "sig1", "sig2", "n", "alpha"};
-  double par_v[] = {1., 0.7, 3.686, 2e-2, 4e-2, 1., 2};
+  double par_v[] = {1., 0.6, 3.686, 2e-2, 4e-2, 1., 2};
   // define parameters - all free
   for(int i = 0; i < nPtBins; i++) {
     f_cb->SetParName(i, Form("N_%d", i));
@@ -211,7 +210,7 @@ void newMCmass_0()
     fp2->SetLineStyle(kDashed);
     fp2->Draw("lsame");
 	  
-    c->SaveAs(Form("plots/MCMass/CB_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_0/CB_pt%d.pdf", i_pt));
     c->Clear();
 	  
     // calculating pulls
@@ -250,7 +249,7 @@ void newMCmass_0()
     zero->SetLineStyle(kDashed);
     zero->Draw();
 	  
-    c->SaveAs(Form("plots/MCMass/pulls_pt%d_dep.pdf", i_pt));
+    c->SaveAs(Form("plots/MCMass/fit_0/pulls_pt%d_dep.pdf", i_pt));
     c->Clear();
 
     // clean up parameters for plotting

@@ -21,7 +21,7 @@ void compBkgFrac()
 
   TCanvas *c = new TCanvas("", "", 900, 900);
 
-  TH1F *fr1 = c->DrawFrame(15, 0.0, 100, 14);
+  TH1F *fr1 = c->DrawFrame(15, 0.0, 100, 100);
   fr1->SetXTitle("p_{T} (GeV)");
   fr1->SetYTitle("f (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
@@ -60,7 +60,7 @@ void compBkgFrac()
     fSBN_b[i]->Scale(100.);
   }
 
-  TH1F *fr1n = c->DrawFrame(15, 0, 100, 14);
+  TH1F *fr1n = c->DrawFrame(15, 0, 100, 50);
   fr1n->SetXTitle("p_{T} (GeV)");
   fr1n->SetYTitle("f (%)");
   fr1n->GetYaxis()->SetTitleOffset(1.3);

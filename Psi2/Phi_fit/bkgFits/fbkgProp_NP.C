@@ -21,7 +21,7 @@ void fbkgProp_NP()
   f_exp->SetParNames("NB", "lambda");
   
   // get fit parameters - need to know which params are being used
-  TFile *inBG = new TFile("files/mfit_NP.root");
+  TFile *inBG = new TFile("../../Simult/bkgFits/files/mfit_NP.root");
   int n_par = 2;
   TGraphErrors** g_par = new TGraphErrors*[n_par];
   for(int i = 0; i < n_par; i++) {
@@ -41,7 +41,7 @@ void fbkgProp_NP()
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[n_pt];
   TH2D *h_d2d = new TH2D();
-  TFile *fin = new TFile("files/mStore.root");
+  TFile *fin = new TFile("../../Simult/bkgFits/files/mStore.root");
   fin->GetObject("mH_NP", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();

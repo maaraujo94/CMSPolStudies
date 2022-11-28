@@ -29,14 +29,14 @@ void plotRes()
   c->SetRightMargin(0.03);
 
   // draw lambda_th(pT)
-  TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
+  TH1F *fl = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
   fl->SetXTitle("p_{T} (GeV)");
-  fl->SetYTitle("#lambda_{#theta}");
+  fl->SetYTitle("#lambda_{#phi}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("#lambda_{#theta} vs p_{T}");
+  fl->SetTitle("Run 2 #lambda_{#phi} (NP)");
 
-  int col[] = {kRed+3, kRed};
+  int col[] =  {kRed+3, kRed};
   for(int i = 0; i < 2; i++) {
     graph_lth[i]->SetLineColor(col[i]);
     graph_lth[i]->SetMarkerColor(col[i]);
@@ -54,16 +54,16 @@ void plotRes()
   leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
   leg->Draw();
   
-  c->SaveAs("plots/ratioFinal/par_lth.pdf");
+  c->SaveAs("plots/ratioFinal/par_lthNP.pdf");
   c->Clear();
 
   // draw just final lambda_th(pT)
-  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
+  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
   fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("#lambda_{#theta}");
+  fl2->SetYTitle("#lambda_{#phi}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #lambda_{#theta} (non-prompt #psi(2S))");
+  fl2->SetTitle("Run 2 #lambda_{#phi} (non-prompt #psi(2S))");
 
   graph_lth[1]->SetLineColor(kBlack);
   graph_lth[1]->SetMarkerColor(kBlack);
@@ -71,7 +71,7 @@ void plotRes()
 
   zero->Draw();
   
-  c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
+  c->SaveAs("plots/ratioFinal/par_lthNP_F.pdf");
   c->Clear();
 
   // draw A(pT)
@@ -89,11 +89,6 @@ void plotRes()
     graph_A[i]->SetMarkerColor(col[i]);
     graph_A[i]->Draw("p same");
   }
-
-  TLine *trans1_A = new TLine(46, 4e-2, 46, 4e-1);
-  trans1_A->SetLineColor(kBlack);
-  trans1_A->SetLineStyle(kDashed);
-  trans1_A->Draw();
 
   c->SaveAs("plots/ratioFinal/par_A.pdf");
   c->Clear();
@@ -115,11 +110,6 @@ void plotRes()
     graph_chi[i]->SetMarkerSize(.75);
     graph_chi[i]->Draw("p same");
   }
-
-  TLine *trans1_C = new TLine(46, 0, 46, 1);
-  trans1_C->SetLineColor(kBlack);
-  trans1_C->SetLineStyle(kDashed);
-  trans1_C->Draw();
 
   c->SaveAs("plots/ratioFinal/par_chiP.pdf");
   c->Clear();

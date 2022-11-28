@@ -7,7 +7,7 @@ double bkg_exp(double m, double p1, double p2)
   return p1 * exp( - m / p2 );
 }
 
-void fbkgProp_NP()
+void fbkgProp()
 {
   // PART 1: get the uncertainty of the f_bkg
   
@@ -21,7 +21,7 @@ void fbkgProp_NP()
   f_exp->SetParNames("NB", "lambda");
   
   // get fit parameters - need to know which params are being used
-  TFile *inBG = new TFile("files/mfit_NP.root");
+  TFile *inBG = new TFile("../../Simult/bkgFits/files/mfit_1.root");
   int n_par = 2;
   TGraphErrors** g_par = new TGraphErrors*[n_par];
   for(int i = 0; i < n_par; i++) {
@@ -41,8 +41,8 @@ void fbkgProp_NP()
   // prepare mass histograms
   TH1D **h_d1d = new TH1D*[n_pt];
   TH2D *h_d2d = new TH2D();
-  TFile *fin = new TFile("files/mStore.root");
-  fin->GetObject("mH_NP", h_d2d);
+  TFile *fin = new TFile("../../Simult/bkgFits/files/mStore.root");
+  fin->GetObject("mH", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
   for(int ip = 0; ip < n_pt; ip++) {
@@ -95,13 +95,13 @@ void fbkgProp_NP()
   // plotting in pT
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetRightMargin(0.03);
-  
-  TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 50);
+
+  TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 100);
   fr1->SetXTitle("p_{T} (GeV)");
-  fr1->SetYTitle("f_{bkg}^{NP} (%)");
+  fr1->SetYTitle("f_{bkg} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("f_{bkg}^{NP} vs p_{T}");
+  fr1->SetTitle("f_{bkg} vs p_{T}");
 
   h_fbkg->SetStats(0);
   h_fbkg->SetMarkerStyle(20);
@@ -110,7 +110,7 @@ void fbkgProp_NP()
   h_fbkg->SetLineColor(kBlack);
   h_fbkg->Draw("e1 same");
   
-  c->SaveAs("plots/fBGNP_unc.pdf");
+  c->SaveAs("plots/fBG_unc.pdf");
 
   // PART 2: generate f_bkg histo
 
@@ -137,14 +137,13 @@ void fbkgProp_NP()
     }
 
   }
-
   c->Destructor();
 
   // scale fractions down from percentage
   h_fbkg->Scale(1./100.);
   h_fbkg2d->Scale(1./100.);
 
-  TFile *fout = new TFile("files/bkgFrac_NP.root", "recreate");
+  TFile *fout = new TFile("files/bkgFrac.root", "recreate");
   h_fbkg->SetName("fbkg_unc");
   h_fbkg->Write();
   h_fbkg2d->SetName("h_fbkg");

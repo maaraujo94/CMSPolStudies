@@ -9,8 +9,8 @@ void plotMMseq()
   string parlab[] = {"f", "N", "mu", "sig1", "sig2", "n", "alpha", "chiN"};
   string partit[] = {"f_{CB_{1}}", "N", "#mu_{m}", "#sigma", "#sigma_{2}", "n", "#alpha"};
   string parax[] = {"f_{CB_{1}} (%)", "N per 1 GeV", "#mu_{m} (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha"};
-  double parmin[] = {0,   8,   3650,   0.0, 30., 0.6, 1.8};
-  double parmax[] = {100, 3e3, 3750,   60., 55., 1.8, 2.5};
+  double parmin[] = {0,   3,   3650,   0.0, 30., 0.6, 1.8};
+  double parmax[] = {100, 8e3, 3750,   60., 55., 1.8, 2.5};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_p];
