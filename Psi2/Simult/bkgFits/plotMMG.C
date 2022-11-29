@@ -17,7 +17,7 @@ void plotMMG()
   string partit[] = {"f", "N", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "f_{G}", "#sigma_{G}"};
   string parax[] = {"f (%)", "N per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "f_{G} (%)", "#sigma_{G} (MeV)"};
   double parmin[] = {0,   3,   3650, 0.0, 30., 0.6, 1.8, 0,   0};
-  double parmax[] = {100, 8e3, 3750, 110, 55., 1.8, 2.5, 100, 100};
+  double parmax[] = {100, 9e3, 3750, 110, 55., 1.8, 2.5, 100, 100};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
@@ -110,9 +110,9 @@ void plotMMG()
       g_par[1][7]->Draw("p");
 
       // fit f_G with constant function
-      TF1 *f_fg = new TF1("f_fg", "[0]+[1]*x", 20, 100);
+      TF1 *f_fg = new TF1("f_fg", "[0]+[1]*x", 20, 60);
       f_fg->FixParameter(1,0);
-      g_par[1][7]->Fit(f_fg, "R");
+      g_par[1][7]->Fit(f_fg, "R0");
       
       leg->AddEntry(g_par[1][0], "f_{CB1}", "l");
       leg->AddEntry(g_par[1][7], "f_{G}", "pl");
@@ -156,7 +156,7 @@ void plotMMG()
       // fit sigma_G with linear function
       TF1 *f_sg = new TF1("f_sg", "[0]+[1]*x", 20, 60);
       f_sg->SetParameters(60, 0.1);
-      g_par[1][8]->Fit(f_sg, "R");
+      g_par[1][8]->Fit(f_sg, "R0");
 
       leg->AddEntry(g_par[1][3], "#sigma_{CB_{1}}", "p");
       leg->AddEntry(g_par[1][4], "#sigma_{CB_{2}}", "p");

@@ -8,8 +8,8 @@ void plotnalpha()
   string parlab[] = {"n", "alpha"};
   string partit[] = {"n", "#alpha"};
   string parax[] = {"n", "#alpha"};
-  double parmin[] = {0.8, 1.95};
-  double parmax[] = {1.6, 2.35};
+  double parmin[] = {0.8, 1.9};
+  double parmax[] = {1.9, 2.4};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_p];

@@ -10,7 +10,7 @@ void plotMMseq()
   string partit[] = {"f_{CB_{1}}", "N", "#mu_{m}", "#sigma", "#sigma_{2}", "n", "#alpha"};
   string parax[] = {"f_{CB_{1}} (%)", "N per 1 GeV", "#mu_{m} (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha"};
   double parmin[] = {0,   3,   3650,   0.0, 30., 0.6, 1.8};
-  double parmax[] = {100, 8e3, 3750,   60., 55., 1.8, 2.5};
+  double parmax[] = {100, 9e3, 3750,   60., 55., 1.8, 2.5};
 
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_p];
@@ -273,7 +273,7 @@ void plotMMseq()
   c->Clear();
   
   // plot all the chi^2 / ndf at the end
-  TH1F *fc = c->DrawFrame(pt_min, 0, pt_max, 5);
+  TH1F *fc = c->DrawFrame(pt_min, 0, pt_max, 7);
   fc->SetXTitle("p_{T} (GeV)");
   fc->SetYTitle("#chi^{2}/ndf");
   fc->GetYaxis()->SetTitleOffset(1.3);

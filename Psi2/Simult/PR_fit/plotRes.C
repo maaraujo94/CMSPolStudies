@@ -26,7 +26,8 @@ void plotRes()
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
-
+  c->SetRightMargin(0.03);
+  
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
   fl->SetXTitle("p_{T} (GeV)");
@@ -47,7 +48,7 @@ void plotRes()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.12, 0.9, 0.32);
+  TLegend *leg = new TLegend(0.7, 0.12, 0.97, 0.32);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "total", "pl");
   leg->AddEntry(graph_lth[1], "NP contrib", "pl");
