@@ -78,10 +78,10 @@ void calcSys()
   hs_sigD->SetFillColor(kMagenta);
   hs_sigD->SetLineColor(kMagenta);
 
-  hs_sigPhiPR->SetFillColor(kOrange+1);
-  hs_sigPhiPR->SetLineColor(kOrange+1);
-  hs_sigPhiNP->SetFillColor(kOrange+1);
-  hs_sigPhiNP->SetLineColor(kOrange+1);
+  hs_sigPhiPR->SetFillColor(kBlue);
+  hs_sigPhiPR->SetLineColor(kBlue);
+  hs_sigPhiNP->SetFillColor(kBlue);
+  hs_sigPhiNP->SetLineColor(kBlue);
 
   // draw uncerts, squared and stacked
   // positive conts: eff up to 50; constant 2017-2018
@@ -118,15 +118,15 @@ void calcSys()
   f_sigEff->SetLineColor(kGreen+1);
   f_sigD->SetFillColor(kMagenta);
   f_sigD->SetLineColor(kMagenta);
-  f_sigPhiPR->SetFillColor(kOrange+1);
-  f_sigPhiPR->SetLineColor(kOrange+1);
-  f_sigPhiNP->SetFillColor(kOrange+1);
-  f_sigPhiNP->SetLineColor(kOrange+1);
+  f_sigPhiPR->SetFillColor(kBlue);
+  f_sigPhiPR->SetLineColor(kBlue);
+  f_sigPhiNP->SetFillColor(kBlue);
+  f_sigPhiNP->SetLineColor(kBlue);
   
-  f_statP->SetFillColor(kBlue);
-  f_statP->SetLineColor(kBlue);
-  f_statN->SetFillColor(kBlue);
-  f_statN->SetLineColor(kBlue);
+  f_statP->SetFillColor(kGray);
+  f_statP->SetLineColor(kGray);
+  f_statN->SetFillColor(kGray);
+  f_statN->SetLineColor(kGray);
 
   THStack *hstatP = new THStack("hstatP", "Title here");
   hstatP->Add(f_statP);
@@ -152,10 +152,10 @@ void calcSys()
 
   TLegend *legF = new TLegend(0.72, 0.7, 0.97, 0.9);
   legF->SetTextSize(0.03);
+  legF->AddEntry(hs_sigPhiPR, "#lambda_{#varphi}", "l");
   legF->AddEntry(hs_sigEff, "Single #mu eff", "l");
   legF->AddEntry(hs_sigD, "2017-2018", "l");
   legF->AddEntry(f_statP, "stat", "l");
-  legF->AddEntry(hs_sigD, "#lambda_{#phi}", "l");
   legF->Draw();
 
   c->SaveAs("plots/lth_uncs_stack.pdf");
@@ -185,7 +185,7 @@ void calcSys()
   ofstream ftexPR;
   ftexPR.open(Form("text_output/sys_unc.tex"));
   ftexPR << "\\begin{tabular}{c||c|c|c||c|c}\n";
-  ftexPR << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\phi}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$ & $\\sigma_{\\text{stat}}^{\\text{PR}}$ \\\\\n";
+  ftexPR << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$ & $\\sigma_{\\text{stat}}^{\\text{PR}}$ \\\\\n";
   ftexPR << "\\hline\n";
 
   int p_norm = 3;
@@ -230,7 +230,7 @@ void calcSys()
   ofstream ftexNP;
   ftexNP.open(Form("text_output/sysNP_unc.tex"));
   ftexNP << "\\begin{tabular}{c||c|c|c||c|c}\n";
-  ftexNP << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\phi}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$ & $\\sigma_{\\text{stat}}^{\\text{NP}}$ \\\\\n";
+  ftexNP << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$ & $\\sigma_{\\text{stat}}^{\\text{NP}}$ \\\\\n";
   ftexNP << "\\hline\n";
 
   for(int i = 0; i < nBinspT; i++) {
@@ -293,8 +293,8 @@ void calcSys()
   fl1->SetTitle("Run 2 #lambda_{#theta}");
   
   TGraphAsymmErrors *lth_fPR = new TGraphAsymmErrors(nBinspT, graph_lth[0]->GetX(), graph_lth[0]->GetY(), graph_lth[0]->GetEX(), graph_lth[0]->GetEX(), errPR_P, errPR_N);
-  lth_fPR->SetMarkerColor(kBlue);
-  lth_fPR->SetLineColor(kBlue);
+  lth_fPR->SetMarkerColor(kGray);
+  lth_fPR->SetLineColor(kGray);
   lth_fPR->Draw("p same");
 
   TGraphAsymmErrors *lth_fNP = new TGraphAsymmErrors(nBinspT, graph_lth[3]->GetX(), graph_lth[3]->GetY(), graph_lth[3]->GetEX(), graph_lth[3]->GetEX(), errNP_P, errNP_N);

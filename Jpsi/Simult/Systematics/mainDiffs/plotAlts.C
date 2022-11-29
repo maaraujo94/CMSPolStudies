@@ -299,7 +299,7 @@ void plotAlts()
   fl3->SetYTitle("#Delta#lambda_{#theta}");
   fl3->GetYaxis()->SetTitleOffset(1.3);
   fl3->GetYaxis()->SetLabelOffset(0.01);
-  fl3->SetTitle("prompt #Delta#lambda_{#theta} (#lambda_{#phi} weight)");
+  fl3->SetTitle("prompt #Delta#lambda_{#theta} (#lambda_{#varphi} weight)");
   
   g_lthPhi1->SetLineColor(kBlue);
   g_lthPhi1->SetMarkerColor(kBlue);
@@ -329,7 +329,7 @@ void plotAlts()
   fl4->SetYTitle("#Delta#lambda_{#theta}");
   fl4->GetYaxis()->SetTitleOffset(1.3);
   fl4->GetYaxis()->SetLabelOffset(0.01);
-  fl4->SetTitle("non-prompt #Delta#lambda_{#theta} (#lambda_{#phi} weight)");
+  fl4->SetTitle("non-prompt #Delta#lambda_{#theta} (#lambda_{#varphi} weight)");
   
   g_lthPhiNP->SetLineColor(kBlue);
   g_lthPhiNP->SetMarkerColor(kBlue);
