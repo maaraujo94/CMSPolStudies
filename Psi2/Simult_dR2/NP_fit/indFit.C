@@ -5,11 +5,11 @@
 // code to do the individual fit (1d costheta maps)
 
 // aux func for costheta_min
-double cminf(double pt, double a, double b, double c, double d)
+double cminf(double pt, double a, double b, double c)
 {
-  if (pt < d) return 0;
+  if (pt < c) return 0;
   else
-    return a*(1.-exp(b+c*pt));
+    return a + b * pt;
 }
 
 // main
@@ -61,12 +61,12 @@ void indFit()
   in.open("../cosMax/cosMinFitRes.txt");
   getline(in, dataS);
   getline(in, dataS);
-  double minPar[4];
-  in >> minPar[0] >> aux >> minPar[1] >> aux >> minPar[2] >> aux >> minPar[3];
+  double minPar[3];
+  in >> minPar[0] >> aux >> minPar[1] >> aux >> minPar[2];
   in.close();
 
-  TF1 *cosMin = new TF1("cosMin", "cminf(x, [0], [1], [2], [3])", yBins[0]-10, yBins[nBinsY]+10);
-  cosMin->SetParameters(minPar[0], minPar[1], minPar[2], minPar[3]);
+  TF1 *cosMin = new TF1("cosMin", "cminf(x, [0], [1], [2])", yBins[0]-10, yBins[nBinsY]+10);
+  cosMin->SetParameters(minPar[0], minPar[1], minPar[2]);
  
   // the cycle to fit each bin and store fit results
   TCanvas *c = new TCanvas("", "", 700, 700);    

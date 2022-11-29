@@ -37,12 +37,12 @@ void plotCos()
   in.open("cosMinFitRes.txt");
   getline(in, dataS);
   getline(in, dataS);
-  double minPar[3];
-  in >> minPar[0] >> aux >> minPar[1] >> aux >> minPar[2] >> aux >> aux;
+  double minPar[2];
+  in >> minPar[0] >> aux >> minPar[1] >> aux >> aux;
   in.close();
   
-  TF1 *cosMin = new TF1("cosMin", "[0]*(1-exp([1]+[2]*x))", aux, yBins[nBinsY]);
-  cosMin->SetParameters(minPar[0], minPar[1], minPar[2]);
+  TF1 *cosMin = new TF1("cosMin", "[0]+[1]*x", aux, yBins[nBinsY]);
+  cosMin->SetParameters(minPar[0], minPar[1]);
 
   TCanvas *c = new TCanvas("", "", 900, 900);
 

@@ -109,13 +109,13 @@ void newNPmass()
   double m_max[] = {3.52, 3.81, 4.0};
 
   // fix n_v to a given value, give initial alpha
-  double n_v = 2.5, alpha_v = 1.9, fG_v = 0.035;
+  double n_v = 2.5, alpha_v = 1.9, fG_v = 0.025;
 
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
   string par_n[] =  {"NS", "f",  "mu",  "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fG", "sigG"};
-  double par_v[] =  {1.,   0.55, 3.7, 1e-4,   1e-4,   n_v, alpha_v, 1.,   1.,      fG_v, 1.};
-  double par2_v[] = {1.,   1.,   1.,    2e-2,   3e-2,   1.,  1.,      1.,   1.,       1.,   8e-2};
+  double par_v[] =  {1.,   0.55, 3.7, 1e-4,   1e-4,   n_v, alpha_v, 0.25,   1.,      fG_v, 1.};
+  double par2_v[] = {1.,   1.,   1.,    2e-2,   4e-2,   1.,  1.,      1.,   1.,       1.,   6.5e-2};
   
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
@@ -123,7 +123,7 @@ void newNPmass()
     f_cb->SetParName(i, Form("NS_%d", i));
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
     f_cb->SetParName(8*nPtBins+i, Form("b_bkg_%d", i));
-    f_cb->SetParameter(8*nPtBins+i, h_d1d[i]->GetBinContent(4));//h_d1d[i]->Integral()/(1.5*i+1));
+    f_cb->SetParameter(8*nPtBins+i, h_d1d[i]->GetBinContent(2)*10);
 
     for(int j = 1; j < 11; j++) { // between NS, NB
       if(j != 8) { // removing NB

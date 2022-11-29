@@ -60,6 +60,7 @@ void fnpProp()
   ptBins[n_pt] = g_par[0]->GetX()[n_pt-1]+g_par[0]->GetEX()[n_pt-1];
   
   // prepare lt histograms
+  TH2D *h_d2d = new TH2D();
   TH1D **h_d1d = new TH1D*[n_pt];
   TFile *fin = new TFile("files/ltStore.root");
   fin->GetObject("ltH", h_d2d);

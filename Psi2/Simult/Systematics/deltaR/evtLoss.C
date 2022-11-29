@@ -2,25 +2,25 @@ void evtLoss()
 {
   // get baseline evts
   TFile *finB = new TFile("../../PR_fit/files/histoStore.root");
-  TH2D *h_dataB = (TH2D*)finB->Get("dataH_ab");
+  TH2D *h_dataB = (TH2D*)finB->Get("PRH");
   h_dataB->SetDirectory(0);
-  TH2D *h_mcB = (TH2D*)finB->Get("mcH_ab");
+  TH2D *h_mcB = (TH2D*)finB->Get("MCH");
   h_mcB->SetDirectory(0);
   finB->Close();
 
   // get tight cut events
   TFile *finT = new TFile("../../../Simult_dR1/PR_fit/files/histoStore.root");
-  TH2D *h_dataT = (TH2D*)finT->Get("dataH_ab");
+  TH2D *h_dataT = (TH2D*)finT->Get("PRH");
   h_dataT->SetDirectory(0);
-  TH2D *h_mcT = (TH2D*)finT->Get("mcH_ab");
+  TH2D *h_mcT = (TH2D*)finT->Get("MCH");
   h_mcT->SetDirectory(0);
   finT->Close();
 
   // get loose cut events
   TFile *finL = new TFile("../../../Simult_dR2/PR_fit/files/histoStore.root");
-  TH2D *h_dataL = (TH2D*)finL->Get("dataH_ab");
+  TH2D *h_dataL = (TH2D*)finL->Get("PRH");
   h_dataL->SetDirectory(0);
-  TH2D *h_mcL = (TH2D*)finL->Get("mcH_ab");
+  TH2D *h_mcL = (TH2D*)finL->Get("MCH");
   h_mcL->SetDirectory(0);
   finL->Close();
 
@@ -31,7 +31,7 @@ void evtLoss()
   double maxX = h_dataB->GetXaxis()->GetBinUpEdge(nBinsX);
   double dX = (maxX-minX)/nBinsX;
 
-  // calculate the events kept
+  // calculate the event loss (in percentage)
   double diffL[nBinsY], diffT[nBinsY];
   double mdiffL[nBinsY], mdiffT[nBinsY];
   double za[nBinsY], eptBins[nBinsY], ptBins[nBinsY];
@@ -53,7 +53,7 @@ void evtLoss()
 
     mdiffL[i] = 1-vL/vB;
     mdiffT[i] = 1-vT/vB;
-}
+  }
 
   // define the tgraphs for the two sets of evts
   TGraphErrors *g_lossL = new TGraphErrors(nBinsY, ptBins, diffL, eptBins, za);
@@ -101,11 +101,11 @@ void evtLoss()
   leg->AddEntry(g_lossT, "#DeltaR>0.17", "pl");
   leg->Draw();
 
-  TLine *cOff = new TLine(66, 0, 66, 1);
+  TLine *cOff = new TLine(50, 0, 50, 1);
   cOff->SetLineStyle(kDashed);
   cOff->Draw();
 
-  c->SaveAs("evtLoss.pdf");
+  c->SaveAs("plots/evtLoss.pdf");
   c->Clear();
   c->Destructor();
 

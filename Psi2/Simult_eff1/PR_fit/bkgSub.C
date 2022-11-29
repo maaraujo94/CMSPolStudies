@@ -67,9 +67,6 @@ void bkgSub()
     // get number of data events in PR SR
     double N_sig = h_PR2d->Integral(1, nBinsX, i+1, i+1);
     
-    // getting the max costh value for the fit, cR
-    double cMaxVal = jumpF(cosMax->Integral(pt_min, pt_max)/(pt_max-pt_min))-0.05;
-    
     // get the data and MC 1d projections
     TH1D *h_PR = h_PR2d->ProjectionX(Form("h_PRSR_%d", i), i+1, i+1);
     TH1D *h_NP = h_NP2d->ProjectionX(Form("h_NP_%d", i), i+1, i+1);

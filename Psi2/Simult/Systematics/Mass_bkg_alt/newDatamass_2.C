@@ -110,7 +110,7 @@ void newDatamass_2()
   double m_max[] = {3.52, 3.81, 4.0};
 
   // fix n_v to a given value, give initial alpha
-  double n_v = 2.5, alpha_v = 1.9, fG_v = 0.035;
+  double n_v = 2.5, alpha_v = 1.9, fG_v = 0.025;
 
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);

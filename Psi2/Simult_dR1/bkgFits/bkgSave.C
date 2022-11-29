@@ -13,12 +13,12 @@ void bkgSave()
 
   // filling all the histos at once    
   // open and read the data tree
-  TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/dataS_cos.root");
+  TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/dataS_cos.root");
   TTree *tree1 = (TTree*)fin1->Get("data_cos");
     
   // data
   Double_t data_pt, data_lt, data_m, data_y;  
-Double_t dR;
+  Double_t dR;
 
   tree1->SetBranchAddress("dimPt", &data_pt);
   tree1->SetBranchAddress("Rap", &data_y);

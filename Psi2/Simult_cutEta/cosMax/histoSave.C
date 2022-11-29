@@ -5,12 +5,11 @@
 void histoSave()
 {
   // fine pT binning - to be rebinned after background subtraction
-  const int nPtBins = 17;
+  const int nPtBins = 20;
   double ptBins[nPtBins+1];
-  for(int i = 0; i < 7; i++) ptBins[i] = 25 + 3.*i;
-  for(int i = 0; i < 6; i++) ptBins[i+7] = 46 + 5.*i;
-  for(int i = 0; i < 3; i++) ptBins[i+13] = 76 + 8.*i;
-  for(int i = 0; i < 2; i++) ptBins[i+16] = 100 + 20.*i;
+  for(int i = 0; i < 12; i++) ptBins[i] = 20 + 2.5*i;
+  for(int i = 0; i < 6; i++) ptBins[i+12] = 50 + 5.*i;
+  for(int i = 0; i < 3; i++) ptBins[i+18] = 80 + 10.*i;
   for(int i=0; i<nPtBins+1; i++) cout << ptBins[i] << ",";
   cout << endl;
 

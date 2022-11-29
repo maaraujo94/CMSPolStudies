@@ -1,12 +1,17 @@
+// macro to get coarse binning for deltaR checks
 void getCoarse()
 {
   TH2D **h_data = new TH2D*[3];
+  TH2D **h_dataNP = new TH2D*[3];
   
   // get baseline evts
   TFile *finB = new TFile("../../PR_fit/files/bkgSubRes.root");
   h_data[0] = (TH2D*)finB->Get("h_J");
   h_data[0]->SetName("h_JB");
   h_data[0]->SetDirectory(0);
+  h_dataNP[0] = (TH2D*)finB->Get("h_NP");
+  h_dataNP[0]->SetName("h_NPB");
+  h_dataNP[0]->SetDirectory(0);
   finB->Close();
 
   // get tight cut events
@@ -14,6 +19,9 @@ void getCoarse()
   h_data[2] = (TH2D*)finT->Get("h_J");
   h_data[2]->SetName("h_JT");
   h_data[2]->SetDirectory(0);
+  h_dataNP[2] = (TH2D*)finT->Get("h_NP");
+  h_dataNP[2]->SetName("h_NPB");
+  h_dataNP[2]->SetDirectory(0);
   finT->Close();
 
   // get loose cut events
@@ -21,6 +29,9 @@ void getCoarse()
   h_data[1] = (TH2D*)finL->Get("h_J");
   h_data[1]->SetName("h_JL");
   h_data[1]->SetDirectory(0);
+  h_dataNP[1] = (TH2D*)finL->Get("h_NP");
+  h_dataNP[1]->SetName("h_NPB");
+  h_dataNP[1]->SetDirectory(0);
   finL->Close();
 
   //get the binning
@@ -30,8 +41,9 @@ void getCoarse()
   
   // the new binning
   const int nBinsY = 3;
-  int ptBins[nBinsY+1]   = { 1,  4, 6, 8};
-  double binsY[nBinsY+1] = {25, 46, 66, 120};
+  int binMin[nBinsY]     = { 1,  9, 15};
+  int binMax[nBinsY]     = { 8, 14, 19};
+  double binsY[nBinsY+1] = {25, 45, 70, 120};
 
   // new histos
   string lbl[3] = {"coarse bins baseline",
@@ -39,29 +51,38 @@ void getCoarse()
 		   "coarse bins #DeltaR>0.17"};
   string dl[3] = {"B", "L", "T"};
   TH2D **cHist = new TH2D*[3];
+  TH2D **cHistNP = new TH2D*[3];
   for(int i = 0; i< 3; i++) {
     cHist[i] = new TH2D(Form("cHist%s", dl[i].c_str()), lbl[i].c_str(), nBinsX, minX, maxX, nBinsY, binsY);
+    cHistNP[i] = new TH2D(Form("cHistNP%s", dl[i].c_str()), lbl[i].c_str(), nBinsX, minX, maxX, nBinsY, binsY);
     
     // get first 1D projections in the right binning
     TH1D *pHist[nBinsY];
+    TH1D *pHistNP[nBinsY];
     for(int j = 0; j < nBinsY; j++) {
-      pHist[j] = h_data[i]->ProjectionX(Form("cbin%s_%d", dl[i].c_str(), j), ptBins[j], ptBins[j+1]-1);
+      pHist[j] = h_data[i]->ProjectionX(Form("cbin%s_%d", dl[i].c_str(), j), binMin[j], binMax[j]);
       pHist[j]->SetTitle(Form("PR/MC c bin %d: [%.0f, %.0f] GeV", j, binsY[j], binsY[j+1]));
-    }
+
+      pHistNP[j] = h_dataNP[i]->ProjectionX(Form("cbinNP%s_%d", dl[i].c_str(), j), binMin[j], binMax[j]);
+      pHistNP[j]->SetTitle(Form("NP/MC c bin %d: [%.0f, %.0f] GeV", j, binsY[j], binsY[j+1]));
+}
   
     // then fill histo with 1D histo values and errors
     for(int iX = 0; iX < nBinsX; iX++) {
       for(int iY = 0; iY < nBinsY; iY++) {
-	cHist[i]->SetBinContent(iX+1, iY+1, pHist[iY]->GetBinContent(iX+1)/(ptBins[iY+1]-ptBins[iY]));
-	cHist[i]->SetBinError(iX+1, iY+1, pHist[iY]->GetBinError(iX+1)/(ptBins[iY+1]-ptBins[iY]));
+	cHist[i]->SetBinContent(iX+1, iY+1, pHist[iY]->GetBinContent(iX+1)/(1+binMax[iY]-binMin[iY]));
+	cHist[i]->SetBinError(iX+1, iY+1, pHist[iY]->GetBinError(iX+1)/(1+binMax[iY]-binMin[iY]));
+
+	cHistNP[i]->SetBinContent(iX+1, iY+1, pHistNP[iY]->GetBinContent(iX+1)/(1+binMax[iY]-binMin[iY]));
+	cHistNP[i]->SetBinError(iX+1, iY+1, pHistNP[iY]->GetBinError(iX+1)/(1+binMax[iY]-binMin[iY]));
       }
     }
   }
 
   TFile *fout = new TFile("files/chistStore.root", "recreate");
   for(int i = 0; i < 3; i++) {
-    h_data[i]->Write();
     cHist[i]->Write();
+    cHistNP[i]->Write();
   }
   fout->Close();
 }

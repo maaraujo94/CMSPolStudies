@@ -96,7 +96,7 @@ void fbkgProp_NP()
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetRightMargin(0.03);
   
-  TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 15);
+  TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 50);
   fr1->SetXTitle("p_{T} (GeV)");
   fr1->SetYTitle("f_{bkg}^{NP} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
