@@ -79,7 +79,7 @@ void newMCmass_0()
   double lowm = 3.35, him = 4.0;
   TH1D **h_m1d = new TH1D*[nPtBins];
   for(int ip = 0; ip < nPtBins; ip++)
-    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("Run 2 MC M(#mu#mu) (%.0f < p_{T} < %.0f GeV)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
+    h_m1d[ip] = new TH1D(Form("mH%.0f", ptBins[ip]), Form("Run 2 MC M(#mu#mu) (%.1f < p_{T} < %.1f GeV)",  ptBins[ip], ptBins[ip+1]), mbins, lowm, him);
   
   TH2D *h_m2d = new TH2D("h_m2d", "Run 2 MC M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
  

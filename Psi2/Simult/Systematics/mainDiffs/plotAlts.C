@@ -83,6 +83,7 @@ void plotAlts()
   for(int i = 0; i < nBinspT; i++) {
     diff[0][i] = (graph_lth[3]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[1][i] = (graph_lth[4]->GetY()[i] - graph_lth[0]->GetY()[i]);
+    cout << i << " " << diff[0][i] << " " << diff[1][i] << endl;
     diff[2][i] = (graph_lth[5]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[3][i] = (graph_lth[6]->GetY()[i] - graph_lth[0]->GetY()[i]);
     // deltaR cuts apply to different pT regions

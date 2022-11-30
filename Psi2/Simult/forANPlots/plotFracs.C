@@ -68,7 +68,7 @@ void plotFracs()
   h_fJ->SetMarkerSize(.5);
   h_fJ->Draw("error same");
 
-  TLegend *leg = new TLegend(0.77, 0.7, 0.97, 0.9);
+  TLegend *leg = new TLegend(0.75, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(h_fJ, "prompt #psi(2S)", "pl");
   leg->AddEntry(h_fNP, "NP #psi(2S)", "pl");
@@ -104,7 +104,7 @@ void plotFracs()
   h_fJc->SetMarkerSize(.5);
   h_fJc->Draw("error same");
 
-  TLegend *legc = new TLegend(0.7, 0.7, 0.97, 0.9);
+  TLegend *legc = new TLegend(0.66, 0.7, 0.97, 0.9);
   legc->SetTextSize(0.03);
   legc->AddEntry(h_fJc, "prompt #psi(2S)", "pl");
   legc->AddEntry(h_fNPc, "non-prompt #psi(2S)", "pl");

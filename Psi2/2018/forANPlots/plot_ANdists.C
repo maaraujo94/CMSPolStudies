@@ -235,6 +235,7 @@ void plot_ANdists()
   lcm.SetTextColor(kBlack);
   lcm.DrawLatex(3.8, 0.066, "#minus Data");
   lcm.DrawLatex(3.8, 0.059, "--MC");
+  lcm.DrawLatex(3.4, 0.066, "2018");
 
   c->SaveAs(Form("plots/ANdists/m_scale.pdf"));
   c->Clear();

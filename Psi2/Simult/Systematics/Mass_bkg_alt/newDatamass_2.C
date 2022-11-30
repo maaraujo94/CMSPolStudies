@@ -102,7 +102,7 @@ void newDatamass_2()
   TH1D **h_d1d = new TH1D*[nPtBins];
   for(int i = 0; i < nPtBins; i++) {
     h_d1d[i] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[i]), i+1, i+1);
-    h_d1d[i]->SetTitle(Form("Run 2 data M(#mu#mu) (%.1f < p_{T} < %.1f GeV)", ptBins[i], ptBins[i+1]));
+    h_d1d[i]->SetTitle(Form("Run 2 PR M(#mu#mu) (%.0f < p_{T} < %.0f GeV)", ptBins[i], ptBins[i+1]));
   }
 
   // define aux vals for plotting

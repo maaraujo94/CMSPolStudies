@@ -48,7 +48,7 @@ void plotRes()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.7, 0.97, 0.9);
+  TLegend *leg = new TLegend(0.66, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "NP", "pl");
   leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");

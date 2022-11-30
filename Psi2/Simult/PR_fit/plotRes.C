@@ -48,10 +48,10 @@ void plotRes()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.12, 0.97, 0.32);
+  TLegend *leg = new TLegend(0.66, 0.12, 0.97, 0.32);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "total", "pl");
-  leg->AddEntry(graph_lth[1], "NP contrib", "pl");
+  leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
   leg->AddEntry(graph_lth[2], "prompt", "pl");
   leg->AddEntry(graph_lth[3], "prompt #psi(2S)", "pl");
   leg->Draw();
