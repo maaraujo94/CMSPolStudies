@@ -12,7 +12,8 @@ void plotRpTpT()
   h_RpTpT->Divide(r_RpTpT);
 
   TCanvas *c = new TCanvas("", "", 600, 600);
-
+  c->SetRightMargin(0.11);
+  
   gStyle->SetPalette(kRainBow);
   h_RpTpT->SetStats(0);
   h_RpTpT->SetMaximum(1);
@@ -55,7 +56,7 @@ void plotRpTpT()
   r_RpTpT->SetStats(0);
   r_RpTpT->SetTitle("reco");
   r_RpTpT->SetXTitle("#DeltaR_{p_{T}}");
-  r_RpTpT->SetYTitle("p_{T}| (GeV)");
+  r_RpTpT->SetYTitle("p_{T} (GeV)");
   r_RpTpT->GetYaxis()->SetTitleOffset(1.3);
   r_RpTpT->Draw("colz");
 

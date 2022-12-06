@@ -26,7 +26,7 @@ root -l -b -q getCos.C
 echo "run PR fit framework - part 1"
 cd ../PR_fit
 
-root -l -b -q bkgSave.C 
+#root -l -b -q bkgSave.C 
 #root -l -b -q ltBkg2d.C
 #root -l -b -q plotLPars2d.C
 #root -l -b -q ltBkg.C

@@ -103,7 +103,7 @@ void plotCosFit()
     fit1d[1]->Draw("same");
 
     lcr1.SetTextColor(cols[1]);
-    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*0.8, "NP/MC");
+    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*0.8, "(non-prompt J/#psi)/MC");
     lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*0.7, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[1]->GetParameter(1), fit1d[1]->GetParError(1)));
         
     c->SaveAs(Form("plots/ratioFinal/fits/bin2F_%d.pdf", i));
@@ -192,7 +192,7 @@ void plotCosFit()
     lcb1.DrawLatex(0.15, h_rat1d2[0][i]->GetMaximum()*0.7, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d2[0]->GetParameter(1), fit1d2[0]->GetParError(1)));
 
     lcb1.SetTextColor(cols2[1]);
-    lcb1.DrawLatex(0.15, h_rat1d2[1][i]->GetMaximum()*1.45, "NP/MC");
+    lcb1.DrawLatex(0.15, h_rat1d2[1][i]->GetMaximum()*1.45, "(non-prompt J/#psi)/MC");
     lcb1.DrawLatex(0.15, h_rat1d2[1][i]->GetMaximum()*1.15, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d2[1]->GetParameter(1), fit1d2[1]->GetParError(1)));
     
     lcb1.SetTextColor(cols2[2]);

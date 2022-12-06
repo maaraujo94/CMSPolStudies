@@ -61,7 +61,8 @@ void plotAltEP()
   TLine *flin8 = new TLine(0.06, -0.12, 0.12, -0.03);
   flin8->Draw("same");*/
 
-  TEllipse *el2 = new TEllipse(0, 0, 0.12, 0.124, 0, 360);
+  //TEllipse *el2 = new TEllipse(0, 0, 0.12, 0.124, 0, 360);
+  TEllipse *el2 = new TEllipse(0, 0, 0.12, 0.12, 0, 360);
   el2->SetLineColor(kBlack);
   el2->SetLineStyle(kDashed);
   el2->SetFillColorAlpha(kBlack, 0);

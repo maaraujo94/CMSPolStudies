@@ -174,7 +174,7 @@ void plotYields()
   TLegend *legSB = new TLegend(0.72, 0.785, 0.97, 0.985);
   legSB->SetTextSize(0.03);
   legSB->AddEntry(f_SB, "yield ratio", "pl");
-  legSB->AddEntry(fit_fsb, "f_{bkg}", "pl");
+  legSB->AddEntry(fit_fsb, "f_{Bg}", "pl");
   legSB->Draw();
 
   c->SaveAs("plots/fitcomp_fSB.pdf");

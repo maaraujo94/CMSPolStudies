@@ -42,13 +42,14 @@ void plotFracs()
 
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetRightMargin(0.03);
+  c->SetTopMargin(0.015);
   
   TH1F *fr1 = c->DrawFrame(20, 0.0, 125, 100);
   fr1->SetXTitle("p_{T} (GeV)");
   fr1->SetYTitle("fraction (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("Run 2 J/#psi composition");
+  //fr1->SetTitle("Run 2 J/#psi composition");
 
   h_fNP->SetLineColor(kRed);
   h_fNP->SetMarkerColor(kRed);
@@ -72,7 +73,7 @@ void plotFracs()
   leg->SetTextSize(0.03);
   leg->AddEntry(h_fJ, "prompt J/#psi", "pl");
   leg->AddEntry(h_fNP, "NP J/#psi", "pl");
-  leg->AddEntry(h_fSB, "bkg", "pl");
+  leg->AddEntry(h_fSB, "Bg", "pl");
   leg->Draw();
 
   c->SaveAs("plots/f_comp.pdf");
@@ -82,36 +83,45 @@ void plotFracs()
   TH1F *fr2 = c->DrawFrame(20, 0.0, 125, 100);
   fr2->SetXTitle("p_{T} (GeV)");
   fr2->SetYTitle("fraction (%)");
-  fr2->GetYaxis()->SetTitleOffset(1.3);
+  fr2->GetYaxis()->SetTitleOffset(1.4);
   fr2->GetYaxis()->SetLabelOffset(0.01);
-  fr2->SetTitle("Run 2 J/#psi composition");
+  //fr2->SetTitle("Run 2 J/#psi composition");
 
   h_fNPc->SetLineColor(kRed);
   h_fNPc->SetMarkerColor(kRed);
   h_fNPc->SetMarkerStyle(20);
-  h_fNPc->SetMarkerSize(.5);
+  h_fNPc->SetMarkerSize(.75);
   h_fNPc->Draw("error same");
 
-  h_fSB->SetMarkerColor(kGreen);
-  h_fSB->SetLineColor(kGreen);
+  h_fSB->SetMarkerColor(kGreen+1);
+  h_fSB->SetLineColor(kGreen+1);
   h_fSB->SetMarkerStyle(20);
-  h_fSB->SetMarkerSize(.5);
+  h_fSB->SetMarkerSize(.75);
   h_fSB->Draw("error same");
   
   h_fJc->SetLineColor(kBlue);
   h_fJc->SetMarkerColor(kBlue);
-  h_fJc->SetMarkerStyle(20);
-  h_fJc->SetMarkerSize(.5);
+  h_fJc->SetMarkerStyle(24);
+  h_fJc->SetMarkerSize(.75);
   h_fJc->Draw("error same");
 
   TLegend *legc = new TLegend(0.7, 0.7, 0.97, 0.9);
   legc->SetTextSize(0.03);
   legc->AddEntry(h_fJc, "prompt J/#psi", "pl");
   legc->AddEntry(h_fNPc, "non-prompt J/#psi", "pl");
-  legc->AddEntry(h_fSB, "bkg", "pl");
-  legc->Draw();
+  legc->AddEntry(h_fSB, "Bg", "pl");
+  //legc->Draw();
+
+  TLatex lc;
+  lc.SetTextSize(0.03);
+  lc.SetTextColor(kBlue);
+  lc.DrawLatex(55, 65, "prompt J/#psi");
+  lc.SetTextColor(kRed);
+  lc.DrawLatex(55, 29, "non-prompt J/#psi");
+  lc.SetTextColor(kGreen+1);
+  lc.DrawLatex(55, 10, "prompt continuum muon pairs");
 
   c->SaveAs("plots/f_comp_corr.pdf");
   c->Clear();
-c->Destructor();
+  c->Destructor();
 }

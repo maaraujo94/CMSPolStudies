@@ -180,7 +180,7 @@ void plotAlts()
   fl1->SetYTitle("#Delta#lambda_{#theta}");
   fl1->GetYaxis()->SetTitleOffset(1.3);
   fl1->GetYaxis()->SetLabelOffset(0.01);
-  fl1->SetTitle("#Delta#lambda_{#theta} (muon eff |#eta|<0.2)");
+  fl1->SetTitle("prompt #Delta#lambda_{#theta} (muon eff |#eta|<0.2)");
   
   g_lthF->SetLineColor(kBlue);
   g_lthF->SetMarkerColor(kBlue);
@@ -224,7 +224,7 @@ void plotAlts()
   flE->SetYTitle("#Delta#lambda_{#theta}");
   flE->GetYaxis()->SetTitleOffset(1.3);
   flE->GetYaxis()->SetLabelOffset(0.01);
-  flE->SetTitle("#Delta#lambda_{#theta} (muon eff 0.2<|#eta|<0.3)");
+  flE->SetTitle("prompt #Delta#lambda_{#theta} (muon eff 0.2<|#eta|<0.3)");
   
   g_lthEta->SetLineColor(kRed);
   g_lthEta->SetMarkerColor(kRed);
@@ -245,7 +245,7 @@ void plotAlts()
   fl12->SetYTitle("#Delta#lambda_{#theta}");
   fl12->GetYaxis()->SetTitleOffset(1.3);
   fl12->GetYaxis()->SetLabelOffset(0.01);
-  fl12->SetTitle("#Delta#lambda_{#theta} (#rho factor)");
+  fl12->SetTitle("prompt #Delta#lambda_{#theta} (#rho factor)");
   
   g_lthR->SetLineColor(kBlue);
   g_lthR->SetMarkerColor(kBlue);
@@ -275,7 +275,7 @@ void plotAlts()
   fl2->SetYTitle("#Delta#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("#Delta#lambda_{#theta} (2017-2018)");
+  fl2->SetTitle("prompt #Delta#lambda_{#theta} (2017-2018)");
   
   g_lthY->SetLineColor(kBlack);
   g_lthY->SetMarkerColor(kBlack);
@@ -294,6 +294,8 @@ void plotAlts()
   c->Clear();
 
   // phi-based variation
+  da_lim = 0.2;
+  
   TH1F *fl3 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
   fl3->SetXTitle("p_{T} (GeV)");
   fl3->SetYTitle("#Delta#lambda_{#theta}");

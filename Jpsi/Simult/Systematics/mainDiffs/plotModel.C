@@ -53,7 +53,7 @@ void plotModel()
   fl1->SetYTitle("#Delta#lambda_{#theta}");
   fl1->GetYaxis()->SetTitleOffset(1.3);
   fl1->GetYaxis()->SetLabelOffset(0.01);
-  fl1->SetTitle("#Delta#lambda_{#theta} (mass bkg subtraction)");
+  fl1->SetTitle("prompt #Delta#lambda_{#theta} (mass bkg subtraction)");
   
   g_lthMB->SetLineColor(kRed);
   g_lthMB->SetMarkerColor(kRed);

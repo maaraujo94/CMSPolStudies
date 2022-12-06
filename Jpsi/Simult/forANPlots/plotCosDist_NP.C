@@ -60,7 +60,7 @@ void plotCosDist_NP()
     lcr1.SetTextColor(cols[0]);
     lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.825, "NP");
     lcr1.SetTextColor(cols[1]);
-    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.5, "bkg^{NP}");
+    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.5, "f_{Bg}^{NP}*Bg^{NP}");
     lcr1.SetTextColor(cols[2]);
     lcr1.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.875, "non-prompt J/#psi");
     

@@ -9,8 +9,9 @@ void plotDMPars_NP()
   string legn[] = {"no G", "with G"};
 
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fBG", "fG", "sigG"};
-  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t", "f_{bkg}", "f_{G}", "#sigma_{G}"};
-  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
+  string parsave[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "tbkg", "fBG", "fG", "sigG"};
+  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t_{Bg}", "f_{Bg}", "f_{G}", "#sigma_{G}"};
+  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t_{Bg} (GeV)", "f_{Bg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
   double parmin[] = {0,    6e0, 3090, 0,   32, 2.0, 1.0, 1e4, 0, 0.,  0,   0};
   double parmax[] = {100., 2e4, 3100, 200, 46, 3.0, 2.3, 8e6, 1, 15., 100, 100};
@@ -176,7 +177,7 @@ void plotDMPars_NP()
     int isLog = 0;
     if(i_p == 1 || i_p == 7 ) isLog = 1;
 
-    c->SaveAs(Form("plots/massNP/par_%s.pdf", parlab[i_p].c_str()));
+    c->SaveAs(Form("plots/massNP/par_%s.pdf", parsave[i_p].c_str()));
     c->Clear();
   }
   

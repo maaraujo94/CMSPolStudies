@@ -73,7 +73,7 @@ void plotCosDist()
     h_base1d[1][i]->Draw("error same");
 
     lcb1.SetTextColor(cols[1]);
-    lcb1.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*0.85, "NP");
+    lcb1.DrawLatex(0.15, h_base1d[1][i]->GetMaximum()*0.85, "f_{NP}*(non-prompt J/#psi)");
 
     c->SaveAs(Form("plots/ratioFinal/dists/bin2B_%d.pdf", i));    
     c->Clear();
@@ -104,7 +104,7 @@ void plotCosDist()
     h_rat1d[1][i]->Draw("error same");
 
     lcr1.SetTextColor(cols[1]);
-    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*0.85, "NP/MC");
+    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*0.85, "(non-prompt j/#psi)/MC");
 
     c->SaveAs(Form("plots/ratioFinal/dists/bin2_%d.pdf", i));    
     c->Clear();
@@ -163,11 +163,11 @@ void plotCosDist()
     lcb1.SetTextColor(cols2[0]);
     lcb1.DrawLatex(0.15, h_base1d2[0][i]->GetMaximum()*0.7, "Peak");
     lcb1.SetTextColor(cols2[1]);
-    lcb1.DrawLatex(0.15, h_base1d2[1][i]->GetMaximum()*1.1, "NP");
+    lcb1.DrawLatex(0.15, h_base1d2[1][i]->GetMaximum()*1.1, "f_{NP}*(non-prompt J/#psi)");
     lcb1.SetTextColor(cols2[2]);
     lcb1.DrawLatex(0.15, h_base1d2[2][i]->GetMaximum()*0.9, "PR");
     lcb1.SetTextColor(cols2[3]);
-    lcb1.DrawLatex(0.15, h_base1d2[3][i]->GetMaximum()*1.4, "bkg");
+    lcb1.DrawLatex(0.15, h_base1d2[3][i]->GetMaximum()*1.4, "f_{Bg}*Bg");
     lcb1.SetTextColor(cols2[4]);
     lcb1.DrawLatex(0.15, h_base1d2[4][i]->GetMaximum()*0.75, "prompt J/#psi");
     
