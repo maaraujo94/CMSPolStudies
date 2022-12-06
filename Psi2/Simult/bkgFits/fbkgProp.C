@@ -50,7 +50,7 @@ void fbkgProp()
   }
   
   // fbkg = integral / evt_all (in signal region)
-  TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{bkg}", n_pt, ptBins);
+  TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{Bg}", n_pt, ptBins);
   double ln = 10000;
   const int n_p = 2;
   double fit_v[n_p], dpar[n_p];
@@ -98,10 +98,10 @@ void fbkgProp()
 
   TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 100);
   fr1->SetXTitle("p_{T} (GeV)");
-  fr1->SetYTitle("f_{bkg} (%)");
+  fr1->SetYTitle("f_{Bg} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("f_{bkg} vs p_{T}");
+  fr1->SetTitle("f_{Bg} vs p_{T}");
 
   h_fbkg->SetStats(0);
   h_fbkg->SetMarkerStyle(20);
@@ -128,7 +128,7 @@ void fbkgProp()
   infile->Close();
 
   // f_bkg(pT) but generating 2d map so it's easier to apply uncertainties
-  TH2D *h_fbkg2d = new TH2D("h_fbkg2d", "Run 2 f_{bkg}", nBinsX, minX, maxX, n_pt, ptBins);
+  TH2D *h_fbkg2d = new TH2D("h_fbkg2d", "Run 2 f_{Bg}", nBinsX, minX, maxX, n_pt, ptBins);
   for(int i_pt = 0; i_pt < n_pt; i_pt++) {
     // same result for all costh bins
     for(int i_cos = 0; i_cos < nBinsX; i_cos++) {

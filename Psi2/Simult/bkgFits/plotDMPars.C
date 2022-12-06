@@ -9,8 +9,9 @@ void plotDMPars()
   string legn[] = {"#alpha free", "#alpha constant"};
 
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fBG", "fG", "sigG"};
-  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t_{bkg}", "f_{bkg}", "f_{G}", "#sigma_{G}"};
-  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t_{bkg} (GeV)", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
+  string parsave[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "NB", "tbkg", "fBG", "fG", "sigG"};
+  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "N_{BG}", "t_{Bg}", "f_{Bg}", "f_{G}", "#sigma_{G}"};
+  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "N_{BG} per 1 GeV", "t_{Bg} (GeV)", "f_{Bg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
   double parmin[] = {0,    2e0, 3600, 0,   32, 2.0, 1.3, 6e1, 0, 0.,  0,   0};
   double parmax[] = {100., 2e3, 3700, 100, 46, 3.0, 2.3, 3e4, 4, 100., 100, 100};
@@ -30,10 +31,10 @@ void plotDMPars()
   // scale all graphs for plotting
   TGraphErrors ***g_par_s = new TGraphErrors**[n_m];
   double pt_min, pt_max;
-  // f_CB1, f_bkg, f_G are percentages
+  // f_CB1, f_Bg, f_G are percentages
   // mu_m, sigma_CB1, sigma_CB2, sigma_G GeV->MeV
   // N_SR and N_BG scaled by bin width
-  // n, alpha, t_bkg (GeV) not scaled from original
+  // n, alpha, t_Bg (GeV) not scaled from original
   double mult[] = {100., 1., 1e3, 1e3, 1e3, 1., 1., 1., 1., 100., 100., 1e3};
   for(int i_m = 0; i_m < n_m; i_m++) {
     double *xv = g_par[i_m][0]->GetX();
@@ -250,7 +251,7 @@ void plotDMPars()
     int isLog = 0;
     if(i_p == 1 || i_p == 7 ) isLog = 1;
 
-    c->SaveAs(Form("plots/mass/par_%s.pdf", parlab[i_p].c_str()));
+    c->SaveAs(Form("plots/mass/par_%s.pdf", parsave[i_p].c_str()));
     c->Clear();
   }
   

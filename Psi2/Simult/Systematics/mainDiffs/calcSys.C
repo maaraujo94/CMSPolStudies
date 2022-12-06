@@ -25,10 +25,10 @@ void calcSys()
   graph_lth[2] = (TGraphErrors*)fIndf2->Get(Form("graph_lambda_J"));
   fIndf2->Close();
   // 2 - get lambda values for the phi reweighings
-  TFile *fIndP1 = new TFile("../../../Simult_phi2/PR_fit/files/finalFitRes.root");
+  TFile *fIndP1 = new TFile("../../../Simult_phi1/PR_fit/files/finalFitRes.root");
   graph_lth[4] = (TGraphErrors*)fIndP1->Get(Form("graph_lambda_J"));
   fIndP1->Close();
-  TFile *fIndP2 = new TFile("../../../Simult_phi3/PR_fit/files/finalFitRes.root");
+  TFile *fIndP2 = new TFile("../../../Simult_phi4/PR_fit/files/finalFitRes.root");
   graph_lth[5] = (TGraphErrors*)fIndP2->Get(Form("graph_lambda_NP"));
   fIndP2->Close();
 
@@ -39,6 +39,7 @@ void calcSys()
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.13);
   c->SetRightMargin(0.03);
+  c->SetTopMargin(0.015);
   
   // get the differences - positive and negative are the same
   // efficiency curves -> symmetrize, pos+neg
@@ -52,7 +53,7 @@ void calcSys()
   double aux, ct_a = 0;
   for(int i = 0; i < nBinspT; i++) {
     // muon eff curves
-    if(graph_lth[0]->GetX()[i] < 50)
+    if(graph_lth[0]->GetX()[i] < 40)
       aux = 0.5*(abs(graph_lth[1]->GetY()[i] - graph_lth[0]->GetY()[i])+abs(graph_lth[2]->GetY()[i] - graph_lth[0]->GetY()[i]));
     else aux = 0;
     hs_sigEff->SetBinContent(i+1, aux);
@@ -60,11 +61,11 @@ void calcSys()
     hs_sigD->SetBinContent(i+1, sigY);
     // phi reweighing
     aux = graph_lth[4]->GetY()[i]-graph_lth[0]->GetY()[i];
-    if(graph_lth[0]->GetX()[i] < 37.5)
+    if(graph_lth[0]->GetX()[i] < 35)
       hs_sigPhiPR->SetBinContent(i+1, aux);
     else hs_sigPhiPR->SetBinContent(i+1, 0);
     aux = graph_lth[5]->GetY()[i]-graph_lth[3]->GetY()[i];
-    if(graph_lth[0]->GetX()[i] < 37.5)
+    if(graph_lth[0]->GetX()[i] < 35)
       hs_sigPhiNP->SetBinContent(i+1, aux);
     else hs_sigPhiNP->SetBinContent(i+1, 0);
   }
@@ -112,7 +113,7 @@ void calcSys()
   }
   
   // draw stacks
-  double da_lim = 0.004;
+  double da_lim = 0.04;
   
   f_sigEff->SetFillColor(kGreen+1);
   f_sigEff->SetLineColor(kGreen+1);
@@ -128,16 +129,16 @@ void calcSys()
   f_statN->SetFillColor(kGray);
   f_statN->SetLineColor(kGray);
 
-  THStack *hstatP = new THStack("hstatP", "Title here");
+  THStack *hstatP = new THStack("hstatP", "");
   hstatP->Add(f_statP);
   hstatP->SetMinimum(-da_lim);
   hstatP->SetMaximum(da_lim);
-  THStack *hstatN = new THStack("hstatN", "Title here");
+  THStack *hstatN = new THStack("hstatN", "");
   hstatN->Add(f_statN);
   hstatN->SetMinimum(-da_lim);
   hstatN->SetMaximum(da_lim);
 
-  THStack *hsigP = new THStack("hsigP", "Stacked #sigma^{2} (prompt)");
+  THStack *hsigP = new THStack("hsigP", "");
   hsigP->SetMinimum(-da_lim);
   hsigP->Add(f_sigD);
   hsigP->Add(f_sigEff);
@@ -150,9 +151,9 @@ void calcSys()
   hsigP->GetYaxis()->SetTitleOffset(2.);
   hstatP->Draw("same");
 
-  TLegend *legF = new TLegend(0.72, 0.7, 0.97, 0.9);
+  TLegend *legF = new TLegend(0.7, 0.785, 0.97, 0.985);
   legF->SetTextSize(0.03);
-  legF->AddEntry(hs_sigPhiPR, "#lambda_{#varphi}", "l");
+  legF->AddEntry(hs_sigPhiPR, "#beta (only negative)", "l");
   legF->AddEntry(hs_sigEff, "Single #mu eff", "l");
   legF->AddEntry(hs_sigD, "2017-2018", "l");
   legF->AddEntry(f_statP, "stat", "l");
@@ -161,7 +162,7 @@ void calcSys()
   c->SaveAs("plots/lth_uncs_stack.pdf");
   c->Clear();
 
-  THStack *hsigN = new THStack("hsigN", "Stacked #sigma^{2} (non-prompt)");
+  THStack *hsigN = new THStack("hsigN", "");
   hsigN->SetMinimum(-da_lim);
   hsigN->Add(f_sigD);
   hsigN->Add(f_sigEff);
@@ -174,7 +175,13 @@ void calcSys()
   hsigN->GetYaxis()->SetTitleOffset(2.);
   hstatN->Draw("same");
 
-  legF->Draw();
+  TLegend *legN = new TLegend(0.7, 0.785, 0.97, 0.985);
+  legN->SetTextSize(0.03);
+  legN->AddEntry(hs_sigPhiNP, "#beta (only positive)", "l");
+  legN->AddEntry(hs_sigEff, "Single #mu eff", "l");
+  legN->AddEntry(hs_sigD, "2017-2018", "l");
+  legN->AddEntry(f_statP, "stat", "l");
+  legN->Draw();
 
   c->SaveAs("plots/lthNP_uncs_stack.pdf");
   c->Clear();
@@ -183,9 +190,9 @@ void calcSys()
   double sysPR_P[nBinspT], sysPR_N[nBinspT];
   double sysNP_P[nBinspT], sysNP_N[nBinspT];
   ofstream ftexPR;
-  ftexPR.open(Form("text_output/sys_unc.tex"));
-  ftexPR << "\\begin{tabular}{c||c|c|c||c|c}\n";
-  ftexPR << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$ & $\\sigma_{\\text{stat}}^{\\text{PR}}$ \\\\\n";
+  ftexPR.open(Form("text_output/sysPR_unc.tex"));
+  ftexPR << "\\begin{tabular}{c||c|c|c||c}\n";
+  ftexPR << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$  \\\\\n";
   ftexPR << "\\hline\n";
 
   int p_norm = 3;
@@ -218,9 +225,8 @@ void calcSys()
     double valN = sqrt(pow(val_d,2)+pow(val_eff,2)+pow(val_phi,2));
     sysPR_P[i] = valP;
     sysPR_N[i] = valN;
-    ftexPR << " & $^{+" << valP << "}_{-" << valN << "}$";
-    // statistical uncertainty
-    ftexPR << " & $\\pm" << graph_lth[0]->GetEY()[i] << "$";
+    double valAv = max(valP, valN);
+    ftexPR << " & $\\pm" << valAv << "$";
     ftexPR << "\\\\";
     ftexPR << "\n";
   }
@@ -229,8 +235,8 @@ void calcSys()
 
   ofstream ftexNP;
   ftexNP.open(Form("text_output/sysNP_unc.tex"));
-  ftexNP << "\\begin{tabular}{c||c|c|c||c|c}\n";
-  ftexNP << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$ & $\\sigma_{\\text{stat}}^{\\text{NP}}$ \\\\\n";
+  ftexNP << "\\begin{tabular}{c||c|c|c||c}\n";
+  ftexNP << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$ \\\\\n";
   ftexNP << "\\hline\n";
 
   for(int i = 0; i < nBinspT; i++) {
@@ -261,14 +267,57 @@ void calcSys()
     double valN = sqrt(pow(val_d,2)+pow(val_eff,2));
     sysNP_P[i] = valP;
     sysNP_N[i] = valN;
-    ftexNP << " & $^{+" << valP << "}_{-" << valN << "}$";
-    // statistical uncertainty
-    ftexNP << " & $\\pm" << graph_lth[0]->GetEY()[i] << "$";
+    double valAv = max(valP, valN);
+    ftexNP << " & $\\pm" << valAv << "$";
     ftexNP << "\\\\";
     ftexNP << "\n";
   }
   ftexNP << "\\end{tabular}\n";
   ftexNP.close();
+
+  // tex tables with central values + uncerts
+  ofstream ftexLPR;
+  ftexLPR.open(Form("text_output/lthPR.tex"));
+  ftexLPR << "\\begin{tabular}{c||c||c|c}\n";
+  ftexLPR << "$\\pt$ (GeV) & $\\lambda_\\theta^{\\text{PR}}$ & $\\sigma_{\\text{stat}}^{\\text{PR}}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$  \\\\\n";
+  ftexLPR << "\\hline\n";
+  for(int i = 0; i < nBinspT; i++) {
+    // pT bin
+    ftexLPR << Form("$[%.1f, %.1f]$", pTBins[i], pTBins[i+1]);
+    ftexLPR << setprecision(p_norm) << fixed;
+    // central value
+    ftexLPR << "& $" << graph_lth[0]->GetY()[i] << "$";
+    // statistical uncertainty
+    ftexLPR << " & $\\pm" << graph_lth[0]->GetEY()[i] << "$";
+    // systematic uncertainty
+    ftexLPR << " & $\\pm" << max(sysPR_P[i],sysPR_N[i]) << "$";
+    ftexLPR << "\\\\";
+    ftexLPR << "\n";
+  }
+  ftexLPR << "\\end{tabular}\n";
+  ftexLPR.close();
+
+  // tex tables with central values + uncerts
+  ofstream ftexLNP;
+  ftexLNP.open(Form("text_output/lthNP.tex"));
+  ftexLNP << "\\begin{tabular}{c||c||c|c}\n";
+  ftexLNP << "$\\pt$ (GeV) & $\\lambda_\\theta^{\\text{NP}}$ & $\\sigma_{\\text{stat}}^{\\text{NP}}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$  \\\\\n";
+  ftexLNP << "\\hline\n";
+  for(int i = 0; i < nBinspT; i++) {
+    // pT bin
+    ftexLNP << Form("$[%.1f, %.1f]$", pTBins[i], pTBins[i+1]);
+    ftexLNP << setprecision(p_norm) << fixed;
+    // central value
+    ftexLNP << "& $" << graph_lth[3]->GetY()[i] << "$";
+    // statistical uncertainty
+    ftexLNP << " & $\\pm" << graph_lth[3]->GetEY()[i] << "$";
+    // systematic uncertainty
+    ftexLNP << " & $\\pm" << max(sysNP_P[i],sysNP_N[i]) << "$";
+    ftexLNP << "\\\\";
+    ftexLNP << "\n";
+  }
+  ftexLNP << "\\end{tabular}\n";
+  ftexLNP.close();
 
   // plotting the lambda_theta with total (sys+stat) error
   // but also with just stat for comparison- graph_lth[0]
@@ -293,8 +342,8 @@ void calcSys()
   fl1->SetTitle("Run 2 #lambda_{#theta}");
   
   TGraphAsymmErrors *lth_fPR = new TGraphAsymmErrors(nBinspT, graph_lth[0]->GetX(), graph_lth[0]->GetY(), graph_lth[0]->GetEX(), graph_lth[0]->GetEX(), errPR_P, errPR_N);
-  lth_fPR->SetMarkerColor(kGray);
-  lth_fPR->SetLineColor(kGray);
+  lth_fPR->SetMarkerColor(kBlue);
+  lth_fPR->SetLineColor(kBlue);
   lth_fPR->Draw("p same");
 
   TGraphAsymmErrors *lth_fNP = new TGraphAsymmErrors(nBinspT, graph_lth[3]->GetX(), graph_lth[3]->GetY(), graph_lth[3]->GetEX(), graph_lth[3]->GetEX(), errNP_P, errNP_N);
@@ -309,11 +358,17 @@ void calcSys()
 
   TLegend *leg2 = new TLegend(0.67, 0.7, 0.97, 0.9);
   leg2->SetTextSize(0.03);
-  leg2->AddEntry(lth_fPR, "prompt J/#psi", "pl");
-  leg2->AddEntry(lth_fNP, "non-prompt J/#psi", "pl");
+  leg2->AddEntry(lth_fPR, "prompt #psi(2S)", "pl");
+  leg2->AddEntry(lth_fNP, "non-prompt #psi(2S)", "pl");
   leg2->Draw();
 
   c->SaveAs("plots/lth_full_unc.pdf");
   c->Clear();
-  c->Destructor();    
+  c->Destructor();
+
+  TFile *fout = new TFile("files/finalUnc.root", "recreate");
+  lth_fPR->Write("lth_fPR");
+  lth_fNP->Write("lth_fNP");
+  fout->Close();
+
 }

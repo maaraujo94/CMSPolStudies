@@ -59,7 +59,7 @@ void plotAlts()
   fIndR->Close();
   
   // the phi reweighing is for PR or NP depending on the cuts
-  /*TGraphErrors **graph_phi = new TGraphErrors*[5];
+  TGraphErrors **graph_phi = new TGraphErrors*[6];
 
   // get lambda values for each phi reweighing model
   TFile *fIndph = new TFile("../../../Simult/PR_fit/files/finalFitRes.root");
@@ -74,16 +74,18 @@ void plotAlts()
   fIndph2->Close();
   TFile *fIndph3 = new TFile("../../../Simult_phi3/PR_fit/files/finalFitRes.root");
   graph_phi[4] = (TGraphErrors*)fIndph3->Get(Form("graph_lambda_NP"));
-  fIndph3->Close();*/
+  fIndph3->Close();
+  TFile *fIndph4 = new TFile("../../../Simult_phi4/PR_fit/files/finalFitRes.root");
+  graph_phi[5] = (TGraphErrors*)fIndph4->Get(Form("graph_lambda_NP"));
+  fIndph4->Close();
 
   // get the differences
   double diff[5][nBinspT], za[nBinspT], uncR[nBinspT];
-  //double diffP[3][nBinspT];
+  double diffP[4][nBinspT];
   double diffY[nBinspT], errY[nBinspT];
   for(int i = 0; i < nBinspT; i++) {
     diff[0][i] = (graph_lth[3]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[1][i] = (graph_lth[4]->GetY()[i] - graph_lth[0]->GetY()[i]);
-    cout << i << " " << diff[0][i] << " " << diff[1][i] << endl;
     diff[2][i] = (graph_lth[5]->GetY()[i] - graph_lth[0]->GetY()[i]);
     diff[3][i] = (graph_lth[6]->GetY()[i] - graph_lth[0]->GetY()[i]);
     // deltaR cuts apply to different pT regions
@@ -108,53 +110,15 @@ void plotAlts()
     errY[i] = sqrt(pow(err7, 2) + pow(err8, 2));
 
     //phi part done separately
-    /* diffP[0][i] = (graph_phi[2]->GetY()[i] - graph_phi[0]->GetY()[i]);
+    diffP[0][i] = (graph_phi[2]->GetY()[i] - graph_phi[0]->GetY()[i]);
     diffP[1][i] = (graph_phi[3]->GetY()[i] - graph_phi[0]->GetY()[i]);
     diffP[2][i] = (graph_phi[4]->GetY()[i] - graph_phi[1]->GetY()[i]);
+    diffP[3][i] = (graph_phi[5]->GetY()[i] - graph_phi[1]->GetY()[i]);
 
-    cout << i << " " << diffP[0][i] << " " << diffP[1][i] << " / " << diffP[2][i] << endl;*/
+    cout << i << " " << diffP[0][i] << " " << diffP[3][i] << endl;
     
     za[i] = 0;
   }
-
-  // PART 2 - coarse-binned results for rho study
-  // get the histo limits
-  /* TFile *fInc = new TFile("../deltaR/files/chistStore.root");
-  TH2D* cHist;
-  fInc->GetObject("cHistB", cHist);
-  cHist->SetDirectory(0);
-  fInc->Close();
-  
-  int nBinspT_c = cHist->GetNbinsY();
-  const double *pTBins_c = cHist->GetYaxis()->GetXbins()->GetArray();
-
-  // get the fit results - 3 sets
-  TGraphErrors **graph_lth_c = new TGraphErrors*[3];
-  // 0 - get Run2 results
-  TFile *fIndB_c = new TFile("../deltaR/files/finalFitRes.root");
-  graph_lth_c[0] = (TGraphErrors*)fIndB_c->Get("graph_lambda_c_B");
-  graph_lth_c[1] = (TGraphErrors*)fIndB_c->Get(Form("graph_lambda_c_T"));
-  graph_lth_c[2] = (TGraphErrors*)fIndB_c->Get(Form("graph_lambda_c_L"));
-  fIndB_c->Close();
-
-  // get the differences
-  double diff_c[nBinspT], err_c[nBinspT];
-  for(int i = 0; i < nBinspT_c; i++) {
-    // deltaR cuts apply to different pT regions
-    if(graph_lth_c[0]->GetX()[i] < pt_c) {
-      diff_c[i] = (graph_lth_c[1]->GetY()[i] - graph_lth_c[0]->GetY()[i]);
-      double unc1 = graph_lth_c[0]->GetEY()[i];
-      double unc2 = graph_lth_c[1]->GetEY()[i];
-      err_c[i] = sqrt(abs(pow(unc1,2)-pow(unc2,2)));
-    }
-    else {
-      diff_c[i] = (graph_lth_c[2]->GetY()[i] - graph_lth_c[0]->GetY()[i]);
-      double unc1 = graph_lth_c[0]->GetEY()[i];
-      double unc2 = graph_lth_c[2]->GetEY()[i];
-      err_c[i] = sqrt(abs(pow(unc1,2)-pow(unc2,2)));
-    }
-
-    }*/
 
   // all the tgraphs with the deviations
   TGraphErrors *g_lthY = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffY, graph_lth[0]->GetEX(), errY);
@@ -163,13 +127,13 @@ void plotAlts()
   TGraphErrors *g_lthpT = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[2], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthEta = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[3], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthR = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diff[4], graph_lth[0]->GetEX(), uncR);
-  //  TGraphErrors *g_lthR_c = new TGraphErrors(nBinspT_c, graph_lth_c[0]->GetX(), diff_c, graph_lth_c[0]->GetEX(), err_c);
-  /*TGraphErrors *g_lthPhi1 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[0], graph_lth[0]->GetEX(), za);
+  TGraphErrors *g_lthPhi1 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[0], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthPhi2 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[1], graph_lth[0]->GetEX(), za);
-  TGraphErrors *g_lthPhiNP = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[2], graph_lth[0]->GetEX(), za);*/
+  TGraphErrors *g_lthPhiNP1 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[2], graph_lth[0]->GetEX(), za);
+  TGraphErrors *g_lthPhiNP2 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[3], graph_lth[0]->GetEX(), za);
   
   TGraphErrors *g_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_lth[0]->GetEY());
-  //TGraphErrors *g_uncNP = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_phi[1]->GetEY());
+  TGraphErrors *g_uncNP = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_phi[1]->GetEY());
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
@@ -183,7 +147,7 @@ void plotAlts()
   fl1->SetYTitle("#Delta#lambda_{#theta}");
   fl1->GetYaxis()->SetTitleOffset(1.3);
   fl1->GetYaxis()->SetLabelOffset(0.01);
-  fl1->SetTitle("#Delta#lambda_{#theta} (muon eff |#eta|<0.2)");
+  fl1->SetTitle("prompt #Delta#lambda_{#theta} (muon eff |#eta|<0.2)");
   
   g_lthF->SetLineColor(kBlue);
   g_lthF->SetMarkerColor(kBlue);
@@ -227,7 +191,7 @@ void plotAlts()
   flE->SetYTitle("#Delta#lambda_{#theta}");
   flE->GetYaxis()->SetTitleOffset(1.3);
   flE->GetYaxis()->SetLabelOffset(0.01);
-  flE->SetTitle("#Delta#lambda_{#theta} (muon eff 0.2<|#eta|<0.3)");
+  flE->SetTitle("prompt #Delta#lambda_{#theta} (muon eff 0.2<|#eta|<0.3)");
   
   g_lthEta->SetLineColor(kRed);
   g_lthEta->SetMarkerColor(kRed);
@@ -248,19 +212,13 @@ void plotAlts()
   fl12->SetYTitle("#Delta#lambda_{#theta}");
   fl12->GetYaxis()->SetTitleOffset(1.3);
   fl12->GetYaxis()->SetLabelOffset(0.01);
-  fl12->SetTitle("#Delta#lambda_{#theta} (#rho factor)");
+  fl12->SetTitle("prompt #Delta#lambda_{#theta} (#rho factor)");
   
   g_lthR->SetLineColor(kBlue);
   g_lthR->SetMarkerColor(kBlue);
   g_lthR->SetMarkerStyle(20);
   g_lthR->SetMarkerSize(.75);
   g_lthR->Draw("p same");
-
-  /*  g_lthR_c->SetLineColor(kRed);
-  g_lthR_c->SetMarkerColor(kRed);
-  g_lthR_c->SetMarkerStyle(20);
-  g_lthR_c->SetMarkerSize(.75);
-  g_lthR_c->Draw("p same");*/
 
   zero->Draw();
 
@@ -274,12 +232,13 @@ void plotAlts()
   
   // SECOND - draw 2017-2018 with the calculated uncertainty
   da_lim = 0.5;
+
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
   fl2->SetXTitle("p_{T} (GeV)");
   fl2->SetYTitle("#Delta#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("#Delta#lambda_{#theta} (2017-2018)");
+  fl2->SetTitle("prompt #Delta#lambda_{#theta} (2017-2018)");
   
   g_lthY->SetLineColor(kBlack);
   g_lthY->SetMarkerColor(kBlack);
@@ -298,48 +257,56 @@ void plotAlts()
   c->Clear();
 
   // phi-based variation
-  /*  TH1F *fl3 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
+  da_lim = 0.2;
+
+  TH1F *fl3 = c->DrawFrame(pTBins[0], -da_lim, pTBins[nBinspT]+20, da_lim);
   fl3->SetXTitle("p_{T} (GeV)");
   fl3->SetYTitle("#Delta#lambda_{#theta}");
   fl3->GetYaxis()->SetTitleOffset(1.3);
   fl3->GetYaxis()->SetLabelOffset(0.01);
   fl3->SetTitle("prompt #Delta#lambda_{#theta} (#lambda_{#varphi} weight)");
   
-  g_lthPhi1->SetLineColor(kBlue);
-  g_lthPhi1->SetMarkerColor(kBlue);
-  g_lthPhi1->SetMarkerStyle(20);
-  g_lthPhi1->SetMarkerSize(.75);
-  g_lthPhi1->Draw("p same");
-
-  g_lthPhi2->SetLineColor(kRed);
-  g_lthPhi2->SetMarkerColor(kRed);
+  g_lthPhi2->SetLineColor(kBlue);
+  g_lthPhi2->SetMarkerColor(kBlue);
   g_lthPhi2->SetMarkerStyle(20);
   g_lthPhi2->SetMarkerSize(.75);
   g_lthPhi2->Draw("p same");
+
+  g_lthPhi1->SetLineColor(kRed);
+  g_lthPhi1->SetMarkerColor(kRed);
+  g_lthPhi1->SetMarkerStyle(20);
+  g_lthPhi1->SetMarkerSize(.75);
+  g_lthPhi1->Draw("p same");
 
   g_unc->Draw("ce3");
 
   TLegend *legp = new TLegend(0.72, 0.7, 0.97, 0.9);
   legp->SetTextSize(0.03);
-  legp->AddEntry(g_lthPhi1, "#beta = -0.005", "pl");
-  legp->AddEntry(g_lthPhi2, "#beta = -0.015", "pl");
+  legp->AddEntry(g_lthPhi2, "#beta = -0.01", "pl");
+  legp->AddEntry(g_lthPhi1, "#beta = -0.02", "pl");
   legp->Draw();
 
   c->SaveAs("plots/lth_absDiff_phi.pdf");
   c->Clear();
 
-  TH1F *fl4 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
+  TH1F *fl4 = c->DrawFrame(pTBins[0], -da_lim, pTBins[nBinspT]+20, da_lim);
   fl4->SetXTitle("p_{T} (GeV)");
   fl4->SetYTitle("#Delta#lambda_{#theta}");
   fl4->GetYaxis()->SetTitleOffset(1.3);
   fl4->GetYaxis()->SetLabelOffset(0.01);
   fl4->SetTitle("non-prompt #Delta#lambda_{#theta} (#lambda_{#varphi} weight)");
   
-  g_lthPhiNP->SetLineColor(kBlue);
-  g_lthPhiNP->SetMarkerColor(kBlue);
-  g_lthPhiNP->SetMarkerStyle(20);
-  g_lthPhiNP->SetMarkerSize(.75);
-  g_lthPhiNP->Draw("p same");
+  g_lthPhiNP1->SetLineColor(kBlue);
+  g_lthPhiNP1->SetMarkerColor(kBlue);
+  g_lthPhiNP1->SetMarkerStyle(20);
+  g_lthPhiNP1->SetMarkerSize(.75);
+  g_lthPhiNP1->Draw("p same");
+
+  g_lthPhiNP2->SetLineColor(kRed);
+  g_lthPhiNP2->SetMarkerColor(kRed);
+  g_lthPhiNP2->SetMarkerStyle(20);
+  g_lthPhiNP2->SetMarkerSize(.75);
+  g_lthPhiNP2->Draw("p same");
 
   g_uncNP->SetLineColor(kBlack);
   g_uncNP->SetFillColorAlpha(kBlack, 0.1);
@@ -347,11 +314,12 @@ void plotAlts()
 
   TLegend *legpn = new TLegend(0.72, 0.7, 0.97, 0.9);
   legpn->SetTextSize(0.03);
-  legpn->AddEntry(g_lthPhiNP, "#beta = 0.02", "pl");
+  legpn->AddEntry(g_lthPhiNP1, "#beta = 0.005", "pl");
+  legpn->AddEntry(g_lthPhiNP2, "#beta = 0.025", "pl");
   legpn->Draw();
 
   c->SaveAs("plots/lthNP_absDiff_phi.pdf");
-  c->Clear();*/
+  c->Clear();
 
   c->Destructor();
 
