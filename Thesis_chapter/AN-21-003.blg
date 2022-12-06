@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2019/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: AN-21-003.aux
+The style file: plain.bst
+Database file #1: AN-21-003.bib
+Warning--to sort, need author or key in bib:brilcalc
+Warning--empty author in bib:brilcalc
+Warning--empty institution in bib:AN-2011/535
+You've used 24 entries,
+            2118 wiz_defined-function locations,
+            642 strings with 8025 characters,
+and the built_in function-call counts, 6569 in all, are:
+= -- 640
+> -- 320
+< -- 1
++ -- 129
+- -- 102
+* -- 433
+:= -- 1203
+add.period$ -- 71
+call.type$ -- 24
+change.case$ -- 110
+chr.to.int$ -- 0
+cite$ -- 27
+duplicate$ -- 244
+empty$ -- 489
+format.name$ -- 102
+if$ -- 1319
+int.to.chr$ -- 0
+int.to.str$ -- 24
+missing$ -- 17
+newline$ -- 122
+num.names$ -- 46
+pop$ -- 71
+preamble$ -- 1
+purify$ -- 90
+quote$ -- 0
+skip$ -- 176
+stack$ -- 0
+substring$ -- 336
+swap$ -- 22
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 96
+warning$ -- 3
+while$ -- 63
+width$ -- 26
+write$ -- 261
+(There were 3 warnings)

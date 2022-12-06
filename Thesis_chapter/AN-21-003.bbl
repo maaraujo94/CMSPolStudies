@@ -1,0 +1,147 @@
+\begin{thebibliography}{10}
+
+\bibitem{bib:brilcalc}
+Brilcalc documentation.
+\newblock CMS internal documentation available at
+  \url{http://cms-service-lumi.web.cern.ch/cms-service-lumi/brilwsdoc.html},
+  2015.
+
+\bibitem{bib:geant4}
+S.~Agostinelli et~al.
+\newblock {\GEANTfour}---a simulation toolkit.
+\newblock {\em Nucl. Instrum. Meth. A}, 506:250, 2003.
+
+\bibitem{bib:onia2mumu}
+BPH\_PAG.
+\newblock {Onia2MuMu package for Run II}.
+\newblock Available at
+  \url{https://github.com/cms-sw/cmssw/tree/CMSSW_10_6_X/HeavyFlavorAnalysis/Onia2MuMu},
+  2015.
+
+\bibitem{bib:BPH-11-010}
+Serguei Chatrchyan et~al.
+\newblock {Measurement of the relative prompt production rate of $\chi_{c2}$
+  and $\chi_{c1}$ in $\Pp\Pp$ collisions at $\sqrt{s} = 7$\,TeV}.
+\newblock {\em Eur. Phys. J. C}, 72:2251, 2012.
+
+\bibitem{bib:BPH-13-003}
+Serguei Chatrchyan et~al.
+\newblock {Measurement of the prompt \jpsi and $\psi^\prime$ polarizations in
+  $\Pp\Pp$ collisions at $\sqrt{s} = 7$\,TeV}.
+\newblock {\em Phys. Lett. B}, 727:381, 2013.
+
+\bibitem{bib:BPH-11-023}
+Serguei Chatrchyan et~al.
+\newblock {Measurement of the $\Upsilon$(1S), $\Upsilon$(2S), and
+  $\Upsilon$(3S) polarizations in $\Pp\Pp$ collisions at $\sqrt{s}=7$\,TeV}.
+\newblock {\em Phys. Rev. Lett.}, 110:081802, 2013.
+
+\bibitem{PHOTOS2}
+N.~Davidson, T.~Przedzinski, and Z.~W{\c{a}}s.
+\newblock {PHOTOS interface in C++:} technical and physics documentation.
+\newblock {\em Comput. Phys. Commun.}, 199:86, 2016.
+
+\bibitem{bib:AN-2011/535}
+P.~Faccioli, J.~Seixas, and V.~Kn{\"u}nz.
+\newblock A new procedure for the determination of angular distribution
+  parameters in dilepton vector meson decays.
+\newblock CMS Note AN-2011/535, 2011.
+
+\bibitem{Faccioli:2022}
+Pietro Faccioli and Carlos Louren\c{c}o.
+\newblock {On the polarization of the non-prompt contribution to inclusive
+  \jpsi production in pp collisions}.
+\newblock {\em JHEP}, 10:005, 2022.
+
+\bibitem{bib:FLM}
+Pietro Faccioli, Carlos Louren\c{c}o, and Thomas Madlener.
+\newblock {From prompt to direct J/$\psi$ production: new insights on the
+  $\chi_{c1}$ and $\chi_{c2}$ polarizations and feed-down contributions from a
+  global-fit analysis of mid-rapidity LHC data}.
+\newblock {\em Eur. Phys. J. C}, 80:623, 2020.
+
+\bibitem{bib:Faccioli-PRD-FrameInv}
+Pietro Faccioli, Carlos Louren\c{c}o, and Jo{\~a}o Seixas.
+\newblock New approach to quarkonium polarization studies.
+\newblock {\em Phys. Rev.}, D81:111502(R), 2010.
+
+\bibitem{bib:Faccioli-PRL-FrameInv}
+Pietro Faccioli, Carlos Louren\c{c}o, and Jo{\~a}o Seixas.
+\newblock {Rotation-invariant relations in vector meson decays into fermion
+  pairs}.
+\newblock {\em Phys. Rev. Lett.}, 105:061601, 2010.
+
+\bibitem{bib:Faccioli-feeddown}
+Pietro Faccioli, Carlos Louren\c{c}o, Jo{\~a}o Seixas, and Hermine~K.
+  W{\"o}hri.
+\newblock Study of $\psi^\prime$ and $\chi_{\rm c}$ decays as feed-down sources
+  of \jpsi\ hadro-production.
+\newblock {\em JHEP}, 10:004, 2008.
+
+\bibitem{bib:Faccioli-EPJC}
+Pietro Faccioli, Carlos Louren\c{c}o, Jo{\~a}o Seixas, and Hermine~K.
+  W{\"o}hri.
+\newblock {Towards the experimental clarification of quarkonium polarization}.
+\newblock {\em Eur. Phys. J. C}, 69:657, 2010.
+
+\bibitem{bib:ChrisPhD}
+Chris Ferraioli.
+\newblock {\em A Probe of Colored Medium Effects on Quarkonia Polarization in
+  $\sqrt{s} = 7$~{TeV} pp collisions at {CMS}}.
+\newblock PhD thesis, University of Maryland, 2017.
+
+\bibitem{bib:BPH-14-001}
+Vardan Khachatryan et~al.
+\newblock {Measurement of \jpsi and $\psi^\prime$ prompt double-differential
+  cross sections in $\Pp\Pp$ collisions at $\sqrt{s}=7$\TeV}.
+\newblock {\em Phys. Rev. Lett.}, 114:191802, 2015.
+
+\bibitem{bib:BPH-13-005}
+Vardan Khachatryan et~al.
+\newblock {Measurement of the production cross section ratio
+  $\sigma(\chi_{b2}{\rm (1P)}) / \sigma(\chi_{b1}{\rm (1P)})$ in $\Pp\Pp$
+  collisions at $\sqrt{s} = 8$\,TeV}.
+\newblock {\em Phys. Lett. B}, 743:383, 2015.
+
+\bibitem{bib:HIN-15-003}
+Vardan Khachatryan et~al.
+\newblock {$\Upsilon(\mathrm{nS})$ polarizations versus particle multiplicity
+  in pp collisions at $\sqrt{s} =$ 7 TeV}.
+\newblock {\em Phys. Lett. B}, 761:31, 2016.
+
+\bibitem{bib:ValentinPhD}
+Valentin Kn\"unz.
+\newblock {\em {Measurement of Quarkonium Polarization to Probe QCD at the
+  LHC}}.
+\newblock PhD thesis, Vienna, Tech. U., Atominst., 2015.
+
+\bibitem{bib:IlsePhD}
+Ilse Kratschmer.
+\newblock {\em {Measurements of prompt J/$\psi$ and $\psi$(2S) production and
+  polarization at CMS}}.
+\newblock PhD thesis, Vienna, Tech. U., Atominst., 2015.
+
+\bibitem{bib:ThomasPhD}
+Thomas Madlener.
+\newblock {\em {Measurement of the prompt $\chi_{c1}$ and $\chi_{c2}$
+  polarizations at CMS}}.
+\newblock PhD thesis, Technische Universit{\"a}t Wien, 2020.
+
+\bibitem{bib:softmuon2}
+A.~M. Sirunyan et~al.
+\newblock {Performance of the CMS muon detector and muon reconstruction with
+  proton-proton collisions at $\sqrt{s}= 13$\TeV}.
+\newblock {\em JINST}, 13:P06015, 2018.
+
+\bibitem{bib:BPH-13-001}
+Albert~M Sirunyan et~al.
+\newblock {Constraints on the $\chi_\mathrm{c1}$ versus $\chi_\mathrm{c2}$
+  polarizations in proton-proton collisions at $\sqrt{s} = 8$\,TeV}.
+\newblock {\em Phys. Rev. Lett.}, 124:162002, 2020.
+
+\bibitem{bib:Pythia}
+Torbj{\"o}rn Sj{\"o}strand, Stephen Mrenna, and Peter Skands.
+\newblock A brief introduction to {PYTHIA} 8.1.
+\newblock {\em Comp. Phys. Comm.}, 178:852, 2008.
+
+\end{thebibliography}
