@@ -148,6 +148,7 @@ void newDatamass_1()
   // fit the 2d function to the mass:pT map
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.12);
+  c->SetRightMargin(0.03);
   f_cb->SetNpx(1000);
   TFitResultPtr fitres = h_d2d->Fit("f_cb", "RS");
 

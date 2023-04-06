@@ -1,10 +1,12 @@
 # CMSPolStudies
-framework for CMS S-wave quarkonium polarization studies
+framework for CMS S-wave quarkonium polarization studies: Jpsi and Psi2
 
-## Available directories:
+## Main directories (for each state):
 
-- Store_data_codes: to run on LXPLUS, gives the data and MC (costheta_HX, pT) values of events that pass all cuts; stores the distributions of cut variables
+- Store_data_codes: codes to run on LXPLUS, stores the main variables for data and MC events that pass trigger and single muon cuts
 
-- 1d_fit: stores events according to given binning, fits for lambda_theta in each pT bin (data/MC ratio of costheta_HX distribution fitted with angular distribution W(costheta_HX; lambda_theta))
+- Simult: runs the main analysis, including background subtraction, to get lambda_theta; also contains the systematics checks that don't require additional cuts to the data and MC sampling; also contains codes for auxiliary plots
 
-- 2d_fit: fits for lambda_theta over all bins simultaneously, assuming some hypothesis of lambda_theta(pT)
+- 2017 / 2018: runs the main analysis for either of the two years
+
+- Simult_[name]: several directories that rerun the main analysis under different sampling conditions, for systematics checks

@@ -138,6 +138,7 @@ void plotAlts()
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetRightMargin(0.03);
+  c->SetTopMargin(0.015);
   
   // FIRST - draw the abs diff + Simult unc band
   double da_lim = 0.3;
@@ -147,7 +148,7 @@ void plotAlts()
   fl1->SetYTitle("#Delta#lambda_{#theta}");
   fl1->GetYaxis()->SetTitleOffset(1.3);
   fl1->GetYaxis()->SetLabelOffset(0.01);
-  fl1->SetTitle("prompt #Delta#lambda_{#theta} (muon eff |#eta|<0.2)");
+  //fl1->SetTitle("prompt #Delta#lambda_{#theta} (muon eff |#eta|<0.2)");
   
   g_lthF->SetLineColor(kBlue);
   g_lthF->SetMarkerColor(kBlue);
@@ -175,7 +176,7 @@ void plotAlts()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
 
-  TLegend *leg = new TLegend(0.72, 0.7, 0.97, 0.9);
+  TLegend *leg = new TLegend(0.72, 0.785, 0.97, 0.985);
   leg->SetTextSize(0.03);
   leg->AddEntry(g_lthF, "weight f(p_{T})", "pl");
   leg->AddEntry(g_lthFI, "weight 1/f(p_{T})", "pl");
