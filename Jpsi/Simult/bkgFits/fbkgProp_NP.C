@@ -50,7 +50,7 @@ void fbkgProp_NP()
   }
   
   // fbkg = integral / evt_all (in signal region)
-  TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{Bg}", n_pt, ptBins);
+  TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{NPBg}", n_pt, ptBins);
   double ln = 10000;
   const int n_p = 2;
   double fit_v[n_p], dpar[n_p];
@@ -98,10 +98,10 @@ void fbkgProp_NP()
   
   TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 15);
   fr1->SetXTitle("p_{T} (GeV)");
-  fr1->SetYTitle("f_{Bg}^{NP} (%)");
+  fr1->SetYTitle("f_{NPBg} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("f_{Bg}^{NP} vs p_{T}");
+  fr1->SetTitle("f_{NPBg} vs p_{T}");
 
   h_fbkg->SetStats(0);
   h_fbkg->SetMarkerStyle(20);

@@ -19,6 +19,8 @@ void plot_ANdists()
   TH1D **h_pT = new TH1D*[5]; 
   // 6 y dists: PRSR data + MC over 3 pT regions
   TH1D **h_y = new TH1D*[8]; 
+  // 6 phi dists: PRSR data + MC over 3 pT regions
+  TH1D **h_phi = new TH1D*[8]; 
   // 7 M dists: PR data + MC over 3 pT regions + full pT data
   TH1D **h_m = new TH1D*[9]; 
   // 4 lifetime dists: data in 4 pT regions
@@ -38,6 +40,11 @@ void plot_ANdists()
   string lbl_y[] = {"lowPtData", "midPtData", "highPtData", "highestPtData", "lowPtMC", "midPtMC", "highPtMC", "highestPtMC"};
   for(int i = 0; i < 8; i++) {
     h_y[i] = (TH1D*)fin->Get(Form("h_y_%s", lbl_y[i].c_str()));
+  }
+
+  // store the phi dists
+  for(int i = 0; i < 8; i++) {
+    h_phi[i] = (TH1D*)fin->Get(Form("h_phi_%s", lbl_y[i].c_str()));
   }
 
   // store the M dists
@@ -164,6 +171,68 @@ void plot_ANdists()
 
 
   c->SaveAs(Form("plots/ANdists/y_scale.pdf"));
+  c->Clear();
+  
+  // plot phi
+  c->SetLogy();
+  for(int i = 0; i < 8; i++) {
+
+    h_phi[i]->SetStats(0);
+    h_phi[i]->SetLineColor(coly[i%4]);
+    h_phi[i]->SetMinimum(1e3);
+    h_phi[i]->SetMaximum(6e5);
+    h_phi[i]->GetXaxis()->SetTitle("#varphi(#mu#mu)");
+    h_phi[i]->GetXaxis()->SetTitleOffset(1.1);
+    h_phi[i]->GetYaxis()->SetTitle("dN/d#varphi");
+    h_phi[i]->SetTitle("");
+    if(i > 3) h_phi[i]->SetLineStyle(kDashed);
+    if(i == 0) h_phi[i]->Draw("histo");
+    else h_phi[i]->Draw("histo same");  
+  }
+
+  TLatex lcphi;
+  lcphi.SetTextSize(0.03);
+  lcphi.DrawLatex(0, 7e4, "#minus Peak data");
+  lcphi.DrawLatex(0, 5e4, "-- MC");
+  
+  c->SaveAs(Form("plots/ANdists/phi_all.pdf"));
+  c->Clear();
+
+  // phi scaling MC to data
+  for(int i = 0; i < 8; i++) {
+
+    h_phi[i]->SetStats(0);
+    h_phi[i]->SetLineColor(coly[i%4]);
+    h_phi[i]->SetMinimum(1e3);
+    h_phi[i]->SetMaximum(6e5);
+    h_phi[i]->GetXaxis()->SetTitle("#varphi(#mu#mu)");
+    h_phi[i]->GetXaxis()->SetTitleOffset(1.1);
+    h_phi[i]->GetYaxis()->SetTitle("dN/d#varphi");
+    h_phi[i]->SetTitle("");
+    if(i > 3) {
+      h_phi[i]->Scale(h_phi[i-4]->Integral() / h_phi[i]->Integral());
+      h_phi[i]->SetLineStyle(kDashed);
+    }
+    if(i == 0) h_phi[i]->Draw("histo");
+    else h_phi[i]->Draw("histo same");  
+  }
+
+  TLatex lcphis;
+  lcphis.SetTextSize(0.03);
+  lcphis.DrawLatex(0, 6e4, "#minus Peak data");
+  lcphis.DrawLatex(0, 4e4, "-- scaled MC");
+
+  lcphis.SetTextColor(coly[0]);
+  lcphis.DrawLatex(-1, 8e4, "Low p_{T}");
+  lcphis.SetTextColor(coly[1]);
+  lcphis.DrawLatex(-1, 5.5e4, "Mid p_{T}");
+  lcphis.SetTextColor(coly[2]);
+  lcphis.DrawLatex(-1, 3.7e4, "High p_{T}");
+  lcphis.SetTextColor(coly[3]);
+  lcphis.DrawLatex(-1, 2.5e4, "Highest p_{T}");
+
+
+  c->SaveAs(Form("plots/ANdists/phi_scale.pdf"));
   c->Clear();
 
   // plot lifetime

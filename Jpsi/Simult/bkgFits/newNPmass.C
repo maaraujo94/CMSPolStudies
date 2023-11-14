@@ -191,6 +191,8 @@ void newNPmass()
       }
     }
     
+    c->SetLogy();
+
     // initializing f_1d and plotting
     f_1d->SetParameters(pars[0][i_pt],
 			pars[1][i_pt],
@@ -205,7 +207,8 @@ void newNPmass()
 			pars[10][i_pt]);
   
     h_d1d[i_pt]->SetMaximum(h_d1d[i_pt]->GetMaximum()*1.1);
-    h_d1d[i_pt]->SetMinimum(0);
+    // h_d1d[i_pt]->SetMinimum(0);
+    h_d1d[i_pt]->SetMinimum(h_d1d[i_pt]->GetMinimum()*0.9); 
     h_d1d[i_pt]->SetStats(0);
     h_d1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
     h_d1d[i_pt]->GetYaxis()->SetTitleOffset(1.8);
@@ -235,7 +238,13 @@ void newNPmass()
     fp4->SetLineColor(kViolet);
     fp4->SetLineStyle(kDashed);
     fp4->Draw("lsame");
-    
+
+    TLatex l1;
+    l1.SetTextSize(0.03);
+    double xp = getPos(m_min[0], m_max[2], 0.05, 0);
+    double yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.9, 1);
+    l1.DrawLatex(xp, yp, Form("#chi^{2}/ndf = %.1f/%d", f_cb->GetChisquare(), f_cb->GetNDF()));
+ 
     c->SaveAs(Form("plots/massNP/fit/fit_pt%d.pdf", i_pt));
     c->Clear();
 

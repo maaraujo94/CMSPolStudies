@@ -12,16 +12,17 @@ void cosSave()
   // histograms for data (peak and NP) and MC
   TH2D *NP1Hist_ab = new TH2D("NP1H_ab", "Full Data (NP 1)", 20, 0, 1., nPtBins, ptBins);
   TH2D *NP2Hist_ab = new TH2D("NP2H_ab", "Full Data (NP 2)", 20, 0, 1., nPtBins, ptBins);
+  TH2D *NP3Hist_ab = new TH2D("NP3H_ab", "Full Data (NP 3)", 20, 0, 1., nPtBins, ptBins);
   TH2D *mcHist_ab = new TH2D("mcH_ab", "Full MC", 20, 0, 1., nPtBins, ptBins);
 
   // open files and read TTrees
-  TFile *fin = new TFile("../../../Store_data_codes/dataS_cos.root");
+  TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/dataS_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
-  TFile *fin2 = new TFile("../../../Store_data_codes/MCS_cos.root");
+  TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCS_cos.root");
   TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
-  TFile *fin3 = new TFile("../../../Store_data_codes/MChS_cos.root");
+  TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MChS_cos.root");
   TTree *treeM2 = (TTree*)fin3->Get("MC_cos");
-  TFile *fin4 = new TFile("../../../Store_data_codes/MCvhS_cos.root");
+  TFile *fin4 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvhS_cos.root");
   TTree *treeM3 = (TTree*)fin4->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();
@@ -49,6 +50,9 @@ void cosSave()
 	}
 	else if(data_lt > 0.03 && data_lt < 0.05 ) {
 	  NP2Hist_ab->Fill(abs(cos(data_th)), data_pt);
+	}
+	else if(data_lt > 0.07 && data_lt < 1.2 ) {
+	  NP3Hist_ab->Fill(abs(cos(data_th)), data_pt);
 	}
       }
     }
@@ -103,6 +107,10 @@ void cosSave()
   NP2Hist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   NP2Hist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
 
+    NP3Hist_ab->SetStats(0);
+  NP3Hist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+  NP3Hist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
+
   mcHist_ab->SetStats(0);
   mcHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   mcHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
@@ -119,11 +127,19 @@ void cosSave()
   rNP2Hist_ab->Divide(mcHist_ab);
   rNP2Hist_ab->SetTitle("Full Data/MC");
 
+    TH2D *rNP3Hist_ab = new TH2D("rNP3H_ab", "Full Data/MC", 20, 0, 1., nPtBins, ptBins);
+  rNP3Hist_ab = (TH2D*)NP3Hist_ab->Clone("rNP3H_ab");
+  rNP3Hist_ab->Sumw2();
+  rNP3Hist_ab->Divide(mcHist_ab);
+  rNP3Hist_ab->SetTitle("Full Data/MC");
+
   TFile *outfile = new TFile("cosStore.root", "recreate");
   NP1Hist_ab->Write();
   NP2Hist_ab->Write();
+  NP3Hist_ab->Write();
   rNP1Hist_ab->Write();
   rNP2Hist_ab->Write();
+  rNP3Hist_ab->Write();
   outfile->Close();
   
 }

@@ -55,7 +55,7 @@ void indFit()
   double parA[4][nBinsY], eparA[4][nBinsY];
   double parL[4][nBinsY], eparL[4][nBinsY];
   double chi2[4][nBinsY], ndf[4][nBinsY], chiP[4][nBinsY];
-  double pt[nBinsY], ept[nBinsY];
+  double cMax[nBinsY], pt[nBinsY], ept[nBinsY], zero[nBinsY];
   
   for(int i = 0; i < nBinsY; i++) {
     // get pt vars
@@ -63,10 +63,12 @@ void indFit()
     double pMax = h_fit[0]->GetYaxis()->GetBinUpEdge(i+1);
     pt[i] = (pMax+pMin)/2.;
     ept[i] = (pMax-pMin)/2.;
+    zero[i] = 0;
 
     // get max costheta
     double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
-
+    cMax[i] = cMaxVal;
+    
     // fit the 4 functions
     for(int i_t = 0; i_t < 4; i_t++) {
       fit1d[i_t]->SetRange(0, cMaxVal);
@@ -140,6 +142,197 @@ void indFit()
  
     c->SaveAs(Form("plots/ratioFinal/bin_%d.pdf", i));
     c->Clear();
+
+    // calculating pulls - just prompt and non-prompt psi
+    double xv[nBinsX], pv_NP[nBinsX], dv_NP[nBinsX], pv_PR[nBinsX], dv_PR[nBinsX];
+    for(int i_cos = 0 ; i_cos < nBinsX; i_cos++) {
+      xv[i_cos] = pHist[0][i]->GetBinCenter(i_cos+1);
+
+      // first non-prompt
+      double fitv = fit1d[1]->Eval(xv[i_cos]);
+      double datav = pHist[1][i]->GetBinContent(i_cos+1);
+      double datau = pHist[1][i]->GetBinError(i_cos+1);
+      if(xv[i_cos] < cMaxVal) {
+	pv_NP[i_cos] = (datav-fitv)/datau;
+	dv_NP[i_cos] = (datav-fitv)/fitv * 100.;
+      }
+      else {
+	pv_NP[i_cos] = 0;
+	dv_NP[i_cos] = 0;
+      }
+
+      // then prompt
+      fitv = fit1d[3]->Eval(xv[i_cos]);
+      datav = pHist[3][i]->GetBinContent(i_cos+1);
+      datau = pHist[3][i]->GetBinError(i_cos+1);
+      if(xv[i_cos] < cMaxVal) {
+	pv_PR[i_cos] = (datav-fitv)/datau;
+	dv_PR[i_cos] = (datav-fitv)/fitv * 100.;
+      }
+      else {
+	pv_PR[i_cos] = 0;
+	dv_PR[i_cos] = 0;
+      }
+    }
+
+    // now plotting the NP
+    // plotting the pulls
+    TH1F *fl = c->DrawFrame(0, -9, 1, 9);
+    fl->SetXTitle("|cos #theta_{HX}|");
+    fl->SetYTitle("pulls");
+    fl->GetYaxis()->SetTitleOffset(1.3);
+    fl->GetYaxis()->SetLabelOffset(0.01);
+    fl->SetTitle(Form("Non-prompt |cos #theta_{HX}| fit pulls (%.1f < p_{T} < %.1f GeV)", pMin, pMax));
+
+    TGraph *gNP_pull = new TGraph(nBinsX, xv, pv_NP);
+    for(int i_cos = nBinsX-1; i_cos > 0; i_cos--) {
+      if(xv[i_cos] > cMaxVal) gNP_pull->RemovePoint(i_cos);
+    }
+    gNP_pull->SetLineColor(kBlack);
+    gNP_pull->SetMarkerColor(kBlack);
+    gNP_pull->SetMarkerStyle(20);
+    gNP_pull->Draw("p");
+
+    
+    TLine *zero = new TLine(0, 0, 1, 0);
+    zero->SetLineStyle(kDashed);
+    zero->Draw();
+
+    TLine *plim1 = new TLine(0, -5, 1, -5);
+    plim1->SetLineStyle(kDotted);
+    plim1->Draw("lsame");
+    TLine *plim2 = new TLine(0, -3, 1, -3);
+    plim2->SetLineStyle(kDotted);
+    plim2->Draw("lsame");
+    TLine *plim3 = new TLine(0, 3, 1, 3);
+    plim3->SetLineStyle(kDotted);
+    plim3->Draw("lsame");
+    TLine *plim4 = new TLine(0, 5, 1, 5);
+    plim4->SetLineStyle(kDotted);
+    plim4->Draw("lsame");
+    
+    c->SaveAs(Form("plots/ratioFinal/pullsNP_pt%d.pdf", i));
+    c->Clear();
+
+    // plotting the devs
+    TH1F *fd = c->DrawFrame(0, -15, 1, 15);
+    fd->SetXTitle("|cos #theta_{HX}|");
+    fd->SetYTitle("relative difference (%)");
+    fd->GetYaxis()->SetTitleOffset(1.3);
+    fd->GetYaxis()->SetLabelOffset(0.01);
+    fd->SetTitle(Form("Non-prompt |cos #theta_{HX}| rel. difference (%.1f < p_{T} < %.1f GeV)",  pMin, pMax));
+  
+    TGraph *gNP_dev = new TGraph(nBinsX, xv, dv_NP);
+    for(int i_cos = nBinsX-1; i_cos > 0; i_cos--) {
+      if(xv[i_cos] > cMaxVal) gNP_dev->RemovePoint(i_cos);
+    }
+    gNP_dev->SetLineColor(kBlack);		
+    gNP_dev->SetMarkerColor(kBlack);
+    gNP_dev->SetMarkerStyle(20);
+    gNP_dev->Draw("psame");
+    
+    // aux lines - pull = 0 and sigma limits
+    zero->Draw("lsame");
+
+    c->SaveAs(Form("plots/ratioFinal/devsNP_pt%d.pdf", i));
+    c->Clear();
+
+    // now plotting the PR
+    // plotting the pulls
+    TH1F *flP = c->DrawFrame(0, -9, 1, 9);
+    flP->SetXTitle("|cos #theta_{HX}|");
+    flP->SetYTitle("pulls");
+    flP->GetYaxis()->SetTitleOffset(1.3);
+    flP->GetYaxis()->SetLabelOffset(0.01);
+    flP->SetTitle(Form("Prompt |cos #theta_{HX}| fit pulls (%.1f < p_{T} < %.1f GeV)", pMin, pMax));
+
+    TGraph *gPR_pull = new TGraph(nBinsX, xv, pv_PR);
+    for(int i_cos = nBinsX-1; i_cos > 0; i_cos--) {
+      if(xv[i_cos] > cMaxVal) gPR_pull->RemovePoint(i_cos);
+    }
+    gPR_pull->SetLineColor(kBlack);
+    gPR_pull->SetMarkerColor(kBlack);
+    gPR_pull->SetMarkerStyle(20);
+    gPR_pull->Draw("p");
+    
+    zero->Draw();
+
+    plim1->Draw("lsame");
+    plim2->Draw("lsame");
+    plim3->Draw("lsame");
+    plim4->Draw("lsame");
+    
+    c->SaveAs(Form("plots/ratioFinal/pullsPR_pt%d.pdf", i));
+    c->Clear();
+
+    // plotting the devs
+    TH1F *fdP = c->DrawFrame(0, -15, 1, 15);
+    fdP->SetXTitle("|cos #theta_{HX}|");
+    fdP->SetYTitle("relative difference (%)");
+    fdP->GetYaxis()->SetTitleOffset(1.3);
+    fdP->GetYaxis()->SetLabelOffset(0.01);
+    fdP->SetTitle(Form("Prompt |cos #theta_{HX}| rel. difference (%.1f < p_{T} < %.1f GeV)",  pMin, pMax));
+  
+    TGraph *gPR_dev = new TGraph(nBinsX, xv, dv_PR);
+    for(int i_cos = nBinsX-1; i_cos > 0; i_cos--) {
+      if(xv[i_cos] > cMaxVal) gPR_dev->RemovePoint(i_cos);
+    }
+    gPR_dev->SetLineColor(kBlack);
+    gPR_dev->SetMarkerColor(kBlack);
+    gPR_dev->SetMarkerStyle(20);
+    gPR_dev->Draw("psame");
+    
+    // aux lines - pull = 0 and sigma limits
+    zero->Draw("lsame");
+
+    c->SaveAs(Form("plots/ratioFinal/devsPR_pt%d.pdf", i));
+    c->Clear();
+
+    // also plotting just the prompt and just the non-prompt J/psi
+    // plotting NP
+    pHist[1][i]->SetTitle(Form("Non-prompt |cos #theta_{HX}| (%.1f < p_{T} < %.1f GeV)", pMin, pMax));
+    pHist[1][i]->SetStats(0);
+    pHist[1][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+    //pHist[0][i]->SetMinimum(0);
+    //pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.5);
+    pHist[1][i]->SetLineColor(kRed);
+    pHist[1][i]->SetMarkerColor(kRed);
+    pHist[1][i]->Draw("error");
+    fit1d[1]->SetLineColor(kRed);
+    fit1d[1]->SetLineStyle(kDashed);
+    fit1d[1]->Draw("same");
+
+    TLine *c_limNP = new TLine(cMaxVal, 0, cMaxVal, pHist[1][i]->GetMaximum());
+    c_limNP->SetLineStyle(kDashed);
+    c_limNP->SetLineColor(kBlack);
+    c_limNP->Draw();
+
+ 
+    c->SaveAs(Form("plots/ratioFinal/fitNP_%d.pdf", i));
+    c->Clear();
+
+    // plotting PR
+    pHist[3][i]->SetTitle(Form("Prompt |cos #theta_{HX}| (%.1f < p_{T} < %.1f GeV)", pMin, pMax));
+    pHist[3][i]->SetStats(0);
+    pHist[3][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
+    //pHist[0][i]->SetMinimum(0);
+    //pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.5);
+    pHist[3][i]->SetLineColor(kBlue);
+    pHist[3][i]->SetMarkerColor(kBlue);
+    pHist[3][i]->Draw("error");
+    fit1d[3]->SetLineColor(kBlue);
+    fit1d[3]->SetLineStyle(kDashed);
+    fit1d[3]->Draw("same");
+
+    TLine *c_limPR = new TLine(cMaxVal, 0, cMaxVal, pHist[3][i]->GetMaximum());
+    c_limPR->SetLineStyle(kDashed);
+    c_limPR->SetLineColor(kBlack);
+    c_limPR->Draw();
+
+ 
+    c->SaveAs(Form("plots/ratioFinal/fitPR_%d.pdf", i));
+    c->Clear();
+
     cout << endl << endl;
   }
 
@@ -163,6 +356,10 @@ void indFit()
     graphN->Write();
     graphP->Write();
   }
+  TGraphErrors *graphCm = new TGraphErrors(nBinsY, pt, cMax, ept, zero);
+  graphCm->SetName(Form("graph_cMax"));
+  graphCm->Write();
+    
   outfile->Close();
 
   c->Destructor();

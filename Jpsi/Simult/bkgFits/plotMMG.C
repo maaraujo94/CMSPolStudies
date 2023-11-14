@@ -186,5 +186,58 @@ void plotMMG()
     c->Clear();
   }
   
+  // drawing just the sigma1 vs sigma2
+  TH1F *fs = c->DrawFrame(pt_min, parmin[3], pt_max, 60);
+  fs->SetXTitle("p_{T} (GeV)");
+  fs->SetYTitle(parax[3].c_str());
+  fs->GetYaxis()->SetTitleOffset(1.7);
+  fs->GetYaxis()->SetLabelOffset(0.01);
+  fs->SetTitle(Form("MC %s vs p_{T}", partit[3].c_str()));
+
+  TLegend *leg = new TLegend(0.75, 0.25, 0.9, 0.4);
+  leg->SetTextSize(0.03);
+
+  // if we're plotting par sig1, add sig2 and sigG
+  g_par[0][3]->SetMarkerStyle(20);
+  g_par[0][3]->SetMarkerSize(.75);
+  g_par[0][3]->SetMarkerColor(kRed);
+  g_par[0][3]->SetLineColor(kRed);
+  g_par[0][3]->SetFillColorAlpha(kRed, 0.5);
+  g_par[0][3]->Draw("pce3");
+
+  g_par[0][4]->SetMarkerStyle(24);
+  g_par[0][4]->SetMarkerSize(.75);
+  g_par[0][4]->SetMarkerColor(kRed);
+  g_par[0][4]->SetLineColor(kRed);
+  g_par[0][4]->SetFillColorAlpha(kRed, 0.5);
+  g_par[0][4]->Draw("pce3");
+
+  g_par[1][3]->SetMarkerStyle(20);
+  g_par[1][3]->SetMarkerSize(.75);
+  g_par[1][3]->SetMarkerColor(kBlue);
+  g_par[1][3]->SetLineColor(kBlue);
+  g_par[1][3]->SetFillColorAlpha(kBlue, 0.5);
+  g_par[1][3]->Draw("pce3");
+
+  g_par[1][4]->SetMarkerStyle(24);
+  g_par[1][4]->SetMarkerSize(.75);
+  g_par[1][4]->SetMarkerColor(kBlue);
+  g_par[1][4]->SetLineColor(kBlue);
+  g_par[1][4]->SetFillColorAlpha(kBlue, 0.5);
+  g_par[1][4]->Draw("pce3");
+
+  leg->AddEntry(g_par[1][3], "#sigma_{CB_{1}}", "pl");
+  leg->AddEntry(g_par[1][4], "#sigma_{CB_{1}}", "pl");
+  leg->Draw();
+
+  TLatex lc;
+  lc.SetTextSize(0.03);
+  lc.SetTextColor(kRed);
+  lc.DrawLatex(70, getPos(parmin[3], 60, 0.9, 0), "no G");
+  lc.SetTextColor(kBlue);
+  lc.DrawLatex(70, getPos(parmin[3], 60, 0.83, 0), "with G");
+
+  c->SaveAs(Form("plots/MCMass/parG_sig12.pdf"));
+  c->Clear();
   c->Destructor();
 }

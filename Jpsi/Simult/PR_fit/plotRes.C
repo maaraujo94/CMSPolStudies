@@ -128,18 +128,17 @@ void plotRes()
     graph_chi[i]->SetMarkerColor(col[i]);
     graph_chi[i]->SetMarkerStyle(20);
     graph_chi[i]->SetMarkerSize(.75);
-    graph_chi[i]->Draw("p same");
+    if(i == 1 || i == 3)
+      graph_chi[i]->Draw("p same");
   }
 
-  TLine *trans1_C = new TLine(46, 0, 46, 1);
-  trans1_C->SetLineColor(kBlack);
-  trans1_C->SetLineStyle(kDashed);
-  trans1_C->Draw();
-  TLine *trans2_C = new TLine(66, 0, 66, 1);
-  trans2_C->SetLineColor(kBlack);
-  trans2_C->SetLineStyle(kDashed);
-  trans2_C->Draw();
+  TLegend *leg2 = new TLegend(0.625, 0.8, 0.9, 0.9);
+  leg2->SetTextSize(0.03);
+  leg2->AddEntry(graph_chi[1], "Non-prompt J/#psi", "pl");
+  leg2->AddEntry(graph_chi[3], "Prompt J/#psi", "pl");
+  leg2->Draw();
 
+  
   c->SaveAs("plots/ratioFinal/par_chiP.pdf");
   c->Clear();
   c->Destructor();

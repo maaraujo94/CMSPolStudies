@@ -4,8 +4,10 @@ void cosPlot()
 
   TH2D *h_NP1 = (TH2D*)fin->Get("NP1H_ab");
   TH2D *h_NP2 = (TH2D*)fin->Get("NP2H_ab");
+  TH2D *h_NP3 = (TH2D*)fin->Get("NP3H_ab");
   TH2D *h_NPr1 = (TH2D*)fin->Get("rNP1H_ab");
   TH2D *h_NPr2 = (TH2D*)fin->Get("rNP2H_ab");
+  TH2D *h_NPr3 = (TH2D*)fin->Get("rNP3H_ab");
 
   // get the binning
   int nBinsX = h_NP1->GetNbinsX(), nBinsY = h_NP1->GetNbinsY();
@@ -14,20 +16,24 @@ void cosPlot()
   double maxX = h_NP1->GetXaxis()->GetBinUpEdge(nBinsX);
 
   // get the base data and MC 1d projections
-  TH1D ***h_NP1d = new TH1D**[2];
+  TH1D ***h_NP1d = new TH1D**[3];
   h_NP1d[0] = new TH1D*[nBinsY];
   h_NP1d[1] = new TH1D*[nBinsY];
+  h_NP1d[2] = new TH1D*[nBinsY];
   for(int i = 0; i< nBinsY; i++) {
     h_NP1d[0][i] = h_NP1->ProjectionX(Form("h_NP1_%d", i), i+1, i+1);
     h_NP1d[1][i] = h_NP2->ProjectionX(Form("h_NP2_%d", i), i+1, i+1);
+    h_NP1d[2][i] = h_NP3->ProjectionX(Form("h_NP3_%d", i), i+1, i+1);
   }
   // get the base data and MC 1d projections
-  TH1D ***h_NPr1d = new TH1D**[2];
+  TH1D ***h_NPr1d = new TH1D**[3];
   h_NPr1d[0] = new TH1D*[nBinsY];
   h_NPr1d[1] = new TH1D*[nBinsY];
+  h_NPr1d[2] = new TH1D*[nBinsY];
   for(int i = 0; i< nBinsY; i++) {
     h_NPr1d[0][i] = h_NPr1->ProjectionX(Form("h_NPr1_%d", i), i+1, i+1);
     h_NPr1d[1][i] = h_NPr2->ProjectionX(Form("h_NPr2_%d", i), i+1, i+1);
+    h_NPr1d[2][i] = h_NPr3->ProjectionX(Form("h_NPr3_%d", i), i+1, i+1);
   }
 
   TCanvas *c = new TCanvas("", "", 900, 900);
@@ -50,10 +56,19 @@ void cosPlot()
     h_NP1d[1][i]->SetMarkerSize(0.5);
     h_NP1d[1][i]->Draw("error same");
 
+    h_NP1d[2][i]->SetStats(0);
+    h_NP1d[2][i]->Scale(h_NP1d[0][i]->Integral()/h_NP1d[2][i]->Integral());
+    h_NP1d[2][i]->SetLineColor(kGreen+2);
+    h_NP1d[2][i]->SetMarkerColor(kGreen+2);
+    h_NP1d[2][i]->SetMarkerStyle(20);
+    h_NP1d[2][i]->SetMarkerSize(0.5);
+    h_NP1d[2][i]->Draw("error same");
+
     TLegend *leg = new TLegend(0.65, 0.7, 0.9, 0.9);
     leg->SetTextSize(0.03);
     leg->AddEntry(h_NP1d[0][i], "[100,200] #mum", "pl");
     leg->AddEntry(h_NP1d[1][i], "[300,500] #mum", "pl");
+    leg->AddEntry(h_NP1d[2][i], "[700,1200] #mum", "pl");
     leg->Draw();
 
     c->SaveAs(Form("plots/NPcos_%d.pdf", i));
@@ -72,6 +87,12 @@ void cosPlot()
     h_NPr1d[1][i]->SetLineColor(kBlue);
     h_NPr1d[1][i]->SetMarkerColor(kBlue);
     h_NPr1d[1][i]->Draw("error same");
+
+    h_NPr1d[2][i]->SetStats(0);
+    h_NPr1d[2][i]->Scale(h_NPr1d[0][i]->Integral(1,12)/h_NPr1d[2][i]->Integral(1,12));
+    h_NPr1d[2][i]->SetLineColor(kGreen+2);
+    h_NPr1d[2][i]->SetMarkerColor(kGreen+2);
+    h_NPr1d[2][i]->Draw("error same");
 
     c->SaveAs(Form("plots/NPrcos_%d.pdf", i));
     c->Clear();

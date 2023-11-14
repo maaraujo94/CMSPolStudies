@@ -15,6 +15,7 @@ void getCuts_data()
   TH1D *h7_JMass  = new TH1D("h7_JMass",  "2017 data dimuon mass",     100, 2.9, 3.3);
   TH1D *h7_JPt    = new TH1D("h7_JPt",    "2017 data dimuon pT",       100, 0, 200);
   TH1D *h7_Jy     = new TH1D("h7_Jy",     "2017 data dimuon y",        100, -2.5, 2.5);
+  TH1D *h7_JPhi   = new TH1D("h7_JPhi",   "2017 data dimuon phi",      100, -3.5, 3.5);
   TH1D *h7_Jlt    = new TH1D("h7_Jlt",    "2017 data dimuon lifetime", 100, -0.01, 0.05);
   TH1D *h7_vP     = new TH1D("h7_vP",     "2017 data dimuon vProb",    100, 0, 1);
 
@@ -26,6 +27,7 @@ void getCuts_data()
   TH1D *h8_JMass  = new TH1D("h8_JMass",  "2018 data dimuon mass",     100, 2.9, 3.3);
   TH1D *h8_JPt    = new TH1D("h8_JPt",    "2018 data dimuon pT",       100, 0, 200);
   TH1D *h8_Jy     = new TH1D("h8_Jy",     "2018 data dimuon y",        100, -2.5, 2.5);
+  TH1D *h8_JPhi   = new TH1D("h8_JPhi",   "2018 data dimuon phi",      100, -3.5, 3.5);
   TH1D *h8_Jlt    = new TH1D("h8_Jlt",    "2018 data dimuon lifetime", 100, -0.01, 0.05);
   TH1D *h8_vP     = new TH1D("h8_vP",     "2018 data dimuon vProb",    100, 0, 1);
 
@@ -62,6 +64,7 @@ void getCuts_data()
 	h7_JMass->Fill(mumu_p4->M());
 	h7_JPt->Fill(mumu_p4->Pt());
 	h7_Jy->Fill(mumu_p4->Rapidity());
+	h7_JPhi->Fill(mumu_p4->Phi());
 	h7_Jlt->Fill(ct);
 	h7_vP->Fill(vProb);
       }
@@ -80,6 +83,7 @@ void getCuts_data()
   h7_JMass->Write();
   h7_JPt->Write();
   h7_Jy->Write();
+  h7_JPhi->Write();
   h7_Jlt->Write();
   h7_vP->Write();
   fout7->Close();
@@ -113,6 +117,7 @@ void getCuts_data()
 	h8_JMass->Fill(mumu_p4->M());
 	h8_JPt->Fill(mumu_p4->Pt());
 	h8_Jy->Fill(mumu_p4->Rapidity());
+	h8_JPhi->Fill(mumu_p4->Phi());
 	h8_Jlt->Fill(ct);
 	h8_vP->Fill(vProb);
       }
@@ -131,6 +136,7 @@ void getCuts_data()
   h8_JMass->Write();
   h8_JPt->Write();
   h8_Jy->Write();
+  h8_JPhi->Write();
   h8_Jlt->Write();
   h8_vP->Write();
   fout8->Close();

@@ -218,6 +218,50 @@ void plotMMseq()
   c->SaveAs("plots/MCMass/par_2.pdf");
   c->Clear();
 
+  // do the plotting - sigmas for fixed mu, f vs free
+  TH1F *f2v = c->DrawFrame(pt_min, parmin[3], pt_max, parmax[3]);
+  f2v->SetXTitle("p_{T} (GeV)");
+  f2v->SetYTitle(parax[3].c_str());
+  f2v->GetYaxis()->SetTitleOffset(1.7);
+  f2v->GetYaxis()->SetLabelOffset(0.01);
+  f2v->SetTitle(Form("MC %s vs p_{T}", partit[3].c_str()));
+ 
+  c->SetLogy(0);
+  
+  // free mode always plots points
+  g_par[3][2]->SetLineColor(kRed);
+  g_par[3][2]->SetMarkerColor(kRed);
+  g_par[3][2]->SetMarkerStyle(20);
+  g_par[3][2]->SetMarkerSize(.75);
+  g_par[3][2]->Draw("p");
+
+  g_par[3+1][2]->SetLineColor(kRed);
+  g_par[3+1][2]->SetMarkerColor(kRed);
+  g_par[3+1][2]->SetMarkerStyle(24);
+  g_par[3+1][2]->SetMarkerSize(.75);
+  g_par[3+1][2]->Draw("p");
+
+  g_par[3][0]->SetLineColor(kBlack);
+  g_par[3][0]->SetMarkerColor(kBlack);
+  g_par[3][0]->SetMarkerStyle(20);
+  g_par[3][0]->SetMarkerSize(.75);
+  g_par[3][0]->Draw("p");
+
+  g_par[3+1][0]->SetLineColor(kBlack);
+  g_par[3+1][0]->SetMarkerColor(kBlack);
+  g_par[3+1][0]->SetMarkerStyle(24);
+  g_par[3+1][0]->SetMarkerSize(.75);
+  g_par[3+1][0]->Draw("p");
+
+  TLegend *leg2v = new TLegend(0.75, 0.25, 0.9, 0.4);
+  leg2v->SetTextSize(0.03);
+  leg2v->AddEntry(g_par[3][0], "#sigma_{CB_{1}}", "pl");
+  leg2v->AddEntry(g_par[3+1][0], "#sigma_{CB_{2}}", "pl");
+  leg2v->Draw();
+  
+  c->SaveAs("plots/MCMass/par_2_vs.pdf");
+  c->Clear();
+
   // also draw n, alpha
   TH1F *f2na = c->DrawFrame(pt_min, parmin[5], pt_max, parmax[6]);
   f2na->SetXTitle("p_{T} (GeV)");

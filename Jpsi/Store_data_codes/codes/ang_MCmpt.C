@@ -63,7 +63,7 @@ double *cos_B(TLorentzVector *B, TLorentzVector *psi, TLorentzVector *beam, TLor
 
 void ang_MCmpt()
 {
-  Double_t mmPt, th, phi, lt, lterr, mass, rap, mPPt, mMPt, mPEta, mMEta, dR;
+  Double_t mmPt, th, phi, lt, lterr, mass, rap, mPPt, mMPt, mPEta, mMEta, dR, mmPhi;
   double dPhi, dEta, dpT;
   double *ang;
   Float_t ct, ctErr;
@@ -101,6 +101,7 @@ void ang_MCmpt()
   newtree7->Branch("lterr", &lterr);
   newtree7->Branch("Mass", &mass);
   newtree7->Branch("Rap", &rap);
+  newtree7->Branch("dimPhi", &mmPhi);
   newtree7->Branch("muonPPt", &mPPt);
   newtree7->Branch("muonPEta", &mPEta);
   newtree7->Branch("muonMPt", &mMPt);
@@ -118,6 +119,7 @@ void ang_MCmpt()
 	mMEta = muM_p4->Eta();
 	
 	mmPt = mumu_p4->Pt();
+	mmPhi = mumu_p4->Phi();
 	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
 	lt = ct;
@@ -167,6 +169,7 @@ void ang_MCmpt()
   newtree8->Branch("lterr", &lterr);
   newtree8->Branch("Mass", &mass);
   newtree8->Branch("Rap", &rap);
+  newtree8->Branch("dimPhi", &mmPhi);
   newtree8->Branch("muonPPt", &mPPt);
   newtree8->Branch("muonPEta", &mPEta);
   newtree8->Branch("muonMPt", &mMPt);
@@ -184,6 +187,7 @@ void ang_MCmpt()
 	mMEta = muM_p4->Eta();
 
 	mmPt = mumu_p4->Pt();
+	mmPhi = mumu_p4->Phi();
 	rap = mumu_p4->Rapidity();
 	mass = mumu_p4->M();
 	lt = ct;

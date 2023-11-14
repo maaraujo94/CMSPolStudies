@@ -11,7 +11,7 @@ void calcSys()
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
   
   // get the fit results - baseline vs mu effs
-  TGraphErrors **graph_lth = new TGraphErrors*[6];
+  TGraphErrors **graph_lth = new TGraphErrors*[8];
   // 0 - get Run2 results
   TFile *fIndB = new TFile("../../PR_fit/files/finalFitRes.root");
   graph_lth[0] = (TGraphErrors*)fIndB->Get("graph_lambda_J");
@@ -31,7 +31,12 @@ void calcSys()
   TFile *fIndP2 = new TFile("../../../Simult_phi3/PR_fit/files/finalFitRes.root");
   graph_lth[5] = (TGraphErrors*)fIndP2->Get(Form("graph_lambda_NP"));
   fIndP2->Close();
-
+  // 3 - get lambda values for the SB-only fits
+  TFile *findM = new TFile("../SB_fit/PR_fit/files/finalFitRes.root");
+  graph_lth[6] = (TGraphErrors*)findM->Get("graph_lambda_J");
+  graph_lth[7] = (TGraphErrors*)findM->Get("graph_lambda_NP");
+  findM->Close();
+  
   // 2017 vs 2018 contribution has been fixed rather than calculated 
   double sigY = 0.012;
 
@@ -49,6 +54,9 @@ void calcSys()
   // lambda_phi -> asymmetric, different for PR and NP
   TH1F *hs_sigPhiPR = new TH1F("hs_sigPhiPR", "hs_sigPhiPR", nBinspT, pTBins);
   TH1F *hs_sigPhiNP = new TH1F("hs_sigPhiNP", "hs_sigPhiNP", nBinspT, pTBins);
+  // SB_fit -> asymmetric, different for PR and NP
+  TH1F *hs_MPR = new TH1F("hs_MPR", "hs_MPR", nBinspT, pTBins);
+  TH1F *hs_MNP = new TH1F("hs_MNP", "hs_MNP", nBinspT, pTBins);
 
   double aux, ct_a = 0;
   for(int i = 0; i < nBinspT; i++) {
@@ -68,6 +76,9 @@ void calcSys()
     if(graph_lth[0]->GetX()[i] < 37.5)
       hs_sigPhiNP->SetBinContent(i+1, aux);
     else hs_sigPhiNP->SetBinContent(i+1, 0);
+    // SB-only mass fit
+    hs_MPR->SetBinContent(i+1, graph_lth[6]->GetY()[i]-graph_lth[0]->GetY()[i]);
+    hs_MNP->SetBinContent(i+1, graph_lth[7]->GetY()[i]-graph_lth[3]->GetY()[i]);
   }
 
   // draw the fit results
@@ -84,6 +95,11 @@ void calcSys()
   hs_sigPhiNP->SetFillColor(kBlue);
   hs_sigPhiNP->SetLineColor(kBlue);
 
+  hs_MPR->SetFillColor(kOrange+3);
+  hs_MPR->SetLineColor(kOrange+3);
+  hs_MNP->SetFillColor(kOrange+3);
+  hs_MNP->SetLineColor(kOrange+3);
+
   // draw uncerts, squared and stacked
   // positive conts: eff up to 50; constant 2017-2018
   // negative cont: stat unc
@@ -93,6 +109,8 @@ void calcSys()
   TH1F *f_sigD = new TH1F("f_sigD", "f_sigD", nBinspT, pTBins);
   TH1F *f_sigPhiPR = new TH1F("f_sigPhiPR", "f_sigPhiPR", nBinspT, pTBins);
   TH1F *f_sigPhiNP = new TH1F("f_sigPhiNP", "f_sigPhiNP", nBinspT, pTBins);
+  TH1F *f_MPR = new TH1F("f_MPR", "f_MPR", nBinspT, pTBins);
+  TH1F *f_MNP = new TH1F("f_MNP", "f_MNP", nBinspT, pTBins);
   
   for(int i = 0; i < nBinspT; i++) {
     // eff (symmetric)
@@ -102,6 +120,9 @@ void calcSys()
     // phi weights (asymmetric)
     f_sigPhiPR->SetBinContent(i+1, pow(hs_sigPhiPR->GetBinContent(i+1), 2));
     f_sigPhiNP->SetBinContent(i+1, pow(hs_sigPhiNP->GetBinContent(i+1), 2));
+    // SB fit (asymmetric)
+    f_MPR->SetBinContent(i+1, pow(hs_MPR->GetBinContent(i+1), 2));
+    f_MNP->SetBinContent(i+1, pow(hs_MNP->GetBinContent(i+1), 2));
   }
 
   // get the stats
@@ -123,6 +144,10 @@ void calcSys()
   f_sigPhiPR->SetLineColor(kBlue);
   f_sigPhiNP->SetFillColor(kBlue);
   f_sigPhiNP->SetLineColor(kBlue);
+  f_MPR->SetFillColor(kOrange+3);
+  f_MPR->SetLineColor(kOrange+3);
+  f_MNP->SetFillColor(kOrange+3);
+  f_MNP->SetLineColor(kOrange+3);
   
   f_statP->SetFillColor(kGray);
   f_statP->SetLineColor(kGray);
@@ -143,6 +168,7 @@ void calcSys()
   hsigP->Add(f_sigD);
   hsigP->Add(f_sigEff);
   hsigP->Add(f_sigPhiPR);
+  hsigP->Add(f_MPR);
   hsigP->SetMaximum(da_lim);
   
   hsigP->Draw();
@@ -153,6 +179,7 @@ void calcSys()
 
   TLegend *legF = new TLegend(0.7, 0.785, 0.97, 0.985);
   legF->SetTextSize(0.03);
+  legF->AddEntry(hs_MPR, "SB-only fit", "l");
   legF->AddEntry(hs_sigPhiPR, "#beta (only negative)", "l");
   legF->AddEntry(hs_sigEff, "Single #mu eff", "l");
   legF->AddEntry(hs_sigD, "2017-2018", "l");
@@ -167,6 +194,7 @@ void calcSys()
   hsigN->Add(f_sigD);
   hsigN->Add(f_sigEff);
   hsigN->Add(f_sigPhiNP);
+  hsigN->Add(f_MNP);
   hsigN->SetMaximum(da_lim);
   
   hsigN->Draw();
@@ -177,6 +205,7 @@ void calcSys()
 
   TLegend *legN = new TLegend(0.7, 0.785, 0.97, 0.985);
   legN->SetTextSize(0.03);
+  legN->AddEntry(hs_MNP, "SB-only fit", "l");
   legN->AddEntry(hs_sigPhiNP, "#beta (only positive)", "l");
   legN->AddEntry(hs_sigEff, "Single #mu eff", "l");
   legN->AddEntry(hs_sigD, "2017-2018", "l");
@@ -191,12 +220,12 @@ void calcSys()
   double sysNP_P[nBinspT], sysNP_N[nBinspT];
   ofstream ftexPR;
   ftexPR.open(Form("text_output/sysPR_unc.tex"));
-  ftexPR << "\\begin{tabular}{c||c|c|c||c}\n";
-  ftexPR << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$  \\\\\n";
+  ftexPR << "\\begin{tabular}{c||c|c|c|c||c}\n";
+  ftexPR << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma^{\\text{SB}}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$  \\\\\n";
   ftexPR << "\\hline\n";
 
   int p_norm = 3;
-  double val_d, val_eff, val_phi;
+  double val_d, val_eff, val_phi, val_SB;
   for(int i = 0; i < nBinspT; i++) {
     // pT bin
     ftexPR << Form("$[%.1f, %.1f]$", pTBins[i], pTBins[i+1]);
@@ -220,9 +249,12 @@ void calcSys()
       ftexPR << " & $-$";
     else
       ftexPR << " & $" << val_phi << "$";
+    // SB-fit: always negative
+    val_SB = hs_MPR->GetBinContent(i+1);
+    ftexPR << " & $" << val_SB << "$";
     // full syst (sum all sources)
     double valP = sqrt(pow(val_d,2)+pow(val_eff,2));
-    double valN = sqrt(pow(val_d,2)+pow(val_eff,2)+pow(val_phi,2));
+    double valN = sqrt(pow(val_d,2)+pow(val_eff,2)+pow(val_phi,2)+pow(val_SB,2));
     sysPR_P[i] = valP;
     sysPR_N[i] = valN;
     double valAv = max(valP, valN);
@@ -235,8 +267,8 @@ void calcSys()
 
   ofstream ftexNP;
   ftexNP.open(Form("text_output/sysNP_unc.tex"));
-  ftexNP << "\\begin{tabular}{c||c|c|c||c}\n";
-  ftexNP << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$ \\\\\n";
+  ftexNP << "\\begin{tabular}{c||c|c|c|c||c}\n";
+  ftexNP << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma^{\\text{SB}}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$ \\\\\n";
   ftexNP << "\\hline\n";
 
   for(int i = 0; i < nBinspT; i++) {
@@ -262,9 +294,16 @@ void calcSys()
       ftexNP << " & $-$";
     else
       ftexNP << " & $+" << val_phi << "$";
+    // SB-fit: positive to negative
+    val_SB = hs_MNP->GetBinContent(i+1);
+    ftexNP << " & $";
+    if(val_SB > 0) ftexNP << "+";
+    ftexNP << val_SB << "$";
     // full syst (sum all sources)
     double valP = sqrt(pow(val_d,2)+pow(val_eff,2)+pow(val_phi,2));
     double valN = sqrt(pow(val_d,2)+pow(val_eff,2));
+    if(val_SB > 0) valP = sqrt(pow(valP,2) + pow(val_SB,2));
+    else valN = sqrt(pow(valN,2) + pow(val_SB,2));
     sysNP_P[i] = valP;
     sysNP_N[i] = valN;
     double valAv = max(valP, valN);
@@ -339,7 +378,7 @@ void calcSys()
   fl1->SetYTitle("#lambda_{#theta}");
   fl1->GetYaxis()->SetTitleOffset(1.3);
   fl1->GetYaxis()->SetLabelOffset(0.01);
-  fl1->SetTitle("Run 2 #lambda_{#theta}");
+  //fl1->SetTitle("Run 2 #lambda_{#theta}");
   
   TGraphAsymmErrors *lth_fPR = new TGraphAsymmErrors(nBinspT, graph_lth[0]->GetX(), graph_lth[0]->GetY(), graph_lth[0]->GetEX(), graph_lth[0]->GetEX(), errPR_P, errPR_N);
   lth_fPR->SetMarkerColor(kBlue);
@@ -356,7 +395,7 @@ void calcSys()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg2 = new TLegend(0.67, 0.7, 0.97, 0.9);
+  TLegend *leg2 = new TLegend(0.67, 0.785, 0.97, 0.985);
   leg2->SetTextSize(0.03);
   leg2->AddEntry(lth_fPR, "prompt J/#psi", "pl");
   leg2->AddEntry(lth_fNP, "non-prompt J/#psi", "pl");

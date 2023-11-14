@@ -20,7 +20,7 @@ void ctEvts()
   double n_MC[pt_n+1];
 
   // open files and read TTrees
-  TFile *finD = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/data18_cos.root");
+  TFile *finD = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/data16_cos.root");
   TTree *tree = (TTree*)finD->Get("data_cos");
 
   for(int i_pt = 0; i_pt < pt_n; i_pt++) { // cycle in pt region
@@ -40,13 +40,13 @@ void ctEvts()
 
   finD->Close();
 
-  TFile *fin1 = new TFile("../../Store_data_codes/MC18_cos.root");
+  /*  TFile *fin1 = new TFile("../../Store_data_codes/MC16_cos.root");
   TTree *treeM1 = (TTree*)fin1->Get("MC_cos");
-  TFile *fin2 = new TFile("../../Store_data_codes/MCm18_cos.root");
+  TFile *fin2 = new TFile("../../Store_data_codes/MCm16_cos.root");
   TTree *treeM2 = (TTree*)fin2->Get("MC_cos");
-  TFile *fin3 = new TFile("../../Store_data_codes/MCh18_cos.root");
+  TFile *fin3 = new TFile("../../Store_data_codes/MCh16_cos.root");
   TTree *treeM3 = (TTree*)fin3->Get("MC_cos");
-  TFile *fin4 = new TFile("../../Store_data_codes/MCvh18_cos.root");
+  TFile *fin4 = new TFile("../../Store_data_codes/MCvh16_cos.root");
   TTree *treeM4 = (TTree*)fin4->Get("MC_cos");
 
   n_MC[0] = treeM1->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[0], pt_max[0], lt_min[0], lt_max[0], m_min[1], m_max[1]));
@@ -55,18 +55,20 @@ void ctEvts()
   n_MC[3] = treeM4->GetEntries(Form("dimPt > %f && dimPt < %f && lt > %f && lt < %f && Mass > %f && Mass < %f", pt_min[3], pt_max[3], lt_min[0], lt_max[0], m_min[1], m_max[1]));
 
   n_MC[4] = n_MC[0] + n_MC[1] + n_MC[2] + n_MC[3];
-
+  
   fin1->Close();
   fin2->Close();
   fin3->Close();
-  fin4->Close();
+  fin4->Close();*/
+
+  for(int i = 0; i < 5; i++) n_MC[i] = 0;
 
   // output results into a .tex table
   ofstream ftex;
-  ftex.open(Form("text_output/data_mc_evts_2018.tex"));
+  ftex.open(Form("text_output/data_mc_evts_2016.tex"));
   ftex << "\\begin{tabular}{cc|cccc|c}\n";
   ftex << "\\hline\n";
-  ftex << Form("\\multicolumn{2}{c}{2018} & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[3], pt_max[3], pt_min[0], pt_max[3]);
+  ftex << Form("\\multicolumn{2}{c}{2016} & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[3], pt_max[3], pt_min[0], pt_max[3]);
   ftex << "\\hline\n";
 
   // data output

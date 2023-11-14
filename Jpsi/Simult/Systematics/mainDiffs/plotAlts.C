@@ -109,7 +109,7 @@ void plotAlts()
     diffP[1][i] = (graph_phi[3]->GetY()[i] - graph_phi[0]->GetY()[i]);
     diffP[2][i] = (graph_phi[4]->GetY()[i] - graph_phi[1]->GetY()[i]);
 
-    cout << i << " " << diffP[0][i] << " " << diffP[1][i] << " / " << diffP[2][i] << endl;
+    //cout << i << " " << diffP[0][i] << " " << diffP[1][i] << " / " << diffP[2][i] << endl;
     
     za[i] = 0;
   }
@@ -219,6 +219,9 @@ void plotAlts()
   c->SaveAs("plots/lth_absDiff_muEff.pdf");
   c->Clear();
 
+  c->SetTopMargin(0.1);
+  
+  
   // eta variation
   TH1F *flE = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
   flE->SetXTitle("p_{T} (GeV)");
@@ -283,7 +286,6 @@ void plotAlts()
   g_lthY->SetMarkerStyle(20);
   g_lthY->SetMarkerSize(.75);
   g_lthY->Draw("p same");
-
   
   TF1 *f1 = new TF1("f1", "[0]", 25, 120);
   f1->SetParameter(0, 0.02);
@@ -344,7 +346,7 @@ void plotAlts()
   g_uncNP->SetFillColorAlpha(kBlack, 0.1);
   g_uncNP->Draw("ce3");
 
-  TLegend *legpn = new TLegend(0.72, 0.7, 0.97, 0.9);
+  TLegend *legpn = new TLegend(0.72, 0.8, 0.97, 0.9);
   legpn->SetTextSize(0.03);
   legpn->AddEntry(g_lthPhiNP, "#beta = 0.02", "pl");
   legpn->Draw();

@@ -119,7 +119,7 @@ void plotFracs()
   lc.SetTextColor(kRed);
   lc.DrawLatex(55, 29, "non-prompt J/#psi");
   lc.SetTextColor(kGreen+1);
-  lc.DrawLatex(55, 10, "prompt continuum muon pairs");
+  lc.DrawLatex(55, 10, "continuum muon pairs");
 
   c->SaveAs("plots/f_comp_corr.pdf");
   c->Clear();

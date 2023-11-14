@@ -15,6 +15,11 @@ void store_ANdists()
   for(int i = 0; i < 8; i++)
     h_y[i] = new TH1D(Form("h_y%d", i), Form("y distributions"), 60, -1.5, 1.5);
 
+  // 8 phi dists: (PRSR data + MC) over 4 pT regions
+  TH1D **h_phi = new TH1D*[8]; 
+  for(int i = 0; i < 8; i++)
+    h_phi[i] = new TH1D(Form("h_phi%d", i), Form("phi distributions"), 70, -3.5, 3.5);
+
   // 9 M dists: (PR data + MC) over 4 pT regions, full pT data
   TH1D **h_m = new TH1D*[9]; 
   for(int i = 0; i < 9; i++)
@@ -50,35 +55,40 @@ void store_ANdists()
   int m3Evt = treeM3->GetEntries();
   
   // definitions to store data and MC events
-  Double_t data_th, data_pt, data_lt, data_m, data_y;
-  Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y;
+  Double_t data_th, data_pt, data_lt, data_m, data_y, data_phi;
+  Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y, mc_phi;
   
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
   treeD->SetBranchAddress("Rap", &data_y);
+  treeD->SetBranchAddress("dimPhi", &data_phi);
   treeD->SetBranchAddress("Mass", &data_m);
   treeD->SetBranchAddress("lt", &data_lt);
   
   treeM1->SetBranchAddress("theta", &mc_th);
   treeM1->SetBranchAddress("dimPt", &mc_pt);
+  treeM1->SetBranchAddress("dimPhi", &mc_phi);
   treeM1->SetBranchAddress("Rap", &mc_y);
   treeM1->SetBranchAddress("Mass", &mc_m);
   treeM1->SetBranchAddress("lt", &mc_lt);
 
   treeM1a->SetBranchAddress("theta", &mc_th);
   treeM1a->SetBranchAddress("dimPt", &mc_pt);
+  treeM1a->SetBranchAddress("dimPhi", &mc_phi);
   treeM1a->SetBranchAddress("Rap", &mc_y);
   treeM1a->SetBranchAddress("Mass", &mc_m);
   treeM1a->SetBranchAddress("lt", &mc_lt);
 
   treeM2->SetBranchAddress("theta", &mc_th);
   treeM2->SetBranchAddress("dimPt", &mc_pt);
+  treeM2->SetBranchAddress("dimPhi", &mc_phi);
   treeM2->SetBranchAddress("Rap", &mc_y);
   treeM2->SetBranchAddress("Mass", &mc_m);
   treeM2->SetBranchAddress("lt", &mc_lt);
   
   treeM3->SetBranchAddress("theta", &mc_th);
   treeM3->SetBranchAddress("dimPt", &mc_pt);
+  treeM3->SetBranchAddress("dimPhi", &mc_phi);
   treeM3->SetBranchAddress("Rap", &mc_y);
   treeM3->SetBranchAddress("Mass", &mc_m);
   treeM3->SetBranchAddress("lt", &mc_lt);
@@ -105,6 +115,18 @@ void store_ANdists()
 	  h_y[3]->Fill(data_y);
       }
       
+      // fill the y histo
+      if(data_m > 3.0 && data_m < 3.2 && abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
+	if(data_pt > 25 && data_pt < 45) 
+	  h_phi[0]->Fill(data_phi);
+	else if(data_pt > 45 && data_pt < 50) 
+	  h_phi[1]->Fill(data_phi);
+	else if(data_pt > 50 && data_pt < 70) 
+	  h_phi[2]->Fill(data_phi);
+	else if(data_pt > 70 && data_pt < 120) 
+	  h_phi[3]->Fill(data_phi);
+      }
+
       // fill the M histo
       if(abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
 	if(data_pt > 25 && data_pt < 120)
@@ -179,6 +201,12 @@ void store_ANdists()
 	  h_y[4]->Fill(mc_y);
       }
 
+      // fill the phi histo
+      if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
+	if(mc_pt > 25 && mc_pt < 45) 
+	  h_phi[4]->Fill(mc_phi);
+      }
+
       // fill the m histo
       if(abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
 	if(mc_pt > 25 && mc_pt < 45) 
@@ -211,7 +239,13 @@ void store_ANdists()
 	if(mc_pt > 45 && mc_pt < 50) 
 	  h_y[5]->Fill(mc_y);
       }
-      
+
+      // fill the phi histo
+      if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
+	if(mc_pt > 45 && mc_pt < 50) 
+	  h_phi[5]->Fill(mc_phi);
+      }
+
       // fill the m histo
       if(abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
 	if(mc_pt > 45 && mc_pt < 50) 
@@ -239,11 +273,18 @@ void store_ANdists()
 	h_pT[3]->Fill(mc_pt);
       }
 
+      // fill the y histo
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005) {
 	if(mc_pt > 50 && mc_pt < 70) 
 	  h_y[6]->Fill(mc_y);
       }
-      
+
+      // fill the phi histo
+      if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
+	if(mc_pt > 50 && mc_pt < 70) 
+	  h_phi[6]->Fill(mc_phi);
+      }
+
       // fill the m histo
       if(abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
 	if(mc_pt > 50 && mc_pt < 70) 
@@ -275,6 +316,12 @@ void store_ANdists()
       if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005) {
 	if(mc_pt > 70 && mc_pt < 120) 
 	  h_y[7]->Fill(mc_y);
+      }
+
+      // fill the phi histo
+      if(mc_m > 3.0 && mc_m < 3.2 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2) {
+	if(mc_pt > 70 && mc_pt < 120) 
+	  h_phi[7]->Fill(mc_phi);
       }
 
       // fill the m histo
@@ -313,6 +360,11 @@ void store_ANdists()
   string lbl_y[] = {"lowPtData", "midPtData", "highPtData", "highestPtData", "lowPtMC", "midPtMC", "highPtMC", "highestPtMC"};
   for(int i = 0; i < 8; i++) {
     h_y[i]->Write(Form("h_y_%s", lbl_y[i].c_str()));
+  }
+
+  // store the phi dists
+  for(int i = 0; i < 8; i++) {
+    h_phi[i]->Write(Form("h_phi_%s", lbl_y[i].c_str()));
   }
 
   // store the M dists
