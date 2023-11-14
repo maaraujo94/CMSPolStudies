@@ -1,0 +1,61 @@
+// code to plot the fit results
+
+#import "../ptbins.C"
+
+void plotLth_NP()
+{
+  // get the fit results
+  // get lambda values for each bin
+  string lbl[] = {"NP", "NPc"};
+  TFile *fInd = new TFile("../NP_fit/files/finalFitRes.root");
+  TGraphErrors **graph_lth = new TGraphErrors*[2];
+  for(int i_t = 0; i_t < 2; i_t++) {
+    graph_lth[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
+  }    
+  fInd->Close();
+
+  // draw the fit results
+  TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetRightMargin(0.03);
+  c->SetTopMargin(0.015);
+  
+  int cols[] = {kRed+3, kRed};
+
+  for(int i = 0; i < 2; i++) {
+    graph_lth[i]->SetLineColor(cols[i]);
+    graph_lth[i]->SetMarkerColor(cols[i]);
+  }
+  TLegend *leg = new TLegend(0.65, 0.2, 0.95, 0.3);
+  leg->SetTextSize(0.03);
+  leg->SetBorderSize(0);
+  leg->SetFillColorAlpha(kWhite,0);
+  leg->AddEntry(graph_lth[0], "NPS", "pl");
+  leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
+
+  // draw lambda_th(pT) - just peak
+  TH1F *fl1 = c->DrawFrame(ptBins[0]-5, -1, ptBins[nPtBins], 1);
+  fl1->SetXTitle("p_{T} (GeV)");
+  fl1->SetYTitle("#lambda_{#theta}");
+  fl1->GetYaxis()->SetTitleOffset(1.3);
+  fl1->GetYaxis()->SetLabelOffset(0.01);
+  fl1->SetTitle("");
+
+  graph_lth[0]->Draw("p same");
+
+  TLine *zero = new TLine(ptBins[0]-5, 0, ptBins[nPtBins], 0);
+  zero->SetLineColor(kBlack);
+  zero->SetLineStyle(kDashed);
+  zero->Draw();
+
+  leg->Draw();
+  
+  c->SaveAs("plots/ratioFinal_NP/lth1_S.pdf");
+
+  // add np lambda_th
+  graph_lth[1]->Draw("p same");
+
+  c->SaveAs("plots/ratioFinal_NP/lth2_S.pdf");
+  
+  c->Destructor();  
+
+}

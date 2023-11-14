@@ -24,17 +24,11 @@ void plotRes()
   }    
   fInd->Close();
 
-  TFile *fIndth = new TFile("../../Simult/PR_fit/files/finalFitRes.root");
-  TGraphErrors **graph_lth = new TGraphErrors*[4];
-  for(int i_t = 0; i_t < 4; i_t++) {
-    graph_lth[i_t] = (TGraphErrors*)fIndth->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
-  }
-  fIndth->Close();
-  
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetRightMargin(0.03);
   c->SetLeftMargin(0.11);
+  c->SetTopMargin(0.015);
 
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
@@ -42,7 +36,7 @@ void plotRes()
   fl->SetYTitle("#beta");
   fl->GetYaxis()->SetTitleOffset(1.6);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Run 2 #beta (PR)");
+  fl->SetTitle("");
 
   int col[] = {kViolet, kRed, kBlack, kBlue};
   for(int i = 0; i < 4; i++) {
@@ -56,24 +50,26 @@ void plotRes()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.74, 0.7, 0.97, 0.9);
+  TLegend *leg = new TLegend(0.65, 0.75, 0.95, 0.95);
   leg->SetTextSize(0.03);
+  leg->SetBorderSize(0);
+  leg->SetFillColorAlpha(kWhite,0);
   leg->AddEntry(graph_B[0], "total", "pl");
-  leg->AddEntry(graph_B[1], "NP contrib", "pl");
+  leg->AddEntry(graph_B[1], "non-prompt #psi(2S)", "pl");
   leg->AddEntry(graph_B[2], "prompt", "pl");
   leg->AddEntry(graph_B[3], "prompt #psi(2S)", "pl");
   leg->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
   c->Clear();
-
+  
   // draw just final lambda_th(pT)
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
   fl2->SetXTitle("p_{T} (GeV)");
   fl2->SetYTitle("#beta");
   fl2->GetYaxis()->SetTitleOffset(1.6);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #beta");
+  fl2->SetTitle("");
 
   graph_B[3]->SetLineColor(kBlue);
   graph_B[3]->SetMarkerColor(kBlue);
@@ -85,12 +81,10 @@ void plotRes()
 
   zero->Draw();
 
-  TF1 *fcon = new TF1("fc", "[0]", pTBins[0], pTBins[nBinspT]);
-  fcon->SetParameter(0, -0.01);
-  //graph_B[1]->Fit(fcon, "0");
-  //  graph_B[3]->Fit(fcon, "0");
-
-  TLegend *leg2 = new TLegend(0.66, 0.75, 0.97, 0.9);
+  TLegend *leg2 = new TLegend(0.65, 0.85, 0.95, 0.95);
+  leg2->SetTextSize(0.03);
+  leg2->SetBorderSize(0);
+  leg2->SetFillColorAlpha(kWhite,0);
   leg2->SetTextSize(0.03);
   leg2->AddEntry(graph_B[3], "prompt #psi(2S)", "pl");
   leg2->AddEntry(graph_B[1], "non-prompt #psi(2S)", "pl");
@@ -146,15 +140,6 @@ void plotRes()
     graph_A[i]->Draw("p same");
   }
 
-  TLine *trans1_A = new TLine(46, 1e-2, 46, 6e-1);
-  trans1_A->SetLineColor(kBlack);
-  trans1_A->SetLineStyle(kDashed);
-  trans1_A->Draw();
-  TLine *trans2_A = new TLine(66, 1e-2, 66, 6e-1);
-  trans2_A->SetLineColor(kBlack);
-  trans2_A->SetLineStyle(kDashed);
-  trans2_A->Draw();
-
   c->SaveAs("plots/ratioFinal/par_A.pdf");
   c->Clear();
 
@@ -175,15 +160,6 @@ void plotRes()
     graph_chi[i]->SetMarkerSize(.75);
     graph_chi[i]->Draw("p same");
   }
-
-  TLine *trans1_C = new TLine(46, 0, 46, 1);
-  trans1_C->SetLineColor(kBlack);
-  trans1_C->SetLineStyle(kDashed);
-  trans1_C->Draw();
-  TLine *trans2_C = new TLine(66, 0, 66, 1);
-  trans2_C->SetLineColor(kBlack);
-  trans2_C->SetLineStyle(kDashed);
-  trans2_C->Draw();
 
   c->SaveAs("plots/ratioFinal/par_chiP.pdf");
   c->Clear();

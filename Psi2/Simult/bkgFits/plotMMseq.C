@@ -128,7 +128,7 @@ void plotMMseq()
     if(i_p == 0) {
       g_par[i_p][2]->SetLineColor(kRed);
       g_par[i_p][2]->SetFillColorAlpha(kRed, 0.5);
-      g_par[i_p][2]->Draw("ce3");
+      //g_par[i_p][2]->Draw("ce3");
     }
 
     // if we're plotting par 3, add par 4 (both sigmas in 1)
@@ -176,11 +176,11 @@ void plotMMseq()
 
   g_par[3][3]->SetLineColor(kRed);
   g_par[3][3]->SetFillColorAlpha(kRed, 0.5);
-  g_par[3][3]->Draw("ce3");
+  //g_par[3][3]->Draw("ce3");
 
   g_par[3+1][3]->SetLineColor(kRed);
   g_par[3+1][3]->SetFillColorAlpha(kRed, 0.5);
-  g_par[3+1][3]->Draw("ce3");
+  //g_par[3+1][3]->Draw("ce3");
 
   TLegend *leg2 = new TLegend(0.75, 0.25, 0.9, 0.4);
   leg2->SetTextSize(0.03);
@@ -231,7 +231,7 @@ void plotMMseq()
     fl->SetYTitle(parax[i_p].c_str());
     fl->GetYaxis()->SetTitleOffset(1.8);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Run 2 %s (#mu, f constant, #sigma_{1,2} linear)", partit[i_p].c_str()));
+    fl->SetTitle(Form("MC %s vs p_{T} (#mu_{m}, f_{CB_{1}} constant, #sigma_{CB1,CB2} linear)", partit[i_p].c_str()));
 
     c->SetLogy(0);
 
@@ -245,7 +245,7 @@ void plotMMseq()
     if(i_p == 5) {
       g_par[i_p][4]->SetLineColor(kRed);
       g_par[i_p][4]->SetFillColorAlpha(kRed, 0.5);
-      g_par[i_p][4]->Draw("ce3");
+      //g_par[i_p][4]->Draw("ce3");
     }
 
     c->SaveAs(Form("plots/MCMass/par_3_%s.pdf", parlab[i_p].c_str()));

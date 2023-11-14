@@ -93,7 +93,7 @@ void plotRes()
   TLine *trans1_A = new TLine(46, 4e-2, 46, 4e-1);
   trans1_A->SetLineColor(kBlack);
   trans1_A->SetLineStyle(kDashed);
-  trans1_A->Draw();
+  //trans1_A->Draw();
 
   c->SaveAs("plots/ratioFinal/par_A.pdf");
   c->Clear();
@@ -119,7 +119,7 @@ void plotRes()
   TLine *trans1_C = new TLine(46, 0, 46, 1);
   trans1_C->SetLineColor(kBlack);
   trans1_C->SetLineStyle(kDashed);
-  trans1_C->Draw();
+  //trans1_C->Draw();
 
   c->SaveAs("plots/ratioFinal/par_chiP.pdf");
   c->Clear();

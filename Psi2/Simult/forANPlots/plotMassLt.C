@@ -1,7 +1,7 @@
 // macro to plot a mass:lifetime 2d histo for all data
 void plotMassLt()
 {
-  TH2D *hist = new TH2D("name", "Run 2 Data", 36, 3.4, 4.0, 120, -0.01, 0.05);
+  TH2D *hist = new TH2D("name", "Run 2 Data", 36, 3.4, 4.0, 180, -0.01, 0.08);
 
   // open files and read TTrees
   TFile *finD = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/dataS_cos.root");
@@ -28,6 +28,7 @@ void plotMassLt()
 
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.11);
+  c->SetRightMargin(0.03);
   c->SetLogz();
  
   hist->SetStats(0);

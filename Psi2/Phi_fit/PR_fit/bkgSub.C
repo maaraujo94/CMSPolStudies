@@ -44,7 +44,7 @@ void bkgSub()
   h_fb2d->SetDirectory(0);
   inFracSB->Close();
   TFile *inFracNP = new TFile("files/NPFrac.root");
-  inFracNP->GetObject("h_fNPc", h_fnp2d);
+  inFracNP->GetObject("h_fnp", h_fnp2d);
   h_fnp2d->SetDirectory(0);
   inFracNP->Close();
 

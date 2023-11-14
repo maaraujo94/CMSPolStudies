@@ -61,7 +61,7 @@ void histoSave()
 	    PRRHist->Fill(abs(cos(data_th)), data_pt);
 	}
 	// NP peak and sidebands
-	else if(data_lt > 0.01 && data_lt < 0.05 ) {
+	else if(data_lt > 0.01 && data_lt < 0.08 ) {
 	  if(data_m > m_min[1] && data_m < m_max[1])
 	    NPHist->Fill(abs(cos(data_th)), data_pt);
 	  else if(data_m < m_max[0] && data_m > m_min[0])

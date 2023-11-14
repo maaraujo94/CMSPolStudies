@@ -26,6 +26,8 @@ void plotRes()
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetRightMargin(0.03);
+  c->SetTopMargin(0.015);
 
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
@@ -33,7 +35,7 @@ void plotRes()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Run 2 #lambda_{#theta}");
+  fl->SetTitle("");
 
   int col[] = {kViolet, kRed, kBlack, kBlue};
   for(int i = 0; i < 4; i++) {
@@ -47,10 +49,12 @@ void plotRes()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.12, 0.9, 0.32);
+  TLegend *leg = new TLegend(0.65, 0.12, 0.95, 0.32);
   leg->SetTextSize(0.03);
+  leg->SetBorderSize(0);
+  leg->SetFillColorAlpha(kWhite,0);
   leg->AddEntry(graph_lth[0], "total", "pl");
-  leg->AddEntry(graph_lth[1], "NP contrib", "pl");
+  leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
   leg->AddEntry(graph_lth[2], "prompt", "pl");
   leg->AddEntry(graph_lth[3], "prompt #psi(2S)", "pl");
   leg->Draw();
@@ -61,10 +65,10 @@ void plotRes()
   // draw just final lambda_th(pT)
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
   fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("#lambda_{#theta}");
+  fl2->SetYTitle("#lambda_{#theta}^{PR}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #lambda_{#theta} (prompt #psi(2S))");
+  fl2->SetTitle("");
 
   graph_lth[3]->SetLineColor(kBlack);
   graph_lth[3]->SetMarkerColor(kBlack);
@@ -83,7 +87,7 @@ void plotRes()
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
   fa->GetYaxis()->SetLabelOffset(0.01);
-  fa->SetTitle("Run 2 A");
+  fa->SetTitle("");
 
   // combine both lambda_th distributions
   for(int i = 0; i < 4; i++) {
@@ -91,11 +95,6 @@ void plotRes()
     graph_A[i]->SetMarkerColor(col[i]);
     graph_A[i]->Draw("p same");
   }
-
-  TLine *trans1_A = new TLine(46, 1e-2, 46, 6e-1);
-  trans1_A->SetLineColor(kBlack);
-  trans1_A->SetLineStyle(kDashed);
-  trans1_A->Draw();
 
   c->SaveAs("plots/ratioFinal/par_A.pdf");
   c->Clear();
@@ -107,7 +106,7 @@ void plotRes()
   fc->SetYTitle("P(#chi^{2}, ndf)");
   fc->GetYaxis()->SetTitleOffset(1.3);
   fc->GetYaxis()->SetLabelOffset(0.01);
-  fc->SetTitle("Run 2 P(#chi^{2}, ndf)");
+  fc->SetTitle("");
 
   // combine both lambda_th distributions
   for(int i = 0; i < 4; i++) {
@@ -117,11 +116,6 @@ void plotRes()
     graph_chi[i]->SetMarkerSize(.75);
     graph_chi[i]->Draw("p same");
   }
-
-  TLine *trans1_C = new TLine(46, 0, 46, 1);
-  trans1_C->SetLineColor(kBlack);
-  trans1_C->SetLineStyle(kDashed);
-  trans1_C->Draw();
 
   c->SaveAs("plots/ratioFinal/par_chiP.pdf");
   c->Clear();

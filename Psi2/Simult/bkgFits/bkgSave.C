@@ -31,7 +31,7 @@ void bkgSave()
       if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
 	h_d2d->Fill(data_m, data_pt);
       }
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.05 && abs(data_y) < 1.2) {
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.08 && abs(data_y) < 1.2) {
 	hNP_d2d->Fill(data_m, data_pt);
       }
     }

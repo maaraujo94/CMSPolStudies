@@ -55,7 +55,7 @@ void indFit()
   double parA[4][nBinsY], eparA[4][nBinsY];
   double parL[4][nBinsY], eparL[4][nBinsY];
   double chi2[4][nBinsY], ndf[4][nBinsY], chiP[4][nBinsY];
-  double pt[nBinsY], ept[nBinsY];
+  double pt[nBinsY], ept[nBinsY], cMax[nBinsY];
   
   for(int i = 0; i < nBinsY; i++) {
     // get pt vars
@@ -66,7 +66,8 @@ void indFit()
 
     // get max costheta
     double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin))-0.05;
-
+    cMax[i] = cMaxVal;
+    
     // fit the 4 functions
     for(int i_t = 0; i_t < 4; i_t++) {
       fit1d[i_t]->SetRange(0, cMaxVal);
@@ -140,9 +141,42 @@ void indFit()
  
     c->SaveAs(Form("plots/ratioFinal/bin_%d.pdf", i));
     c->Clear();
-    cout << endl << endl;
   }
 
+    outfile->Close();
+
+  // need to fit the NP_fit NPc dist to get correct beta_NP
+  TFile *infile_NP = new TFile("../NP_fit/files/bkgSubRes.root");
+  infile_NP->GetObject(Form("h_NPc"), h_fit[1]);
+  h_fit[1]->SetDirectory(0);
+  infile_NP->Close();
+
+  // get the 1d plots
+  for(int i_pt = 1; i_pt <= nBinsY; i_pt++) {
+    pHist[1][i_pt-1] = h_fit[1]->ProjectionX(Form("bin%d_%d", i_pt, 2), i_pt, i_pt);
+    pHist[1][i_pt-1]->SetTitle(Form("NP bin %d: [%.0f, %.0f] GeV", i_pt, yBins[i_pt-1], yBins[i_pt]));
+  }
+  
+  // new cycle, for correct NP fits
+  for(int i = 0; i < nBinsY; i++) {
+    double pMin = h_fit[0]->GetYaxis()->GetBinLowEdge(i+1);
+    double pMax = h_fit[0]->GetYaxis()->GetBinUpEdge(i+1);
+    
+    // need to fit NP first
+    fit1d[1]->SetRange(0, cMax[i]);
+    fit1d[1]->SetParameters(pHist[1][i]->GetBinContent(1)*1.1, 0.1);
+
+    pHist[1][i]->Fit(fit1d[1], "R0");
+    parA[1][i] = fit1d[1]->GetParameter(0);
+    eparA[1][i] = fit1d[1]->GetParError(0);
+    parL[1][i] = fit1d[1]->GetParameter(1);
+    eparL[1][i] = fit1d[1]->GetParError(1);
+    chi2[1][i] = fit1d[1]->GetChisquare();
+    ndf[1][i] = fit1d[1]->GetNDF();
+    chiP[1][i] = TMath::Prob(chi2[1][i], ndf[1][i]);
+  }
+
+  TFile *outfile2 = new TFile("files/finalFitRes.root", "update");
   for(int i_t = 0; i_t < 4; i_t++) {
     // make and save the TGraph with the fit results and max costh used
     TGraphErrors *graphA = new TGraphErrors(nBinsY, pt, parA[i_t], ept, eparA[i_t]);
@@ -163,7 +197,7 @@ void indFit()
     graphN->Write();
     graphP->Write();
   }
-  outfile->Close();
+  outfile2->Close();
 
   c->Destructor();
 }

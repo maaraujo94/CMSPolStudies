@@ -223,7 +223,7 @@ void newMCmass_4()
 	  
     c->SetLogy(0);
 
-    double lowmp = 2.94, himp = 3.2;
+    double lowmp = 3.35, himp = 4.0;
 	  
     // plotting the puls
     TH1F *fl = c->DrawFrame(lowmp, -6, himp, 6);

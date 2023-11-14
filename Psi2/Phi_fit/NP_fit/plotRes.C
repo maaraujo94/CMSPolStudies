@@ -2,7 +2,7 @@
 
 void plotRes()
 {
-  // get the histo limits
+  // get the histo limit
   TFile *fIn = new TFile("files/bkgSubRes.root");
   TH2D* rHist;
   fIn->GetObject("h_NP", rHist);
@@ -31,10 +31,10 @@ void plotRes()
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
   fl->SetXTitle("p_{T} (GeV)");
-  fl->SetYTitle("#lambda_{#phi}");
+  fl->SetYTitle("#beta");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Run 2 #lambda_{#phi} (NP)");
+  fl->SetTitle("Run 2 #beta (NP)");
 
   int col[] =  {kRed+3, kRed};
   for(int i = 0; i < 2; i++) {
@@ -60,10 +60,10 @@ void plotRes()
   // draw just final lambda_th(pT)
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
   fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("#lambda_{#phi}");
+  fl2->SetYTitle("#beta");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #lambda_{#phi} (non-prompt #psi(2S))");
+  fl2->SetTitle("Run 2 #beta (non-prompt #psi(2S))");
 
   graph_lth[1]->SetLineColor(kBlack);
   graph_lth[1]->SetMarkerColor(kBlack);

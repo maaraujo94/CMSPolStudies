@@ -242,12 +242,12 @@ void newMCmass_G()
     double lowmp = fit_i, himp = fit_f;
 	  
     // plotting the pulls
-    TH1F *fl = c->DrawFrame(lowmp, -7, himp, 7);
+    TH1F *fl = c->DrawFrame(lowmp, -9, himp, 9);
     fl->SetXTitle("M(#mu#mu) (GeV)");
     fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("MC mass fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fl->SetTitle(Form("MC mass fit pulls (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 	  
     TGraph *g_pull = new TGraph(mbins, mv, pv);
     g_pull->SetLineColor(kBlack);
