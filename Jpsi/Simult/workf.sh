@@ -38,7 +38,6 @@ root -l -b -q histoSave.C
 root -l -b -q bkgSave.C 
 #root -l -b -q ltBkg2d.C
 #root -l -b -q plotLPars2d.C
-#root -l -b -q ltBkg.C
 root -l -b -q fnpProp.C
 root -l -b -q fNPcorr.C
 

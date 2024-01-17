@@ -4,7 +4,7 @@ void bkgSave()
 {
   // section for storing the lifetime histograms
   // prepare binning and histograms for plots
-  int tbins = 110;
+  int tbins = 55;
   double lowt = -0.05, hit = 0.5; // plotting in mm, not cm
   TH2D *ltHist = new TH2D("ltH", "Run 2 data c#tau", tbins, lowt, hit, nPtBins, ptBins);
     

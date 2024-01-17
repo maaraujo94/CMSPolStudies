@@ -5,7 +5,7 @@ void bkgSave()
 {
   // section for storing the mass histograms
   // prepare histograms for plots - fine
-  int mbins = 40;
+  int mbins = 80;
   double lowm = 2.9, him = 3.3;
   TH2D *h_d2d = new TH2D("mH", "Run 2 PR data M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
   TH2D *hNP_d2d = new TH2D("mH_NP", "Run 2 NP data M(#mu#mu)", mbins, lowm, him, nPtBins, ptBins);
@@ -41,7 +41,7 @@ void bkgSave()
 	h_d2d->Fill(data_m, data_pt);
 	h_d2d_C->Fill(data_m, data_pt);
       }
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.05 && abs(data_y) < 1.2) {
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.08 && abs(data_y) < 1.2) {
 	hNP_d2d->Fill(data_m, data_pt);
       }
     }

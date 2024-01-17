@@ -1,4 +1,4 @@
-#import "../ptbins.C"
+#import "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Simult/ptbins.C"
 
 double doProd(double x, double *par) {
   return par[0]*par[1];
@@ -37,7 +37,7 @@ double parErr(const int npar, double (*fpar)(double, double *), double x, double
   return ferr;
 }
 
-void plotLtPars2d()
+void plotLtPars2d_Psi2()
 {
   const int n_p = 9;
   double cov_df[nPtBins];
@@ -47,12 +47,12 @@ void plotLtPars2d()
   string partit[] = {"N_{PR}", "N_{NP}", "f_{G}", "f_{G_{2}}", "#mu_{c#tau}", "#sigma", "#sigma_{G_{2}}", "#sigma_{G_{3}}", "t_{NP_{#psi}}"};
   string par_unit[] = {" per 1 GeV", " per 1 GeV", " (%)", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
 
-  double parmin[] = {2e2, 1e3, 0,   0,  -1,  0,  0,  0, 0,  };
-  double parmax[] = {5e5, 2e6, 100, 100, 1,  45, 25, 40, 600.};
+  double parmin[] = {1e2, 4e2, 0,   0,  -1,  0,  0,  0, 0,  };
+  double parmax[] = {5e4, 2e5, 100, 100, 1,  60, 30, 40, 600.};
   double mult[] = {1, 1, 100., 100, 1e3, 1e3, 1, 1, 1e3};
 
   TGraphErrors **g_parR = new TGraphErrors*[n_p];
-  TFile *fin = new TFile("files/ltfitres2d.root");
+  TFile *fin = new TFile("files/ltfitres2d_psip.root");
   TFitResult *fitres = (TFitResult*)fin->Get("fitres");
   for(int j = 0; j < n_p; j++) {
     g_parR[j] = (TGraphErrors*)fin->Get(Form("fit_%s", par_read[j].c_str()));

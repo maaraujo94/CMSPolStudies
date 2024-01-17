@@ -1,7 +1,7 @@
 // macro to propagate the uncertainties to f_NP analytically
 // then save it as a 2d histo unc band
 
-#import "../ptbins.C"
+#import "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Simult/ptbins.C"
 
 // global definitions
 TF1 *fNP;
@@ -61,15 +61,15 @@ double parErr(const int npar, double (*fpar)(double, double *), double x, double
   return ferr;
 }
 
-void fnpProp()
+void fnpProp_Psi2()
 {
   // PART 1: get the uncertainty of the f_NP
 
   // prepare lt histograms
   TH2D *h_d2d = new TH2D();
   TH1D **h_d1d = new TH1D*[nPtBins];
-  TFile *fin = new TFile("files/ltStore.root");
-  fin->GetObject("ltH", h_d2d);
+  TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Simult/PR_fit/files/ltStore.root"); 
+ fin->GetObject("ltH_SR", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
   for(int ip = 0; ip < nPtBins; ip++) {
@@ -92,7 +92,7 @@ void fnpProp()
   fNP = new TF1("fNP", *fcNP, lowt, hit, fcNP->GetNpar());
   
   // get fit parameters from fitres
-  TFile *inNP = new TFile("files/ltfitres2d.root");
+  TFile *inNP = new TFile("files/ltfitres2d_psip.root");
   int n_par = 9; 
   // get fitres to get cov in each pT bin
   TFitResult *fitres = new TFitResult();
@@ -148,12 +148,12 @@ void fnpProp()
   h_fnp->SetLineColor(kBlack);
   h_fnp->Draw("e1 same");
   
-  c->SaveAs("plots/fNP_unc.pdf");
+  c->SaveAs("plots/lifetime2d/fNP_unc.pdf");
  
   // PART 2: generate f_np 2d histo
 
   // get costh binning from the stored data histos
-  TFile *infile = new TFile("files/histoStore.root");
+  TFile *infile = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Simult/PR_fit/files/histoStore.root");
   TH2D *hist = new TH2D();
   infile->GetObject(Form("PRH"), hist);
 
@@ -181,7 +181,7 @@ void fnpProp()
   h_fnp->Scale(1./100.);
   h_fnp2d->Scale(1./100.);
 
-  TFile *fout = new TFile("files/NPFrac.root", "recreate");
+  TFile *fout = new TFile("files/NPFrac_psip.root", "recreate");
   h_fnp->SetName("fnp_unc");
   h_fnp->Write();
   h_fnp2d->SetName("h_fnp");

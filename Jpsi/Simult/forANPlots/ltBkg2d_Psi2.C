@@ -1,5 +1,5 @@
 //pt bins defined globally for access from functions
-#import "../ptbins.C"
+#import "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Simult/ptbins.C"
 
 // functions to access within other functions
 TF1 *fres;
@@ -62,12 +62,12 @@ double getPos(double pi, double pf, double mult, bool isLog) {
 }
 
 
-void ltBkg2d()
+void ltBkg2d_Psi2()
 {
   // prepare binning and histograms for plots
   TH2D *h_d2d = new TH2D();  
-  TFile *fin = new TFile("files/ltStore.root");
-  fin->GetObject("ltH", h_d2d);
+  TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Simult/PR_fit/files/ltStore.root");
+  fin->GetObject("ltH_SR", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
 
@@ -80,7 +80,7 @@ void ltBkg2d()
   TH1D **h_d1d = new TH1D*[nPtBins];
   for(int i = 0; i < nPtBins; i++) {
     h_d1d[i] = h_d2d->ProjectionX(Form("ltH%.0f", ptBins[i]), i+1, i+1);
-    h_d1d[i]->SetTitle(Form("Run 2 data c#tau (%.1f < p_{T} < %.1f GeV)", ptBins[i], ptBins[i+1]));
+    h_d1d[i]->SetTitle(Form("Run 2 data c#tau (%.0f < p_{T} < %.0f GeV)", ptBins[i], ptBins[i+1]));
   }
   
   // define aux vals for plotting
@@ -236,7 +236,7 @@ void ltBkg2d()
     lc.DrawLatex(xp, yp, "#bf{#sqrt{s} = 13 TeV}");
     // draw pT
     yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.75, 1);
-    lc.DrawLatex(xp, yp, Form("#bf{%.1f < #it{p}_{T} < %.1f GeV}", ptBins[i_pt], ptBins[i_pt+1]));
+    lc.DrawLatex(xp, yp, Form("#bf{%.0f < #it{p}_{T} < %.0f GeV}", ptBins[i_pt], ptBins[i_pt+1]));
     // draw y
     yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.7, 1);
     lc.DrawLatex(xp, yp, "#bf{|#it{y}| < 1.2}");
@@ -248,7 +248,7 @@ void ltBkg2d()
     lc.SetTextSize(0.04);
     xp = getPos(lowPlot, hit, 0.6, 0);
     yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.5, 1);
-    lc.DrawLatex(xp, yp, "#bf{J/#psi}");
+    lc.DrawLatex(xp, yp, "#bf{#psi(2S)}");
 
     TLegend *leg = new TLegend(0.424, 0.2, 0.724, 0.55);
     leg->SetTextSize(0.03);
@@ -288,7 +288,7 @@ void ltBkg2d()
     fp->SetYTitle("pulls");
     fp->GetYaxis()->SetTitleOffset(1.3);
     fp->GetYaxis()->SetLabelOffset(0.01);
-    fp->SetTitle(Form("Lifetime fit pulls (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fp->SetTitle(Form("Lifetime fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
   
     TGraph *g_pull = new TGraph(tbins, tv, pv);
     g_pull->SetLineColor(kBlack);
@@ -335,7 +335,7 @@ void ltBkg2d()
     fd->SetYTitle("deviation");
     fd->GetYaxis()->SetTitleOffset(1.3);
     fd->GetYaxis()->SetLabelOffset(0.01);
-    fd->SetTitle(Form("Lifetime fit deviations (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fd->SetTitle(Form("Lifetime fit deviations (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 
     TGraph *g_dev = new TGraph(tbins, tv, dv);
     g_dev->SetLineColor(kBlack);
@@ -361,7 +361,7 @@ void ltBkg2d()
   }
   
   // storing the free parameters
-  TFile *fout = new TFile("files/ltfitres2d.root", "recreate");
+  TFile *fout = new TFile("files/ltfitres2d_psip.root", "recreate");
   string parlab[] = {"N_PR", "N_NP", "f1", "f2", "mu", "sig1", "sigR21", "sigR31", "t_NP"};
 
   for(int i_p = 0; i_p < 9; i_p++) {

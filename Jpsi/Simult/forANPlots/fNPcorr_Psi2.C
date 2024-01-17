@@ -1,13 +1,13 @@
-void fNPcorr()
+void fNPcorr_Psi2()
 {
   // get the base f_NP
-  TFile *inNP = new TFile("files/NPFrac.root");
+  TFile *inNP = new TFile("files/NPFrac_psip.root");
   TH2D *h_fnp = (TH2D*)inNP->Get("h_fnp");
   h_fnp->SetDirectory(0);
   inNP->Close();
   
   // get the f_bkg^NP from NP_fit folder
-  TFile *inSB = new TFile("../bkgFits/files/bkgFrac_NP.root");
+  TFile *inSB = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Simult/bkgFits/files/bkgFrac_NP.root");
   TH2D *h_fbkg = (TH2D*)inSB->Get("h_fbkg");
   h_fbkg->SetDirectory(0);
   inSB->Close();
@@ -31,6 +31,12 @@ void fNPcorr()
   TH2D *h_fNPc = (TH2D*)h_fnp->Clone("h_fNPc");
   h_fNPc->Multiply(h_fc);
 
+  // get fNP_psi from the original psi(2S) fit
+  TFile *fin_og = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Simult/PR_fit/files/NPFrac.root");
+  TH1D *h_fnppsi = (TH1D*)fin_og->Get("fnppsi_unc");
+  h_fnppsi->SetDirectory(0);
+  fin_og->Close();
+  
   // plot the comparison
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetRightMargin(0.03);
@@ -40,6 +46,7 @@ void fNPcorr()
   TH1D *h_fbkg1d = h_fbkg->ProjectionY("h_fbkg1d", 1, 1);
   TH1D *h_fnpc1d = h_fNPc->ProjectionY("h_fnpc1d", 1, 1);
 
+  h_fnppsi->Scale(100.);
   h_fnp1d->Scale(100.);
   h_fbkg1d->Scale(100.);
   h_fnpc1d->Scale(100.);
@@ -56,7 +63,6 @@ void fNPcorr()
   h_fnp1d->SetTitle("");
   h_fnp1d->SetLineColor(kRed+3);
   h_fnp1d->SetMarkerColor(kRed+3);
-  h_fnp1d->SetLineStyle(kDashed);
   h_fnp1d->SetMarkerStyle(20);
   h_fnp1d->SetMarkerSize(.75);
   h_fnp1d->Draw("error");
@@ -73,17 +79,25 @@ void fNPcorr()
   h_fnpc1d->SetMarkerSize(.75);
   h_fnpc1d->Draw("error same");
 
+  h_fnppsi->SetLineColor(kRed);
+  h_fnppsi->SetMarkerColor(kRed);
+  h_fnppsi->SetMarkerStyle(25);
+  h_fnppsi->SetMarkerSize(.75);
+  h_fnppsi->SetLineStyle(kDashed);
+ h_fnppsi->Draw("error same");
+  
   TLegend *leg = new TLegend(0.77, 0.78, 0.97, 0.98);
-  leg->SetTextSize(0.04);
+  leg->SetTextSize(0.03);
   leg->AddEntry(h_fnp1d, "f_{NP}", "pl");
   leg->AddEntry(h_fbkg1d, "f_{NPBg}", "pl");
-  leg->AddEntry(h_fnpc1d, "f_{NP#psi}", "pl");
+  leg->AddEntry(h_fnpc1d, "f_{NP#psi} est.", "pl");
+  leg->AddEntry(h_fnppsi, "f_{NP#psi} real", "pl");
   leg->Draw();
   
-  c->SaveAs("plots/f_NP_corr.pdf");
+  c->SaveAs("plots/lifetime2d/f_NP_corr.pdf");
   c->Destructor();
   
-  TFile *fout = new TFile("files/NPFrac.root", "update");
+  TFile *fout = new TFile("files/NPFrac_psip.root", "update");
   h_fNPc->Write(0, TObject::kOverwrite);
   fout->Close();
 }
