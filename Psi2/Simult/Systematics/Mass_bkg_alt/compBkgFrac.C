@@ -55,9 +55,7 @@ void compBkgFrac()
     fSBN_b[i]->SetDirectory(0);
     fin1->Close();
 
-    //    cout << "dying here?" << endl;
     fSBN_b[i]->Scale(100.);
-    //cout << "check" << endl;
   }
 
   TH1F *fr1n = c->DrawFrame(15, 0.0, 105, 50);

@@ -106,8 +106,7 @@ void getCos()
   
   can->SaveAs("costh_lim.pdf");
   can->Clear();
-  can->Destructor();
-  
+
   // save the fit results to a txt file
   ofstream outfile;
   outfile.open("cosMaxFitRes.txt");

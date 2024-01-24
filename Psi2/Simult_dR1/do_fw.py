@@ -4,7 +4,8 @@ import os, imp
 
 locs = ["bkgFits/bkgSave.C",
         "cosMax/histoSave.C",
-        "PR_fit/histoSave.C", "PR_fit/bkgSave.C"]
+        "PR_fit/histoSave.C", "PR_fit/bkgSave.C",
+        "SBLtFits/bkgSave.C", "SBLtFits/bkgSave_N.C"]
 
 bloc = os.getcwd()
 
@@ -77,17 +78,31 @@ for f in locF:
             fout.write("\n")
             fout.write('  TF1 *cosMin = new TF1("cosMin", "cminf(x, [0], [1], [2], [3])", yBins[0]-10, yBins[nBinsY]+10);\n')
             fout.write("  cosMin->SetParameters(minPar[0], minPar[1], minPar[2], minPar[3]);\n")
+        if "double cMax[" in line:
+            ct_w = 1
+            fout.write(line)
+            fout.write("\n")
+            fout.write("double cMin[nBinsY];\n")
         if "double cMaxVal" in line:
             ct_w = 1
             fout.write("double cMaxVal = jumpF(cosMax->Eval(pMin));\n")
             fout.write("double cMinVal = jumpF(cosMin->Eval(pMax));\n")
-        if "SetRange" in line:
+        if "cMax[i] =" in line:
+            ct_w = 1
+            fout.write(line)
+            fout.write("\n")
+            fout.write("cMin[i] = cMinVal;\n")
+        if "SetParameters(p" in line:
+            ct_w = 1
+            line = line.replace("GetBinContent(1)*1.1", "GetMaximum()")
+            fout.write(line)
+        if "SetRange(0, cMaxVal)" in line:
             ct_w = 1
             fout.write("fit1d[i_t]->SetRange(cMinVal, cMaxVal);\n")
-        if "SetMaximum" in line:
+        if "SetRange(0, cMax[i])" in line:
             ct_w = 1
-            fout.write("    pHist[0][i]->SetMaximum(parA[0][i]*1.5);\n")
-            fout.write("    if(i == nBinsY-1) pHist[0][i]->SetMaximum(pHist[0][i]->GetMaximum()*1.5);\n")
+            fitL = line.split("->")
+            fout.write("%s->SetRange(cMin[i], cMax[i]);\n"%fitL[0])
         if "c_lim" in line:
             ct_w = 1
             line = line.replace("c_lim", "c_lim_Max")

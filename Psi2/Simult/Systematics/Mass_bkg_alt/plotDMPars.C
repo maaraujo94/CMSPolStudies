@@ -4,7 +4,7 @@ void plotDMPars()
 {
   // aux arrays
   int pc[] = {kBlack, kBlue, kViolet};
-  const int n_p = 12, n_m = 1;
+  const int n_p = 9, n_m = 1;
   string modn[] = {""};
   string legn[] = {"#alpha free", "#alpha constant", "fine bins"};
 
@@ -13,7 +13,7 @@ void plotDMPars()
   string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "m_{bkg} (MeV)", "b_{bkg} per 1 GeV", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
   
   double parmin[] = {0,    1e0, 3600, 0,   32, 2.0, 1.3, 100,   2e1, 0.,  0,   0};
-  double parmax[] = {100., 2e3, 3700, 200, 46, 3.0, 2.3, 300, 2e4, 100., 100, 100};
+  double parmax[] = {100., 2e3, 3700, 60, 46, 3.0, 2.3, 300, 2e4, 100., 100, 100};
  
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
@@ -84,7 +84,7 @@ void plotDMPars()
   c->SetLeftMargin(0.12);
   c->SetRightMargin(0.03);
   
-  for(int i_p = 0; i_p < 10; i_p++) {
+  for(int i_p = 0; i_p < n_p; i_p++) {
 
     if(i_p == 4) continue;
 
@@ -162,23 +162,8 @@ void plotDMPars()
       }
     }
 
-    // SPECIAL CASES - COMBINED PLOTS
-    // if we're plotting f, add fG
-    if( i_p == 0) {
-      for(int i_n = 0; i_n < n_m; i_n++) {
-	g_par_s[i_n][10]->SetMarkerStyle(22);
-	g_par_s[i_n][10]->SetLineColor(pc[i_n]);
-	g_par_s[i_n][10]->SetMarkerColor(pc[i_n]);
-	g_par_s[i_n][10]->SetFillColorAlpha(pc[i_n], 0.5);
-	g_par_s[i_n][10]->Draw("pce3");
-      }
-      
-      leg->AddEntry(g_par_s[0][0], "f_{CB1}", "pl");
-      leg->AddEntry(g_par_s[0][10], "f_{G}", "pl");
-      leg->Draw();
-    }
  
-    // if we're plotting par sig1, add sig2 and sigG
+    // if we're plotting par sig1, add sig2
     else if( i_p == 3) {
       for(int i_n = 0; i_n < n_m; i_n++) {
 	g_par_s[i_n][3]->SetMarkerStyle(20);
@@ -193,17 +178,10 @@ void plotDMPars()
 	g_par_s[i_n][4]->SetLineColor(pc[i_n]);
 	g_par_s[i_n][4]->SetFillColorAlpha(pc[i_n], 0.5);
 	g_par_s[i_n][4]->Draw("pce3");
-
-	g_par_s[i_n][11]->SetMarkerStyle(29);
-	g_par_s[i_n][11]->SetMarkerColor(pc[i_n]);
-	g_par_s[i_n][11]->SetLineColor(pc[i_n]);
-	g_par_s[i_n][11]->SetFillColorAlpha(pc[i_n], 0.5);
-	g_par_s[i_n][11]->Draw("pce3");
       }
       
       leg->AddEntry(g_par_s[0][3], "#sigma_{1}", "pl");
       leg->AddEntry(g_par_s[0][4], "#sigma_{2}", "pl");
-      leg->AddEntry(g_par_s[0][11], "#sigma_{G}", "pl");
       leg->Draw();
     }
 

@@ -18,8 +18,8 @@ void bkgSave()
     
   // data
   Double_t data_pt, data_lt, data_m, data_y;  
-  double mPPt, mMPt, mPEta, mMEta;
-
+double mPPt, mMPt, mPEta, mMEta;
+  
   tree1->SetBranchAddress("dimPt", &data_pt);
   tree1->SetBranchAddress("Rap", &data_y);
   tree1->SetBranchAddress("Mass", &data_m);
@@ -35,11 +35,11 @@ void bkgSave()
     {
       tree1->GetEntry(i);
       if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
-	if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
 	  h_d2d->Fill(data_m, data_pt);
       }
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.05 && abs(data_y) < 1.2) {
-	if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.08 && abs(data_y) < 1.2) {
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
 	  hNP_d2d->Fill(data_m, data_pt);
       }
     }

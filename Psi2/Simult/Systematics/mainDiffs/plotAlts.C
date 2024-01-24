@@ -138,7 +138,7 @@ void plotAlts()
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetRightMargin(0.03);
-  c->SetTopMargin(0.015);
+  // c->SetTopMargin(0.015);
   
   // FIRST - draw the abs diff + Simult unc band
   double da_lim = 0.3;

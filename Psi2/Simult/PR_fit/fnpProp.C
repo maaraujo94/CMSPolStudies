@@ -100,8 +100,12 @@ void fnpProp()
   inNP->Close();
 
   // start cycle of calculations
+  double fnp[nPtBins], efnp[nPtBins], evt_all[nPtBins], int_NP[nPtBins], eint_NP[nPtBins];
+
   TH1D *h_fnp_psi = new TH1D("h_fnp_psi", "Run 2 f_{NP}", nPtBins, ptBins);
-  double fnp[nPtBins], efnp[nPtBins], evt_all[nPtBins];
+  TH1D *h_intNP = new TH1D("h_intNP", "integ NP in PR", nPtBins, ptBins);
+  TH1D *h_nevt = new TH1D("h_nevt", "Evt count in PR", nPtBins, ptBins);
+  
   int di[] = {1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1}; // determines which pars are constant  
   double min_bin = h_d1d[0]->GetXaxis()->FindBin(-pr_lim+1e-6);
   double max_bin = h_d1d[0]->GetXaxis()->FindBin(pr_lim-1e-6);
@@ -121,11 +125,17 @@ void fnpProp()
     }
     double *cov_ptr = cov_mat[0];
 
-    fnp[i_pt] = intfNP(0, par_vec)/evt_all[i_pt] * 100.;
-    efnp[i_pt] = parErr(8, intfNP, 0, par_vec, epar_vec, cov_ptr)/evt_all[i_pt] * 100.;
+    int_NP[i_pt] = intfNP(0, par_vec);
+    eint_NP[i_pt] = parErr(8, intfNP, 0, par_vec, epar_vec, cov_ptr);
+    fnp[i_pt] = int_NP[i_pt]/evt_all[i_pt] * 100.;
+    efnp[i_pt] = eint_NP[i_pt]/evt_all[i_pt] * 100.;
     
     h_fnp_psi->SetBinContent(i_pt+1, fnp[i_pt]);
     h_fnp_psi->SetBinError(i_pt+1, efnp[i_pt]);
+    h_intNP->SetBinContent(i_pt+1, int_NP[i_pt]);
+    h_intNP->SetBinError(i_pt+1, eint_NP[i_pt]);
+    h_nevt->SetBinContent(i_pt+1, evt_all[i_pt]);
+    h_nevt->SetBinError(i_pt+1, 0);
   }
 
   // now get the fNP_bkg (no prop uncert bc it's a 2-step fit)
@@ -263,6 +273,8 @@ void fnpProp()
   h_fnp_sum->Write();
   h_fnp2d->SetName("h_fnp");
   h_fnp2d->Write();
+  h_intNP->Write();
+  h_nevt->Write();
   fout->Close();
 
 }

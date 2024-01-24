@@ -32,9 +32,6 @@ void calcSys()
   graph_lth[5] = (TGraphErrors*)fIndP2->Get(Form("graph_lambda_NP"));
   fIndP2->Close();
 
-  // 2017 vs 2018 contribution has been fixed rather than calculated 
-  double sigY = 0.012;
-
   // PART 3: plotting results  
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.13);
@@ -44,8 +41,6 @@ void calcSys()
   // get the differences - positive and negative are the same
   // efficiency curves -> symmetrize, pos+neg
   TH1F *hs_sigEff = new TH1F("hs_sigEff", "hs_sigEff", nBinspT, pTBins);
-  // 2017-2018 -> fixed value, symmetrize
-  TH1F *hs_sigD = new TH1F("hs_sigD", "hs_sigD", nBinspT, pTBins);
   // lambda_phi -> asymmetric, different for PR and NP
   TH1F *hs_sigPhiPR = new TH1F("hs_sigPhiPR", "hs_sigPhiPR", nBinspT, pTBins);
   TH1F *hs_sigPhiNP = new TH1F("hs_sigPhiNP", "hs_sigPhiNP", nBinspT, pTBins);
@@ -57,8 +52,6 @@ void calcSys()
       aux = 0.5*(abs(graph_lth[1]->GetY()[i] - graph_lth[0]->GetY()[i])+abs(graph_lth[2]->GetY()[i] - graph_lth[0]->GetY()[i]));
     else aux = 0;
     hs_sigEff->SetBinContent(i+1, aux);
-    // 2017 - 2018
-    hs_sigD->SetBinContent(i+1, sigY);
     // phi reweighing
     aux = graph_lth[4]->GetY()[i]-graph_lth[0]->GetY()[i];
     if(graph_lth[0]->GetX()[i] < 35)
@@ -76,29 +69,23 @@ void calcSys()
   hs_sigEff->SetFillColor(kGreen+1);
   hs_sigEff->SetLineColor(kGreen+1);
  
-  hs_sigD->SetFillColor(kMagenta);
-  hs_sigD->SetLineColor(kMagenta);
-
   hs_sigPhiPR->SetFillColor(kBlue);
   hs_sigPhiPR->SetLineColor(kBlue);
   hs_sigPhiNP->SetFillColor(kBlue);
   hs_sigPhiNP->SetLineColor(kBlue);
 
   // draw uncerts, squared and stacked
-  // positive conts: eff up to 50; constant 2017-2018
+  // positive conts: eff up to 50
   // negative cont: stat unc
   
   // get the systs
   TH1F *f_sigEff = new TH1F("f_sigEff", "f_sigEff", nBinspT, pTBins);
-  TH1F *f_sigD = new TH1F("f_sigD", "f_sigD", nBinspT, pTBins);
   TH1F *f_sigPhiPR = new TH1F("f_sigPhiPR", "f_sigPhiPR", nBinspT, pTBins);
   TH1F *f_sigPhiNP = new TH1F("f_sigPhiNP", "f_sigPhiNP", nBinspT, pTBins);
   
   for(int i = 0; i < nBinspT; i++) {
     // eff (symmetric)
     f_sigEff->SetBinContent(i+1, pow(hs_sigEff->GetBinContent(i+1), 2));
-    // 2017-2018 (symmetric)
-    f_sigD->SetBinContent(i+1, pow(hs_sigD->GetBinContent(i+1), 2));
     // phi weights (asymmetric)
     f_sigPhiPR->SetBinContent(i+1, pow(hs_sigPhiPR->GetBinContent(i+1), 2));
     f_sigPhiNP->SetBinContent(i+1, pow(hs_sigPhiNP->GetBinContent(i+1), 2));
@@ -117,8 +104,6 @@ void calcSys()
   
   f_sigEff->SetFillColor(kGreen+1);
   f_sigEff->SetLineColor(kGreen+1);
-  f_sigD->SetFillColor(kMagenta);
-  f_sigD->SetLineColor(kMagenta);
   f_sigPhiPR->SetFillColor(kBlue);
   f_sigPhiPR->SetLineColor(kBlue);
   f_sigPhiNP->SetFillColor(kBlue);
@@ -140,7 +125,6 @@ void calcSys()
 
   THStack *hsigP = new THStack("hsigP", "");
   hsigP->SetMinimum(-da_lim);
-  hsigP->Add(f_sigD);
   hsigP->Add(f_sigEff);
   hsigP->Add(f_sigPhiPR);
   hsigP->SetMaximum(da_lim);
@@ -155,7 +139,6 @@ void calcSys()
   legF->SetTextSize(0.03);
   legF->AddEntry(hs_sigPhiPR, "#beta (only negative)", "l");
   legF->AddEntry(hs_sigEff, "Single #mu eff", "l");
-  legF->AddEntry(hs_sigD, "2017-2018", "l");
   legF->AddEntry(f_statP, "stat", "l");
   legF->Draw();
 
@@ -164,7 +147,6 @@ void calcSys()
 
   THStack *hsigN = new THStack("hsigN", "");
   hsigN->SetMinimum(-da_lim);
-  hsigN->Add(f_sigD);
   hsigN->Add(f_sigEff);
   hsigN->Add(f_sigPhiNP);
   hsigN->SetMaximum(da_lim);
@@ -179,7 +161,6 @@ void calcSys()
   legN->SetTextSize(0.03);
   legN->AddEntry(hs_sigPhiNP, "#beta (only positive)", "l");
   legN->AddEntry(hs_sigEff, "Single #mu eff", "l");
-  legN->AddEntry(hs_sigD, "2017-2018", "l");
   legN->AddEntry(f_statP, "stat", "l");
   legN->Draw();
 
@@ -191,23 +172,17 @@ void calcSys()
   double sysNP_P[nBinspT], sysNP_N[nBinspT];
   ofstream ftexPR;
   ftexPR.open(Form("text_output/sysPR_unc.tex"));
-  ftexPR << "\\begin{tabular}{c||c|c|c||c}\n";
-  ftexPR << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$  \\\\\n";
+  ftexPR << "\\begin{tabular}{c||c|c||c}\n";
+  ftexPR << "$\\pt$ (GeV) & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$  \\\\\n";
   ftexPR << "\\hline\n";
 
   int p_norm = 3;
-  double val_d, val_eff, val_phi;
+  double val_eff, val_phi;
   for(int i = 0; i < nBinspT; i++) {
     // pT bin
     ftexPR << Form("$[%.1f, %.1f]$", pTBins[i], pTBins[i+1]);
     // syst sources (start with fixed 2 decimal places)
     ftexPR << setprecision(p_norm) << fixed;
-    // combined years: same for all pT
-    if(i == 0) {
-      val_d = hs_sigD->GetBinContent(i+1);
-      ftexPR << Form(" & \\multirow{%d}{*}{$\\pm", nBinspT) << val_d << "$}";
-    }
-    else ftexPR << " & ";
     // single muon efficiency: already set to zero above
     val_eff = hs_sigEff->GetBinContent(i+1);
     if(val_eff == 0)
@@ -221,8 +196,8 @@ void calcSys()
     else
       ftexPR << " & $" << val_phi << "$";
     // full syst (sum all sources)
-    double valP = sqrt(pow(val_d,2)+pow(val_eff,2));
-    double valN = sqrt(pow(val_d,2)+pow(val_eff,2)+pow(val_phi,2));
+    double valP = sqrt(pow(val_eff,2));
+    double valN = sqrt(pow(val_eff,2)+pow(val_phi,2));
     sysPR_P[i] = valP;
     sysPR_N[i] = valN;
     double valAv = max(valP, valN);
@@ -235,8 +210,8 @@ void calcSys()
 
   ofstream ftexNP;
   ftexNP.open(Form("text_output/sysNP_unc.tex"));
-  ftexNP << "\\begin{tabular}{c||c|c|c||c}\n";
-  ftexNP << "$\\pt$ (GeV) & $\\sigma^{\\text{comb}}$ & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$ \\\\\n";
+  ftexNP << "\\begin{tabular}{c||c|c||c}\n";
+  ftexNP << "$\\pt$ (GeV) & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$ \\\\\n";
   ftexNP << "\\hline\n";
 
   for(int i = 0; i < nBinspT; i++) {
@@ -244,12 +219,6 @@ void calcSys()
     ftexNP << Form("$[%.1f, %.1f]$", pTBins[i], pTBins[i+1]);
     // syst sources (start with fixed 2 decimal places)
     ftexNP << setprecision(p_norm) << fixed;
-    // combined years: same for all pT
-    if(i == 0) {
-      val_d = hs_sigD->GetBinContent(i+1);
-      ftexNP << Form(" & \\multirow{%d}{*}{$\\pm", nBinspT) << val_d << "$}";
-    }
-    else ftexNP << " & ";
     // single muon efficiency: already set to zero above
     val_eff = hs_sigEff->GetBinContent(i+1);
     if(val_eff == 0)
@@ -263,8 +232,8 @@ void calcSys()
     else
       ftexNP << " & $+" << val_phi << "$";
     // full syst (sum all sources)
-    double valP = sqrt(pow(val_d,2)+pow(val_eff,2)+pow(val_phi,2));
-    double valN = sqrt(pow(val_d,2)+pow(val_eff,2));
+    double valP = sqrt(pow(val_eff,2)+pow(val_phi,2));
+    double valN = sqrt(pow(val_eff,2));
     sysNP_P[i] = valP;
     sysNP_N[i] = valN;
     double valAv = max(valP, valN);
@@ -339,7 +308,7 @@ void calcSys()
   fl1->SetYTitle("#lambda_{#theta}");
   fl1->GetYaxis()->SetTitleOffset(1.3);
   fl1->GetYaxis()->SetLabelOffset(0.01);
-  fl1->SetTitle("Run 2 #lambda_{#theta}");
+  fl1->SetTitle("");
   
   TGraphAsymmErrors *lth_fPR = new TGraphAsymmErrors(nBinspT, graph_lth[0]->GetX(), graph_lth[0]->GetY(), graph_lth[0]->GetEX(), graph_lth[0]->GetEX(), errPR_P, errPR_N);
   lth_fPR->SetMarkerColor(kBlue);
@@ -356,7 +325,7 @@ void calcSys()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg2 = new TLegend(0.67, 0.7, 0.97, 0.9);
+  TLegend *leg2 = new TLegend(0.67, 0.85, 0.97, 0.95);
   leg2->SetTextSize(0.03);
   leg2->AddEntry(lth_fPR, "prompt #psi(2S)", "pl");
   leg2->AddEntry(lth_fNP, "non-prompt #psi(2S)", "pl");

@@ -18,8 +18,8 @@ void bkgSave()
     
   // data
   Double_t data_pt, data_lt, data_m, data_y;  
-  Double_t dR;
-
+Double_t dR;
+  
   tree1->SetBranchAddress("dimPt", &data_pt);
   tree1->SetBranchAddress("Rap", &data_y);
   tree1->SetBranchAddress("Mass", &data_m);
@@ -32,11 +32,11 @@ void bkgSave()
     {
       tree1->GetEntry(i);
       if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
-	if(dR > r_cut)
+if(dR > r_cut)
 	  h_d2d->Fill(data_m, data_pt);
       }
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.05 && abs(data_y) < 1.2) {
-	if(dR > r_cut)
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.08 && abs(data_y) < 1.2) {
+if(dR > r_cut)
 	  hNP_d2d->Fill(data_m, data_pt);
       }
     }

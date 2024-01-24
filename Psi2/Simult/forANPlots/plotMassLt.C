@@ -1,7 +1,7 @@
 // macro to plot a mass:lifetime 2d histo for all data
 void plotMassLt()
 {
-  TH2D *hist = new TH2D("name", "Run 2 Data", 36, 3.4, 4.0, 180, -0.01, 0.08);
+  TH2D *hist = new TH2D("name", "Run 2 Data", 36, 3.4, 4.0, 180, -100, 800);
 
   // open files and read TTrees
   TFile *finD = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/dataS_cos.root");
@@ -22,21 +22,60 @@ void plotMassLt()
     {
       treeD->GetEntry(i);
       if(data_pt > 20 && data_pt < 100 && abs(data_y) < 1.2)
-	hist->Fill(data_m, data_lt);
+	hist->Fill(data_m, data_lt*1e4);
     }
   finD->Close();
+
+  double m_min[] = {3.4, 3.57, 3.82};
+  double m_max[] = {3.52, 3.81, 4.0};
+  double lt_min[] = {-50, 100};
+  double lt_max[] = {50, 800};
 
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.11);
   c->SetRightMargin(0.03);
+  c->SetTopMargin(0.02);
   c->SetLogz();
  
   hist->SetStats(0);
-  hist->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
-  hist->GetYaxis()->SetTitle("c#tau (cm)");
+  hist->GetXaxis()->SetTitle("#it{M} (GeV)");
+  hist->GetYaxis()->SetTitle("c#tau (#mum)");
   hist->GetYaxis()->SetTitleOffset(1.5);
+  hist->GetYaxis()->SetLabelOffset(0.01);
+  hist->GetXaxis()->SetLabelOffset(0.01);
+  hist->GetXaxis()->SetTitleOffset(1.1);
+  hist->GetXaxis()->CenterTitle(true);
+  hist->SetTitle("");
   hist->Draw("COL");
+
+  for(int i = 0; i <3; i++){
+    for(int j = 0; j< 2; j++){
+      TLine *l1 = new TLine(m_min[i], lt_min[j], m_min[i], lt_max[j]);
+      l1->SetLineColor(kRed);
+      l1->SetLineWidth(2);
+      l1->Draw();
+      TLine *l2 = new TLine(m_max[i], lt_min[j], m_max[i], lt_max[j]);
+      l2->SetLineColor(kRed);
+      l2->SetLineWidth(2);
+      l2->Draw();
+      TLine *l3 = new TLine(m_min[i], lt_min[j], m_max[i], lt_min[j]);
+      l3->SetLineColor(kRed);
+      l3->SetLineWidth(2);
+      l3->Draw();
+      TLine *l4 = new TLine(m_min[i], lt_max[j], m_max[i], lt_max[j]);
+      l4->SetLineColor(kRed);
+      l4->SetLineWidth(2);
+      l4->Draw();
+    }
+  }
+
+  TLatex dl;
+  dl.SetTextSize(0.035);
+  dl.SetTextColor(kRed);
+  dl.DrawLatex(m_min[1]*1.002, lt_max[1]*0.5, "NPS");
+  dl.DrawLatex(m_min[1]*1.002, lt_max[0]*0.3, "PRS");
+  
   c->SaveAs("plots/2dMaps/massLtMap.pdf");
   c->Clear();
-
+  c->Destructor();
 }

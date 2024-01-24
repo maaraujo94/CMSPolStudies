@@ -12,12 +12,12 @@ void plotRes()
   
   // get the fit results
   // get A, lambda, chiProb values for each bin
-  string lbl[] = {"Data", "NP", "PR", "J"};
+  string lbl[] = {"Data", "NP", "J"};
   TFile *fInd = new TFile("files/finalFitRes.root");
-  TGraphErrors **graph_A = new TGraphErrors*[4];
-  TGraphErrors **graph_lth = new TGraphErrors*[4];
-  TGraph **graph_chi = new TGraph*[4];
-  for(int i_t = 0; i_t < 4; i_t++) {
+  TGraphErrors **graph_A = new TGraphErrors*[3];
+  TGraphErrors **graph_lth = new TGraphErrors*[3];
+  TGraph **graph_chi = new TGraph*[3];
+  for(int i_t = 0; i_t < 3; i_t++) {
     graph_A[i_t] = (TGraphErrors*)fInd->Get(Form("graph_A_%s", lbl[i_t].c_str()));
     graph_lth[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
     graph_chi[i_t] = (TGraph*)fInd->Get(Form("graph_chiP_%s", lbl[i_t].c_str()));
@@ -42,13 +42,14 @@ void plotRes()
   // get the difference between models
   double val[nBinspT];
   for(int i = 0; i < nBinspT; i++) { 
-    val[i] = graph_lth[3]->GetY()[i] - graph_lthBase->GetY()[i];
+    val[i] = graph_lth[2]->GetY()[i] - graph_lthBase->GetY()[i];
   }
   TGraphErrors *g_lthD = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val, graph_lthBase->GetEX(), graph_lthBase->GetEY());
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
-
+  c->SetRightMargin(0.03);
+  
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
   fl->SetXTitle("p_{T} (GeV)");
@@ -57,8 +58,8 @@ void plotRes()
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("Run 2 #lambda_{#theta}");
 
-  int col[] = {kViolet, kRed, kBlack, kBlue};
-  for(int i = 0; i < 4; i++) {
+  int col[] = {kViolet, kRed, kBlue};
+  for(int i = 0; i < 3; i++) {
     graph_lth[i]->SetLineColor(col[i]);
     graph_lth[i]->SetMarkerColor(col[i]);
     graph_lth[i]->Draw("p same");
@@ -68,21 +69,14 @@ void plotRes()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  TLine *trans1 = new TLine(46, -1, 46, 1);
-  trans1->SetLineColor(kBlack);
-  trans1->SetLineStyle(kDashed);
-  //trans1->Draw();
-  TLine *trans2 = new TLine(66, -1, 66, 1);
-  trans2->SetLineColor(kBlack);
-  trans2->SetLineStyle(kDashed);
-  //trans2->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.65, 0.17, 0.95, 0.32);
   leg->SetTextSize(0.03);
+  leg->SetBorderSize(0);
+  leg->SetFillColorAlpha(kWhite,0);
   leg->AddEntry(graph_lth[0], "total", "pl");
-  leg->AddEntry(graph_lth[1], "NP contrib", "pl");
-  leg->AddEntry(graph_lth[2], "prompt", "pl");
-  leg->AddEntry(graph_lth[3], "prompt #psi(2S)", "pl");
+  leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
+  leg->AddEntry(graph_lth[2], "prompt #psi(2S)", "pl");
   leg->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
@@ -93,10 +87,10 @@ void plotRes()
   
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
   fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("#delta#lambda_{#theta}");
+  fl2->SetYTitle("#Delta#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #delta#lambda_{#theta} (prompt #psi(2S))");
+  fl2->SetTitle("Run 2 #Delta#lambda_{#theta} (prompt #psi(2S))");
 
   g_lthD->SetLineColor(kBlack);
   g_lthD->SetMarkerColor(kBlack);
@@ -105,8 +99,6 @@ void plotRes()
   g_lthD->Draw("p same");
 
   zero->Draw();
-  //trans1->Draw();
-  //trans2->Draw();
   
   c->SaveAs("par_lth_F.pdf");
   c->Clear();
@@ -121,7 +113,7 @@ void plotRes()
   fa->SetTitle("Run 2 A");
 
   // combine both lambda_th distributions
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 3; i++) {
     graph_A[i]->SetLineColor(col[i]);
     graph_A[i]->SetMarkerColor(col[i]);
     graph_A[i]->Draw("p same");
@@ -149,7 +141,7 @@ void plotRes()
   fc->SetTitle("Run 2 P(#chi^{2}, ndf)");
 
   // combine both lambda_th distributions
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 3; i++) {
     graph_chi[i]->SetLineColor(col[i]);
     graph_chi[i]->SetMarkerColor(col[i]);
     graph_chi[i]->SetMarkerStyle(20);

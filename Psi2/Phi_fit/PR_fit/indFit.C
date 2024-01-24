@@ -23,13 +23,13 @@ void indFit()
   for(int i_t = 0; i_t < 5; i_t++) {
     for(int i = 1; i <= nBinsY; i++) {
       pHist[i_t][i-1] = h_fit[i_t]->ProjectionX(Form("bin%d_%d", i, i_t+1), i, i);
-      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.1f, %.1f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
+      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.0f, %.0f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
     }
   }
   
   // the fit function to be used
-  TF1 **fit1d = new TF1*[4];
-  for(int i = 0; i < 4; i++) {
+  TF1 **fit1d = new TF1*[3];
+  for(int i = 0; i < 3; i++) {
     fit1d[i] = new TF1(Form("fit_%d", i), "[0]*(1+[1]*cos(2.*x*[2]/180.))", -180, 180);
     fit1d[i]->SetParNames("A", "l_th", "PI");
     fit1d[i]->FixParameter(2, gPI);
@@ -37,11 +37,12 @@ void indFit()
    
   // the cycle to fit each bin and store fit results
   TCanvas *c = new TCanvas("", "", 700, 700);    
+  c->SetRightMargin(0.01);
   TFile *outfile = new TFile("files/finalFitRes.root", "recreate");
 
-  double parA[4][nBinsY], eparA[4][nBinsY];
-  double parL[4][nBinsY], eparL[4][nBinsY];
-  double chi2[4][nBinsY], ndf[4][nBinsY], chiP[4][nBinsY];
+  double parA[3][nBinsY], eparA[3][nBinsY];
+  double parL[3][nBinsY], eparL[3][nBinsY];
+  double chi2[3][nBinsY], ndf[3][nBinsY], chiP[3][nBinsY];
   double pt[nBinsY], ept[nBinsY];
   
   for(int i = 0; i < nBinsY; i++) {
@@ -52,11 +53,13 @@ void indFit()
     ept[i] = (pMax-pMin)/2.;
 
     // fit the 4 functions
-    for(int i_t = 0; i_t < 4; i_t++) {
-      fit1d[i_t]->SetParameter(0, pHist[i_t][i]->GetBinContent(1)*1.1);
+    for(int i_t = 0; i_t < 2; i_t++) {
+      int i_fit = 3*i_t;
+      
+      fit1d[i_t]->SetParameter(0, pHist[i_fit][i]->GetBinContent(1)*1.1);
       fit1d[i_t]->SetParameter(1, 0.01);
 
-      pHist[i_t][i]->Fit(fit1d[i_t], "R0");
+      pHist[i_fit][i]->Fit(fit1d[i_t], "R0");
 
       parA[i_t][i] = fit1d[i_t]->GetParameter(0);
       eparA[i_t][i] = fit1d[i_t]->GetParError(0);
@@ -68,7 +71,7 @@ void indFit()
     }
 
     // plotting everything
-    pHist[0][i]->SetTitle(Form("data/MC #phi (%.1f < p_{T} < %.1f GeV)", pMin, pMax));
+    pHist[0][i]->SetTitle(Form("data/MC #phi (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
     pHist[0][i]->SetStats(0);
     pHist[0][i]->SetLineColor(kViolet);
     pHist[0][i]->SetMarkerColor(kViolet);
@@ -95,18 +98,19 @@ void indFit()
     pHist[3][i]->SetLineColor(kBlue);
     pHist[3][i]->SetMarkerColor(kBlue);
     pHist[3][i]->Draw("same");
-    fit1d[3]->SetLineColor(kBlue);
-    fit1d[3]->SetLineStyle(kDashed);
-    fit1d[3]->Draw("same");
-
+    fit1d[1]->SetLineColor(kBlue);
+    fit1d[1]->SetLineStyle(kDashed);
+    fit1d[1]->Draw("same");
 
     TLatex lc;
     lc.SetTextSize(0.03);
-    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#phi}^{total} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
-    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#phi}^{prompt #psi(2S)} = %.3f #pm %.3f", parL[3][i], eparL[3][i]));
+    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.9, Form("#beta^{total} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
+    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.8, Form("#beta^{prompt #psi(2S)} = %.3f #pm %.3f", parL[1][i], eparL[1][i]));
     
-    TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+    TLegend *leg = new TLegend(0.74, 0.7, 1.04, 0.9);
     leg->SetTextSize(0.03);
+    leg->SetBorderSize(0);
+    leg->SetFillColorAlpha(kWhite,0);
     leg->AddEntry(pHist[0][i], "total", "pl");
     leg->AddEntry(pHist[1][i], "NP contrib", "pl");
     leg->AddEntry(pHist[2][i], "prompt", "pl");
@@ -140,20 +144,21 @@ void indFit()
     double pMax = h_fit[0]->GetYaxis()->GetBinUpEdge(i+1);
     
     // need to fit NP first
-    fit1d[1]->SetParameter(0, pHist[1][i]->GetBinContent(1)*1.1);
-    fit1d[1]->SetParameter(1, 0.01);
-    pHist[1][i]->Fit(fit1d[1], "R0");
-    parA[1][i] = fit1d[1]->GetParameter(0);
-    eparA[1][i] = fit1d[1]->GetParError(0);
-    parL[1][i] = fit1d[1]->GetParameter(1);
-    eparL[1][i] = fit1d[1]->GetParError(1);
-    chi2[1][i] = fit1d[1]->GetChisquare();
-    ndf[1][i] = fit1d[1]->GetNDF();
-    chiP[1][i] = TMath::Prob(chi2[1][i], ndf[1][i]);
+    fit1d[2]->SetParameter(0, pHist[1][i]->GetBinContent(1)*1.1);
+    fit1d[2]->SetParameter(1, 0.01);
+    pHist[1][i]->Fit(fit1d[2], "R0");
+    parA[2][i] = fit1d[2]->GetParameter(0);
+    eparA[2][i] = fit1d[2]->GetParError(0);
+    parL[2][i] = fit1d[2]->GetParameter(1);
+    eparL[2][i] = fit1d[2]->GetParError(1);
+    chi2[2][i] = fit1d[2]->GetChisquare();
+    ndf[2][i] = fit1d[2]->GetNDF();
+    chiP[2][i] = TMath::Prob(chi2[2][i], ndf[2][i]);
   }
   
+  string lbl_s[] = {"Data", "J", "NP"};
   TFile *outfile2 = new TFile("files/finalFitRes.root", "update");
-  for(int i_t = 0; i_t < 4; i_t++) {
+  for(int i_t = 0; i_t < 3; i_t++) {
     // make and save the TGraph with the fit results and max costh used
     TGraphErrors *graphA = new TGraphErrors(nBinsY, pt, parA[i_t], ept, eparA[i_t]);
     TGraphErrors *graphL = new TGraphErrors(nBinsY, pt, parL[i_t], ept, eparL[i_t]);
@@ -161,11 +166,11 @@ void indFit()
     TGraph *graphN = new TGraph(nBinsY, pt, ndf[i_t]);
     TGraph *graphP = new TGraph(nBinsY, pt, chiP[i_t]);
 
-    graphA->SetName(Form("graph_A_%s", lbl[i_t].c_str()));
-    graphL->SetName(Form("graph_lambda_%s", lbl[i_t].c_str()));
-    graphC->SetName(Form("graph_chisquare_%s", lbl[i_t].c_str()));
-    graphN->SetName(Form("graph_NDF_%s", lbl[i_t].c_str()));
-    graphP->SetName(Form("graph_chiP_%s", lbl[i_t].c_str()));
+    graphA->SetName(Form("graph_A_%s", lbl_s[i_t].c_str()));
+    graphL->SetName(Form("graph_lambda_%s", lbl_s[i_t].c_str()));
+    graphC->SetName(Form("graph_chisquare_%s", lbl_s[i_t].c_str()));
+    graphN->SetName(Form("graph_NDF_%s", lbl_s[i_t].c_str()));
+    graphP->SetName(Form("graph_chiP_%s", lbl_s[i_t].c_str()));
  
     graphA->Write();
     graphL->Write();

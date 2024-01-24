@@ -22,7 +22,7 @@ void indFit()
   for(int i_t = 0; i_t < 3; i_t++) {
     for(int i = 1; i <= nBinsY; i++) {
       pHist[i_t][i-1] = h_fit[i_t]->ProjectionX(Form("bin%d_%d", i, i_t+1), i, i);
-      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.1f, %.1f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
+      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.0f, %.0f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
     }
   }
   
@@ -66,7 +66,7 @@ void indFit()
     }
 
     // plotting everything
-    pHist[0][i]->SetTitle(Form("data/MC #phi (%.1f < p_{T} < %.1f GeV)", pMin, pMax));
+    pHist[0][i]->SetTitle(Form("data/MC #phi (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
     pHist[0][i]->SetStats(0);
     pHist[0][i]->SetLineColor(kRed);
     pHist[0][i]->SetMarkerColor(kRed);
@@ -91,8 +91,8 @@ void indFit()
     
     TLatex lc;
     lc.SetTextSize(0.03);
-    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#phi}^{NP} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
-    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#phi}^{pure NP} = %.3f #pm %.3f", parL[1][i], eparL[1][i]));
+    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.9, Form("#beta^{NP} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
+    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.8, Form("#beta^{pure NP} = %.3f #pm %.3f", parL[1][i], eparL[1][i]));
     
     TLegend *leg = new TLegend(0.7, 0.7, 0.97, 0.9);
     leg->SetTextSize(0.03);

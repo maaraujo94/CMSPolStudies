@@ -1,6 +1,5 @@
-// code to compare the deviations for several scenarios
-// 1) free alpha - Run2
-// 2) linear mass bkg - Run2
+// code to compare the deviations for change in model
+// linear mass bkg - Run2
 
 void plotModel()
 {

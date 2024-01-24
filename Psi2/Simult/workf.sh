@@ -1,7 +1,12 @@
 #!/bin/bash
 
+echo "storing the main histos"
+cd PR_fit
+
+root -l -b -q histoSave.C
+
 echo "running the mass fits"
-cd bkgFits
+cd ../bkgFits
 
 root -l -b -q newMCmass_0.C
 root -l -b -q newMCmass_1.C
@@ -39,14 +44,13 @@ root -l -b -q ltBkg2d_tnp12.C
 root -l -b -q ltBkg2d_tnp12_f.C
 root -l -b -q ltBkg2d_tnp12_N_f.C
 root -l -b -q plotLtPars.C
+root -l -b -q bkgSave_N.C
 root -l -b -q ltBkg_N.C
 root -l -b -q plotLtPars_N.C
 root -l -b -q store_SB.C
 
 echo "run PR fit framework - part 1"
 cd ../PR_fit
-
-root -l -b -q histoSave.C
 
 root -l -b -q bkgSave.C
 root -l -b -q ltBkg2d.C
@@ -67,6 +71,7 @@ root -l -b -q indFit.C
 root -l -b -q plotRes.C
 
 echo "run the PR fit framework - part 2"
+cd ../PR_fit
 
 root -l -b -q bkgSub.C
 root -l -b -q indFit.C

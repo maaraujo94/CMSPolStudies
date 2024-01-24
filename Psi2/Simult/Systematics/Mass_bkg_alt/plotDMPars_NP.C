@@ -4,7 +4,7 @@ void plotDMPars_NP()
 {
   // aux arrays
   int pc[] = {kBlack, kBlue, kViolet};
-  const int n_p = 12, n_m = 1;
+  const int n_p = 9, n_m = 1;
   string modn[] = {""};
   string legn[] = {"no G", "with G"};
 
@@ -83,7 +83,7 @@ void plotDMPars_NP()
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.12);
 
-  for(int i_p = 0; i_p < 10; i_p++) {
+  for(int i_p = 0; i_p < n_p; i_p++) {
 
     if(i_p == 4) continue;
 
@@ -127,23 +127,8 @@ void plotDMPars_NP()
       }
     }
 
-    // SPECIAL CASES - COMBINED PLOTS
-    // if we're plotting f, add fG
-    if( i_p == 0) {      
-      for(int i_n = 0; i_n < n_m; i_n++) {
-	g_par_s[i_n][10]->SetMarkerStyle(22);
-	g_par_s[i_n][10]->SetLineColor(pc[i_n]);
-	g_par_s[i_n][10]->SetMarkerColor(pc[i_n]);
-	g_par_s[i_n][10]->SetFillColorAlpha(pc[i_n], 0.5);
-	g_par_s[i_n][10]->Draw("pce3");
-      }
-      
-      leg->AddEntry(g_par_s[0][0], "f_{CB1}", "pl");
-      leg->AddEntry(g_par_s[0][10], "f_{G}", "pl");
-      leg->Draw();
-    }
- 
-    // if we're plotting par sig1, add sig2 and sigG
+    // SPECIAL CASES - COMBINED PLOTS 
+    // if we're plotting par sig1, add sig2
     else if( i_p == 3) {
       for(int i_n = 0; i_n < n_m; i_n++) {
 	g_par_s[i_n][3]->SetMarkerStyle(20);
@@ -158,17 +143,10 @@ void plotDMPars_NP()
 	g_par_s[i_n][4]->SetLineColor(pc[i_n]);
 	g_par_s[i_n][4]->SetFillColorAlpha(pc[i_n], 0.5);
 	g_par_s[i_n][4]->Draw("pce3");
-
-	g_par_s[i_n][11]->SetMarkerStyle(29);
-	g_par_s[i_n][11]->SetMarkerColor(pc[i_n]);
-	g_par_s[i_n][11]->SetLineColor(pc[i_n]);
-	g_par_s[i_n][11]->SetFillColorAlpha(pc[i_n], 0.5);
-	g_par_s[i_n][11]->Draw("pce3");
       }
       
       leg->AddEntry(g_par_s[0][3], "#sigma_{1}", "pl");
       leg->AddEntry(g_par_s[0][4], "#sigma_{2}", "pl");
-      leg->AddEntry(g_par_s[0][11], "#sigma_{G}", "pl");
       leg->Draw();
     }
 

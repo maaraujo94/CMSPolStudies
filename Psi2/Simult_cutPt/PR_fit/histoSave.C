@@ -30,8 +30,8 @@ void histoSave()
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m, data_y;
   Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y;
-  double mPPt, mMPt, mPEta, mMEta;
-    
+double mPPt, mMPt, mPEta, mMEta;
+
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
   treeD->SetBranchAddress("Rap", &data_y);
@@ -57,10 +57,8 @@ void histoSave()
     {
       treeD->GetEntry(i);
       // pt and y conditions
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2) {
-	// eta cut
-	if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
-
+      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
+	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2) {
 	  // PR peak and sidebands
 	  if(abs(data_lt) < 0.005) {
 	    if(data_m > m_min[1] && data_m < m_max[1])
@@ -71,7 +69,7 @@ void histoSave()
 	      PRRHist->Fill(abs(cos(data_th)), data_pt);
 	  }
 	  // NP peak and sidebands
-	  else if(data_lt > 0.01 && data_lt < 0.05 ) {
+	  else if(data_lt > 0.01 && data_lt < 0.08 ) {
 	    if(data_m > m_min[1] && data_m < m_max[1])
 	      NPHist->Fill(abs(cos(data_th)), data_pt);
 	    else if(data_m < m_max[0] && data_m > m_min[0])
@@ -86,10 +84,10 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-	if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > m_min[1] && mc_m < m_max[1]) {
+      if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > m_min[1] && mc_m < m_max[1]) {
+	if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
 	  MCHist->Fill(abs(cos(mc_th)), mc_pt);
-	}
+      }
     }
   
   // get ratios

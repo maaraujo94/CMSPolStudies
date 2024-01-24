@@ -31,7 +31,7 @@ void histoSave()
   Double_t data_th, data_pt, data_lt, data_m, data_y;
   Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y;
   double mPEta, mMEta;
-    
+
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
   treeD->SetBranchAddress("Rap", &data_y);
@@ -53,39 +53,38 @@ void histoSave()
     {
       treeD->GetEntry(i);
       // pt and y conditions
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2) {
-	// eta cut
-	if((abs(mPEta) < eta_lo || abs(mPEta) > eta_hi) && (abs(mMEta) < eta_lo || abs(mMEta) > eta_hi)) {
-
-	  // PR peak and sidebands
-	  if(abs(data_lt) < 0.005) {
-	    if(data_m > m_min[1] && data_m < m_max[1])
-	      PRHist->Fill(abs(cos(data_th)), data_pt);
-	    else if(data_m < m_max[0] && data_m > m_min[0])
-	      PRLHist->Fill(abs(cos(data_th)), data_pt);
-	    else if(data_m < m_max[2] && data_m > m_min[2])
-	      PRRHist->Fill(abs(cos(data_th)), data_pt);
-	  }
-	  // NP peak and sidebands
-	  else if(data_lt > 0.01 && data_lt < 0.05 ) {
-	    if(data_m > m_min[1] && data_m < m_max[1])
-	      NPHist->Fill(abs(cos(data_th)), data_pt);
-	    else if(data_m < m_max[0] && data_m > m_min[0])
-	      NPLHist->Fill(abs(cos(data_th)), data_pt);
-	    else if(data_m < m_max[2] && data_m > m_min[2])
-	      NPRHist->Fill(abs(cos(data_th)), data_pt);
+      if((abs(mPEta) < eta_lo || abs(mPEta) > eta_hi) && (abs(mMEta) < eta_lo || abs(mMEta) > eta_hi))
+	{
+	  if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2) {
+	    // PR peak and sidebands
+	    if(abs(data_lt) < 0.005) {
+	      if(data_m > m_min[1] && data_m < m_max[1])
+		PRHist->Fill(abs(cos(data_th)), data_pt);
+	      else if(data_m < m_max[0] && data_m > m_min[0])
+		PRLHist->Fill(abs(cos(data_th)), data_pt);
+	      else if(data_m < m_max[2] && data_m > m_min[2])
+		PRRHist->Fill(abs(cos(data_th)), data_pt);
+	    }
+	    // NP peak and sidebands
+	    else if(data_lt > 0.01 && data_lt < 0.08 ) {
+	      if(data_m > m_min[1] && data_m < m_max[1])
+		NPHist->Fill(abs(cos(data_th)), data_pt);
+	      else if(data_m < m_max[0] && data_m > m_min[0])
+		NPLHist->Fill(abs(cos(data_th)), data_pt);
+	      else if(data_m < m_max[2] && data_m > m_min[2])
+		NPRHist->Fill(abs(cos(data_th)), data_pt);
+	    }
 	  }
 	}
-      }
     }
   
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if((abs(mPEta) < eta_lo || abs(mPEta) > eta_hi) && (abs(mMEta) < eta_lo || abs(mMEta) > eta_hi))
-	if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > m_min[1] && mc_m < m_max[1]) {
+      if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > m_min[1] && mc_m < m_max[1]) {
+	if((abs(mPEta) < eta_lo || abs(mPEta) > eta_hi) && (abs(mMEta) < eta_lo || abs(mMEta) > eta_hi))
 	  MCHist->Fill(abs(cos(mc_th)), mc_pt);
-	}
+      }
     }
   
   // get ratios

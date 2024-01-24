@@ -5,11 +5,11 @@
 // code to do the individual fit (1d costheta maps)
 
 // aux func for costheta_min
-double cminf(double pt, double a, double b, double c)
+double cminf(double pt, double a, double b, double c, double d)
 {
-  if (pt < c) return 0;
+  if (pt < d) return 0;
   else
-    return a + b * pt;
+    return a*(1.-exp(b+c*pt));
 }
 
 // main
@@ -61,12 +61,12 @@ void indFit()
   in.open("../cosMax/cosMinFitRes.txt");
   getline(in, dataS);
   getline(in, dataS);
-  double minPar[3];
-  in >> minPar[0] >> aux >> minPar[1] >> aux >> minPar[2];
+  double minPar[4];
+  in >> minPar[0] >> aux >> minPar[1] >> aux >> minPar[2] >> aux >> minPar[3];
   in.close();
 
-  TF1 *cosMin = new TF1("cosMin", "cminf(x, [0], [1], [2])", yBins[0]-10, yBins[nBinsY]+10);
-  cosMin->SetParameters(minPar[0], minPar[1], minPar[2]);
+  TF1 *cosMin = new TF1("cosMin", "cminf(x, [0], [1], [2], [3])", yBins[0]-10, yBins[nBinsY]+10);
+  cosMin->SetParameters(minPar[0], minPar[1], minPar[2], minPar[3]);
  
   // the cycle to fit each bin and store fit results
   TCanvas *c = new TCanvas("", "", 700, 700);    
@@ -91,7 +91,7 @@ void indFit()
     // fit the 2 functions
     for(int i_t = 0; i_t < 2; i_t++) {
       fit1d[i_t]->SetRange(cMinVal, cMaxVal);
-      fit1d[i_t]->SetParameters(pHist[i_t][i]->GetBinContent(1)*1.1, 0.1);
+      fit1d[i_t]->SetParameters(pHist[i_t][i]->GetMaximum(), 0.1);
 
       pHist[i_t][i]->Fit(fit1d[i_t], "R0");
 
@@ -110,8 +110,7 @@ void indFit()
     pHist[0][i]->SetLineColor(kRed);
     pHist[0][i]->SetMarkerColor(kRed);
     pHist[0][i]->SetMinimum(0);
-    pHist[0][i]->SetMaximum(parA[0][i]*1.5);
-    if(i == nBinsY-1) pHist[0][i]->SetMaximum(pHist[0][i]->GetMaximum()*1.5);
+    pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.5);
     pHist[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     pHist[0][i]->Draw("error");
     fit1d[0]->SetLineColor(kRed);

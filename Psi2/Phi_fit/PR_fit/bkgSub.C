@@ -87,12 +87,12 @@ void bkgSub()
 
     // PART 4 - signal extraction
     // define the pure PR histo
-    TH1D *h_justPR = new TH1D(Form("h_justPR_%d", i), "prompt cos#theta", nBinsX, minX, maxX);
+    TH1D *h_justPR = new TH1D(Form("h_justPR_%d", i), "prompt #phi", nBinsX, minX, maxX);
     // subtract the background dist from the data dist
     h_justPR->Sumw2();
     h_justPR->Add(h_PR, h_NP, 1, -1); // NP part
     // define the pure PR histo
-    TH1D *h_purePR = new TH1D(Form("h_purePR_%d", i), "prompt #psi(2S) cos#theta", nBinsX, minX, maxX);
+    TH1D *h_purePR = new TH1D(Form("h_purePR_%d", i), "prompt #psi(2S) #phi", nBinsX, minX, maxX);
     // subtract the background dist from the data dist
     h_purePR->Sumw2();
     h_purePR->Add(h_justPR, h_SB[i], 1, -1); // sideband part

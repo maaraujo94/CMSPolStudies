@@ -48,6 +48,7 @@ void plotRes_NP()
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetRightMargin(0.03);
 
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
@@ -55,9 +56,9 @@ void plotRes_NP()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Run 2 #lambda_{#theta}");
+  fl->SetTitle("#lambda_{#theta} vs p_{T}");
     
-  int col[] = {kRed, kRed+3};
+  int col[] = {kRed+3, kRed};
   for(int i = 0; i < 2; i++) {
     graph_lth[i]->SetLineColor(col[i]);
     graph_lth[i]->SetMarkerColor(col[i]);
@@ -69,19 +70,11 @@ void plotRes_NP()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  TLine *trans1 = new TLine(46, -1, 46, 1);
-  trans1->SetLineColor(kBlack);
-  trans1->SetLineStyle(kDashed);
-  //trans1->Draw();
-  TLine *trans2 = new TLine(66, -1, 66, 1);
-  trans2->SetLineColor(kBlack);
-  trans2->SetLineStyle(kDashed);
-  //trans2->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.67, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "NP", "pl");
-  leg->AddEntry(graph_lth[1], "pure NP", "pl");
+  leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
   leg->Draw();
   
   c->SaveAs("plots/ratioFinal_NP/par_lth.pdf");
@@ -92,10 +85,10 @@ void plotRes_NP()
   
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
   fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("#delta#lambda_{#theta}");
+  fl2->SetYTitle("#Delta#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #delta#lambda_{#theta} (non-prompt #psi(2S))");
+  fl2->SetTitle("Run 2 #Delta#lambda_{#theta} (non-prompt #psi(2S))");
 
   g_lthD->SetLineColor(kBlack);
   g_lthD->SetMarkerColor(kBlack);
@@ -104,8 +97,6 @@ void plotRes_NP()
   g_lthD->Draw("p same");
 
   zero->Draw();
-  //trans1->Draw();
-  //trans2->Draw();
   
   c->SaveAs("par_lthNP_F.pdf");
   c->Clear();

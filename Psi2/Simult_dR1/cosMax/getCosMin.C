@@ -89,9 +89,8 @@ void getCosMin()
   // the fit function: a logarithm
   // fitf = new TF1("fitf", "[0]*log([1]+[2]*x)", aux, yBins[nBinsY]);
   // fitf = new TF1("fitf", "[0]*sqrt(abs([1]+[2]*x))", aux, yBins[nBinsY]);
-  //fitf = new TF1("fitf", "[0]*(1-exp([1]+[2]*x))", aux, yBins[nBinsY]);
-  fitf = new TF1("fitf", "[0]+[1]*x", aux, yBins[nBinsY]);
-  fitf->SetParameters(0, 0.1);
+  fitf = new TF1("fitf", "[0]*(1-exp([1]+[2]*x))", aux, yBins[nBinsY]);
+  fitf->SetParameters(10, -1, -6e-2);
   fitf->SetLineColor(kBlue);
   costh->Fit("fitf", "R");
   costh->Draw();
@@ -105,24 +104,23 @@ void getCosMin()
   
   can->SaveAs("costh_min.pdf");
   can->Clear();
-  can->Destructor();
   
   // save the fit results to a txt file
   ofstream outfile;
   outfile.open("cosMinFitRes.txt");
-  outfile << "[a]+[b]*pT), pT > [c]" << endl;
-  outfile << "a\t e_a\t b\t e_b\t c\t chi2\t ndf" << endl;
-  for(int i = 0; i < 2; i++)
+  outfile << "[a]*(1-exp([b]+[c]*pT), pT > [d]" << endl;
+  outfile << "a\t e_a\t b\t e_b\t c\t e_c\t d\t chi2\t ndf" << endl;
+  for(int i = 0; i < 3; i++)
     outfile << fitf->GetParameter(i) << "\t" << fitf->GetParError(i) << "\t";
   outfile << aux << "\t";
   outfile << fitf->GetChisquare() << "\t" << fitf->GetNDF() << endl;
   outfile.close();
 
   outfile.open("cosMinFitRes.tex");
-  outfile << "\\begin{tabular}{c|c|c|c}\n";
-  outfile << "$a$ & $b$ & $c$ & $\\chi^2$/ndf \\\\\n";
+  outfile << "\\begin{tabular}{c|c|c|c|c}\n";
+  outfile << "$a$ & $b$ & $c$ & $d$ & $\\chi^2$/ndf \\\\\n";
   outfile << "\\hline\n";
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < 3; i++) {
     int prec = ceil(-log10(fitf->GetParError(i)))+1;
     outfile << "$" << setprecision(prec) << fixed << fitf->GetParameter(i) << "\\pm" << fitf->GetParError(i) << "$ & ";
   }

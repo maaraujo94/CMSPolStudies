@@ -12,23 +12,13 @@ void plotLth()
   int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
 
-  // get the histo limits - coarse version
-  /*  TFile *fIn_c = new TFile("files/chistStore.root");
-  TH2D* rHist_c;
-  fIn_c->GetObject("cHistB", rHist_c);
-  
-  int nBinspT_c = rHist_c->GetNbinsY();
-  const double *pTBins_c = rHist_c->GetYaxis()->GetXbins()->GetArray();*/
-
   // get the fit results
   // get lambda values for each eff model
   TGraphErrors **graph_lth = new TGraphErrors*[3];
-  //TGraphErrors **graph_lth_c = new TGraphErrors*[3];
   TFile *fInd = new TFile("files/finalFitRes.root");
   string lbl[] = {"B", "T", "L"};
   for(int i_t = 0; i_t < 3; i_t++) {
     graph_lth[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
-    //graph_lth_c[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_c_%s", lbl[i_t].c_str()));
   }    
   fInd->Close();
   
@@ -47,19 +37,6 @@ void plotLth()
   }
   TGraphErrors *g_lthD1 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), val[0], graph_lth[0]->GetEX(), unc[0]);
   TGraphErrors *g_lthD2 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), val[1], graph_lth[0]->GetEX(), unc[1]);
-
-  // diffs for coarse bins
-  /*double val_c[2][nBinspT_c], unc_c[2][nBinspT_c];
-  for(int j = 0; j < 2; j++) {
-    for(int i = 0; i < nBinspT_c; i++) { 
-      val_c[j][i] = graph_lth_c[j+1]->GetY()[i] - graph_lth_c[0]->GetY()[i];
-      double unc1 = graph_lth_c[j+1]->GetEY()[i];
-      double unc2 = graph_lth_c[0]->GetEY()[i];
-      unc_c[j][i] = sqrt(abs(pow(unc1,2)-pow(unc2,2)));
-    }
-  }
-  TGraphErrors *g_lthD1_c = new TGraphErrors(nBinspT_c, graph_lth_c[0]->GetX(), val_c[0], graph_lth_c[0]->GetEX(), unc_c[0]);
-  TGraphErrors *g_lthD2_c = new TGraphErrors(nBinspT_c, graph_lth_c[0]->GetX(), val_c[1], graph_lth_c[0]->GetEX(), unc_c[1]);*/
 
   double d_lim = 0.4;
 
@@ -80,16 +57,6 @@ void plotLth()
     g_lthD2->RemovePoint(0);
     graph_lth[2]->RemovePoint(0);
   }
-
-  //same thing for coarse bins
-  /*for(int i = 2; i < nBinspT_c; i++){
-    g_lthD1_c->RemovePoint(2);
-    graph_lth_c[1]->RemovePoint(2);
-  }
-  for(int i = 0; i < 2; i++) {
-    g_lthD2_c->RemovePoint(0);
-    graph_lth_c[2]->RemovePoint(0);
-    }*/
 
   // draw the differences - fine bins
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
@@ -128,34 +95,6 @@ void plotLth()
   
   c->SaveAs("plots/par_dlth.pdf");
   c->Clear();
-
-  // draw the differences - coarse bins
-  /*  TH1F *fl2_c = c->DrawFrame(pTBins[0]-5, -d_lim, pTBins[nBinspT], d_lim);
-  fl2_c->SetXTitle("p_{T} (GeV)");
-  fl2_c->SetYTitle("#delta#lambda_{#theta} (dev - base)");
-  fl2_c->GetYaxis()->SetTitleOffset(1.3);
-  fl2_c->GetYaxis()->SetLabelOffset(0.01);
-  fl2_c->SetTitle("Run 2 #delta#lambda_{#theta} (prompt #psi(2S))");
-  
-  g_lthD1_c->SetLineColor(kBlue);
-  g_lthD1_c->SetMarkerColor(kBlue);
-  g_lthD1_c->SetMarkerStyle(20);
-  g_lthD1_c->SetMarkerSize(.5);
-  g_lthD1_c->Draw("p same");
-
-  g_lthD2_c->SetLineColor(kRed);
-  g_lthD2_c->SetMarkerColor(kRed);
-  g_lthD2_c->SetMarkerStyle(20);
-  g_lthD2_c->SetMarkerSize(.5);
-  g_lthD2_c->Draw("p same");
-
-  zero->Draw();
-  trans2D->Draw();
-  
-  leg->Draw();
-  
-  c->SaveAs("plots/par_c_dlth.pdf");
-  c->Clear();*/
 
   // now compare absolute values
   double a_lim = 1;
@@ -197,44 +136,8 @@ void plotLth()
   c->SaveAs("plots/par_lth.pdf");
   c->Clear();
 
-  // same with coarse bins
-  /* TH1F *fl3_c = c->DrawFrame(pTBins[0]-5, -a_lim, pTBins[nBinspT], a_lim);
-  fl3_c->SetXTitle("p_{T} (GeV)");
-  fl3_c->SetYTitle("#lambda_{#theta}");
-  fl3_c->GetYaxis()->SetTitleOffset(1.3);
-  fl3_c->GetYaxis()->SetLabelOffset(0.01);
-  fl3_c->SetTitle("Run 2 #lambda_{#theta} (prompt #psi(2S))");
-    
-  graph_lth_c[1]->SetLineColor(kBlue);
-  graph_lth_c[1]->SetMarkerColor(kBlue);
-  graph_lth_c[1]->SetMarkerStyle(20);
-  graph_lth_c[1]->SetMarkerSize(.5);
-  graph_lth_c[1]->Draw("p same");
-
-  graph_lth_c[2]->SetLineColor(kRed);
-  graph_lth_c[2]->SetMarkerColor(kRed);
-  graph_lth_c[2]->SetMarkerStyle(20);
-  graph_lth_c[2]->SetMarkerSize(.5);
-  graph_lth_c[2]->Draw("p same");
-
-  graph_lth_c[0]->SetLineColor(kBlack);
-  graph_lth_c[0]->SetMarkerColor(kBlack);
-  graph_lth_c[0]->SetMarkerStyle(20);
-  graph_lth_c[0]->SetMarkerSize(.5);
-  graph_lth_c[0]->Draw("p same");
-  
-  zero->Draw();
-  trans2A->Draw();
-
-  leg->Draw();
-  
-  c->SaveAs("plots/par_c_lth.pdf");
-  c->Clear();*/
-
   c->Destructor();
   
   fIn->Close();
-  // fIn_c->Close();
-
 
 }

@@ -1,5 +1,6 @@
 // code to get the 2d fine-binned data/mc ratio hist for |costh|max
 // saves ratio (|costh|)
+
 #import "../rcut.C"
 
 void histoSave()
@@ -31,7 +32,7 @@ void histoSave()
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m;
   Double_t mc_th, mc_pt, mc_lt, mc_m;
-  Double_t dR;
+Double_t dR;
 
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
@@ -49,19 +50,19 @@ void histoSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(dR > r_cut)
-	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > m_min && data_m < m_max) {      
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > m_min && data_m < m_max) {      
+if(dR > r_cut)
 	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
-	}
+      }
     }
   
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(dR > r_cut)
-	if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > m_min && mc_m < m_max) {
+      if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > m_min && mc_m < m_max) {
+if(dR > r_cut)
 	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-	}
+      }
     }
   
   dataHist_ab->SetStats(0);

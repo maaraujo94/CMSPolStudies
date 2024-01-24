@@ -144,7 +144,7 @@ void ltBkg2d()
   fexp_bkg = new TF1("fexp_bkg", "[0]*[1]*pos_exp_p(x,[2]) + [0]*(1.-[1])*pos_exp_p(x,[3])", 5*lowt, 5*hit);
   
   // get the fixed values of the SB part
-  TFile *fin_SB = new TFile("../SBLtFit/files/store_SB.root");
+  TFile *fin_SB = new TFile("../SBLtFits/files/store_SB.root");
   string parsav[] = {"N_NP", "f_1", "t_NP1", "t_NP2"};
   double par_bkg[4][nPtBins], epar_bkg[4][nPtBins];
   for(int i = 0; i < 4; i++){

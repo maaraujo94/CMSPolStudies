@@ -34,7 +34,7 @@ void plotRes()
   fl->SetYTitle("#beta");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Run 2 #beta (NP)");
+  fl->SetTitle("#beta vs p_{T}");
 
   int col[] =  {kRed+3, kRed};
   for(int i = 0; i < 2; i++) {

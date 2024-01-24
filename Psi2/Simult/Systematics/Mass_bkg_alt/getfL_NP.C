@@ -1,12 +1,5 @@
 // macro to get the fraction of LSB contributing to SR (fL)
 
-int do_round(double val)
-{
-  int valR = (int)val;
-  if (val-valR > 0.5) return valR+1;
-  else return valR;
-}
-
 void getfL_NP()
 {
   // get the mass background fit function
