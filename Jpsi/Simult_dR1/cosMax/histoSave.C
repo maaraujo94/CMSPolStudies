@@ -18,8 +18,8 @@ void histoSave()
   cout << endl;
 
   // histograms for data and MC
-  TH2D *dataHist_ab = new TH2D("dataH_ab", "Full Data (PR)", 20, 0, 1., nPtBins, ptBins);
-  TH2D *mcHist_ab = new TH2D("mcH_ab", "Full MC", 20, 0, 1., nPtBins, ptBins);
+  TH2D *dataHist_ab = new TH2D("dataH_ab", "Run 2 Data (PR)", 20, 0, 1., nPtBins, ptBins);
+  TH2D *mcHist_ab = new TH2D("mcH_ab", "Run 2 MC", 20, 0, 1., nPtBins, ptBins);
 
   // open files and read TTrees
   TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/dataS_cos.root");
@@ -42,10 +42,10 @@ void histoSave()
   int m2Evt = treeM2->GetEntries();
   int m3Evt = treeM3->GetEntries(); 
   int m4Evt = treeM4->GetEntries();
-  
+ 
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m;
-  Double_t dR;
+Double_t dR;
   Double_t mc_th, mc_pt, mc_lt, mc_m;
   
   treeD->SetBranchAddress("theta", &data_th);
@@ -82,49 +82,46 @@ void histoSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(dR > r_cut)
-	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2) {      
-	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
-	}
+if(dR > r_cut)
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2) {      
+	dataHist_ab->Fill(abs(cos(data_th)), data_pt);
+      }
     }
   
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if(dR > r_cut)
-	if(mc_pt > ptBins[0] && mc_pt < 45 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-	}
+if(dR > r_cut)
+      if(mc_pt > ptBins[0] && mc_pt < 45 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
+      }
     }
-
 
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if(dR > r_cut)
-	if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
-	}
+if(dR > r_cut)
+      if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
+      }
     }
 
-  
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if(dR > r_cut)
-	if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-	}
+if(dR > r_cut)
+      if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
+      }
     }
   
-
   for(int i = 0; i < m4Evt; i++)
     {
       treeM4->GetEntry(i);
-      if(dR > r_cut)
-	if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-	}
+if(dR > r_cut)
+      if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
+      }
     }
   
   dataHist_ab->SetStats(0);
@@ -135,11 +132,11 @@ void histoSave()
   mcHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   mcHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");
 
-  TH2D *ratioHist_ab = new TH2D("ratioH_ab", "Full Data/MC", 20, 0, 1., nPtBins, ptBins);
+  TH2D *ratioHist_ab = new TH2D("ratioH_ab", "Run 2 Data/MC", 20, 0, 1., nPtBins, ptBins);
   ratioHist_ab = (TH2D*)dataHist_ab->Clone("ratioH_ab");
   ratioHist_ab->Sumw2();
   ratioHist_ab->Divide(mcHist_ab);
-  ratioHist_ab->SetTitle("Full Data/MC");
+  ratioHist_ab->SetTitle("Run 2 Data/MC");
     
   TFile *outfile = new TFile("histoStore.root", "recreate");
   dataHist_ab->Write();

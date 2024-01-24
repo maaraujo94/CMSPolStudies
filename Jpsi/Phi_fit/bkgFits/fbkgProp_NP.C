@@ -1,107 +1,120 @@
 // macro to propagate the uncertainties to f_bkg analytically
 // then fit the function and get the unc band of that
 
+#import "../ptbins.C"
+
+TF1 *fbkg;
+// mass region ranges
+double m_min[] = {2.94, 3.0, 3.21};
+double m_max[] = {2.95, 3.2, 3.26};
+
 // background function
 double bkg_exp(double m, double p1, double p2)
 {
   return p1 * exp( - m / p2 );
 }
 
+double intfbkg(double x, double *par)
+{
+  double N_Bg = par[0];
+  double lambda = par[1];
+
+  fbkg->SetParameters(N_Bg, lambda);
+  return fbkg->Integral(m_min[1], m_max[1]);
+}
+
+//aux func calculates propagated uncertainty
+double parErr(const int npar, double (*fpar)(double, double *), double x, double *par, double *epar, double cov[])
+{
+  double ln = 1e4;
+  double fval = fpar(x, par);
+  double ferr = 0;
+
+  double devp[npar];
+  double par_var[npar];
+  // get the aux array of pars without affecting main one
+  for(int i_p = 0; i_p < npar; i_p++)
+    par_var[i_p] = par[i_p];
+  // get the array of deviations
+  for(int i_p = 0; i_p < npar; i_p++) {
+    par_var[i_p] += epar[i_p]/ln;
+    devp[i_p] = (fpar(x, par_var)-fval)/(epar[i_p]/ln);
+    par_var[i_p] -= epar[i_p]/ln;
+  }
+
+  // get the uncertainty as the sum of contributions
+  for(int i_p = 0; i_p < npar; i_p++) {
+    for(int j_p = 0; j_p < npar; j_p++) {
+      ferr += devp[i_p]*devp[j_p]*cov[i_p*npar+j_p];
+    }
+  }
+  ferr = sqrt(ferr);
+  return ferr;
+}
+
 void fbkgProp_NP()
 {
   // PART 1: get the uncertainty of the f_bkg
-  
-  // get all needed input
-  // mass region ranges
-  double m_min[] = {2.94, 3.0, 3.21};
-  double m_max[] = {2.95, 3.2, 3.26};
 
-  // bkg function
-  TF1 *f_exp = new TF1("f_exp", "bkg_exp(x,[0],[1])", m_min[0], m_max[2]);
-  f_exp->SetParNames("NB", "lambda");
-  
-  // get fit parameters - need to know which params are being used
-  TFile *inBG = new TFile("../../Simult/bkgFits/files/mfit_NP.root");
-  int n_par = 2;
-  TGraphErrors** g_par = new TGraphErrors*[n_par];
-  for(int i = 0; i < n_par; i++) {
-    inBG->GetObject(Form("fit_%s", f_exp->GetParName(i)), g_par[i]);
-  }
-  TFitResult* fitres = (TFitResult*)inBG->Get("fitres");
-  inBG->Close();
-
-  // get pT binning from the fit pars
-  int n_pt = g_par[0]->GetN();
-  double ptBins[n_pt+1];
-  for(int i = 0; i < n_pt; i++) {
-    ptBins[i] = g_par[0]->GetX()[i]-g_par[0]->GetEX()[i];
-  }
-  ptBins[n_pt] = g_par[0]->GetX()[n_pt-1]+g_par[0]->GetEX()[n_pt-1];
-  
-  // prepare mass histograms
-  TH1D **h_d1d = new TH1D*[n_pt];
+   // prepare mass histograms
+  TH1D **h_d1d = new TH1D*[nPtBins];
   TH2D *h_d2d = new TH2D();
   TFile *fin = new TFile("../../Simult/bkgFits/files/mStore.root");
   fin->GetObject("mH_NP", h_d2d);
   h_d2d->SetDirectory(0);
   fin->Close();
-  for(int ip = 0; ip < n_pt; ip++) {
+  for(int ip = 0; ip < nPtBins; ip++) {
     h_d1d[ip] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[ip]), ip+1, ip+1);
   }
-  
-  // fbkg = integral / evt_all (in signal region)
-  TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{bkg}", n_pt, ptBins);
-  double ln = 10000;
-  const int n_p = 2;
-  double fit_v[n_p], dpar[n_p];
-  double cov[n_p][n_p];
 
-  for(int i_pt = 0; i_pt < n_pt; i_pt++) {
+  // bkg function
+  fbkg = new TF1("fbkg", "bkg_exp(x,[0],[1])", m_min[0], m_max[2]);
+  
+  // get fit parameters from fitres
+  TFile *inBG = new TFile("../../Simult/bkgFits/files/mfit_NP.root");
+  int n_par = 2;
+  // get fitres to get cov in each pT bin
+  TFitResult* fitres = (TFitResult*)inBG->Get("fitres");
+  inBG->Close();
+
+  // start cycle of calculations
+  double f_Bg[nPtBins], ef_Bg[nPtBins];
+  TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{Bg}", nPtBins, ptBins);
+  double min_bin = h_d1d[0]->GetXaxis()->FindBin(m_min[1]+1e-6);
+  double max_bin = h_d1d[0]->GetXaxis()->FindBin(m_max[1]-1e-6);
+
+  for(int i_pt = 0; i_pt < nPtBins; i_pt++) {
     // N_histo has no uncertainty: just histogram integral
-    double min_bin = h_d1d[i_pt]->GetXaxis()->FindBin(m_min[1]+1e-6);
-    double max_bin = h_d1d[i_pt]->GetXaxis()->FindBin(m_max[1]-1e-6);
     double evt_all = h_d1d[i_pt]->Integral(min_bin, max_bin, "width");
 
-    // define input parameters for integral - varies by pT bin
-    for(int i = 0; i < n_p; i++) {
-      fit_v[i] = g_par[i]->GetY()[i_pt];
-      for(int j = 0; j < n_p; j++) {
-	cov[i][j] = fitres->GetCovarianceMatrix()[(7+i)*n_pt+i_pt][(7+j)*n_pt+i_pt];
+    // get vectors of fit parameters
+    double par_vec[2], epar_vec[2], cov_mat[2][2];
+    for(int i_p = 0; i_p < 2; i_p++) {
+      par_vec[i_p] = fitres->Parameter((i_p+7)*nPtBins + i_pt);
+      epar_vec[i_p] = fitres->ParError((i_p+7)*nPtBins + i_pt);
+      for(int j_p = 0; j_p < 2; j_p++) {
+	cov_mat[i_p][j_p] = fitres->GetCovarianceMatrix()[(i_p+7)*nPtBins + i_pt][(j_p+7)*nPtBins + i_pt];
       }
     }
+    double *cov_ptr = cov_mat[0];
 
-    // integral is a function of NB and lambda
-    f_exp->SetParameters(fit_v);
-    double fv = f_exp->Integral(m_min[1], m_max[1]), fe = 0;
-
-    // get the function deviation for each parameter
-    for(int i = 0; i < n_p; i++) {
-      f_exp->SetParameter(i, fit_v[i] + sqrt(cov[i][i])/ln);
-      dpar[i] = (f_exp->Integral(m_min[1], m_max[1])-fv)/(sqrt(cov[i][i])/ln);
-      f_exp->SetParameter(i, fit_v[i]);
-    }
+    f_Bg[i_pt] = intfbkg(0, par_vec)/evt_all * 100.;
+    ef_Bg[i_pt] = parErr(2, intfbkg, 0, par_vec, epar_vec, cov_ptr)/evt_all * 100.;
     
-    for(int i = 0; i < n_p; i++) 
-      for(int j = 0; j < n_p; j++) {
-	fe += dpar[i]*dpar[j]*cov[i][j];
-      }
-    fe = sqrt(fe);
-
-    // fill pT bin
-    h_fbkg->SetBinContent(i_pt+1, fv/evt_all*100.);
-    h_fbkg->SetBinError(i_pt+1, fe/evt_all*100.);
+    h_fbkg->SetBinContent(i_pt+1, f_Bg[i_pt]);
+    h_fbkg->SetBinError(i_pt+1, ef_Bg[i_pt]);
   }
 
   // plotting in pT
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetRightMargin(0.03);
   
-  TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[n_pt]+5, 15);
+  TH1F *fr1 = c->DrawFrame(ptBins[0]-5, 0, ptBins[nPtBins]+5, 15);
   fr1->SetXTitle("p_{T} (GeV)");
-  fr1->SetYTitle("f_{bkg}^{NP} (%)");
+  fr1->SetYTitle("f_{NPBg} (%)");
   fr1->GetYaxis()->SetTitleOffset(1.3);
   fr1->GetYaxis()->SetLabelOffset(0.01);
-  fr1->SetTitle("f_{bkg}^{NP} vs p_{T}");
+  fr1->SetTitle("f_{NPBg} vs p_{T}");
 
   h_fbkg->SetStats(0);
   h_fbkg->SetMarkerStyle(20);
@@ -128,8 +141,8 @@ void fbkgProp_NP()
   infile->Close();
 
   // f_bkg(pT) but generating 2d map so it's easier to apply uncertainties
-  TH2D *h_fbkg2d = new TH2D("h_fbkg2d", "Run 2 f_{bkg}", nBinsX, minX, maxX, n_pt, ptBins);
-  for(int i_pt = 0; i_pt < n_pt; i_pt++) {
+  TH2D *h_fbkg2d = new TH2D("h_fbkg2d", "Run 2 f_{Bg}", nBinsX, minX, maxX, nPtBins, ptBins);
+  for(int i_pt = 0; i_pt < nPtBins; i_pt++) {
     // same result for all costh bins
     for(int i_cos = 0; i_cos < nBinsX; i_cos++) {
       h_fbkg2d->SetBinContent(i_cos+1, i_pt+1, h_fbkg->GetBinContent(i_pt+1));

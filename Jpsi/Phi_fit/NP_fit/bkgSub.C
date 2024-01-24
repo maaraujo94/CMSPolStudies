@@ -67,7 +67,7 @@ void bkgSub()
 
     // PART 4 - signal extraction
     // define the pure NP histo
-    TH1D *h_NPc = new TH1D(Form("h_NPc_%d", i), "pure NP cos#theta", nBinsX, minX, maxX);
+    TH1D *h_NPc = new TH1D(Form("h_NPc_%d", i), "pure NP #phi", nBinsX, minX, maxX);
     // subtract the background dist from the data dist
     h_NPc->Sumw2();
     h_NPc->Add(h_NP, h_SB[i], 1, -1); // NP part

@@ -24,20 +24,20 @@ void indFit_NP()
   // read the three fine histos
   TH2D **h_fit_f = new TH2D*[3];
   
-  TFile *infile_f0 = new TFile(Form("%s/Simult/PR_fit/files/bkgSubRes.root", loc.c_str()));
-  h_fit_f[0] = (TH2D*)infile_f0->Get("h_NP");
+  TFile *infile_f0 = new TFile(Form("%s/Simult/NP_fit/files/bkgSubRes.root", loc.c_str()));
+  h_fit_f[0] = (TH2D*)infile_f0->Get("h_NPc");
   h_fit_f[0]->SetName("h_NPB");
   h_fit_f[0]->SetDirectory(0);
   infile_f0->Close();
 
-  TFile *infile_f1 = new TFile(Form("%s/Simult_dR2/PR_fit/files/bkgSubRes.root", loc.c_str()));
-  h_fit_f[1] = (TH2D*)infile_f1->Get("h_NP");
+  TFile *infile_f1 = new TFile(Form("%s/Simult_dR2/NP_fit/files/bkgSubRes.root", loc.c_str()));
+  h_fit_f[1] = (TH2D*)infile_f1->Get("h_NPc");
   h_fit_f[1]->SetName("h_NPL");
   h_fit_f[1]->SetDirectory(0);
   infile_f1->Close();
 
-  TFile *infile_f2 = new TFile(Form("%s/Simult_dR1/PR_fit/files/bkgSubRes.root", loc.c_str()));
-  h_fit_f[2] = (TH2D*)infile_f2->Get("h_NP");
+  TFile *infile_f2 = new TFile(Form("%s/Simult_dR1/NP_fit/files/bkgSubRes.root", loc.c_str()));
+  h_fit_f[2] = (TH2D*)infile_f2->Get("h_NPc");
   h_fit_f[2]->SetName("h_NPT");
   h_fit_f[2]->SetDirectory(0);
   infile_f2->Close();

@@ -1,8 +1,9 @@
+#import "../ptcut.C"
+
 // code to get the 2d data/mc ratio hist (pr, np, peak and sidebands)
 // saves data, mc, ratio
 
 #import "../ptbins.C"
-#import "../ptcut.C"
 
 void histoSave()
 {
@@ -35,8 +36,8 @@ void histoSave()
  
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m, data_y;
+double mPPt, mMPt, mPEta, mMEta;
   Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y;
-  double mPPt, mMPt, mPEta, mMEta;
   
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
@@ -47,7 +48,7 @@ void histoSave()
   treeD->SetBranchAddress("muonMEta", &mMEta);
   treeD->SetBranchAddress("muonPPt", &mPPt);
   treeD->SetBranchAddress("muonMPt", &mMPt);
-
+  
   treeM1->SetBranchAddress("theta", &mc_th);
   treeM1->SetBranchAddress("dimPt", &mc_pt);
   treeM1->SetBranchAddress("Rap", &mc_y);
@@ -92,29 +93,26 @@ void histoSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
       // pt and y conditions
       if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2) {
-	// eta cut
-	if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut)) {
-
-	  // PR peak and sidebands
-	  if(abs(data_lt) < 0.005) {
-	    if(data_m > 3.0 && data_m < 3.2)
-	      PRHist->Fill(abs(cos(data_th)), data_pt);
-	    else if(data_m < 2.95 && data_m > 2.92)
-	      PRLHist->Fill(abs(cos(data_th)), data_pt);
-	    else if(data_m < 3.28 && data_m > 3.21)
-	      PRRHist->Fill(abs(cos(data_th)), data_pt);
-	  }
-	  // NP peak and sidebands
-	  else if(data_lt > 0.01 && data_lt < 0.05 ) {
-	    if(data_m > 3.0 && data_m < 3.2)
-	      NPHist->Fill(abs(cos(data_th)), data_pt);
-	    else if(data_m < 2.95 && data_m > 2.92)
-	      NPLHist->Fill(abs(cos(data_th)), data_pt);
-	    else if(data_m < 3.28 && data_m > 3.21)
-	      NPRHist->Fill(abs(cos(data_th)), data_pt);
-	  }
+	// PR peak and sidebands
+	if(abs(data_lt) < 0.005) {
+	  if(data_m > 3.0 && data_m < 3.2)
+	    PRHist->Fill(abs(cos(data_th)), data_pt);
+	  else if(data_m < 2.95 && data_m > 2.92)
+	    PRLHist->Fill(abs(cos(data_th)), data_pt);
+	  else if(data_m < 3.28 && data_m > 3.21)
+	    PRRHist->Fill(abs(cos(data_th)), data_pt);
+	}
+	// NP peak and sidebands
+	else if(data_lt > 0.01 && data_lt < 0.08 ) {
+	  if(data_m > 3.0 && data_m < 3.2)
+	    NPHist->Fill(abs(cos(data_th)), data_pt);
+	  else if(data_m < 2.95 && data_m > 2.92)
+	    NPLHist->Fill(abs(cos(data_th)), data_pt);
+	  else if(data_m < 3.28 && data_m > 3.21)
+	    NPRHist->Fill(abs(cos(data_th)), data_pt);
 	}
       }
     }
@@ -123,40 +121,40 @@ void histoSave()
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-	if(mc_pt > ptBins[0] && mc_pt < 45 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
-	  MCHist->Fill(abs(cos(mc_th)), mc_pt);
-	}
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+      if(mc_pt > ptBins[0] && mc_pt < 45 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+	MCHist->Fill(abs(cos(mc_th)), mc_pt);
+      }
     }
 
   // MC sample 2
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-	if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
-	  MCHist->Fill(abs(cos(mc_th)), mc_pt);
-	}
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+      if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+	MCHist->Fill(abs(cos(mc_th)), mc_pt);
+      }
     }
 
   // MC sample 3
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-     if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-	if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
-	  MCHist->Fill(abs(cos(mc_th)), mc_pt);
-	}
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+      if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+	MCHist->Fill(abs(cos(mc_th)), mc_pt);
+      }
     }
 
   // MC sample 4
   for(int i = 0; i < m4Evt; i++)
     {
       treeM4->GetEntry(i);
-      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-	if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
-	  MCHist->Fill(abs(cos(mc_th)), mc_pt);
-	}
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+      if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+	MCHist->Fill(abs(cos(mc_th)), mc_pt);
+      }
     }
 
   // get ratios

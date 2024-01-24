@@ -1,11 +1,12 @@
-#import "../ptbins.C"
 #import "../etacut.C"
+
+#import "../ptbins.C"
 
 void bkgSave()
 {
   // section for storing the lifetime histograms
   // prepare binning and histograms for plots
-  int tbins = 110;
+  int tbins = 55;
   double lowt = -0.05, hit = 0.5; // plotting in mm, not cm
   TH2D *ltHist = new TH2D("ltH", "Run 2 data c#tau", tbins, lowt, hit, nPtBins, ptBins);
     
@@ -14,28 +15,27 @@ void bkgSave()
   TTree *treeD = (TTree*)fin->Get("data_cos");
     
   Double_t data_pt, data_lt, data_m, data_y;  
-  double mPEta, mMEta;
-
+double mPEta, mMEta;
   treeD->SetBranchAddress("dimPt", &data_pt);
   treeD->SetBranchAddress("Rap", &data_y);
   treeD->SetBranchAddress("Mass", &data_m);
   treeD->SetBranchAddress("lt", &data_lt);
   treeD->SetBranchAddress("muonPEta", &mPEta);
   treeD->SetBranchAddress("muonMEta", &mMEta);
-
+  
   // cycle over data , fill the lifetime histogram
   int dEvt = treeD->GetEntries();
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
+if((abs(mPEta) < eta_lo || abs(mPEta) > eta_hi) && (abs(mMEta) < eta_lo || abs(mMEta) > eta_hi))
       // filling flat mass SR (3.0 - 3.2 GeV)
-      if((abs(mPEta) < eta_lo || abs(mPEta) > eta_hi) && (abs(mMEta) < eta_lo || abs(mMEta) > eta_hi))
-	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m < 3.2 && data_m > 3.0 && abs(data_y) < 1.2) {
-	  ltHist->Fill(data_lt*10, data_pt); // filling with mm! Remember!
-	}
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m < 3.2 && data_m > 3.0 && abs(data_y) < 1.2) {
+	ltHist->Fill(data_lt*10, data_pt); // filling with mm! Remember!
+      }
     }
   fin->Close();
-  
+    
   TFile *fout = new TFile("files/ltStore.root", "recreate");
   ltHist->Write();
   fout->Close();

@@ -4,16 +4,16 @@ void plotDMPars_NP()
 {
   // aux arrays
   int pc[] = {kBlack, kBlue, kViolet};
-  const int n_p = 12, n_m = 1;
+  const int n_p = 13, n_m = 1;
   string modn[] = {""};
   string legn[] = {"no G", "with G"};
 
-  string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fBG", "fG", "sigG"};
-  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "m_{bkg}", "b_{bkg}", "f_{bkg}", "f_{G}", "#sigma_{G}"};
-  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "m_{bkg} (MeV)", "b_{bkg} per 1 GeV", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)"};
+  string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fBG", "fG", "sigG", "mu2"};
+  string partit[] = {"f", "N_{SR}", "#mu", "#sigma", "#sigma_{2}", "n", "#alpha", "m_{bkg}", "b_{bkg}", "f_{bkg}", "f_{G}", "#sigma_{G}", "#mu_{2}"};
+  string parax[] = {"f (%)", "N_{SR} per 1 GeV", "#mu (MeV)", "#sigma (MeV)", "#sigma_{2} (MeV)", "n", "#alpha", "m_{bkg} (MeV)", "b_{bkg} per 1 GeV", "f_{bkg} (%)", "f_{G} (%)", "#sigma_{G} (MeV)", "#mu_{2} (MeV)"};
   
-  double parmin[] = {0,    6e0, 3090, 0,   32, 2.0, 1.0, 100, 2e1, 0.,  0,   0};
-  double parmax[] = {100., 2e4, 3100, 200, 46, 3.0, 2.3, 300, 4e4, 15., 100, 100};
+  double parmin[] = {0,    6e0, 3090, 0,   32, 2.0, 1.0, 100, 2e1, 0.,  0,   0, 3090};
+  double parmax[] = {100., 2e4, 3100, 200, 46, 3.0, 2.3, 300, 4e4, 15., 100, 100, 3100};
  
   // initialize tgraphs for parameters
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
@@ -29,7 +29,7 @@ void plotDMPars_NP()
   
   // scale all graphs for plotting
   TGraphErrors ***g_par_s = new TGraphErrors**[n_m];
-  double mult[] = {100., 1., 1e3, 1e3, 1e3, 1., 1., 1000., 1., 100., 100., 1e3};
+  double mult[] = {100., 1., 1e3, 1e3, 1e3, 1., 1., 1000., 1., 100., 100., 1e3, 1e3};
   double pt_min, pt_max;
   for(int i_m = 0; i_m < n_m; i_m++) {
     double *xv = g_par[i_m][0]->GetX();
@@ -68,18 +68,6 @@ void plotDMPars_NP()
   const int nPtBins = h_d2d->GetNbinsY();
   const double *ptBins = h_d2d->GetYaxis()->GetXbins()->GetArray();
   
-  // Make 1d histos
-  TH1D **h_d1d = new TH1D*[nPtBins];
-  TH1D *h_di = new TH1D("h_di", "name", nPtBins, ptBins);
-  for(int i = 0; i < nPtBins; i++) {
-    h_d1d[i] = h_d2d->ProjectionX(Form("mH%.0f", ptBins[i]), i+1, i+1);
-    double m_c = h_d1d[i]->Integral()/(ptBins[i+1]-ptBins[i]);
-    //m_c /= (1.5*i+1);
-    m_c*=4;
-    h_di->SetBinContent(i+1, m_c);
-  }
-
-  
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetLeftMargin(0.12);
 
@@ -111,12 +99,9 @@ void plotDMPars_NP()
 	g_par_s[i_n][i_p]->SetMarkerColor(pc[i_n]);
 	g_par_s[i_n][i_p]->Draw("p");
       }
-
-      //if(i_p == 7) h_di->Draw("histo same");
-
     }
     // linear or constant pars 
-    else if(i_p != 3) {
+    else {
       for(int i_n = 0; i_n < n_m; i_n++) {
 	g_par_s[i_n][i_p]->SetMarkerStyle(20);
 	g_par_s[i_n][i_p]->SetMarkerSize(.75);
@@ -142,17 +127,25 @@ void plotDMPars_NP()
       leg->AddEntry(g_par_s[0][10], "f_{G}", "pl");
       leg->Draw();
     }
+
+    // if we're plotting par mu_1, add mu_2
+    else if( i_p == 2) {
+      for(int i_m = 0; i_m < n_m; i_m++) {
+	g_par_s[i_n][12]->SetMarkerStyle(22);
+	g_par_s[i_n][12]->SetLineColor(pc[i_n]);
+	g_par_s[i_n][12]->SetMarkerColor(pc[i_n]);
+	g_par_s[i_n][12]->Draw("psame");
+      }
+      
+      leg->AddEntry(g_par_s[0][2], "#mu_{1}", "pl");
+      leg->AddEntry(g_par_s[0][12], "#mu_{2}", "pl");
+      leg->Draw();
+    }
+
  
     // if we're plotting par sig1, add sig2 and sigG
     else if( i_p == 3) {
       for(int i_n = 0; i_n < n_m; i_n++) {
-	g_par_s[i_n][3]->SetMarkerStyle(20);
-	g_par_s[i_n][3]->SetMarkerSize(.75);
-	g_par_s[i_n][3]->SetMarkerColor(pc[i_n]);
-	g_par_s[i_n][3]->SetLineColor(pc[i_n]);
-	g_par_s[i_n][3]->SetFillColorAlpha(pc[i_n], 0.5);
-	g_par_s[i_n][3]->Draw("pce3");
-
 	g_par_s[i_n][4]->SetMarkerStyle(22);
 	g_par_s[i_n][4]->SetMarkerColor(pc[i_n]);
 	g_par_s[i_n][4]->SetLineColor(pc[i_n]);

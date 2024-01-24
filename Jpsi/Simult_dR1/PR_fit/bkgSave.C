@@ -1,11 +1,12 @@
 #import "../rcut.C"
+
 #import "../ptbins.C"
 
 void bkgSave()
 {
   // section for storing the lifetime histograms
-  // prepare binning and histograms for plots  
-  int tbins = 110;
+  // prepare binning and histograms for plots
+  int tbins = 55;
   double lowt = -0.05, hit = 0.5; // plotting in mm, not cm
   TH2D *ltHist = new TH2D("ltH", "Run 2 data c#tau", tbins, lowt, hit, nPtBins, ptBins);
     
@@ -14,8 +15,7 @@ void bkgSave()
   TTree *treeD = (TTree*)fin->Get("data_cos");
     
   Double_t data_pt, data_lt, data_m, data_y;  
-  Double_t dR;
-  
+Double_t dR;
   treeD->SetBranchAddress("dimPt", &data_pt);
   treeD->SetBranchAddress("Rap", &data_y);
   treeD->SetBranchAddress("Mass", &data_m);
@@ -27,11 +27,11 @@ void bkgSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if(dR > r_cut)
-	// filling flat mass SR (3.0 - 3.2 GeV)
-	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m < 3.2 && data_m > 3.0 && abs(data_y) < 1.2) {
-	  ltHist->Fill(data_lt*10, data_pt); // filling with mm! Remember!
-	}
+if(dR > r_cut)
+      // filling flat mass SR (3.0 - 3.2 GeV)
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m < 3.2 && data_m > 3.0 && abs(data_y) < 1.2) {
+	ltHist->Fill(data_lt*10, data_pt); // filling with mm! Remember!
+      }
     }
   fin->Close();
     
@@ -41,3 +41,4 @@ void bkgSave()
   cout << "lifetime histograms all filled" << endl;
 }
 
+ 

@@ -85,13 +85,13 @@ void indFit()
     ept[i] = (pMax-pMin)/2.;
 
     // get max costheta
-    double cMaxVal = jumpF(cosMax->Eval(pMin));
-    double cMinVal = jumpF(cosMin->Eval(pMax));
+double cMaxVal = jumpF(cosMax->Eval(pMin));
+double cMinVal = jumpF(cosMin->Eval(pMax));
 
     // fit the 2 functions
     for(int i_t = 0; i_t < 2; i_t++) {
-      fit1d[i_t]->SetRange(cMinVal, cMaxVal);
-      fit1d[i_t]->SetParameters(pHist[i_t][i]->GetBinContent(1)*1.1, 0.1);
+fit1d[i_t]->SetRange(cMinVal, cMaxVal);
+      fit1d[i_t]->SetParameters(pHist[i_t][i]->GetMaximum(), 0.1);
 
       pHist[i_t][i]->Fit(fit1d[i_t], "R0");
 
@@ -110,8 +110,7 @@ void indFit()
     pHist[0][i]->SetLineColor(kRed);
     pHist[0][i]->SetMarkerColor(kRed);
     pHist[0][i]->SetMinimum(0);
-    pHist[0][i]->SetMaximum(parA[0][i]*1.5);
-    if(i == nBinsY-1) pHist[0][i]->SetMaximum(pHist[0][i]->GetMaximum()*1.5);
+    pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.5);
     pHist[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     pHist[0][i]->Draw("error");
     fit1d[0]->SetLineColor(kRed);

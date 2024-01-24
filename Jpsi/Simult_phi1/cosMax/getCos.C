@@ -77,6 +77,7 @@ void getCos()
   costh->GetXaxis()->SetTitle("p_{T} (GeV)");
   costh->GetYaxis()->SetTitle("|cos#theta_{HX}|_{max}");
   for(int i = 0; i < nBinsY; i++) {
+    cout << i << " " << cosMax[i] << endl;
     costh->SetBinContent(i+1, cosMax[i]);
     costh->SetBinError(i+1, 0.025);
   }

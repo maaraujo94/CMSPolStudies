@@ -1,8 +1,9 @@
 #import "../phiCode.C"
-#import "../ptbins.C"
 
-// code to get the 2d data/mc ratio hist (pr, np)
-// saves data, mc, ratio (normal and |costh|)
+// code to get the 2d data/mc ratio hist (pr, np, peak and sidebands)
+// saves data, mc, ratio
+
+#import "../ptbins.C"
 
 void histoSave()
 {
@@ -32,11 +33,11 @@ void histoSave()
   int m2Evt = treeM2->GetEntries();
   int m3Evt = treeM3->GetEntries();
   int m4Evt = treeM4->GetEntries(); 
-  
+ 
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m, data_y;
+double phi, w_phi;
   Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y;
-  double phi, w_phi;
   
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
@@ -88,7 +89,7 @@ void histoSave()
 	    PRRHist->Fill(abs(cos(data_th)), data_pt);
 	}
 	// NP peak and sidebands
-	else if(data_lt > 0.01 && data_lt < 0.05 ) {
+	else if(data_lt > 0.01 && data_lt < 0.08 ) {
 	  if(data_m > 3.0 && data_m < 3.2)
 	    NPHist->Fill(abs(cos(data_th)), data_pt);
 	  else if(data_m < 2.95 && data_m > 2.92)
@@ -98,41 +99,44 @@ void histoSave()
 	}
       }
     }
-  
+
+  // MC sample 1
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      w_phi = f_phi(phi);
+	  w_phi = f_phi(phi);
       if(mc_pt > ptBins[0] && mc_pt < 45 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 	MCHist->Fill(abs(cos(mc_th)), mc_pt, w_phi);
       }
     }
 
-
+  // MC sample 2
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      w_phi = f_phi(phi);
+	  w_phi = f_phi(phi);
       if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
 	MCHist->Fill(abs(cos(mc_th)), mc_pt, w_phi);
       }
     }
 
+  // MC sample 3
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      w_phi = f_phi(phi);
+	  w_phi = f_phi(phi);
       if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
-	MCHist->Fill(abs(cos(mc_th)), mc_pt, w_phi);	
+	MCHist->Fill(abs(cos(mc_th)), mc_pt, w_phi);
       }
     }
 
-    for(int i = 0; i < m4Evt; i++)
+  // MC sample 4
+  for(int i = 0; i < m4Evt; i++)
     {
       treeM4->GetEntry(i);
-      w_phi = f_phi(phi);
+	  w_phi = f_phi(phi);
       if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
-	MCHist->Fill(abs(cos(mc_th)), mc_pt, w_phi);	
+	MCHist->Fill(abs(cos(mc_th)), mc_pt, w_phi);
       }
     }
 

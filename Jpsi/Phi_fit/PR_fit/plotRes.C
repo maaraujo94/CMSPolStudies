@@ -12,12 +12,12 @@ void plotRes()
   
   // get the fit results
   // get A, lambda, chiProb values for each bin
-  string lbl[] = {"Data", "NP", "PR", "J"};
+  string lbl[] = {"Data", "NP", "J"};
   TFile *fInd = new TFile("files/finalFitRes.root");
-  TGraphErrors **graph_A = new TGraphErrors*[4];
-  TGraphErrors **graph_B = new TGraphErrors*[4];
-  TGraph **graph_chi = new TGraph*[4];
-  for(int i_t = 0; i_t < 4; i_t++) {
+  TGraphErrors **graph_A = new TGraphErrors*[3];
+  TGraphErrors **graph_B = new TGraphErrors*[3];
+  TGraph **graph_chi = new TGraph*[3];
+  for(int i_t = 0; i_t < 3; i_t++) {
     graph_A[i_t] = (TGraphErrors*)fInd->Get(Form("graph_A_%s", lbl[i_t].c_str()));
     graph_B[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
     graph_chi[i_t] = (TGraph*)fInd->Get(Form("graph_chiP_%s", lbl[i_t].c_str()));
@@ -25,8 +25,8 @@ void plotRes()
   fInd->Close();
 
   TFile *fIndth = new TFile("../../Simult/PR_fit/files/finalFitRes.root");
-  TGraphErrors **graph_lth = new TGraphErrors*[4];
-  for(int i_t = 0; i_t < 4; i_t++) {
+  TGraphErrors **graph_lth = new TGraphErrors*[3];
+  for(int i_t = 0; i_t < 3; i_t++) {
     graph_lth[i_t] = (TGraphErrors*)fIndth->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
   }
   fIndth->Close();
@@ -44,8 +44,8 @@ void plotRes()
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("Run 2 #beta (PR)");
 
-  int col[] = {kViolet, kRed, kBlack, kBlue};
-  for(int i = 0; i < 4; i++) {
+  int col[] = {kViolet, kRed, kBlue};
+  for(int i = 0; i < 3; i++) {
     graph_B[i]->SetLineColor(col[i]);
     graph_B[i]->SetMarkerColor(col[i]);
     graph_B[i]->Draw("p same");
@@ -59,9 +59,8 @@ void plotRes()
   TLegend *leg = new TLegend(0.77, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_B[0], "total", "pl");
-  leg->AddEntry(graph_B[1], "NP contrib", "pl");
-  leg->AddEntry(graph_B[2], "prompt", "pl");
-  leg->AddEntry(graph_B[3], "prompt J/#psi", "pl");
+  leg->AddEntry(graph_B[1], "non-prompt J/#psi", "pl");
+  leg->AddEntry(graph_B[2], "prompt J/#psi", "pl");
   leg->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
@@ -75,9 +74,9 @@ void plotRes()
   fl2->GetYaxis()->SetLabelOffset(0.01);
   fl2->SetTitle("Run 2 #beta");
 
-  graph_B[3]->SetLineColor(kBlue);
-  graph_B[3]->SetMarkerColor(kBlue);
-  graph_B[3]->Draw("p same");
+  graph_B[2]->SetLineColor(kBlue);
+  graph_B[2]->SetMarkerColor(kBlue);
+  graph_B[2]->Draw("p same");
 
   graph_B[1]->SetLineColor(kRed);
   graph_B[1]->SetMarkerColor(kRed);
@@ -85,18 +84,44 @@ void plotRes()
 
   zero->Draw();
 
-  TF1 *fcon = new TF1("fc", "[0]", pTBins[0], pTBins[nBinspT]);
-  fcon->SetParameter(0, -0.01);
-  //graph_B[1]->Fit(fcon, "0");
-  //graph_B[3]->Fit(fcon, "0");
-
   TLegend *leg2 = new TLegend(0.7, 0.75, 0.97, 0.9);
   leg2->SetTextSize(0.03);
-  leg2->AddEntry(graph_B[3], "prompt J/#psi", "pl");
+  leg2->AddEntry(graph_B[2], "prompt J/#psi", "pl");
   leg2->AddEntry(graph_B[1], "non-prompt J/#psi", "pl");
   leg2->Draw();
 
   c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
+
+    // draw the bands around dists
+  int n = nBinspT+1;
+  double xv[n], xe[n], yv1[n], ye1[n], yv2[n], ye2[n];
+  for(int i = 0; i < n; i++) {
+    if (i == 0) {
+      xv[i] = pTBins[0];
+      xe[i] = 0;
+    }
+    else if (i == n-1) {
+      xv[i] = pTBins[n-1];
+      xe[i] = 0;
+    }
+    else {
+      xv[i] = 0.5*(pTBins[i-1]+pTBins[i]);
+      xe[i] = 0.5*(pTBins[i]-pTBins[i-1]);
+    }
+    yv1[i] = -0.01;
+    ye1[i] = 0.005;
+    yv2[i] = 0.01;
+    ye2[i] = 0.01;
+  }
+
+  TGraphErrors *g_1 = new TGraphErrors(n, xv, yv1, xe, ye1);
+  g_1->SetFillColorAlpha(kBlue, 0.3);
+  g_1->Draw("e3");
+  TGraphErrors *g_2 = new TGraphErrors(n, xv, yv2, xe, ye2);
+  g_2->SetFillColorAlpha(kRed, 0.3);
+  g_2->Draw("e3");
+
+  c->SaveAs("plots/ratioFinal/par_lth_band.pdf");
   c->Clear();
 
   // draw A(pT)
@@ -109,7 +134,7 @@ void plotRes()
   fa->SetTitle("Run 2 A");
 
   // combine both lambda_th distributions
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 3; i++) {
     graph_A[i]->SetLineColor(col[i]);
     graph_A[i]->SetMarkerColor(col[i]);
     graph_A[i]->Draw("p same");
@@ -137,7 +162,7 @@ void plotRes()
   fc->SetTitle("Run 2 P(#chi^{2}, ndf)");
 
   // combine both lambda_th distributions
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 3; i++) {
     graph_chi[i]->SetLineColor(col[i]);
     graph_chi[i]->SetMarkerColor(col[i]);
     graph_chi[i]->SetMarkerStyle(20);

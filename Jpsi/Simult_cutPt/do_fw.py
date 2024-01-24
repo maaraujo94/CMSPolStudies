@@ -2,10 +2,9 @@
 
 import os, imp
 
-locs = ["bkgFits/newMCmass_0.C", "bkgFits/NPMCmass.C",
+locs = ["bkgFits/bkgSave.C",
         "cosMax/histoSave.C",
-        "PR_fit/histoSave.C", "PR_fit/bkgSave.C", "PR_fit/bkgCosth.C",
-        "NP_fit/bkgSave.C", "NP_fit/bkgCosth.C"]
+        "PR_fit/histoSave.C", "PR_fit/bkgSave.C"]
 
 bloc = os.getcwd()
 
@@ -18,19 +17,20 @@ for l in locs:
 
     print "now running "+l+"\n"
     fout = open("%s/%s"%(bloc, l), "w")
-    fout.write('#import "../ptcut.C"\n\n')
     for line in base:
-        fout.write(line)
-        if "Double_t" in line and ct_t is 0:
+        if '#import "../etacut.C"' in line:
+            fout.write('#import "../ptcut.C"\n')
+        elif "double mPEta" in line:
             fout.write("double mPPt, mMPt, mPEta, mMEta;\n")
-            if l is not "PR_fit/bkgSave.C":
-                ct_t = 1
-        if '"lt"' in line:
+        elif '"muonMEta"' in line:
+            fout.write(line)
             treeL = line.split("->")
-            fout.write('%s->SetBranchAddress("muonPEta", &mPEta);\n'%treeL[0])
-            fout.write('%s->SetBranchAddress("muonMEta", &mMEta);\n'%treeL[0])
             fout.write('%s->SetBranchAddress("muonPPt", &mPPt);\n'%treeL[0])
             fout.write('%s->SetBranchAddress("muonMPt", &mMPt);\n'%treeL[0])
-        if "GetEntry" in line:
+        elif "abs(mPEta)" in line:
             fout.write("if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))\n")
+        else:
+            fout.write(line)
+        
     fout.close()
+    

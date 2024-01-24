@@ -14,7 +14,7 @@ void getfL()
   // define same function as above but *m
   TF1 *mMass = new TF1("mMass", "(1.-x*[0])*x", 2.9, 3.3);
   // get fMass parameters
-  TFile *inFMass = new TFile("files/mfit.root");
+  TFile *inFMass = new TFile("files/mfit_2.root");
   TGraphErrors *m_ld = (TGraphErrors*)inFMass->Get("fit_m_bkg");
   inFMass->Close();
 

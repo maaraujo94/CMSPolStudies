@@ -12,12 +12,12 @@ void plotRes()
   
   // get the fit results
   // get A, lambda, chiProb values for each bin
-  string lbl[] = {"Data", "NP", "PR", "J"};
+  string lbl[] = {"Data", "NP", "J"};
   TFile *fInd = new TFile("files/finalFitRes.root");
-  TGraphErrors **graph_A = new TGraphErrors*[4];
-  TGraphErrors **graph_lth = new TGraphErrors*[4];
-  TGraph **graph_chi = new TGraph*[4];
-  for(int i_t = 0; i_t < 4; i_t++) {
+  TGraphErrors **graph_A = new TGraphErrors*[3];
+  TGraphErrors **graph_lth = new TGraphErrors*[3];
+  TGraph **graph_chi = new TGraph*[3];
+  for(int i_t = 0; i_t < 3; i_t++) {
     graph_A[i_t] = (TGraphErrors*)fInd->Get(Form("graph_A_%s", lbl[i_t].c_str()));
     graph_lth[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
     graph_chi[i_t] = (TGraph*)fInd->Get(Form("graph_chiP_%s", lbl[i_t].c_str()));
@@ -42,7 +42,7 @@ void plotRes()
   // get the difference between models
   double val[nBinspT];
   for(int i = 0; i < nBinspT; i++) { 
-    val[i] = graph_lth[3]->GetY()[i] - graph_lthBase->GetY()[i];
+    val[i] = graph_lth[2]->GetY()[i] - graph_lthBase->GetY()[i];
   }
   TGraphErrors *g_lthD = new TGraphErrors(nBinspT, graph_lthBase->GetX(), val, graph_lthBase->GetEX(), graph_lthBase->GetEY());
   
@@ -57,8 +57,8 @@ void plotRes()
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("Run 2 #lambda_{#theta}");
 
-  int col[] = {kViolet, kRed, kBlack, kBlue};
-  for(int i = 0; i < 4; i++) {
+  int col[] = {kViolet, kRed, kBlue};
+  for(int i = 0; i < 3; i++) {
     graph_lth[i]->SetLineColor(col[i]);
     graph_lth[i]->SetMarkerColor(col[i]);
     graph_lth[i]->Draw("p same");
@@ -81,8 +81,7 @@ void plotRes()
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "total", "pl");
   leg->AddEntry(graph_lth[1], "NP contrib", "pl");
-  leg->AddEntry(graph_lth[2], "prompt", "pl");
-  leg->AddEntry(graph_lth[3], "prompt J/#psi", "pl");
+  leg->AddEntry(graph_lth[2], "prompt J/#psi", "pl");
   leg->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
@@ -121,7 +120,7 @@ void plotRes()
   fa->SetTitle("Run 2 A");
 
   // combine both lambda_th distributions
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 3; i++) {
     graph_A[i]->SetLineColor(col[i]);
     graph_A[i]->SetMarkerColor(col[i]);
     graph_A[i]->Draw("p same");
@@ -149,7 +148,7 @@ void plotRes()
   fc->SetTitle("Run 2 P(#chi^{2}, ndf)");
 
   // combine both lambda_th distributions
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 3; i++) {
     graph_chi[i]->SetLineColor(col[i]);
     graph_chi[i]->SetMarkerColor(col[i]);
     graph_chi[i]->SetMarkerStyle(20);

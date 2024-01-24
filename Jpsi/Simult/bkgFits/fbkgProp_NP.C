@@ -78,13 +78,17 @@ void fbkgProp_NP()
 
   // start cycle of calculations
   double f_Bg[nPtBins], ef_Bg[nPtBins];
+  double evt_all[nPtBins], int_Bg[nPtBins], eint_Bg[nPtBins];
+
   TH1D *h_fbkg = new TH1D("h_fbkg", "Run 2 f_{Bg}", nPtBins, ptBins);
+  TH1D *h_intBg = new TH1D("h_intBg", "integ Bg in SR", nPtBins, ptBins);
+  TH1D *h_nevt = new TH1D("h_nevt", "Evt count in SR", nPtBins, ptBins);
   double min_bin = h_d1d[0]->GetXaxis()->FindBin(m_min[1]+1e-6);
   double max_bin = h_d1d[0]->GetXaxis()->FindBin(m_max[1]-1e-6);
 
   for(int i_pt = 0; i_pt < nPtBins; i_pt++) {
     // N_histo has no uncertainty: just histogram integral
-    double evt_all = h_d1d[i_pt]->Integral(min_bin, max_bin, "width");
+    evt_all[i_pt] = h_d1d[i_pt]->Integral(min_bin, max_bin, "width");
 
     // get vectors of fit parameters
     double par_vec[2], epar_vec[2], cov_mat[2][2];
@@ -97,11 +101,17 @@ void fbkgProp_NP()
     }
     double *cov_ptr = cov_mat[0];
 
-    f_Bg[i_pt] = intfbkg(0, par_vec)/evt_all * 100.;
-    ef_Bg[i_pt] = parErr(2, intfbkg, 0, par_vec, epar_vec, cov_ptr)/evt_all * 100.;
+    int_Bg[i_pt] = intfbkg(0, par_vec);
+    f_Bg[i_pt] = int_Bg[i_pt]/evt_all[i_pt] * 100.;
+    eint_Bg[i_pt] = parErr(2, intfbkg, 0, par_vec, epar_vec, cov_ptr);
+    ef_Bg[i_pt] = eint_Bg[i_pt]/evt_all[i_pt] * 100.;
     
     h_fbkg->SetBinContent(i_pt+1, f_Bg[i_pt]);
     h_fbkg->SetBinError(i_pt+1, ef_Bg[i_pt]);
+    h_intBg->SetBinContent(i_pt+1, int_Bg[i_pt]);
+    h_intBg->SetBinError(i_pt+1, eint_Bg[i_pt]);
+    h_nevt->SetBinContent(i_pt+1, evt_all[i_pt]);
+    h_nevt->SetBinError(i_pt+1, 0);
   }
 
   // plotting in pT
@@ -161,6 +171,8 @@ void fbkgProp_NP()
   h_fbkg->Write();
   h_fbkg2d->SetName("h_fbkg");
   h_fbkg2d->Write();
+  h_intBg->Write();
+  h_nevt->Write();
   fout->Close();
 
 }

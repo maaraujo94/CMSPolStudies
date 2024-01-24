@@ -17,8 +17,8 @@ void genDist_NP()
   double dX = (maxX-minX)/nBinsX;
 
   // get fit parameters from storage
-  double fL = 0.;
-
+  double fL = 0;
+  
   // get the 1d sb histos and scale to nr events
   double n_s[nBinsY];
   TH1D **h_LSB1d = new TH1D*[nBinsY];
@@ -34,7 +34,7 @@ void genDist_NP()
   // get the sideband histos by summing with proportion fL
   TH1D **h_SB = new TH1D*[nBinsY];
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
-    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("Bg^{NP} |cos#theta| (%.1f < p_{T} < %.1f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
+    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("NPBg |cos#theta| (%.1f < p_{T} < %.1f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
     
     h_SB[i_pt]->Sumw2();
     h_SB[i_pt]->Add(h_LSB1d[i_pt], h_RSB1d[i_pt], fL, 1.-fL);

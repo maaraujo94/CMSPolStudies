@@ -1,6 +1,7 @@
+#import "../ptcut.C"
+
 // code to get the 2d fine-binned data/mc ratio hist for |costh|max
 // saves ratio (|costh|)
-#import "../ptcut.C"
 
 void histoSave()
 {
@@ -40,13 +41,13 @@ void histoSave()
   int m1Evt = treeM1->GetEntries();
   int m2Evt = treeM2->GetEntries();
   int m3Evt = treeM3->GetEntries(); 
-  int m4Evt = treeM3->GetEntries();
+  int m4Evt = treeM4->GetEntries();
  
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m;
+double mPPt, mMPt, mPEta, mMEta;
   Double_t mc_th, mc_pt, mc_lt, mc_m;
-  double mPPt, mMPt, mPEta, mMEta;
-
+  
   treeD->SetBranchAddress("theta", &data_th);
   treeD->SetBranchAddress("dimPt", &data_pt);
   treeD->SetBranchAddress("Mass", &data_m);
@@ -55,7 +56,7 @@ void histoSave()
   treeD->SetBranchAddress("muonMEta", &mMEta);
   treeD->SetBranchAddress("muonPPt", &mPPt);
   treeD->SetBranchAddress("muonMPt", &mMPt);
-
+  
   treeM1->SetBranchAddress("theta", &mc_th);
   treeM1->SetBranchAddress("dimPt", &mc_pt);
   treeM1->SetBranchAddress("Mass", &mc_m);
@@ -96,46 +97,46 @@ void histoSave()
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-	if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2) {      
-	  dataHist_ab->Fill(abs(cos(data_th)), data_pt);
-	}
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && data_m > 3.0 && data_m < 3.2) {      
+	dataHist_ab->Fill(abs(cos(data_th)), data_pt);
+      }
     }
   
   for(int i = 0; i < m1Evt; i++)
     {
       treeM1->GetEntry(i);
-      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-	if(mc_pt > ptBins[0] && mc_pt < 45 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-	}
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+      if(mc_pt > ptBins[0] && mc_pt < 45 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
+      }
     }
 
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-	if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
-	}
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+      if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
+      }
     }
 
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
-      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-	if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
-	}
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+      if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
+      }
     }
   
   for(int i = 0; i < m4Evt; i++)
     {
       treeM4->GetEntry(i);
-      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-	if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	  mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
-	}
+if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+      if(mc_pt > 70 && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
+	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
+      }
     }
   
   dataHist_ab->SetStats(0);

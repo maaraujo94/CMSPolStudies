@@ -47,16 +47,8 @@ void plotRes_NP()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  TLine *trans1 = new TLine(46, -1, 46, 1);
-  trans1->SetLineColor(kBlack);
-  trans1->SetLineStyle(kDashed);
-  //trans1->Draw();
-  TLine *trans2 = new TLine(66, -1, 66, 1);
-  trans2->SetLineColor(kBlack);
-  trans2->SetLineStyle(kDashed);
-  //trans2->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.7, 0.97, 0.9);
+  TLegend *leg = new TLegend(0.66, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "NP", "pl");
   leg->AddEntry(graph_lth[1], "non-prompt J/#psi", "pl");
@@ -79,8 +71,6 @@ void plotRes_NP()
 
 
   zero->Draw();
-  //trans1->Draw();
-  //trans2->Draw();
   
   c->SaveAs("plots/ratioFinal_NP/par_lth_F.pdf");
   c->Clear();

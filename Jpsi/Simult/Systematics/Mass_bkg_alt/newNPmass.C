@@ -5,13 +5,6 @@
 
 #import "../../ptbins.C"
 
-int do_round(double val)
-{
-  int valR = (int)val;
-  if (val-valR > 0.5) return valR+1;
-  else return valR;
-}
-
 double gPI = TMath::Pi();
 
 // crystal ball function
@@ -59,7 +52,7 @@ double mmod_func(double *x, double *par)
   double NS = par[pt_bin];
   double f = par[nPtBins]; // f is constant in pt, only take the first value and use in all cases
 
-  double mu = par[2*nPtBins]; // mu is constant in pt
+  double mu1 = par[2*nPtBins]; // mu is constant in pt
   double sig1 = par[3*nPtBins] * pt + par[3*nPtBins+1]; 
   double sig2 = par[3*nPtBins] * pt + par[4*nPtBins+1]; // sigmas linear in pt
   
@@ -71,8 +64,10 @@ double mmod_func(double *x, double *par)
 
   double fG = par[9*nPtBins]; // fG constant in pT
   double sigG = par[3*nPtBins] * pt + par[10*nPtBins+1]; // sigma_G linear in pt - always sigma1 slope
-  
-  double func = f * cb_exp(m, NS, sig1, mu, n, alpha) + (1.-f-fG) * cb_exp(m, NS, sig2, mu, n, alpha) + fG * g_exp(m, NS, sigG, mu) + bkg_exp(m, m_bkg, b_bkg);
+
+  double mu2 = par[11*nPtBins+pt_bin]; // added a free mu2, for indep muons
+
+  double func = f * cb_exp(m, NS, sig1, mu1, n, alpha) + (1.-f-fG) * cb_exp(m, NS, sig2, mu2, n, alpha) + fG * g_exp(m, NS, sigG, mu1) + bkg_exp(m, m_bkg, b_bkg);
   return func;
 }
 
@@ -112,10 +107,10 @@ void newNPmass()
   double n_v = 2.5, alpha_v = 1.9, fG_v = 0.035;
 
   // define 2d function for fitting
-  TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
-  string par_n[] =  {"NS", "f",  "mu",  "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fG", "sigG"};
-  double par_v[] =  {1.,   0.55, 3.095, 1e-4,   1e-4,   n_v, alpha_v, 1.,   1.,      fG_v, 1.};
-  double par2_v[] = {1.,   1.,   1.,    2e-2,   3e-2,   1.,  1.,      1.,   1.,       1.,   8e-2};
+  TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 12*nPtBins, 2);
+  string par_n[] =  {"NS", "f",  "mu1",  "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fG", "sigG", "mu2"};
+  double par_v[] =  {1.,   0.55, 3.095, 1e-4,   1e-4,   n_v, alpha_v, 1.,   1.,      fG_v, 1., 3.095};
+  double par2_v[] = {1.,   1.,   1.,    1e-2,   3e-2,   1.,  1.,      1.,   1.,       1.,   1e-1, 1};
   
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
@@ -125,7 +120,7 @@ void newNPmass()
     f_cb->SetParName(8*nPtBins+i, Form("b_bkg_%d", i));
     f_cb->SetParameter(8*nPtBins+i, h_d1d[i]->GetBinContent(4));//h_d1d[i]->Integral()/(1.5*i+1));
 
-    for(int j = 1; j < 11; j++) { // between NS, NB
+    for(int j = 1; j < 12; j++) { // between NS, NB
       if(j != 8) { // removing NB
 	f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
 	f_cb->SetParameter(j*nPtBins+i, par_v[j]);
@@ -139,6 +134,7 @@ void newNPmass()
 	// fixing n, fG
 	else if(j == 5 || j == 9) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	// lambda are fully free
+	else if(j == 8) f_cb->SetParameter(j*nPtBins+i, 0.012*(ptBins[i+1]+ptBins[i])/2.+0.18);
       }
     }
   }
@@ -147,26 +143,28 @@ void newNPmass()
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.12);
   c->SetRightMargin(0.03);
-
+  
   f_cb->SetNpx(1000);
+  h_d2d->Fit("f_cb", "RS");
   TFitResultPtr fitres = h_d2d->Fit("f_cb", "RS");
 
   // tf1 for plotting in the 1D bins
-  TF1 *f_1d = new TF1("f_1d", "[1]*cb_exp(x,[0],[3],[2],[5],[6]) + (1.-[1]-[9]) * cb_exp(x,[0],[4],[2],[5],[6]) + [9]*g_exp(x, [0], [10], [2])+bkg_exp(x,[7],[8])", m_min[0], m_max[2]);
-  f_1d->SetParNames("NS", "f", "mu", "sigma1", "sigma2", "n", "alpha", "p1", "lambda", "fG", "sigG");
+  TF1 *f_1d = new TF1("f_1d", "[1]*cb_exp(x,[0],[3],[2],[5],[6]) + (1.-[1]-[9]) * cb_exp(x,[0],[4],[11],[5],[6]) + [9]*g_exp(x, [0], [10], [2])+bkg_exp(x,[7],[8])", m_min[0], m_max[2]);
+  f_1d->SetParNames("NS", "f", "mu1", "sigma1", "sigma2", "n", "alpha", "p1", "lambda", "fG", "sigG");
+  f_1d->SetParName(11, "mu2");
 
   // separate parts of the fit function
   TF1 *fp1 = new TF1("fp1", "[1]*cb_exp(x,[0],[3],[2],[4],[5])", m_min[0], m_max[2]);
-  fp1->SetParNames("NS", "f", "mu", "sigma1", "n", "alpha");
+  fp1->SetParNames("NS", "f", "mu1", "sigma1", "n", "alpha");
   TF1 *fp2 = new TF1("fp2", "(1.-[1]-[6]) * cb_exp(x,[0],[3],[2],[4],[5])", m_min[0], m_max[2]);
-  fp2->SetParNames("NS", "f", "mu", "sigma2", "n", "alpha", "fG");
+  fp2->SetParNames("NS", "f", "mu2", "sigma2", "n", "alpha", "fG");
   TF1 *fp3 = new TF1("fp3", "bkg_exp(x,[0],[1])", m_min[0], m_max[2]);
   fp3->SetParNames("m_bkg", "b_bkg");
   TF1 *fp4 = new TF1("fp4", "[1]*g_exp(x,[0],[3],[2])", m_min[0], m_max[2]);
-  fp4->SetParNames("NS", "fG", "mu", "sigmaG");
+  fp4->SetParNames("NS", "fG", "mu1", "sigmaG");
 
   double pt_val[nPtBins], pt_err[nPtBins];
-  double pars[11][nPtBins], epars[11][nPtBins];
+  double pars[12][nPtBins], epars[12][nPtBins];
   double fBkg[nPtBins], efz[nPtBins];
 
   // cycle over all pT bins
@@ -175,8 +173,8 @@ void newNPmass()
     pt_err[i_pt] = 0.5*(ptBins[i_pt+1]-ptBins[i_pt]);
 
      // storing parameters
-    for(int j = 0; j < 11; j++) {
-      if(j == 0 || j == 7 || j == 8) { // free parameters NS, m_bkg, b_bkg
+    for(int j = 0; j < 12; j++) {
+      if(j == 0 || j == 7 || j == 8 || j == 11) { // free parameters NS, NB, lambda
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins+i_pt);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins+i_pt);
       }
@@ -190,6 +188,9 @@ void newNPmass()
       }
     }
     
+    c->SetTopMargin(0.04);
+    c->SetLogy(0);
+
     // initializing f_1d and plotting
     f_1d->SetParameters(pars[0][i_pt],
 			pars[1][i_pt],
@@ -202,12 +203,18 @@ void newNPmass()
 			pars[8][i_pt],
 			pars[9][i_pt],
 			pars[10][i_pt]);
-  
+    f_1d->SetParameter(11, pars[11][i_pt]);
+    fp1->SetParameters(pars[0][i_pt], pars[1][i_pt], pars[2][i_pt], pars[3][i_pt], pars[5][i_pt], pars[6][i_pt]);
+    fp2->SetParameters(pars[0][i_pt], pars[1][i_pt], pars[11][i_pt], pars[4][i_pt], pars[5][i_pt], pars[6][i_pt], pars[9][i_pt]);
+    fp3->SetParameters(pars[7][i_pt], pars[8][i_pt]);
+    fp4->SetParameters(pars[0][i_pt], pars[9][i_pt], pars[2][i_pt], pars[10][i_pt]);
+
     h_d1d[i_pt]->SetMaximum(h_d1d[i_pt]->GetMaximum()*1.1);
     h_d1d[i_pt]->SetMinimum(0);
     h_d1d[i_pt]->SetStats(0);
+    h_d1d[i_pt]->SetTitle("");
     h_d1d[i_pt]->GetYaxis()->SetTitle(Form("Events per %.0f MeV", (him-lowm)/mbins*1000));
-    h_d1d[i_pt]->GetYaxis()->SetTitleOffset(1.8);
+    h_d1d[i_pt]->GetYaxis()->SetTitleOffset(1.7);
     h_d1d[i_pt]->GetXaxis()->SetTitle(Form("M(#mu#mu) (GeV)"));
     h_d1d[i_pt]->GetXaxis()->SetRangeUser(m_min[0], m_max[2]);
     h_d1d[i_pt]->SetMarkerStyle(20);
@@ -218,24 +225,60 @@ void newNPmass()
     f_1d->Draw("lsame");
 
     // tf1 for plotting in the 1D bins
-    fp1->SetParameters(pars[0][i_pt], pars[1][i_pt], pars[2][i_pt], pars[3][i_pt], pars[5][i_pt], pars[6][i_pt]);
     fp1->SetLineColor(kRed);
     fp1->SetLineStyle(kDashed);
     fp1->Draw("lsame");
-    fp2->SetParameters(pars[0][i_pt], pars[1][i_pt], pars[2][i_pt], pars[4][i_pt], pars[5][i_pt], pars[6][i_pt], pars[9][i_pt]);
     fp2->SetLineColor(kGreen);
     fp2->SetLineStyle(kDashed);
     fp2->Draw("lsame");
-    fp3->SetParameters(pars[7][i_pt], pars[8][i_pt]);
     fp3->SetLineColor(kOrange+4);
     fp3->SetLineStyle(kDashDotted);
     fp3->Draw("lsame");
-    fp4->SetParameters(pars[0][i_pt], pars[9][i_pt], pars[2][i_pt], pars[10][i_pt]);
     fp4->SetLineColor(kViolet);
     fp4->SetLineStyle(kDashed);
     fp4->Draw("lsame");
-    
-    c->SaveAs(Form("plots/massNP/fit_pt%d.pdf", i_pt));
+
+    TLatex lc;
+    lc.SetTextSize(0.03);
+
+    // draw CMS text    
+    double xp = getPos(m_min[0], m_max[2], 0.05, 0);
+    double yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.95, 0);
+    lc.DrawLatex(xp, yp, "CMS");
+    // draw L
+    yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.9, 0);
+    lc.DrawLatex(xp, yp, "#bf{L = 103.3 fb^{-1}}");
+    // draw sqrt(s)
+    yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.85, 0);
+    lc.DrawLatex(xp, yp, "#bf{#sqrt{s} = 13 TeV}");
+    // draw pT
+    yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.75, 0);
+    lc.DrawLatex(xp, yp, Form("#bf{%.1f < #it{p}_{T} < %.1f GeV}", ptBins[i_pt], ptBins[i_pt+1]));
+    // draw y
+    yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.7, 0);
+    lc.DrawLatex(xp, yp, "#bf{|#it{y}| < 1.2}");
+    // draw chi2
+    yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.6, 0);
+    lc.DrawLatex(xp, yp, Form("#bf{#chi^{2}/ndf = %.0f/%d}", f_cb->GetChisquare(), f_cb->GetNDF()));
+    // draw the state
+    lc.SetTextSize(0.04);
+    xp = getPos(m_min[0], m_max[2], 0.75, 0);
+    yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.95, 0);
+    lc.DrawLatex(xp, yp, "#bf{J/#psi}");
+
+    TLegend *leg = new TLegend(0.7, 0.65, 1., 0.9);
+    leg->SetTextSize(0.03);
+    leg->SetBorderSize(0);
+    leg->SetFillColorAlpha(kWhite,0);
+    leg->AddEntry(h_d1d[i_pt], "Data", "pl");
+    leg->AddEntry(f_1d, "Total fit", "l");
+    leg->AddEntry(fp1, "CB1", "l");
+    leg->AddEntry(fp2, "CB2", "l");
+    leg->AddEntry(fp4, "G", "l");
+    leg->AddEntry(fp3, "Comb. bkg.", "l");
+    leg->Draw();
+ 
+    c->SaveAs(Form("plots/massNP/fit/fit_pt%d.pdf", i_pt));
     c->Clear();
 
     // get the bkg fraction in the signal region (3.0 - 3.2 GeV)
@@ -262,6 +305,7 @@ void newNPmass()
       if(abs(pv[i_m]) > 7) cout << i_pt << " " << pt_val[i_pt] << " " << i_m << " " << mv[i_m] << " " << pv[i_m] << endl;
     }
   
+    c->SetTopMargin(0.1);
     c->SetLogy(0);
     
     // plotting the pulls
@@ -270,7 +314,7 @@ void newNPmass()
     fl->SetYTitle("pulls");
     fl->GetYaxis()->SetTitleOffset(1.3);
     fl->GetYaxis()->SetLabelOffset(0.01);
-    fl->SetTitle(Form("Data mass fit pulls (%.0f < p_{T} < %.0f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
+    fl->SetTitle(Form("Data mass fit pulls (%.1f < p_{T} < %.1f GeV)", ptBins[i_pt], ptBins[i_pt+1]));
 
     TGraph *g_pull = new TGraph(mbins, mv, pv);
     g_pull->SetLineColor(kBlack);
@@ -281,15 +325,6 @@ void newNPmass()
     TLine *zero = new TLine(m_min[0], 0, m_max[2], 0);
     zero->SetLineStyle(kDashed);
     zero->Draw();
-
-    /*    TLine **limp = new TLine*[2];
-    limp[0] = new TLine(m_min[1], -20, m_min[1], 20);
-    limp[1] = new TLine(m_max[1], -20, m_max[1], 20);
-    for(int j = 0; j < 2; j++) {
-      limp[j]->SetLineColor(kRed);
-      limp[j]->SetLineStyle(kDashed);
-      limp[j]->Draw();
-      }*/
 
     TLine *plim1 = new TLine(m_min[0], -5, m_max[2], -5);
     plim1->SetLineStyle(kDotted);
@@ -305,7 +340,7 @@ void newNPmass()
     plim4->Draw("lsame");
 
     
-    c->SaveAs(Form("plots/massNP/pulls_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/massNP/fit/pulls_pt%d.pdf", i_pt));
     c->Clear();
 
     // plotting the devs
@@ -325,15 +360,15 @@ void newNPmass()
     // aux lines - pull = 0 and sigma limits
     zero->Draw("lsame");
 
-    c->SaveAs(Form("plots/massNP/devs_pt%d.pdf", i_pt));
+    c->SaveAs(Form("plots/massNP/fit/devs_pt%d.pdf", i_pt));
     c->Clear();
   }
   
   // storing the free parameters
   TFile *foutF = new TFile("files/mfit_NP.root", "recreate");
-  string parlab[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fG", "sigG"};
+  string parlab[] = {"NS", "f", "mu1", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG", "mu2"};
 
-  for(int i_p = 0; i_p < 11; i_p++) {
+  for(int i_p = 0; i_p < 12; i_p++) {
     TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, pars[i_p], pt_err, epars[i_p]);
     g_par->Write(Form("fit_%s", parlab[i_p].c_str()));
   }
@@ -341,97 +376,10 @@ void newNPmass()
   TGraphErrors *g_fBG = new TGraphErrors(nPtBins, pt_val, fBkg, pt_err, efz);
   g_fBG->Write("fit_fBG");
   
-  TLine *l_chi = new TLine(ptBins[0], f_cb->GetChisquare()/f_cb->GetNDF(), ptBins[nPtBins], f_cb->GetChisquare()/f_cb->GetNDF());
-  l_chi->Write("fit_chiN");
-
   fitres->SetName("fitres");
   fitres->Write();
   
   foutF->Close();
-
-  double mult[] = {1., 1e2, 1e3, 1e3, 1e3, 1., 1., 1., 1., 1e2, 1e3};
-
-  // tex table with values per pt bin
-  ofstream ftex;
-  ftex.open(Form("text_output/mfit_res.tex"));
-  ftex << "\\begin{tabular}{c||c|c|c|c|c|c|c|c|c|c|c||c}\n";
-  ftex << "$\\pt$ (GeV) & $N_{SR}$ & $f_{CB1}$ (\\%) & $\\mu$ (MeV) & $\\sigma_1$ (MeV) & $\\sigma_2$ (MeV) & $n$ & $\\alpha$ & $N_{BG}$ & $\\lambda$ (GeV) & $f_G$ (\\%) & $\\sigma_G$ (MeV) & $f_{bkg}$ (\\%) \\\\\n";
-  ftex << "\\hline\n";
-
-  for(int i = 0; i < nPtBins; i++) {
-    // pT bin
-    ftex << Form("$[%.0f, %.0f]$", ptBins[i], ptBins[i+1]);
-    for(int i_p = 0; i_p < 11; i_p++) {
-      // plot all pT values - N (0), sig1,2 (3,4), N_BG (7), lambda (8), sigG (10)
-      if(i_p == 0 || i_p == 3 || i_p == 4 || i_p == 7 || i_p == 8 || i_p == 10) {
-	double val = pars[i_p][i]*mult[i_p], unc = epars[i_p][i]*mult[i_p];
-	if(i_p == 0 || i_p == 7) {
-	  val /= (ptBins[i+1]-ptBins[i]);
-	  unc /= (ptBins[i+1]-ptBins[i]);
-	}
-	if(unc > 0) {
-	  int p_norm = 1.; 
-	  if(unc < 1) p_norm = ceil(-log10(unc))+1;	
-	  ftex << " & " << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
-	}
-	else {
-	  int p_norm = 2.;
-	  ftex << " & " <<  setprecision(p_norm) << fixed << val ;
-	}
-      }
-      // plot single value: f (1), mu (2), n, alpha (5,6), fG (9)
-      else if((i_p == 1 || i_p == 2 || i_p == 5 || i_p == 6 || i_p == 9) && i == 0) {
-	double val = pars[i_p][i]*mult[i_p], unc = epars[i_p][i]*mult[i_p];
-	if(unc > 0) {
-	  int p_norm = 1.; 
-	  if(unc < 1) p_norm = ceil(-log10(unc))+1;	
-	  ftex << " & \\multirow{" << nPtBins << "}{*}{" <<  setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << "}" ;
-	}
-	else {
-	  int p_norm = 3.;
-	  ftex << " & \\multirow{" << nPtBins << "}{*}{" <<  setprecision(p_norm) << fixed << val << "}" ;
-	}
-      }
-      else
-	ftex << " & ";
-    }
-    ftex << " & " << setprecision(2) << fixed << fBkg[i]*100.;
-    ftex <<  "\\\\\n";
-  }
-  ftex << "\\end{tabular}\n";
-  ftex.close();
-  
-  // sigma parameters
-  ofstream ftex2;
-  ftex2.open("text_output/mfit_resA.tex");
-  ftex2 << "\\begin{tabular}{cc|cc|cc||c}\n";
-  ftex2 << "\\multicolumn{2}{c|}{$\\sigma_1$} & \\multicolumn{2}{|c}{$\\sigma_2$} & \\multicolumn{2}{|c}{$\\sigma_G$}  & \\multirow{2}{*}{$\\chi^2/$ndf}\\\\\n";
-  ftex2 << "$m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & $m$ ($\\times1e5$) & $b$ (MeV) & \\\\\n";
-  ftex2 << "\\hline\n";
-
-  for(int j = 3; j < 5; j++) {
-    double val = f_cb->GetParameter(j*nPtBins)*1e5;
-    double unc = f_cb->GetParError(j*nPtBins)*1e5;
-    int p_norm = ceil(-log10(unc))+1;	
-    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc << " & ";
-    val = f_cb->GetParameter(j*nPtBins+1)*1e3;
-    unc = f_cb->GetParError(j*nPtBins+1)*1e3;
-    p_norm = ceil(-log10(unc))+1;	
-    ftex2 << setprecision(p_norm) << fixed << val << " $\\pm$ " << unc;
-    ftex2 << " & ";
-  }
-  for(int j = 10; j < 11; j++) {
-    double val = f_cb->GetParameter(j*nPtBins)*1e5;
-    int p_norm = ceil(-log10(val))+3;	
-    ftex2 << setprecision(p_norm) << fixed << val << " & ";
-    val = f_cb->GetParameter(j*nPtBins+1)*1e3;
-    p_norm = ceil(-log10(val))+3;	
-    ftex2 << setprecision(p_norm) << fixed << val << " & ";
-  }
-  // chi^2
-  ftex2 << setprecision(0) << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << "\\\\\n";
-  ftex2 << "\\end{tabular}\n";
-  ftex2.close();
 
   cout << f_cb->GetChisquare() << "/" << f_cb->GetNDF() << endl;
 

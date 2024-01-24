@@ -36,7 +36,7 @@ void genDist()
   // get the sideband histos by summing with proportion fL
   TH1D **h_SB = new TH1D*[nBinsY];
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
-    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("bkg^{NP} |cos#theta| (%.1f < p_{T} < %.1f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
+    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("NPBg |cos#theta| (%.1f < p_{T} < %.1f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
     
     h_SB[i_pt]->Sumw2();
     h_SB[i_pt]->Add(h_LSB1d[i_pt], h_RSB1d[i_pt], fL[i_pt], 1.-fL[i_pt]);
@@ -73,7 +73,7 @@ void genDist()
   leg->SetTextSize(0.03);
   leg->AddEntry(h_LSB1d[4], "LSB", "l");
   leg->AddEntry(h_RSB1d[4], "RSB", "l");
-  leg->AddEntry(h_SB[4], "bkg", "l");
+  leg->AddEntry(h_SB[4], "Bg", "l");
   leg->Draw();
 
   c->SaveAs("plots/SB_base_full_4.pdf");

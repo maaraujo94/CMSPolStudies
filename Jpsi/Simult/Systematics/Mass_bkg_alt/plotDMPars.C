@@ -5,7 +5,7 @@ void plotDMPars()
   // aux arrays
   int pc[] = {kBlack, kBlue, kViolet};
   const int n_p = 12, n_m = 1;
-  string modn[] = {""};
+  string modn[] = {"_2"};
   string legn[] = {"#alpha free", "#alpha constant", "fine bins"};
 
   string parlab[] = {"f", "NS", "mu", "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fBG", "fG", "sigG"};

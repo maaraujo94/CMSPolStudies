@@ -37,12 +37,14 @@ void bkgSave()
   for(int i = 0; i < dEvt; i++)
     {
       tree1->GetEntry(i);
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
-	h_d2d->Fill(data_m, data_pt);
-	h_d2d_C->Fill(data_m, data_pt);
-      }
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_lt > 0.01 && data_lt < 0.08 && abs(data_y) < 1.2) {
-	hNP_d2d->Fill(data_m, data_pt);
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins]) {
+	if(abs(data_lt) < 0.005 && abs(data_y) < 1.2) {
+	  h_d2d->Fill(data_m, data_pt);
+	  h_d2d_C->Fill(data_m, data_pt);
+	}
+	else if(data_lt > 0.01 && data_lt < 0.08 && abs(data_y) < 1.2) {
+	  hNP_d2d->Fill(data_m, data_pt);
+	}
       }
     }
   fin1->Close();

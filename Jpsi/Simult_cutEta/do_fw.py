@@ -2,10 +2,9 @@
 
 import os, imp
 
-locs = ["bkgFits/newMCmass_0.C", "bkgFits/NPMCmass.C",
+locs = ["bkgFits/bkgSave.C",
         "cosMax/histoSave.C",
-        "PR_fit/histoSave.C", "PR_fit/bkgSave.C", "PR_fit/bkgCosth.C",
-        "NP_fit/bkgSave.C", "NP_fit/bkgCosth.C"]
+        "PR_fit/histoSave.C", "PR_fit/bkgSave.C"]
 
 bloc = os.getcwd()
 
@@ -23,8 +22,7 @@ for l in locs:
         fout.write(line)
         if "Double_t" in line and ct_t is 0:
             fout.write("double mPEta, mMEta;\n")
-            if l is not "PR_fit/bkgSave.C":
-                ct_t = 1
+            ct_t = 1
         if '"lt"' in line:
             treeL = line.split("->")
             fout.write('%s->SetBranchAddress("muonPEta", &mPEta);\n'%treeL[0])

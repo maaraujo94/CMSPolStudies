@@ -2,14 +2,12 @@
 
 import os, imp
 
-locs = ["bkgFits/newMCmass_0.C", "bkgFits/NPMCmass.C",
+locs = ["bkgFits/bkgSave.C",
         "cosMax/histoSave.C",
-        "PR_fit/histoSave.C", "PR_fit/bkgSave.C", "PR_fit/bkgCosth.C",
-        "NP_fit/bkgSave.C", "NP_fit/bkgCosth.C"]
+        "PR_fit/histoSave.C", "PR_fit/bkgSave.C"]
 
 bloc = os.getcwd()
 
-# updating code for cuts on samples
 for l in locs:
     fin = open("%s/%s"%(bloc, l))
     base = fin.readlines()
@@ -19,20 +17,23 @@ for l in locs:
 
     print "now running "+l+"\n"
     fout = open("%s/%s"%(bloc, l), "w")
-    fout.write('#import "../rcut.C"\n\n')
     for line in base:
-        fout.write(line)
-        if "Double_t" in line and ct_t is 0:
+        if '#import "../etacut.C"' in line:
+            fout.write('#import "../rcut.C"\n')
+        elif "double mPEta" in line:
             fout.write("Double_t dR;\n")
-            if l is not "PR_fit/bkgSave.C":
-                ct_t = 1
-        if '"lt"' in line:
+        elif '"muonPEta"' in line:
+            continue;
+        elif '"muonMEta"' in line:
             treeL = line.split("->")
             fout.write('%s->SetBranchAddress("DeltaR", &dR);\n'%treeL[0])
-        if "GetEntry" in line:
+        elif "abs(mPEta)" in line:
             fout.write("if(dR > r_cut)\n")
+        else:
+            fout.write(line)
+        
     fout.close()
-
+    
 # replacing code for cosMax procedure 
 os.system("cp ../dR_cosMax/getCos.C cosMax")
 os.system("cp ../dR_cosMax/getCosMin.C cosMax")
@@ -76,17 +77,31 @@ for f in locF:
             fout.write("\n")
             fout.write('  TF1 *cosMin = new TF1("cosMin", "cminf(x, [0], [1], [2], [3])", yBins[0]-10, yBins[nBinsY]+10);\n')
             fout.write("  cosMin->SetParameters(minPar[0], minPar[1], minPar[2], minPar[3]);\n")
+        if "double cMax[" in line:
+            ct_w = 1
+            fout.write(line)
+            fout.write("\n")
+            fout.write("double cMin[nBinsY];\n")
         if "double cMaxVal" in line:
             ct_w = 1
             fout.write("double cMaxVal = jumpF(cosMax->Eval(pMin));\n")
             fout.write("double cMinVal = jumpF(cosMin->Eval(pMax));\n")
-        if "SetRange" in line:
+        if "cMax[i] =" in line:
+            ct_w = 1
+            fout.write(line)
+            fout.write("\n")
+            fout.write("cMin[i] = cMinVal;\n")
+        if "SetParameters(p" in line:
+            ct_w = 1
+            line = line.replace("GetBinContent(1)*1.1", "GetMaximum()")
+            fout.write(line)
+        if "SetRange(0, cMaxVal)" in line:
             ct_w = 1
             fout.write("fit1d[i_t]->SetRange(cMinVal, cMaxVal);\n")
-        if "SetMaximum" in line:
+        if "SetRange(0, cMax[i])" in line:
             ct_w = 1
-            fout.write("    pHist[0][i]->SetMaximum(parA[0][i]*1.5);\n")
-            fout.write("    if(i == nBinsY-1) pHist[0][i]->SetMaximum(pHist[0][i]->GetMaximum()*1.5);\n")
+            fitL = line.split("->")
+            fout.write("%s->SetRange(cMin[i], cMax[i]);\n"%fitL[0])
         if "c_lim" in line:
             ct_w = 1
             line = line.replace("c_lim", "c_lim_Max")

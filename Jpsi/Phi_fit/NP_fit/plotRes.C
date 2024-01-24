@@ -31,10 +31,10 @@ void plotRes()
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
   fl->SetXTitle("p_{T} (GeV)");
-  fl->SetYTitle("#lambda_{#phi}");
+  fl->SetYTitle("#beta");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Run 2 #lambda_{#phi} (NP)");
+  fl->SetTitle("#beta vs p_{T}");
 
   int col[] =  {kRed+3, kRed};
   for(int i = 0; i < 2; i++) {
@@ -48,7 +48,7 @@ void plotRes()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.7, 0.97, 0.9);
+  TLegend *leg = new TLegend(0.66, 0.7, 0.97, 0.9);
   leg->SetTextSize(0.03);
   leg->AddEntry(graph_lth[0], "NP", "pl");
   leg->AddEntry(graph_lth[1], "non-prompt J/#psi", "pl");
@@ -60,10 +60,10 @@ void plotRes()
   // draw just final lambda_th(pT)
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
   fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("#lambda_{#phi}");
+  fl2->SetYTitle("#beta");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #lambda_{#phi} (non-prompt J/#psi)");
+  fl2->SetTitle("Run 2 #beta (non-prompt J/#psi)");
 
   graph_lth[1]->SetLineColor(kBlack);
   graph_lth[1]->SetMarkerColor(kBlack);

@@ -17,8 +17,8 @@ void genDist()
   double dX = (maxX-minX)/nBinsX;
 
   // get fit parameters from storage
-  double fL = 0.;
-
+  double fL = 0;
+  
   // get the 1d sb histos and scale to nr events
   double n_s[nBinsY];
   TH1D **h_LSB1d = new TH1D*[nBinsY];

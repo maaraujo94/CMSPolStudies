@@ -2,10 +2,8 @@
 
 import os, imp
 
-locs = ["bkgFits/newMCmass_0.C", "bkgFits/NPMCmass.C",
-        "cosMax/histoSave.C",
-        "PR_fit/histoSave.C", "PR_fit/bkgCosth.C",
-        "NP_fit/bkgCosth.C"]
+locs = ["cosMax/histoSave.C",
+        "PR_fit/histoSave.C"]
 
 bloc = os.getcwd()
 
@@ -49,43 +47,27 @@ for l in locs:
             fout.write(line)
     fout.close()
 
-locR = ["PR_fit/bkgSave.C",
-        "PR_fit/ltBkg2d.C", "PR_fit/plotLtPars2d.C",
-        "PR_fit/ltBkg.C", "PR_fit/ltPerPt.C", "PR_fit/ltPerPt_muFix.C", "PR_fit/ltPerPt_bFix.C", "PR_fit/plotLtPars.C",
-        "PR_fit/fnpProp.C",
-        "NP_fit/bkgSave.C"] 
-
-# code to be removed 
-for l in locR:
-    os.system("rm %s"%l)
-
-locBkg = ["PR_fit/mBkg.C", "PR_fit/fbkgProp.C",
-          "NP_fit/mBkg.C", "NP_fit/fbkgProp.C",
-          "PR_fit/fNPcorr.C"]
+locBkg = ["NP_fit",
+          "PR_fit"]
 
 # code to change input source
 for l in locBkg:
-    fin = open("%s/%s"%(bloc, l))
+    fin = open("%s/%s/bkgSub.C"%(bloc, l))
     base = fin.readlines()
     fin.close()
-
-    ct_t = 0
-    ct_w = 0
     
     print "now running "+l+"\n"
-    fout = open("%s/%s"%(bloc, l), "w")
+    fout = open("%s/%s/bkgSub.C"%(bloc, l), "w")
     for line in base:
-        if "files/mStore" in line:
-            subS = l.split("/")[0]
-            line = line.replace("files/mStore", "../../Simult/%s/files/mStore"%subS)
-            fout.write(line)
-        elif "files/NPFrac.root" in line and "update" not in line:
-            subS = l.split("/")[0]
-            line = line.replace("files/NPFrac.root", "../../Simult/%s/files/NPFrac.root"%subS)
-            fout.write(line)
-        elif "files/NPFrac.root" in line and "update" in line:
-            line = line.replace("update", "recreate")
-            fout.write(line)
+        if "TFile *inBkg" in line:
+            fout.write('TFile *inBkg = new TFile("../../Simult/%s/files/bkgCosModel.root");\n'%l)
+        elif "TFile *inFracSB" in line:
+            if l is "NP_fit":
+                fout.write('TFile *inFracSB = new TFile("../../Simult/bkgFits/files/bkgFrac_NP.root");\n')
+            else:
+                fout.write('TFile *inFracSB = new TFile("../../Simult/bkgFits/files/bkgFrac.root");\n')                
+        elif "TFile *inFracNP" in line:
+            fout.write('TFile *inFracNP = new TFile("../../Simult/PR_fit/files/NPFrac.root");')
         else:
             fout.write(line)
     fout.close()

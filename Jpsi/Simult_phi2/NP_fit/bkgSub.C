@@ -21,7 +21,7 @@ void bkgSub()
 
   // get the bkg distributions
   TH1D **h_SB = new TH1D*[nBinsY]; // SB background 1d histos
-  TFile *inBkg = new TFile("../../Simult/NP_fit/files/bkgCosModel.root");
+TFile *inBkg = new TFile("../../Simult/NP_fit/files/bkgCosModel.root");
   for(int i = 0; i < nBinsY; i++) {
     inBkg->GetObject(Form("h_SB_%d", i), h_SB[i]);
     h_SB[i]->SetDirectory(0);
@@ -30,7 +30,7 @@ void bkgSub()
     
   // bkg fraction in PR SR
   TH2D *h_fb2d = new TH2D();
-  TFile *inFracSB = new TFile("../../Simult/bkgFits/files/bkgFrac_NP.root");
+TFile *inFracSB = new TFile("../../Simult/bkgFits/files/bkgFrac_NP.root");
   inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
   inFracSB->Close();

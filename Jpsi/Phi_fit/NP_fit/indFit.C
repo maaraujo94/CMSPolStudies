@@ -88,11 +88,11 @@ void indFit()
     pHist[2][i]->SetLineColor(kGreen);
     pHist[2][i]->SetMarkerColor(kGreen);
     pHist[2][i]->Draw("same");
-    
+    #
     TLatex lc;
     lc.SetTextSize(0.03);
-    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#phi}^{NP} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
-    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#phi}^{pure NP} = %.3f #pm %.3f", parL[1][i], eparL[1][i]));
+    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.9, Form("#beta^{NP} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
+    lc.DrawLatex(-150, pHist[0][i]->GetMaximum()*0.8, Form("#beta^{pure NP} = %.3f #pm %.3f", parL[1][i], eparL[1][i]));
     
     TLegend *leg = new TLegend(0.7, 0.7, 0.97, 0.9);
     leg->SetTextSize(0.03);
