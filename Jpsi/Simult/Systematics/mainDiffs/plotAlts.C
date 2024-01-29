@@ -4,6 +4,7 @@
 // 3) pT_cut - Run2 / Run2
 // 4) eta_cut - Run2 / Run2
 // 5) dR cuts - Run 2 / Run2
+// 6) phi reweighing - Run 2 / Run 2
 
 // 0) 2017 - 2018 / Run2
 // this case is studied separately because the differences are independent
@@ -174,7 +175,7 @@ void plotAlts()
   c->SetTopMargin(0.015);
   
   // FIRST - draw the abs diff + Simult unc band
-  double da_lim = 0.3;
+  double da_lim = 0.2;
   
   TH1F *fl1 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
   fl1->SetXTitle("p_{T} (GeV)");
@@ -242,7 +243,7 @@ void plotAlts()
   c->Clear();
 
   // FIRST (2) - draw just deltaR (larger difference)
-  da_lim = 0.3;
+  da_lim = 0.2;
   
   TH1F *fl12 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
   fl12->SetXTitle("p_{T} (GeV)");

@@ -145,7 +145,7 @@ void newNPmass()
   c->SetRightMargin(0.03);
   
   f_cb->SetNpx(1000);
-  h_d2d->Fit("f_cb", "RS");
+  //h_d2d->Fit("f_cb", "RS");
   TFitResultPtr fitres = h_d2d->Fit("f_cb", "RS");
 
   // tf1 for plotting in the 1D bins

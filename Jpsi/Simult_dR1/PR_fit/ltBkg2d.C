@@ -3,10 +3,11 @@
 
 // functions to access within other functions
 TF1 *fres;
-TF1 *fNP;
+TF1 *fNP_SR, *fNP_bkg;
+TF1 *fexp_bkg;
 
 // define negative exponential only for positive x
-double pos_exp(double x, double ld)
+double pos_exp_p(double x, double ld)
 {
   if(x > 0) return exp(-x/ld);
   else return 0;
@@ -31,28 +32,60 @@ double func_sum(double *xx, double *pp)
   double sig1 = pp[5*nPtBins+pt_bin];
   double sigR21 = pp[6*nPtBins]; // constant in pT
   double sigR31 = pp[7*nPtBins]; // constant in pT
-  double tnp = pp[8*nPtBins+pt_bin];
+  double tnp_SR = pp[8*nPtBins+pt_bin];
+  double N_bkg = pp[9*nPtBins+pt_bin]; // fixed in each bin
+  double tnp = pp[10*nPtBins+pt_bin]; // fixed in each bin
 
   // indirect pars
   double sig2 = sigR21*sig1;
   double sig3 = sigR31*sig1;
 
   fres->SetParameters(N_PR, f1, f2, mu, sig1, sig2, sig3);
-  fNP->SetParameters(N_NP, f1, f2, mu, sig1, sig2, sig3, tnp);
+  fNP_SR->SetParameters(N_NP, f1, f2, mu, sig1, sig2, sig3, tnp_SR);
+  fNP_bkg->SetParameters(1, f1, f2, mu, sig1, sig2, sig3, tnp);
 
-  return fres->Eval(xx[0]) + fNP->Eval(xx[0]);
+  // scale N_bkg par
+  fexp_bkg->SetParameters(N_bkg, tnp);
+  double N_bkg_conv = fexp_bkg->Eval(0.4)/fNP_bkg->Eval(0.4);
+  fNP_bkg->SetParameter(0, N_bkg_conv);
+    
+  return fres->Eval(xx[0]) + fNP_SR->Eval(xx[0]) + fNP_bkg->Eval(xx[0]);
+}
+
+double nbkg_eval(double N_PR, double N_NP, double f1, double f2, double mu, double sig1, double sig2, double sig3, double tnp_SR, double N_bkg, double tnp)
+{
+  fNP_bkg->SetParameters(1, f1, f2, mu, sig1, sig2, sig3, tnp);
+
+  // scale N_bkg par
+  fexp_bkg->SetParameters(N_bkg, tnp);
+  double N_bkg_conv = fexp_bkg->Eval(0.4)/fNP_bkg->Eval(0.4);
+
+  return N_bkg_conv;
 }
 
 // define final fit function summing the PR and NP contributions
 double sum_1d(double *xx, double *pp)
 {
   double lt = xx[0];
-  double N_PR = pp[0], N_NP = pp[1], f1 = pp[2], f2 = pp[3], mu = pp[4], sig1 = pp[5], sig2 = pp[6], sig3 = pp[7], tnp = pp[8];
+  double N_PR = pp[0], N_NP = pp[1], f1 = pp[2], f2 = pp[3], mu = pp[4], sig1 = pp[5], sig2 = pp[6], sig3 = pp[7], tnp_SR = pp[8], N_bkg = pp[9], tnp = pp[10];
 
   fres->SetParameters(N_PR, f1, f2, mu, sig1, sig2, sig3);
-  fNP->SetParameters(N_NP, f1, f2, mu, sig1, sig2, sig3, tnp);
+  fNP_SR->SetParameters(N_NP, f1, f2, mu, sig1, sig2, sig3, tnp_SR);
+  fNP_bkg->SetParameters(N_bkg, f1, f2, mu, sig1, sig2, sig3, tnp);
 
-  return fres->Eval(lt) + fNP->Eval(lt);
+  return fres->Eval(lt) + fNP_SR->Eval(lt) + fNP_bkg->Eval(lt);
+}
+
+// define 1d function summing only the NP contributions
+double sum_NP(double *xx, double *pp)
+{
+  double lt = xx[0];
+  double N_PR = pp[0], N_NP = pp[1], f1 = pp[2], f2 = pp[3], mu = pp[4], sig1 = pp[5], sig2 = pp[6], sig3 = pp[7], tnp_SR = pp[8], N_bkg = pp[9], tnp = pp[10];
+
+  fNP_SR->SetParameters(N_NP, f1, f2, mu, sig1, sig2, sig3, tnp_SR);
+  fNP_bkg->SetParameters(N_bkg, f1, f2, mu, sig1, sig2, sig3, tnp);
+
+  return fNP_SR->Eval(lt) + fNP_bkg->Eval(lt);
 }
 
 // get relative position on an axis (pi, pf)
@@ -91,16 +124,39 @@ void ltBkg2d()
   // define the resolution (=PR) function
   fres = new TF1("fres", "[0]*([1]*TMath::Gaus(x, [3],[4]) + [2]*TMath::Gaus(x, [3], [5])+ (1.-[1]-[2])*TMath::Gaus(x, [3], [6]))", 5*lowt, 5*hit);
   
-  // define the NP function by convolution
-  TF1 *fexp = new TF1("fexp", "pos_exp(x,[0])", 5*lowt, 5*hit);
-  TF1Convolution *fcNP = new TF1Convolution(fres, fexp, 5*lowt, 5*hit);
-  fcNP->SetRange(5*lowt, 5*hit);
-  fcNP->SetNofPointsFFT(1000);
-  fNP = new TF1("fNP", *fcNP, lowt, hit, fcNP->GetNpar());
+  // define the NP psi function by convolution
+  TF1 *fexp1 = new TF1("fexp1", "pos_exp_p(x,[0])", 5*lowt, 5*hit);
+  TF1Convolution *fcNP_SR = new TF1Convolution(fres, fexp1, 5*lowt, 5*hit);
+  fcNP_SR->SetRange(5*lowt, 5*hit);
+  fcNP_SR->SetNofPointsFFT(1000);
+  fNP_SR = new TF1("fNP_SR", *fcNP_SR, lowt, hit, fcNP_SR->GetNpar());
 
-  TF2 *fitS = new TF2("fitS", func_sum, lowt, hit, ptBins[0], ptBins[nPtBins], 9*nPtBins, 2);
-  string par_n[] = {"N_PR", "N_NP", "f1", "f2", "mu", "sigma1", "sig2/sig1", "sig3/sig1", "t_NP"};
-  double par_v[] =  {1, 1, 0.55, 0.4, 0, 1e-2, 1.5, 3.5, 0.3};
+  // define the NP bkg function by convolution
+  TF1 *fexp2 = new TF1("fexp2", "pos_exp_p(x,[0])", 5*lowt, 5*hit);
+  TF1Convolution *fcNP_bkg = new TF1Convolution(fres, fexp2, 5*lowt, 5*hit);
+  fcNP_bkg->SetRange(5*lowt, 5*hit);
+  fcNP_bkg->SetNofPointsFFT(1000);
+  fNP_bkg = new TF1("fNP_bkg", *fcNP_bkg, lowt, hit, fcNP_bkg->GetNpar());
+
+  // define the bkg exp for N_bkg adjustment
+  fexp_bkg = new TF1("fexp_bkg", "[0]*pos_exp_p(x,[1])", 5*lowt, 5*hit);
+  
+  // get the fixed values of the SB part
+  TFile *fin_SB = new TFile("../SBLtFits/files/store_SB.root");
+  string parsav[] = {"N_NP", "t_NP"};
+  double par_bkg[2][nPtBins], epar_bkg[2][nPtBins];
+  for(int i = 0; i < 2; i++){
+    TGraphErrors *g_par = (TGraphErrors*)fin_SB->Get(Form("g_%s", parsav[i].c_str()));
+    for(int j = 0; j < nPtBins; j++) {
+      par_bkg[i][j] = g_par->GetY()[j];
+      epar_bkg[i][j] = g_par->GetEY()[j];
+    }
+  }
+  fin_SB->Close();
+
+  TF2 *fitS = new TF2("fitS", func_sum, lowt, hit, ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
+  string par_n[] = {"N_PR", "N_NP", "f1", "f2", "mu", "sigma1", "sig2/sig1", "sig3/sig1", "t_NPSR", "N_bkg", "t_NP"};
+  double par_v[] =  {1, 1, 0.55, 0.4, 0, 1e-2, 1.5, 3.5, 0.3, 1, 1};
 
   // define the parameters
   for(int i = 0; i < nPtBins; i++) {
@@ -110,11 +166,13 @@ void ltBkg2d()
     fitS->SetParName(i+nPtBins, Form("%s_%d", par_n[1].c_str(), i));
     fitS->SetParameter(i+nPtBins, h_d1d[i]->GetMaximum());
 
-    for(int i_p = 2; i_p < 9; i_p++) {
+    for(int i_p = 2; i_p < 11; i_p++) {
       fitS->SetParName(i+i_p*nPtBins, Form("%s_%d", par_n[i_p].c_str(), i));
       fitS->SetParameter(i+i_p*nPtBins, par_v[i_p]);
       // setting the constant parameters f1, f2, mu, sig2/sig1, sig3/sig1
       if((i_p < 5 || i_p == 6 || i_p == 7) && i > 0) fitS->FixParameter(i+i_p*nPtBins, par_v[i_p]);
+      // fixing the parameters from the bkg part
+      if(i_p > 8) fitS->FixParameter(i+i_p*nPtBins, par_bkg[i_p-9][i]);
     }
   }
 
@@ -127,11 +185,11 @@ void ltBkg2d()
 
   // tf1 for plotting in the 1D bins
   // separate parts of the fit function - given by fres and fNP
-  TF1 *f_1d = new TF1("f_1d", sum_1d, lowt, hit, 9);
+  TF1 *f_1d = new TF1("f_1d", sum_1d, lowt, hit, 11);
 
   double pt_val[nPtBins], pt_err[nPtBins];
-  double pars[9][nPtBins], epars[9][nPtBins];
-  double rpars[9][nPtBins];
+  double pars[11][nPtBins], epars[11][nPtBins];
+  double rpars[11][nPtBins];
 
   // cycle over all pT bins
   for(int i_pt = 0; i_pt < nPtBins; i_pt++) {
@@ -139,7 +197,7 @@ void ltBkg2d()
     pt_err[i_pt] = 0.5*(ptBins[i_pt+1]-ptBins[i_pt]);
 
     // storing parameters
-    for(int j = 0; j < 9; j++) {
+    for(int j = 0; j < 11; j++) {
       if(j == 2 || j == 3 || j == 4 || j == 6 || j == 7) { // constant pars
 	pars[j][i_pt] = fitS->GetParameter(j*nPtBins);
 	epars[j][i_pt] = fitS->GetParError(j*nPtBins);
@@ -153,9 +211,13 @@ void ltBkg2d()
       else rpars[j][i_pt] = pars[j][i_pt];
     }
 
+    // getting corrected N_bkg
+    double N_bkg_conv = nbkg_eval(rpars[0][i_pt], rpars[1][i_pt], rpars[2][i_pt], rpars[3][i_pt], rpars[4][i_pt], rpars[5][i_pt], rpars[6][i_pt], rpars[7][i_pt], rpars[8][i_pt], rpars[9][i_pt], rpars[10][i_pt]);
+
     // initializing f_1d and plotting
-    for(int i = 0; i < 9; i++)
+    for(int i = 0; i < 11; i++)
       f_1d->SetParameter(i, rpars[i][i_pt]);
+    f_1d->SetParameter(9, N_bkg_conv);
 
     c->SetTopMargin(0.015);
     c->SetLogy();
@@ -185,10 +247,26 @@ void ltBkg2d()
     fres->SetLineStyle(kDashed);
     fres->SetLineColor(kGreen+3);
     fres->Draw("lsame");
-    fNP->SetParameters(rpars[1][i_pt], rpars[2][i_pt], rpars[3][i_pt], rpars[4][i_pt], rpars[5][i_pt], rpars[6][i_pt], rpars[7][i_pt], rpars[8][i_pt]);
+    // NP = sum of NP psi + NP bkg terms
+    TF1 *fNP = new TF1("fnp", sum_NP, lowt, hit, 13);
+    for(int i = 0; i < 11; i++)
+      fNP->SetParameter(i, rpars[i][i_pt]);
+    fNP->SetParameter(9, N_bkg_conv);
     fNP->SetLineStyle(kDashed);
     fNP->SetLineColor(kViolet);
     fNP->Draw("lsame");
+
+   // plot each NP term
+    // NP psi
+    fNP_SR->SetParameters(rpars[1][i_pt], rpars[2][i_pt], rpars[3][i_pt], rpars[4][i_pt], rpars[5][i_pt], rpars[6][i_pt], rpars[7][i_pt], rpars[8][i_pt]);
+    fNP_SR->SetLineStyle(kDashed);
+    fNP_SR->SetLineColor(kRed+1);
+    fNP_SR->Draw("lsame");
+    // NP bkg
+    fNP_bkg->SetParameters(N_bkg_conv, rpars[2][i_pt], rpars[3][i_pt], rpars[4][i_pt], rpars[5][i_pt], rpars[6][i_pt], rpars[7][i_pt], rpars[10][i_pt]);
+    fNP_bkg->SetLineStyle(kDashed);
+    fNP_bkg->SetLineColor(kYellow+3);
+    fNP_bkg->Draw("lsame");
 
     // individual Gaussians
     TF1 **fGs = new TF1*[3];
@@ -250,7 +328,7 @@ void ltBkg2d()
     yp = getPos(h_d1d[i_pt]->GetMinimum(), h_d1d[i_pt]->GetMaximum(), 0.5, 1);
     lc.DrawLatex(xp, yp, "#bf{J/#psi}");
 
-    TLegend *leg = new TLegend(0.424, 0.2, 0.724, 0.55);
+    TLegend *leg = new TLegend(0.424, 0.1, 0.724, 0.55);
     leg->SetTextSize(0.03);
     leg->SetBorderSize(0);
     leg->SetFillColorAlpha(kWhite,0);
@@ -261,6 +339,8 @@ void ltBkg2d()
       leg->AddEntry(fGs[i], Form("G_{%d}", i+1), "l");
     }
     leg->AddEntry(fNP, "Non-prompt cont.", "l");
+    leg->AddEntry(fNP_SR, "Non-prompt #psi(2S) cont.", "l");
+    leg->AddEntry(fNP_bkg, "Non-prompt bkg cont.", "l");
     leg->Draw();
 
     c->SaveAs(Form("plots/lifetime2d/fit/fit_%d.pdf", i_pt));
@@ -362,9 +442,9 @@ void ltBkg2d()
   
   // storing the free parameters
   TFile *fout = new TFile("files/ltfitres2d.root", "recreate");
-  string parlab[] = {"N_PR", "N_NP", "f1", "f2", "mu", "sig1", "sigR21", "sigR31", "t_NP"};
+  string parlab[] = {"N_PR", "N_NP", "f1", "f2", "mu", "sig1", "sigR21", "sigR31", "t_NPSR", "N_bkg", "t_NP"};
 
-  for(int i_p = 0; i_p < 9; i_p++) {
+  for(int i_p = 0; i_p < 11; i_p++) {
     TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, pars[i_p], pt_err, epars[i_p]);
     g_par->Write(Form("fit_%s", parlab[i_p].c_str()));
   }

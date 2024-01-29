@@ -4,7 +4,8 @@ import os, imp
 
 locs = ["bkgFits/bkgSave.C",
         "cosMax/histoSave.C",
-        "PR_fit/histoSave.C", "PR_fit/bkgSave.C"]
+        "PR_fit/histoSave.C", "PR_fit/bkgSave.C",
+        "SBLtFits/bkgSave.C", "SBLtFits/bkgSave_N.C"]
 
 bloc = os.getcwd()
 

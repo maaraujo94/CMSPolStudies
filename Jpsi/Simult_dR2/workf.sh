@@ -1,77 +1,65 @@
 #!/bin/bash
 
-echo "running MC fits"
+echo "storing the main histos"
+cd PR_fit
 
-cd bkgFits
+root -l -b -q histoSave.C
 
-#root -l -b -q newMCmass_0.C
-#root -l -b -q newMCmass_1.C
-#root -l -b -q newMCmass_2.C
-#root -l -b -q newMCmass_3.C
-#root -l -b -q newMCmass_4.C
-#root -l -b -q newMCmass_5.C
-#root -l -b -q newMCmass_G.C
-#root -l -b -q plotMMseq.C
-#root -l -b -q plotnalpha.C
-#root -l -b -q plotMMG.C
+echo "running the mass fits"
+cd ../bkgFits
 
-echo "running NP MC fits"
-
-#root -l -b -q NPMCmass.C
+root -l -b -q bkgSave.C
+root -l -b -q newDatamass_2.C
+root -l -b -q plotDMPars.C
+root -l -b -q fbkgProp.C
+root -l -b -q newNPmass.C
+root -l -b -q plotDMPars_NP.C
+root -l -b -q fbkgProp_NP.C
 
 echo "getting costh limits with fine binning"
 
-#cd ../cosMax
-#root -l -b -q histoSave.C
-#root -l -b -q getCos.C
-#root -l -b -q getCosMin.C
-#root -l -b -q plotCos.C
+cd ../cosMax
 
-echo "saving the PR histos for fitting"
+root -l -b -q histoSave.C
+root -l -b -q getCos.C
+root -l -b -q getCosMin.C
+root -l -b -q plotCos.C
 
-cd ../PR_fit
-#root -l -b -q histoSave.C
-#root -l -b -q bkgSave.C
-
-echo "fitting lifetime, mass distributions"
-
-#root -l -b -q ltBkg2d.C
-#root -l -b -q plotLtPars2d.C
-#root -l -b -q ltBkg.C
-#root -l -b -q mBkg.C
-
-echo "getting mass bkg dists in reg binning"
-
-#root -l -b -q bkgCosth.C
-#root -l -b -q getfL.C
-#root -l -b -q genDist.C
-
-echo "getting bkg frac uncertainties"
-
-#root -l -b -q fbkgProp.C
-#root -l -b -q fnpProp.C
-
-echo "running NP framework"
-
-cd ../NP_fit
+echo "run SB lifetime fits"
+cd ../SBLtFits
 
 root -l -b -q bkgSave.C
-root -l -b -q mBkg.C
-root -l -b -q bkgCosth.C
+root -l -b -q bkgSave_N.C
+root -l -b -q ltBkg.C
+root -l -b -q ltBkg2d.C
+root -l -b -q ltBkg_N.C
+root -l -b -q plotLtPars_N.C
+root -l -b -q store_SB.C
+
+echo "run PR fit framework - part 1"
+cd ../PR_fit
+
+root -l -b -q bkgSave.C
+root -l -b -q ltBkg2d.C
+root -l -b -q plotLPars2d.C
+root -l -b -q fnpProp.C
+
 root -l -b -q getfL.C
 root -l -b -q genDist.C
-root -l -b -q fbkgProp.C
+
+echo "run NP fit framework"
+cd ../NP_fit
+
+root -l -b -q getfL.C 
+root -l -b -q genDist.C
+
 root -l -b -q bkgSub.C
 root -l -b -q indFit.C
 root -l -b -q plotRes.C
 
-echo "running bkg sub with corrected NP"
-
+echo "run the PR fit framework - part 2"
 cd ../PR_fit
 
-#root -l -b -q fNPcorr.C
-#root -l -b -q bkgSub.C
-#root -l -b -q indFit.C
-#root -l -b -q plotRes.C
-
-cd ..
+root -l -b -q bkgSub.C
+root -l -b -q indFit.C
+root -l -b -q plotRes.C

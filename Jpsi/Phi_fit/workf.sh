@@ -7,12 +7,11 @@ root -l -b -q histoSave.C
 cd ../bkgFits
 
 root -l -b -q fbkgProp.C
-root -l -b -q fbkgProp.C
+root -l -b -q fbkgProp_NP.C
 
 cd ../PR_fit
 
 root -l -b -q fnpProp.C
-root -l -b -q fNPcorr.C
 root -l -b -q genDist.C
 
 cd ../NP_fit

@@ -93,7 +93,6 @@ void fnpProp()
   
   // get fit parameters from fitres
   TFile *inNP = new TFile("files/ltfitres2d.root");
-  int n_par = 9; 
   // get fitres to get cov in each pT bin
   TFitResult *fitres = new TFitResult();
   inNP->GetObject("fitres", fitres);
@@ -102,7 +101,7 @@ void fnpProp()
   // start cycle of calculations
   TH1D *h_fnp = new TH1D("h_fnp", "Run 2 f_{NP}", nPtBins, ptBins);
   double fnp[nPtBins], efnp[nPtBins], evt_all[nPtBins];
-  int di[] = {1, 1, 0, 0, 0, 1, 0, 0, 1}; // determines which pars are constant  
+  int di[] = {1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1}; // determines which pars are constant  
   double min_bin = h_d1d[0]->GetXaxis()->FindBin(-pr_lim+1e-6);
   double max_bin = h_d1d[0]->GetXaxis()->FindBin(pr_lim-1e-6);
   

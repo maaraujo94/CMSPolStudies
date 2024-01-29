@@ -43,7 +43,7 @@ TFile *inFracSB = new TFile("../../Simult/bkgFits/files/bkgFrac.root");
   inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
   inFracSB->Close();
-TFile *inFracNP = new TFile("../../Simult/PR_fit/files/NPFrac.root");  inFracNP->GetObject("h_fNPc", h_fnp2d);
+TFile *inFracNP = new TFile("../../Simult/PR_fit/files/NPFrac.root");  inFracNP->GetObject("h_fnp", h_fnp2d);
   h_fnp2d->SetDirectory(0);
   inFracNP->Close();
 
