@@ -5,19 +5,19 @@ void plotRes()
   // get the histo limits
   TFile *fIn = new TFile("files/bkgSubRes.root");
   TH2D* rHist;
-  fIn->GetObject("h_NP", rHist);
+  fIn->GetObject("h_Data", rHist);
   
   int nBinspT = rHist->GetNbinsY();
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
   
   // get the fit results
   // get A, lambda, chiProb values for each bin
-  string lbl[] = {"NP", "NPc"};
+  string lbl[] = {"Data", "NP", "J"};
   TFile *fInd = new TFile("files/finalFitRes.root");
-  TGraphErrors **graph_A = new TGraphErrors*[2];
-  TGraphErrors **graph_lth = new TGraphErrors*[2];
-  TGraph **graph_chi = new TGraph*[2];
-  for(int i_t = 0; i_t < 2; i_t++) {
+  TGraphErrors **graph_A = new TGraphErrors*[3];
+  TGraphErrors **graph_lth = new TGraphErrors*[3];
+  TGraph **graph_chi = new TGraph*[3];
+  for(int i_t = 0; i_t < 3; i_t++) {
     graph_A[i_t] = (TGraphErrors*)fInd->Get(Form("graph_A_%s", lbl[i_t].c_str()));
     graph_lth[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
     graph_chi[i_t] = (TGraph*)fInd->Get(Form("graph_chiP_%s", lbl[i_t].c_str()));
@@ -27,8 +27,8 @@ void plotRes()
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetRightMargin(0.03);
-  c->SetTopMargin(0.02);
-
+  c->SetTopMargin(0.015);
+  
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
   fl->SetXTitle("p_{T} (GeV)");
@@ -37,8 +37,8 @@ void plotRes()
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("");
 
-  int col[] = {kRed+3, kRed};
-  for(int i = 0; i < 2; i++) {
+  int col[] = {kViolet, kRed, kBlue};
+  for(int i = 0; i < 3; i++) {
     graph_lth[i]->SetLineColor(col[i]);
     graph_lth[i]->SetMarkerColor(col[i]);
     graph_lth[i]->Draw("p same");
@@ -49,53 +49,62 @@ void plotRes()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.65, 0.85, 0.95, 0.95);
+  TLegend *leg = new TLegend(0.65, 0.17, 0.95, 0.32);
   leg->SetTextSize(0.03);
   leg->SetBorderSize(0);
-  leg->SetFillColorAlpha(kWhite, 0);
-  leg->AddEntry(graph_lth[0], "NPS", "pl");
-  leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
+  leg->SetFillColorAlpha(kWhite,0);
+  leg->AddEntry(graph_lth[0], "total", "pl");
+  leg->AddEntry(graph_lth[1], "non-prompt J/#psi", "pl");
+  leg->AddEntry(graph_lth[2], "prompt J/#psi", "pl");
   leg->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
   c->Clear();
 
-  // draw just final lambda_th(pT)
+  // draw just final lambda_th(pT) - compare with baseline
+  TFile *finB = new TFile("../../PR_fit/files/finalFitRes.root");
+  TGraphErrors *graph_lthBase = (TGraphErrors*)finB->Get("graph_lambda_J");
+  finB->Close();
+
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
   fl2->SetXTitle("p_{T} (GeV)");
-  fl2->SetYTitle("#lambda_{#theta}");
+  fl2->SetYTitle("#lambda_{#theta}^{PR}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
   fl2->SetTitle("");
 
-  graph_lth[1]->SetLineColor(kBlack);
-  graph_lth[1]->SetMarkerColor(kBlack);
-  graph_lth[1]->Draw("p same");
+  graph_lth[2]->SetLineColor(kBlack);
+  graph_lth[2]->SetMarkerColor(kBlack);
+  graph_lth[2]->Draw("p same");
+
+  graph_lthBase->SetLineColor(kBlack);
+  graph_lthBase->SetLineStyle(kDashed);
+  graph_lthBase->SetMarkerColor(kBlack);
+  graph_lthBase->Draw("p same");
 
   zero->Draw();
+  //trans1->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
   c->Clear();
 
   // draw A(pT)
   c->SetLogy();
-  c->SetTopMargin(0.1);
-  
   TH1F *fa = c->DrawFrame(pTBins[0], 4e-2, pTBins[nBinspT], 4e-1);
   fa->SetXTitle("p_{T} (GeV)");
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
   fa->GetYaxis()->SetLabelOffset(0.01);
-  fa->SetTitle("Run 2 A");
+  fa->SetTitle("");
 
   // combine both lambda_th distributions
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < 3; i++) {
     graph_A[i]->SetLineColor(col[i]);
     graph_A[i]->SetMarkerColor(col[i]);
     graph_A[i]->Draw("p same");
   }
 
-  TLine *trans1_A = new TLine(46, 4e-2, 46, 4e-1);
+  TLine *trans1_A = new TLine(46, 1e-2, 46, 6e-1);
   trans1_A->SetLineColor(kBlack);
   trans1_A->SetLineStyle(kDashed);
   //trans1_A->Draw();
@@ -110,21 +119,26 @@ void plotRes()
   fc->SetYTitle("P(#chi^{2}, ndf)");
   fc->GetYaxis()->SetTitleOffset(1.3);
   fc->GetYaxis()->SetLabelOffset(0.01);
-  fc->SetTitle("Run 2 P(#chi^{2}, ndf)");
+  fc->SetTitle("");
 
   // combine both lambda_th distributions
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < 3; i++) {
     graph_chi[i]->SetLineColor(col[i]);
     graph_chi[i]->SetMarkerColor(col[i]);
     graph_chi[i]->SetMarkerStyle(20);
     graph_chi[i]->SetMarkerSize(.75);
-    graph_chi[i]->Draw("p same");
+    if(i > 0)
+      graph_chi[i]->Draw("p same");
   }
 
-  TLine *trans1_C = new TLine(46, 0, 46, 1);
-  trans1_C->SetLineColor(kBlack);
-  trans1_C->SetLineStyle(kDashed);
-  //trans1_C->Draw();
+  TLegend *leg2 = new TLegend(0.65, 0.85, 0.95, 0.95);
+  leg2->SetTextSize(0.03);
+  leg2->SetBorderSize(0);
+  leg2->SetFillColorAlpha(kWhite,0);
+  leg2->AddEntry(graph_chi[1], "Non-prompt J/#psi", "pl");
+  leg2->AddEntry(graph_chi[2], "Prompt J/#psi", "pl");
+  leg2->Draw();
+
 
   c->SaveAs("plots/ratioFinal/par_chiP.pdf");
   c->Clear();

@@ -4,6 +4,7 @@
 // 3) pT_cut - Run2 / Run2
 // 4) eta_cut - Run2 / Run2
 // 5) dR cuts - Run 2 / Run2
+// 6) phi reweighing - Run 2 / Run 2
 
 // 0) 2017 - 2018 / Run2
 // this case is studied separately because the differences are independent

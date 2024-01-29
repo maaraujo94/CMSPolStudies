@@ -3,9 +3,9 @@
 void genDist()
 {
   // get binning from the stored data histos
-  TFile *infile = new TFile("../PR_fit/files/histoStore.root");
-  TH2D *h_LSB = (TH2D*)infile->Get("NPLH");
-  TH2D *h_RSB = (TH2D*)infile->Get("NPRH");
+  TFile *infile = new TFile("../../PR_fit/files/histoStore.root");
+  TH2D *h_LSB = (TH2D*)infile->Get("PRLH");
+  TH2D *h_RSB = (TH2D*)infile->Get("PRRH");
   h_LSB->SetDirectory(0);
   h_RSB->SetDirectory(0);
   infile->Close();
@@ -36,11 +36,11 @@ void genDist()
   // get the sideband histos by summing with proportion fL
   TH1D **h_SB = new TH1D*[nBinsY];
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
-    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("Bg^{NP} |cos#theta| (%.0f < p_{T} < %.0f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
+    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("Bg |cos#theta| (%.1f < p_{T} < %.1f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
     
     h_SB[i_pt]->Sumw2();
     h_SB[i_pt]->Add(h_LSB1d[i_pt], h_RSB1d[i_pt], fL[i_pt], 1.-fL[i_pt]);
-    
+
     h_SB[i_pt]->Scale(n_s[i_pt]);
     h_LSB1d[i_pt]->Scale(n_s[i_pt]);
     h_RSB1d[i_pt]->Scale(n_s[i_pt]);
@@ -56,44 +56,44 @@ void genDist()
 
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetRightMargin(0.03);
-
-  h_SB[2]->SetStats(0);
-  h_SB[2]->SetLineColor(kGreen+1);
-  h_SB[2]->SetMinimum(0);
-  h_SB[2]->SetMaximum(h_SB[2]->GetMaximum()*1.7);
-  h_SB[2]->GetXaxis()->SetTitle("|cos#theta|");
-  h_SB[2]->Draw();
   
-  h_LSB1d[2]->SetLineColor(kBlack);
-  h_LSB1d[2]->Draw("same");
-  h_RSB1d[2]->SetLineColor(kBlue);
-  h_RSB1d[2]->Draw("same");
+  h_SB[4]->SetStats(0);
+  h_SB[4]->SetLineColor(kGreen+1);
+  h_SB[4]->SetMinimum(0);
+  h_SB[4]->SetMaximum(h_SB[4]->GetMaximum()*1.7);
+  h_SB[4]->GetXaxis()->SetTitle("|cos#theta|");
+  h_SB[4]->Draw();
+  
+  h_LSB1d[4]->SetLineColor(kBlack);
+  h_LSB1d[4]->Draw("same");
+  h_RSB1d[4]->SetLineColor(kBlue);
+  h_RSB1d[4]->Draw("same");
 
   TLegend *leg = new TLegend(0.77, 0.65, 0.97, 0.9);
   leg->SetTextSize(0.03);
-  leg->AddEntry(h_LSB1d[2], "LSB", "l");
-  leg->AddEntry(h_RSB1d[2], "RSB", "l");
-  leg->AddEntry(h_SB[2], "Bg", "l");
+  leg->AddEntry(h_LSB1d[4], "LSB", "l");
+  leg->AddEntry(h_RSB1d[4], "RSB", "l");
+  leg->AddEntry(h_SB[4], "Bg", "l");
   leg->Draw();
 
-  c->SaveAs("plots/SB_base_full_2.pdf");
+  c->SaveAs("plots/SB_base_full_4.pdf");
   c->Clear();
 
-  h_SB[5]->SetStats(0);
-  h_SB[5]->SetLineColor(kGreen+1);
-  h_SB[5]->SetMinimum(0);
-  h_SB[5]->SetMaximum(h_SB[5]->GetMaximum()*1.7);
-  h_SB[5]->GetXaxis()->SetTitle("|cos#theta|");
-  h_SB[5]->Draw();
+  h_SB[14]->SetStats(0);
+  h_SB[14]->SetLineColor(kGreen+1);
+  h_SB[14]->SetMinimum(0);
+  h_SB[14]->SetMaximum(h_SB[14]->GetMaximum()*1.7);
+  h_SB[14]->GetXaxis()->SetTitle("|cos#theta|");
+  h_SB[14]->Draw();
   
-  h_LSB1d[5]->SetLineColor(kBlack);
-  h_LSB1d[5]->Draw("same");
-  h_RSB1d[5]->SetLineColor(kBlue);
-  h_RSB1d[5]->Draw("same");
+  h_LSB1d[14]->SetLineColor(kBlack);
+  h_LSB1d[14]->Draw("same");
+  h_RSB1d[14]->SetLineColor(kBlue);
+  h_RSB1d[14]->Draw("same");
 
   leg->Draw();
 
-  c->SaveAs("plots/SB_base_full_5.pdf");
+  c->SaveAs("plots/SB_base_full_14.pdf");
   c->Clear();
   c->Destructor();
 }

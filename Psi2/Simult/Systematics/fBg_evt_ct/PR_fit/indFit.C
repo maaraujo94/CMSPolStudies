@@ -1,4 +1,4 @@
-#import "../cosMax/imp_jumpF.C"
+#import "../../../cosMax/imp_jumpF.C"
 
 // code to do the individual fit (1d costheta maps)
 
@@ -38,7 +38,7 @@ void indFit()
   // get the fit range from our cosmax(pT)
   ifstream in;
   string dataS;
-  in.open("../cosMax/cosMaxFitRes.txt");
+  in.open("../../../cosMax/cosMaxFitRes.txt");
   getline(in, dataS);
   getline(in, dataS);
   double maxPar[3], aux;

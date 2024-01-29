@@ -49,18 +49,20 @@ void plotRes()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.65, 0.85, 0.95, 0.95);
+  TLegend *leg = new TLegend(0.66, 0.78, 0.97, 0.98);
   leg->SetTextSize(0.03);
-  leg->SetBorderSize(0);
-  leg->SetFillColorAlpha(kWhite, 0);
-  leg->AddEntry(graph_lth[0], "NPS", "pl");
+  leg->AddEntry(graph_lth[0], "NP", "pl");
   leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
   leg->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
   c->Clear();
 
-  // draw just final lambda_th(pT)
+  // draw just final lambda_th(pT) - compare with baseline
+  TFile *finB = new TFile("../../../PR_fit/files/finalFitRes.root");
+  TGraphErrors *graph_lthBase = (TGraphErrors*)finB->Get("graph_lambda_NP");
+  finB->Close();
+  
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
   fl2->SetXTitle("p_{T} (GeV)");
   fl2->SetYTitle("#lambda_{#theta}");
@@ -71,6 +73,11 @@ void plotRes()
   graph_lth[1]->SetLineColor(kBlack);
   graph_lth[1]->SetMarkerColor(kBlack);
   graph_lth[1]->Draw("p same");
+
+    graph_lthBase->SetLineColor(kBlack);
+  graph_lthBase->SetLineStyle(kDashed);
+  graph_lthBase->SetMarkerColor(kBlack);
+  graph_lthBase->Draw("p same");
 
   zero->Draw();
   

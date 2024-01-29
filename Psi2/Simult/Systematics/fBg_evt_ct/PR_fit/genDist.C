@@ -3,9 +3,9 @@
 void genDist()
 {
   // get binning from the stored data histos
-  TFile *infile = new TFile("../PR_fit/files/histoStore.root");
-  TH2D *h_LSB = (TH2D*)infile->Get("NPLH");
-  TH2D *h_RSB = (TH2D*)infile->Get("NPRH");
+  TFile *infile = new TFile("../../../PR_fit/files/histoStore.root");
+  TH2D *h_LSB = (TH2D*)infile->Get("PRLH");
+  TH2D *h_RSB = (TH2D*)infile->Get("PRRH");
   h_LSB->SetDirectory(0);
   h_RSB->SetDirectory(0);
   infile->Close();
@@ -16,7 +16,7 @@ void genDist()
   double maxX = h_LSB->GetXaxis()->GetBinUpEdge(nBinsX);
   double dX = (maxX-minX)/nBinsX;
 
-  // get fit parameters from storage
+    // get fL from storage
   TFile *infL = new TFile("files/store_fL.root");
   double *fL = ((TGraphErrors*)infL->Get("g_fL"))->GetY();
   infL->Close();
@@ -36,11 +36,11 @@ void genDist()
   // get the sideband histos by summing with proportion fL
   TH1D **h_SB = new TH1D*[nBinsY];
   for(int i_pt = 0; i_pt < nBinsY; i_pt++) {
-    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("Bg^{NP} |cos#theta| (%.0f < p_{T} < %.0f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
+    h_SB[i_pt] = new TH1D(Form("h_SB_%d", i_pt), Form("Bg |cos#theta| (%.0f < p_{T} < %.0f GeV)", yBins[i_pt], yBins[i_pt+1]), nBinsX, minX, maxX);
     
     h_SB[i_pt]->Sumw2();
     h_SB[i_pt]->Add(h_LSB1d[i_pt], h_RSB1d[i_pt], fL[i_pt], 1.-fL[i_pt]);
-    
+
     h_SB[i_pt]->Scale(n_s[i_pt]);
     h_LSB1d[i_pt]->Scale(n_s[i_pt]);
     h_RSB1d[i_pt]->Scale(n_s[i_pt]);
@@ -56,7 +56,7 @@ void genDist()
 
   TCanvas *c = new TCanvas("", "", 900, 900);
   c->SetRightMargin(0.03);
-
+  
   h_SB[2]->SetStats(0);
   h_SB[2]->SetLineColor(kGreen+1);
   h_SB[2]->SetMinimum(0);

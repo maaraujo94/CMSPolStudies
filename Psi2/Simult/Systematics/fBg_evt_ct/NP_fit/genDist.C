@@ -3,7 +3,7 @@
 void genDist()
 {
   // get binning from the stored data histos
-  TFile *infile = new TFile("../PR_fit/files/histoStore.root");
+  TFile *infile = new TFile("../../../PR_fit/files/histoStore.root");
   TH2D *h_LSB = (TH2D*)infile->Get("NPLH");
   TH2D *h_RSB = (TH2D*)infile->Get("NPRH");
   h_LSB->SetDirectory(0);

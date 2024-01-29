@@ -120,6 +120,16 @@ void plotRes()
   g_2->SetFillColorAlpha(kRed, 0.3);
   g_2->Draw("e3");
 
+  c->GetListOfPrimitives()->Remove(leg2);
+  c->Update();
+  
+  TLatex lc;
+  lc.SetTextSize(0.03);
+  lc.SetTextColor(kRed);
+  lc.DrawLatex(20, 0.1, Form("#bf{non-prompt #psi(2S)  %.3f < #beta < %.3f}", yv2[0]-ye2[0], yv2[0]+ye2[0]));
+  lc.SetTextColor(kBlue);
+  lc.DrawLatex(20, -0.1, Form("#bf{prompt #psi(2S)   %.2f < #beta < %.2f}", yv1[0]-ye1[0], yv1[0]+ye1[0]));
+
   c->SaveAs("plots/ratioFinal/par_lth_band.pdf");
   c->Clear();
 

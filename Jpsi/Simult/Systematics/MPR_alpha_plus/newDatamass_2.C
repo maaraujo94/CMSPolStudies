@@ -33,9 +33,10 @@ double g_exp(double m, double N, double sig, double m0)
 
   return norm * f_val;
 }
+// bkg expression - negative exponential
 double bkg_exp(double m, double p1, double p2)
 {
-  return p2 * ( - p1 * m + 1.);
+  return p1 * exp( - m / p2 );
 }
 
 // crystal ball function parser - called by TF2
@@ -59,13 +60,14 @@ double mmod_func(double *x, double *par)
   double n = par[5*nPtBins]; // n is constant in pt
   double alpha = par[6*nPtBins]; // alpha is constant in pt
 
-  double m_bkg = par[7*nPtBins+pt_bin];
-  double b_bkg = par[8*nPtBins+pt_bin];
+  double NB = par[7*nPtBins+pt_bin];
+  double ld = par[8*nPtBins+pt_bin];
 
   double fG = par[9*nPtBins]; // fG constant in pT
   double sigG = par[3*nPtBins] * pt + par[10*nPtBins+1]; // sigma_G linear in pt - always sigma1 slope
 
-  double func = f * cb_exp(m, NS, sig1, mu, n, alpha) + (1.-f-fG) * cb_exp(m, NS, sig2, mu, n, alpha) + fG * g_exp(m, NS, sigG, mu) + bkg_exp(m, m_bkg, b_bkg);
+  double func = f * cb_exp(m, NS, sig1, mu, n, alpha) + (1.-f-fG) * cb_exp(m, NS, sig2, mu, n, alpha) + fG * g_exp(m, NS, sigG, mu) + bkg_exp(m, NB, ld);
+
   return func;
 }
 
@@ -101,32 +103,33 @@ void newDatamass_2()
   // define aux vals for plotting
   double m_min[] = {2.94, 3.0, 3.21};
   double m_max[] = {2.95, 3.2, 3.26};
-  
-  // fix n_v to a given value, give initial alpha
-  double n_v = 2.5, alpha_v = 1.9, fG_v = 0.035;
 
-  TFile *fin_G = new TFile("../../bkgFits/files/mfit_2.root");
-  TFitResult *fitG = (TFitResult*)fin_G->Get("fitres");
-  double sigG_v = fitG->Parameter(10*nPtBins+1);
-  fin_G->Close();
+  // get alpha + unc from the prev fit
+  TFile *finF = new TFile("../../bkgFits/files/mfit_2.root");
+  double alpha_v = ((TGraphErrors*)finF->Get("fit_alpha"))->GetY()[0];
+  double alpha_e = ((TGraphErrors*)finF->Get("fit_alpha"))->GetEY()[0];
+  finF->Close();
+  alpha_v+=alpha_e;
+
+  // fix n_v to a given value, give initial alpha
+  double n_v = 2.5, fG_v = 0.035;
 
   // define 2d function for fitting
   TF2 *f_cb = new TF2("f_cb", mmod_func, m_min[0], m_max[2], ptBins[0], ptBins[nPtBins], 11*nPtBins, 2);
-  string par_n[] =  {"NS", "f",  "mu",  "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fG", "sigG"};
-  double par_v[] =  {1.,   0.55, 3.1, 1e-4,   1e-4,   n_v, alpha_v, 0.5,   1.,      fG_v, 1.};
-  double par2_v[] = {1.,   1.,   1.,    2e-2,   3e-2,   1.,  1.,      1.,   1.,       1.,   1e-1};
+  string par_n[] =  {"NS", "f",  "mu",  "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
+  double par_v[] =  {1.,   0.55, 3.095, 1e-4,   1e-4,   n_v, alpha_v, 1.,   0.5,      fG_v, 1.};
+  double par2_v[] = {1.,   1.,   1.,    2e-2,   3e-2,   1.,  1.,      1.,   1.,       1.,   6.5e-2};
   
   // define parameters
   for(int i = 0; i < nPtBins; i++) {
     // normalizations
     f_cb->SetParName(i, Form("NS_%d", i));
     f_cb->SetParameter(i, h_d1d[i]->Integral()/100.);
-    f_cb->SetParName(8*nPtBins+i, Form("b_bkg_%d", i));
-    //    f_cb->SetParameter(8*nPtBins+i, h_d1d[i]->GetBinContent(4));
-    f_cb->SetParameter(8*nPtBins+i, h_d1d[i]->GetBinContent(4)*2);
+    f_cb->SetParName(7*nPtBins+i, Form("NB_%d", i));
+    f_cb->SetParameter(7*nPtBins+i, h_d1d[i]->Integral()/(1.5*i+1));
     
     for(int j = 1; j < 11; j++) { // between NS, NB
-      if(j != 8) { // removing NB
+      if(j != 7) { // removing NB
 	f_cb->SetParName(j*nPtBins+i, Form("%s_%d", par_n[j].c_str(), i));
 	f_cb->SetParameter(j*nPtBins+i, par_v[j]);
 	// setting the constant parameters f, mu, alpha
@@ -136,10 +139,8 @@ void newDatamass_2()
 	else if(j == 3 && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
 	else if((j == 4 || j == 10) && i != 1) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	else if((j == 4 || j == 10) && i == 1) f_cb->SetParameter(j*nPtBins+i, par2_v[j]);
-	// fixing sigG
-	if(j == 10 && i == 1) f_cb->FixParameter(j*nPtBins+1, sigG_v);
-	// fixing n, fG
-	else if(j == 5 || j == 9) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
+	// fixing n, fG, alpha
+	else if(j == 5 || j == 6 || j == 9) f_cb->FixParameter(j*nPtBins+i, par_v[j]);
 	// lambda left free
 	else if(j == 8) f_cb->SetParameter(j*nPtBins+i, 0.012*(ptBins[i+1]+ptBins[i])/2.+0.18);
       }
@@ -157,7 +158,7 @@ void newDatamass_2()
 
   // tf1 for plotting in the 1D bins
   TF1 *f_1d = new TF1("f_1d", "[1]*cb_exp(x,[0],[3],[2],[5],[6]) + (1.-[1]-[9]) * cb_exp(x,[0],[4],[2],[5],[6]) + [9]*g_exp(x, [0], [10], [2])+bkg_exp(x,[7],[8])", m_min[0], m_max[2]);
-  f_1d->SetParNames("NS", "f", "mu", "sigma1", "sigma2", "n", "alpha", "m_bkg", "b_bkg", "fG", "sigG");
+  f_1d->SetParNames("NS", "f", "mu", "sigma1", "sigma2", "n", "alpha", "p1", "lambda", "fG", "sigG");
 
   // separate parts of the fit function
   TF1 *fp1 = new TF1("fp1", "[1]*cb_exp(x,[0],[3],[2],[4],[5])", m_min[0], m_max[2]);
@@ -165,7 +166,7 @@ void newDatamass_2()
   TF1 *fp2 = new TF1("fp2", "(1.-[1]-[6]) * cb_exp(x,[0],[3],[2],[4],[5])", m_min[0], m_max[2]);
   fp2->SetParNames("NS", "f", "mu", "sigma2", "n", "alpha", "fG");
   TF1 *fp3 = new TF1("fp3", "bkg_exp(x,[0],[1])", m_min[0], m_max[2]);
-  fp3->SetParNames("m_bkg", "b_bkg");
+  fp3->SetParNames("NB", "lambda");
   TF1 *fp4 = new TF1("fp4", "[1]*g_exp(x,[0],[3],[2])", m_min[0], m_max[2]);
   fp4->SetParNames("NS", "fG", "mu", "sigmaG");
 
@@ -180,7 +181,7 @@ void newDatamass_2()
 
      // storing parameters
     for(int j = 0; j < 11; j++) {
-      if(j == 0 || j == 7 || j == 8) { // free parameters NS, m_bkg, b_bkg
+      if(j == 0 || j == 7 || j == 8) { // free parameters NS, NB, lambda
 	pars[j][i_pt] = f_cb->GetParameter(j*nPtBins+i_pt);
 	epars[j][i_pt] = f_cb->GetParError(j*nPtBins+i_pt);
       }
@@ -371,8 +372,8 @@ void newDatamass_2()
   
   // storing the free parameters
   TFile *foutF = new TFile("files/mfit_2.root", "recreate");
-  string parlab[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "m_bkg", "b_bkg", "fG", "sigG"};
-  
+  string parlab[] = {"NS", "f", "mu", "sig1", "sig2", "n", "alpha", "NB", "lambda", "fG", "sigG"};
+
   for(int i_p = 0; i_p < 11; i_p++) {
     TGraphErrors *g_par = new TGraphErrors(nPtBins, pt_val, pars[i_p], pt_err, epars[i_p]);
     g_par->Write(Form("fit_%s", parlab[i_p].c_str()));

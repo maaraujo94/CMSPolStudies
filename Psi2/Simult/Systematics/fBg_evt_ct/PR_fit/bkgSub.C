@@ -6,7 +6,7 @@ void bkgSub()
   // PR SR data and MC distribution over all pT bins
   TH2D *h_PR2d = new TH2D(); // base PR SR 2d map
   TH2D *h_MC2d = new TH2D(); // MC 2d map
-  TFile *inHist = new TFile("../../PR_fit/files/histoStore.root");
+  TFile *inHist = new TFile("../../../PR_fit/files/histoStore.root");
   inHist->GetObject("PRH", h_PR2d);
   h_PR2d->SetDirectory(0);
   inHist->GetObject("MCH", h_MC2d);
@@ -15,7 +15,7 @@ void bkgSub()
 
   // NP distribution corrected for mass bkg contamination
   TH2D *h_NP2d = new TH2D(); // base NP SR 2d map
-  TFile *inNP = new TFile("files/bkgSubRes_NP.root");
+  TFile *inNP = new TFile("../NP_fit/files/bkgSubRes.root");
   inNP->GetObject("h_NPcB", h_NP2d);
   h_NP2d->SetDirectory(0);
   inNP->Close();
@@ -34,16 +34,16 @@ void bkgSub()
     h_SB[i]->SetDirectory(0);
   }
   inBkg->Close();
-    
+  
   // bkg fraction in PR SR
   // NP fraction in NP SR - corrected for mass bkg contamination
   TH2D *h_fb2d = new TH2D();
   TH2D *h_fnp2d = new TH2D();
-  TFile *inFracSB = new TFile("files/bkgFrac.root");
+  TFile *inFracSB = new TFile("../bkgFits/files/bkgFrac.root");
   inFracSB->GetObject("h_fbkg", h_fb2d);
   h_fb2d->SetDirectory(0);
   inFracSB->Close();
-  TFile *inFracNP = new TFile("../../PR_fit/files/NPFrac.root");
+  TFile *inFracNP = new TFile("../../../PR_fit/files/NPFrac.root");
   inFracNP->GetObject("h_fnp", h_fnp2d);
   h_fnp2d->SetDirectory(0);
   inFracNP->Close();
@@ -57,7 +57,7 @@ void bkgSub()
   TH2D *h_NPs = new TH2D("h_NP", "NP/MC", nBinsX, minX, maxX, nBinsY, yBins);
   TH2D *h_SBs = new TH2D("h_SB", "SB/MC", nBinsX, minX, maxX, nBinsY, yBins);
   TH2D *h_PRs = new TH2D("h_PR", "Prompt/MC", nBinsX, minX, maxX, nBinsY, yBins);
-  TH2D *h_Js = new TH2D("h_J", "Prompt J/#psi/MC", nBinsX, minX, maxX, nBinsY, yBins);
+  TH2D *h_Js = new TH2D("h_J", "Prompt #psi(2S)/MC", nBinsX, minX, maxX, nBinsY, yBins);
 
   // this part is done for every pT bin
   for(int i = 0; i < nBinsY; i++) {
@@ -66,7 +66,7 @@ void bkgSub()
     
     // get number of data events in PR SR
     double N_sig = h_PR2d->Integral(1, nBinsX, i+1, i+1);
-    
+        
     // get the data and MC 1d projections
     TH1D *h_PR = h_PR2d->ProjectionX(Form("h_PRSR_%d", i), i+1, i+1);
     TH1D *h_NP = h_NP2d->ProjectionX(Form("h_NP_%d", i), i+1, i+1);
@@ -92,7 +92,7 @@ void bkgSub()
     h_justPR->Sumw2();
     h_justPR->Add(h_PR, h_NP, 1, -1); // NP part
     // define the pure PR histo
-    TH1D *h_purePR = new TH1D(Form("h_purePR_%d", i), "prompt J/#psi cos#theta", nBinsX, minX, maxX);
+    TH1D *h_purePR = new TH1D(Form("h_purePR_%d", i), "prompt #psi(2S) cos#theta", nBinsX, minX, maxX);
     // subtract the background dist from the data dist
     h_purePR->Sumw2();
     h_purePR->Add(h_justPR, h_SB[i], 1, -1); // sideband part

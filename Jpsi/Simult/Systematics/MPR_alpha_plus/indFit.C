@@ -1,4 +1,4 @@
-#import "../cosMax/imp_jumpF.C"
+#import "../../cosMax/imp_jumpF.C"
 
 // code to do the individual fit (1d costheta maps)
 
@@ -24,11 +24,11 @@ void indFit()
   for(int i_t = 0; i_t < 5; i_t++) {
     for(int i = 1; i <= nBinsY; i++) {
       pHist[i_t][i-1] = h_fit[i_t]->ProjectionX(Form("bin%d_%d", i, i_t+1), i, i);
-      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.0f, %.0f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
+      pHist[i_t][i-1]->SetTitle(Form("%s bin %d: [%.1f, %.1f] GeV", lbl[i_t].c_str(), i, yBins[i-1], yBins[i]));
     }
   }
   
-  // the fit function to be used - only on total and prompt J/psi
+  // the fit function to be used - only on total and prompt
   TF1 **fit1d = new TF1*[4];
   for(int i = 0; i < 4; i++) {
     fit1d[i] = new TF1(Form("fit_%d", i), "[0]*(1+[1]*x*x)", 0, 1);
@@ -38,7 +38,7 @@ void indFit()
   // get the fit range from our cosmax(pT)
   ifstream in;
   string dataS;
-  in.open("../cosMax/cosMaxFitRes.txt");
+  in.open("../../cosMax/cosMaxFitRes.txt");
   getline(in, dataS);
   getline(in, dataS);
   double maxPar[3], aux;
@@ -67,10 +67,10 @@ void indFit()
     zero[i] = 0;
 
     // get max costheta
-    double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin))-0.05;
+    double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
     cMax[i] = cMaxVal;
-
-    // fit the 4 functions
+    
+    // fit the 3 functions - PRS, prompt and prompt J/psi
     for(int i_t = 0; i_t < 2; i_t++) {
       int i_fit = 3*i_t; // fit 0 and 3
       
@@ -101,12 +101,12 @@ void indFit()
     chiP[3][i] = TMath::Prob(chi2[3][i], ndf[3][i]);
 
     // plotting everything
-    pHist[0][i]->SetTitle(Form("data/MC |cos#theta| (%.0f < p_{T} < %.0f GeV)", pMin, pMax));
+    pHist[0][i]->SetTitle(Form("data/MC |cos#theta| (%.1f < p_{T} < %.1f GeV)", pMin, pMax));
     pHist[0][i]->SetStats(0);
     pHist[0][i]->SetLineColor(kViolet);
     pHist[0][i]->SetMarkerColor(kViolet);
     pHist[0][i]->SetMinimum(0);
-    pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(cMaxVal*nBinsX)*1.8);
+    pHist[0][i]->SetMaximum(pHist[0][i]->GetBinContent(1)*1.8);
     pHist[0][i]->GetXaxis()->SetTitle("|cos#theta_{HX}|");
     pHist[0][i]->Draw("error");
     fit1d[0]->SetLineColor(kViolet);
@@ -134,8 +134,8 @@ void indFit()
 
     TLatex lc;
     lc.SetTextSize(0.03);
-    lc.DrawLatex(0.05, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{total} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
-    lc.DrawLatex(0.05, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#theta}^{prompt #psi(2S)} = %.3f #pm %.3f", parL[1][i], eparL[1][i]));
+    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.9, Form("#lambda_{#theta}^{total} = %.3f #pm %.3f", parL[0][i], eparL[0][i]));
+    lc.DrawLatex(0.1, pHist[0][i]->GetMaximum()*0.8, Form("#lambda_{#theta}^{prompt J/#psi} = %.3f #pm %.3f", parL[1][i], eparL[1][i]));
     
     TLine *c_lim = new TLine(cMaxVal, 0, cMaxVal, pHist[0][i]->GetMaximum());
     c_lim->SetLineStyle(kDashed);
@@ -150,7 +150,7 @@ void indFit()
     leg->AddEntry(pHist[1][i], "NP contrib", "pl");
     leg->AddEntry(pHist[2][i], "prompt", "pl");
     leg->AddEntry(pHist[4][i], "SB contrib", "pl");
-    leg->AddEntry(pHist[3][i], "prompt #psi(2S)", "pl");
+    leg->AddEntry(pHist[3][i], "prompt J/#psi", "pl");
     leg->Draw();
 
     for(int i_t = 0; i_t < 5; i_t++)
@@ -163,7 +163,7 @@ void indFit()
 
   // calculating pulls - just prompt and non-prompt psi
   // NP needs to come from the corresponding input
-  TFile *infile_NP = new TFile("../NP_fit/files/bkgSubRes.root");
+  TFile *infile_NP = new TFile("../../NP_fit/files/bkgSubRes.root");
   infile_NP->GetObject(Form("h_NPc"), h_fit[1]);
   h_fit[1]->SetDirectory(0);
   infile_NP->Close();
@@ -171,9 +171,9 @@ void indFit()
   // get the 1d plots
   for(int i_pt = 1; i_pt <= nBinsY; i_pt++) {
     pHist[1][i_pt-1] = h_fit[1]->ProjectionX(Form("bin%d_%d", i_pt, 2), i_pt, i_pt);
-    pHist[1][i_pt-1]->SetTitle(Form("NP bin %d: [%.0f, %.0f] GeV", i_pt, yBins[i_pt-1], yBins[i_pt]));
+    pHist[1][i_pt-1]->SetTitle(Form("NP bin %d: [%.1f, %.1f] GeV", i_pt, yBins[i_pt-1], yBins[i_pt]));
   }
-  
+
   double xv[nBinsX], pv_NP[nBinsX], dv_NP[nBinsX], pv_PR[nBinsX], dv_PR[nBinsX];
   // new cycle, now for PR and NP fit plots
   for(int i = 0; i < nBinsY; i++) {
@@ -195,11 +195,11 @@ void indFit()
     // need to restore PR fit parameters
     fit1d[1]->SetRange(0, cMax[i]);
     fit1d[1]->SetParameters(parA[1][i], parL[1][i]);
-    
+
     for(int i_cos = 0 ; i_cos < nBinsX; i_cos++) {
       xv[i_cos] = pHist[0][i]->GetBinCenter(i_cos+1);
-      
-      // first non-prompt 
+
+      // first non-prompt
       double fitv = fit1d[2]->Eval(xv[i_cos]);
       double datav = pHist[1][i]->GetBinContent(i_cos+1);
       double datau = pHist[1][i]->GetBinError(i_cos+1);
@@ -211,7 +211,7 @@ void indFit()
 	pv_NP[i_cos] = 0;
 	dv_NP[i_cos] = 0;
       }
-      
+
       // then prompt
       fitv = fit1d[1]->Eval(xv[i_cos]);
       datav = pHist[3][i]->GetBinContent(i_cos+1);
@@ -243,6 +243,7 @@ void indFit()
     gNP_pull->SetMarkerColor(kBlack);
     gNP_pull->SetMarkerStyle(20);
     gNP_pull->Draw("p");
+
     
     TLine *zero = new TLine(0, 0, 1, 0);
     zero->SetLineStyle(kDashed);
@@ -377,14 +378,16 @@ void indFit()
     c_limPR->SetLineStyle(kDashed);
     c_limPR->SetLineColor(kBlack);
     c_limPR->Draw();
-    
+ 
     c->SaveAs(Form("plots/ratioFinal/fit/fitPR_%d.pdf", i));
     c->Clear();
+
+    cout << endl << endl;
   }
 
   string lbl_s[] = {"Data", "J", "NP", "PR"};
   TFile *outfile2 = new TFile("files/finalFitRes.root", "update");
-    for(int i_t = 0; i_t < 4; i_t++) {
+  for(int i_t = 0; i_t < 4; i_t++) {
     // make and save the TGraph with the fit results and max costh used
     TGraphErrors *graphA = new TGraphErrors(nBinsY, pt, parA[i_t], ept, eparA[i_t]);
     TGraphErrors *graphL = new TGraphErrors(nBinsY, pt, parL[i_t], ept, eparL[i_t]);
@@ -407,8 +410,8 @@ void indFit()
   TGraphErrors *graphCm = new TGraphErrors(nBinsY, pt, cMax, ept, zero);
   graphCm->SetName(Form("graph_cMax"));
   graphCm->Write();
-
+    
   outfile2->Close();
-  
+
   c->Destructor();
 }

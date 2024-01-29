@@ -15,7 +15,7 @@ void bkgSub()
 
   // NP distribution corrected for mass bkg contamination
   TH2D *h_NP2d = new TH2D(); // base NP SR 2d map
-  TFile *inNP = new TFile("files/bkgSubRes_NP.root");
+  TFile *inNP = new TFile("../../NP_fit/files/bkgSubRes.root");
   inNP->GetObject("h_NPcB", h_NP2d);
   h_NP2d->SetDirectory(0);
   inNP->Close();

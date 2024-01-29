@@ -36,6 +36,13 @@ void compStates()
 
   int col_j[2] = {kBlue, kRed};
   int col_p[2] = {kViolet+1, kPink+7};
+  
+
+  TLegend *leg = new TLegend(0.65, 0.785, 0.95, 0.985);
+  leg->SetTextSize(0.03);
+  leg->SetBorderSize(0);
+  leg->SetFillColorAlpha(kWhite,0);
+
   for(int i_l = 0; i_l < 2; i_l++) {
     
     graph_lthJ[i_l]->SetMarkerSize(.75);
@@ -43,12 +50,14 @@ void compStates()
     graph_lthJ[i_l]->SetMarkerColor(col_j[i_l]);
     graph_lthJ[i_l]->SetLineColor(col_j[i_l]);
     graph_lthJ[i_l]->Draw("p same");
-    
+    leg->AddEntry(graph_lthJ[i_l], Form("%s J/#psi", nm_lbl[i_l].c_str()), "pl");
+
     graph_lthP[i_l]->SetMarkerStyle(25);
     graph_lthP[i_l]->SetMarkerSize();
     graph_lthP[i_l]->SetMarkerColor(col_p[i_l]);
     graph_lthP[i_l]->SetLineColor(col_p[i_l]);
     graph_lthP[i_l]->Draw("p same");
+    leg->AddEntry(graph_lthP[i_l], Form("%s #psi(2S)", nm_lbl[i_l].c_str()), "pl");
   }
   
   TLine *zero = new TLine(15, 0, 125, 0);
@@ -56,11 +65,7 @@ void compStates()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.82, 0.75, 0.97, 0.9);
-  leg->SetTextSize(0.03);
-  //leg->AddEntry(graph_lthJ[i_l], "J/#psi", "pl");
-  //leg->AddEntry(graph_lthP[i_l], "#psi(2S)", "pl");
-  //leg->Draw();
+  leg->Draw();
   
   c->SaveAs("par_lth.pdf");
   c->Clear();  

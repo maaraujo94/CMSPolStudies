@@ -1,9 +1,9 @@
 // code to plot the fit results
 
-void plotRes()
+void plotRes_NP()
 {
   // get the histo limits
-  TFile *fIn = new TFile("files/bkgSubRes.root");
+  TFile *fIn = new TFile("files/bkgSubRes_NP.root");
   TH2D* rHist;
   fIn->GetObject("h_NP", rHist);
   
@@ -13,7 +13,7 @@ void plotRes()
   // get the fit results
   // get A, lambda, chiProb values for each bin
   string lbl[] = {"NP", "NPc"};
-  TFile *fInd = new TFile("files/finalFitRes.root");
+  TFile *fInd = new TFile("files/finalFitRes_NP.root");
   TGraphErrors **graph_A = new TGraphErrors*[2];
   TGraphErrors **graph_lth = new TGraphErrors*[2];
   TGraph **graph_chi = new TGraph*[2];
@@ -36,7 +36,7 @@ void plotRes()
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("");
-
+    
   int col[] = {kRed+3, kRed};
   for(int i = 0; i < 2; i++) {
     graph_lth[i]->SetLineColor(col[i]);
@@ -54,12 +54,17 @@ void plotRes()
   leg->SetBorderSize(0);
   leg->SetFillColorAlpha(kWhite, 0);
   leg->AddEntry(graph_lth[0], "NPS", "pl");
-  leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
+  leg->AddEntry(graph_lth[1], "non-prompt J/#psi", "pl");
   leg->Draw();
   
-  c->SaveAs("plots/ratioFinal/par_lth.pdf");
+  c->SaveAs("plots/ratioFinal_NP/par_lth.pdf");
   c->Clear();
 
+  // get the base lth
+  TFile *finB = new TFile("../../PR_fit/files/finalFitRes.root");
+  TGraphErrors *graph_lthB = (TGraphErrors*)finB->Get("graph_lambda_NP");
+  finB->Close();
+  
   // draw just final lambda_th(pT)
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
   fl2->SetXTitle("p_{T} (GeV)");
@@ -68,20 +73,25 @@ void plotRes()
   fl2->GetYaxis()->SetLabelOffset(0.01);
   fl2->SetTitle("");
 
-  graph_lth[1]->SetLineColor(kBlack);
-  graph_lth[1]->SetMarkerColor(kBlack);
+  graph_lth[1]->SetLineColor(kBlue);
+  graph_lth[1]->SetMarkerColor(kBlue);
   graph_lth[1]->Draw("p same");
+  
+  graph_lthB->SetLineColor(kBlack);
+  graph_lthB->SetMarkerColor(kBlack);
+  graph_lthB->Draw("p same");
+
 
   zero->Draw();
   
-  c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
+  c->SaveAs("plots/ratioFinal_NP/par_lth_F.pdf");
   c->Clear();
 
   // draw A(pT)
-  c->SetLogy();
   c->SetTopMargin(0.1);
-  
-  TH1F *fa = c->DrawFrame(pTBins[0], 4e-2, pTBins[nBinspT], 4e-1);
+    
+  c->SetLogy();
+  TH1F *fa = c->DrawFrame(pTBins[0], 1e-2, pTBins[nBinspT], 6e-1);
   fa->SetXTitle("p_{T} (GeV)");
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
@@ -95,12 +105,16 @@ void plotRes()
     graph_A[i]->Draw("p same");
   }
 
-  TLine *trans1_A = new TLine(46, 4e-2, 46, 4e-1);
+  TLine *trans1_A = new TLine(46, 1e-2, 46, 6e-1);
   trans1_A->SetLineColor(kBlack);
   trans1_A->SetLineStyle(kDashed);
-  //trans1_A->Draw();
+  trans1_A->Draw();
+  TLine *trans2_A = new TLine(66, 1e-2, 66, 6e-1);
+  trans2_A->SetLineColor(kBlack);
+  trans2_A->SetLineStyle(kDashed);
+  trans2_A->Draw();
 
-  c->SaveAs("plots/ratioFinal/par_A.pdf");
+  c->SaveAs("plots/ratioFinal_NP/par_A.pdf");
   c->Clear();
 
   // draw chiProb(pT)
@@ -124,9 +138,13 @@ void plotRes()
   TLine *trans1_C = new TLine(46, 0, 46, 1);
   trans1_C->SetLineColor(kBlack);
   trans1_C->SetLineStyle(kDashed);
-  //trans1_C->Draw();
+  trans1_C->Draw();
+  TLine *trans2_C = new TLine(66, 0, 66, 1);
+  trans2_C->SetLineColor(kBlack);
+  trans2_C->SetLineStyle(kDashed);
+  trans2_C->Draw();
 
-  c->SaveAs("plots/ratioFinal/par_chiP.pdf");
+  c->SaveAs("plots/ratioFinal_NP/par_chiP.pdf");
   c->Clear();
   c->Destructor();
   
