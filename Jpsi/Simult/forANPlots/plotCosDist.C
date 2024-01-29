@@ -62,7 +62,7 @@ void plotCosDist()
     lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.9, "Run 2");
     lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.1f-%.1f GeV", pMin, pMax));
     lcb1.SetTextColor(cols[0]);
-    lcb1.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.75, "Peak");
+    lcb1.DrawLatex(0.15, h_base1d[0][i]->GetMaximum()*0.75, "PRS");
     
     c->SaveAs(Form("plots/ratioFinal/dists/bin1B_%d.pdf", i));
 
@@ -93,7 +93,7 @@ void plotCosDist()
     lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.9, "Run 2");
     lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.1f-%.1f GeV", pMin, pMax));
     lcr1.SetTextColor(cols[0]);
-    lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.75, "Peak/MC");
+    lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.75, "PRS/MC");
     
     c->SaveAs(Form("plots/ratioFinal/dists/bin1_%d.pdf", i));
 
@@ -132,7 +132,7 @@ void plotCosDist()
   }
   
   // the cycle to plot each bin
-  int cols2[] = {kViolet-1, kRed, kBlack, kGreen, kBlue};
+  int cols2[] = {kViolet-1, kRed, kBlack, kGreen+2, kBlue};
   
   for(int i = 0; i < nBinsY; i++) {
     // get pt vars
@@ -152,7 +152,8 @@ void plotCosDist()
     for(int j = 1; j < 5; j++) {
       h_base1d2[j][i]->SetLineColor(cols2[j]);
       h_base1d2[j][i]->SetMarkerColor(cols2[j]);
-      h_base1d2[j][i]->Draw("same error");
+      if(j!=2)
+	h_base1d2[j][i]->Draw("same error");
     }
 
     TLatex lcb1;
@@ -161,13 +162,13 @@ void plotCosDist()
     lcb1.DrawLatex(0.7, h_base1d[0][i]->GetMaximum()*0.85, Form("%.1f-%.1f GeV", pMin, pMax));
     
     lcb1.SetTextColor(cols2[0]);
-    lcb1.DrawLatex(0.15, h_base1d2[0][i]->GetMaximum()*0.7, "Peak");
+    lcb1.DrawLatex(0.15, h_base1d2[0][i]->GetMaximum()*0.7, "PRS");
     lcb1.SetTextColor(cols2[1]);
-    lcb1.DrawLatex(0.15, h_base1d2[1][i]->GetMaximum()*1.1, "f_{NP}*(non-prompt J/#psi)");
+    lcb1.DrawLatex(0.15, h_base1d2[1][i]->GetMaximum()*1.2, "f_{#psi_{B}}^{PRS}*(non-prompt J/#psi)");
     lcb1.SetTextColor(cols2[2]);
-    lcb1.DrawLatex(0.15, h_base1d2[2][i]->GetMaximum()*0.9, "PR");
+    //lcb1.DrawLatex(0.15, h_base1d2[2][i]->GetMaximum()*0.9, "PR");
     lcb1.SetTextColor(cols2[3]);
-    lcb1.DrawLatex(0.15, h_base1d2[3][i]->GetMaximum()*1.4, "f_{Bg}*Bg");
+    lcb1.DrawLatex(0.15, h_base1d2[3][i]->GetMaximum()*1.5, "f_{B_{PR}}^{PRS}*B_{PR}");
     lcb1.SetTextColor(cols2[4]);
     lcb1.DrawLatex(0.15, h_base1d2[4][i]->GetMaximum()*0.75, "prompt J/#psi");
     

@@ -27,14 +27,15 @@ void plotRes()
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetRightMargin(0.03);
-  
+  c->SetTopMargin(0.02);
+
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
   fl->SetXTitle("p_{T} (GeV)");
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("#lambda_{#theta} vs p_{T}");
+  fl->SetTitle("");
     
   int col[] = {kRed+3, kRed};
   for(int i = 0; i < 2; i++) {
@@ -48,9 +49,11 @@ void plotRes()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.66, 0.7, 0.97, 0.9);
+  TLegend *leg = new TLegend(0.65, 0.85, 0.95, 0.95);
   leg->SetTextSize(0.03);
-  leg->AddEntry(graph_lth[0], "NP", "pl");
+  leg->SetBorderSize(0);
+  leg->SetFillColorAlpha(kWhite, 0);
+  leg->AddEntry(graph_lth[0], "NPS", "pl");
   leg->AddEntry(graph_lth[1], "non-prompt J/#psi", "pl");
   leg->Draw();
   
@@ -63,7 +66,7 @@ void plotRes()
   fl2->SetYTitle("#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #lambda_{#theta} (non-prompt J/#psi)");
+  fl2->SetTitle("");
 
   graph_lth[1]->SetLineColor(kBlack);
   graph_lth[1]->SetMarkerColor(kBlack);
@@ -76,6 +79,8 @@ void plotRes()
   c->Clear();
 
   // draw A(pT)
+  c->SetTopMargin(0.1);
+    
   c->SetLogy();
   TH1F *fa = c->DrawFrame(pTBins[0], 1e-2, pTBins[nBinspT], 6e-1);
   fa->SetXTitle("p_{T} (GeV)");

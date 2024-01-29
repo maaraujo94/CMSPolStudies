@@ -132,7 +132,7 @@ void plotCosDist()
   }
   
   // the cycle to plot each bin
-  int cols2[] = {kViolet-1, kRed, kBlack, kGreen+2, kBlue};
+  int cols2[] = {kViolet-1, kRed, kBlack, kGreen+1, kBlue};
   
   for(int i = 0; i < nBinsY; i++) {
     // get pt vars
@@ -164,11 +164,11 @@ void plotCosDist()
     lcb1.SetTextColor(cols2[0]);
     lcb1.DrawLatex(0.15, h_base1d2[0][i]->GetMaximum()*0.725, "PRS");
     lcb1.SetTextColor(cols2[1]);
-    lcb1.DrawLatex(0.15, h_base1d2[1][i]->GetMaximum()*1.4, "f_{NP#psi}*#psi(2S)_{NP}");
+    lcb1.DrawLatex(0.15, h_base1d2[1][i]->GetMaximum()*1.4, "f_{#psi_{B}}^{PRS}*(non-prompt #psi(2S))");
     lcb1.SetTextColor(cols2[3]);
-    lcb1.DrawLatex(0.15, h_base1d2[3][i]->GetMaximum()*0.85, "f_{Bg}*Bg");
+    lcb1.DrawLatex(0.15, h_base1d2[3][i]->GetMaximum()*0.85, "f_{B_{PR}}^{PRS}*B_{PR}");
     lcb1.SetTextColor(cols2[4]);
-    lcb1.DrawLatex(0.15, h_base1d2[4][i]->GetMaximum()*1.1, "#psi(2S)_{PR}");
+    lcb1.DrawLatex(0.15, h_base1d2[4][i]->GetMaximum()*1.1, "prompt #psi(2S)");
     
     c->SaveAs(Form("plots/ratioFinal/dists/bin3B_%d.pdf", i));
     c->Clear();

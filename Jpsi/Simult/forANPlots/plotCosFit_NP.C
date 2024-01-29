@@ -98,7 +98,7 @@ void plotCosFit_NP()
     lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.9, "Run 2");
     lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.1f-%.1f GeV", pMin, pMax));
     lcr1.SetTextColor(cols[0]);
-    lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.87, "NP/MC");
+    lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.87, "NPS/MC");
     lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.82, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[0]->GetParameter(1), fit1d[0]->GetParError(1)));
     //lcr1.SetTextColor(cols[1]);
     //lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.5, "bkg^{NP}/MC");

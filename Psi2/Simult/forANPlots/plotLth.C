@@ -6,10 +6,10 @@ void plotLth()
 {
   // get the fit results
   // get lambda values for each bin
-  string lbl[] = {"Data", "J"};
+  string lbl[] = {"Data", "NP", "PR", "J"};
   TFile *fInd = new TFile("../PR_fit/files/finalFitRes.root");
-  TGraphErrors **graph_lth = new TGraphErrors*[2];
-  for(int i_t = 0; i_t < 2; i_t++) {
+  TGraphErrors **graph_lth = new TGraphErrors*[4];
+  for(int i_t = 0; i_t < 4; i_t++) {
     graph_lth[i_t] = (TGraphErrors*)fInd->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
   }    
   fInd->Close();
@@ -17,11 +17,11 @@ void plotLth()
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetRightMargin(0.03);
-  c->SetTopMargin(0.015);
+  c->SetTopMargin(0.02);
   
-  int cols[] = {kViolet-1, kBlue};
+  int cols[] = {kViolet-1, kRed, kBlack, kBlue, kGreen};
 
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < 4; i++) {
     graph_lth[i]->SetLineColor(cols[i]);
     graph_lth[i]->SetMarkerColor(cols[i]);
   }
@@ -47,16 +47,78 @@ void plotLth()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  leg->Draw();
+  //leg->Draw();
   
   c->SaveAs("plots/ratioFinal/lth1_S.pdf");
 
   // add pr lambda_th
   graph_lth[1]->Draw("p same");
-
+  graph_lth[2]->Draw("p same");
+  
   c->SaveAs("plots/ratioFinal/lth2_S.pdf");
   
-  c->Destructor();
+  // add prompt psip lambda_th
+  graph_lth[3]->Draw("p same");
+
+  TLatex lc;
+  lc.SetTextSize(0.04);
+  lc.DrawLatex(32, 0.74, "#bf{PR}");
+  lc.SetTextColor(kViolet-1);
+  lc.DrawLatex(33, 0.4, "#bf{Peak}");
+  lc.SetTextColor(kRed);
+  lc.DrawLatex(47, -0.4, "#bf{non-prompt #psi(2S)}");
+  lc.SetTextColor(kBlue);
+  lc.DrawLatex(42, 0.31, "#bf{prompt #psi(2S)}");
   
+  c->SaveAs("plots/ratioFinal/lth3_S.pdf");
+  c->Clear();
+
+  // draw just peak and prompt
+  TH1F *fl2 = c->DrawFrame(ptBins[0]-5, -1, ptBins[nPtBins], 1);
+  fl2->SetXTitle("p_{T} (GeV)");
+  fl2->SetYTitle("#lambda_{#theta}");
+  fl2->GetYaxis()->SetTitleOffset(1.3);
+  fl2->GetYaxis()->SetLabelOffset(0.01);
+  fl2->SetTitle("");
+  
+  zero->Draw();
+
+  graph_lth[0]->Draw("p same");
+  graph_lth[3]->Draw("p same");
+
+  lc.SetTextSize(0.04);
+  lc.SetTextColor(kViolet-1);
+  lc.DrawLatex(33, 0.625, "#bf{PRS}");
+  lc.SetTextColor(kBlue);
+  lc.DrawLatex(42, 0.31, "#bf{prompt #psi(2S)}");
+  
+  c->SaveAs("plots/ratioFinal/lth3_S_alt.pdf");
+  c->Clear();
+
+  // now draw just prompt and non-prompt J/psi results
+  TH1F *flm = c->DrawFrame(ptBins[0]-5, -1, ptBins[nPtBins], 1);
+  flm->SetXTitle("p_{T} (GeV)");
+  flm->SetYTitle("#lambda_{#theta}");
+  flm->GetYaxis()->SetTitleOffset(1.3);
+  flm->GetYaxis()->SetLabelOffset(0.01);
+  flm->SetTitle("");
+
+  // prompt J/psi
+  graph_lth[3]->Draw("p same");
+
+  // non-prompt J/psi
+  graph_lth[1]->Draw("p same");
+
+  zero->Draw();
+  
+  TLegend *leg2 = new TLegend(0.67, 0.7, 0.97, 0.9);
+  leg2->SetTextSize(0.03);
+  leg2->AddEntry(graph_lth[3], "prompt #psi(2S)", "pl");
+  leg2->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
+  leg2->Draw();
+
+  c->SaveAs("plots/ratioFinal/lth_main.pdf");
+  c->Clear();
+  c->Destructor();
 
 }

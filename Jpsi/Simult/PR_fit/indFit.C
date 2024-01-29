@@ -29,8 +29,8 @@ void indFit()
   }
   
   // the fit function to be used - only on total and prompt
-  TF1 **fit1d = new TF1*[3];
-  for(int i = 0; i < 3; i++) {
+  TF1 **fit1d = new TF1*[4];
+  for(int i = 0; i < 4; i++) {
     fit1d[i] = new TF1(Form("fit_%d", i), "[0]*(1+[1]*x*x)", 0, 1);
     fit1d[i]->SetParNames("A", "l_th");
   }
@@ -49,13 +49,13 @@ void indFit()
   cosMax->SetParameters(maxPar[0], maxPar[1], maxPar[2]);
  
   // the cycle to fit each bin and store fit results
-  TCanvas *c = new TCanvas("", "", 700, 700);    
+  TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetRightMargin(0.01);
   TFile *outfile = new TFile("files/finalFitRes.root", "recreate");
 
-  double parA[3][nBinsY], eparA[3][nBinsY];
-  double parL[3][nBinsY], eparL[3][nBinsY];
-  double chi2[3][nBinsY], ndf[3][nBinsY], chiP[3][nBinsY];
+  double parA[4][nBinsY], eparA[4][nBinsY];
+  double parL[4][nBinsY], eparL[4][nBinsY];
+  double chi2[4][nBinsY], ndf[4][nBinsY], chiP[4][nBinsY];
   double cMax[nBinsY], pt[nBinsY], ept[nBinsY], zero[nBinsY];
   
   for(int i = 0; i < nBinsY; i++) {
@@ -70,7 +70,7 @@ void indFit()
     double cMaxVal = jumpF(cosMax->Integral(pMin, pMax)/(pMax-pMin));
     cMax[i] = cMaxVal;
     
-    // fit the 4 functions
+    // fit the 3 functions - PRS, prompt and prompt J/psi
     for(int i_t = 0; i_t < 2; i_t++) {
       int i_fit = 3*i_t; // fit 0 and 3
       
@@ -87,6 +87,18 @@ void indFit()
       ndf[i_t][i] = fit1d[i_t]->GetNDF();
       chiP[i_t][i] = TMath::Prob(chi2[i_t][i], ndf[i_t][i]);
     }
+    fit1d[3]->SetRange(0, cMaxVal);
+    fit1d[3]->SetParameters(pHist[2][i]->GetBinContent(1)*1.1, 0.1);
+
+    pHist[2][i]->Fit(fit1d[3], "R0");
+
+    parA[3][i] = fit1d[3]->GetParameter(0);
+    eparA[3][i] = fit1d[3]->GetParError(0);
+    parL[3][i] = fit1d[3]->GetParameter(1);
+    eparL[3][i] = fit1d[3]->GetParError(1);
+    chi2[3][i] = fit1d[3]->GetChisquare();
+    ndf[3][i] = fit1d[3]->GetNDF();
+    chiP[3][i] = TMath::Prob(chi2[3][i], ndf[3][i]);
 
     // plotting everything
     pHist[0][i]->SetTitle(Form("data/MC |cos#theta| (%.1f < p_{T} < %.1f GeV)", pMin, pMax));
@@ -373,9 +385,9 @@ void indFit()
     cout << endl << endl;
   }
 
-  string lbl_s[] = {"Data", "J", "NP"};
+  string lbl_s[] = {"Data", "J", "NP", "PR"};
   TFile *outfile2 = new TFile("files/finalFitRes.root", "update");
-  for(int i_t = 0; i_t < 3; i_t++) {
+  for(int i_t = 0; i_t < 4; i_t++) {
     // make and save the TGraph with the fit results and max costh used
     TGraphErrors *graphA = new TGraphErrors(nBinsY, pt, parA[i_t], ept, eparA[i_t]);
     TGraphErrors *graphL = new TGraphErrors(nBinsY, pt, parL[i_t], ept, eparL[i_t]);

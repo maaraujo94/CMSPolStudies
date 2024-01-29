@@ -139,7 +139,7 @@ void plotCosFit()
 
   
   // the cycle to plot each bin
-  int cols2[] = {kViolet-1, kRed, kBlack, kGreen+2, kBlue};
+  int cols2[] = {kViolet-1, kRed, kBlack, kGreen+1, kBlue};
   
   for(int i = 0; i < nBinsY; i++) {
     // get pt vars
@@ -174,10 +174,12 @@ void plotCosFit()
     for(int j = 4; j < 5; j++) {
       h_rat1d2[j][i]->SetLineColor(cols2[j]);
       h_rat1d2[j][i]->SetMarkerColor(cols2[j]);
-      h_rat1d2[j][i]->Draw("same error");
+      if(j==0 || j == 4)
+	h_rat1d2[j][i]->Draw("same error");
       fit1d2[j]->SetLineColor(cols2[j]);
       fit1d2[j]->SetLineStyle(kDashed);
-      fit1d2[j]->Draw("same");
+      if(j==0 || j == 4)
+	fit1d2[j]->Draw("same");
     }
 
     TLatex lcb1;
@@ -191,7 +193,7 @@ void plotCosFit()
     lcb1.DrawLatex(0.15, h_rat1d2[0][i]->GetMaximum()*0.725, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d2[0]->GetParameter(1), fit1d2[0]->GetParError(1)));
 
     lcb1.SetTextColor(cols2[4]);
-    lcb1.DrawLatex(0.15, h_rat1d2[4][i]->GetMaximum()*1.15, "#psi(2S)_{PR}/MC");
+    lcb1.DrawLatex(0.15, h_rat1d2[4][i]->GetMaximum()*1.15, "(prompt #psi(2S))/MC");
     lcb1.DrawLatex(0.15, h_rat1d2[4][i]->GetMaximum()*0.98, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d2[4]->GetParameter(1), fit1d2[4]->GetParError(1)));
 
     c->SaveAs(Form("plots/ratioFinal/fits/bin3F_%d.pdf", i));

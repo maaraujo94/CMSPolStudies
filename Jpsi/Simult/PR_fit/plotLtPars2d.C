@@ -43,7 +43,7 @@ void plotLtPars2d()
   double cov_df[nPtBins];
 
   string parlab[] = {"N_PR", "N_NP", "f", "f_2", "mu", "sig", "sig2", "sig3", "t_NP"};
-  string par_read[] = {"N_PR", "N_NP", "f1", "f2", "mu", "sig1", "sigR21", "sigR31", "t_NP"};
+  string par_read[] = {"N_PR", "N_NP", "f1", "f2", "mu", "sig1", "sigR21", "sigR31", "t_NPSR"};
   string partit[] = {"N_{PR}", "N_{NP}", "f_{G}", "f_{G_{2}}", "#mu_{c#tau}", "#sigma", "#sigma_{G_{2}}", "#sigma_{G_{3}}", "t_{NP_{#psi}}"};
   string par_unit[] = {" per 1 GeV", " per 1 GeV", " (%)", " (%)", " (#mum)", " (#mum)", " (#mum)", " (#mum)", " (#mum)"};
 

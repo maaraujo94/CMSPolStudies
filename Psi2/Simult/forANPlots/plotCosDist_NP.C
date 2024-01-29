@@ -28,7 +28,7 @@ void plotCosDist_NP()
   TCanvas *c = new TCanvas("", "", 700, 700);    
   c->SetTopMargin(0.015);
   c->SetRightMargin(0.03);
-  int cols[] = {kRed+3, kGreen+2, kRed};
+  int cols[] = {kRed+3, kGreen+1, kRed};
     
   for(int i = 0; i < nBinsY; i++) {
     // get pt vars
@@ -60,9 +60,9 @@ void plotCosDist_NP()
     lcr1.SetTextColor(cols[0]);
     lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.825, "NPS");
     lcr1.SetTextColor(cols[1]);
-    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.1, "f_{NPBg}*NPBg");
+    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.1, "f_{B_{NP}}^{NPS}*B_{NP}");
     lcr1.SetTextColor(cols[2]);
-    lcr1.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.85, "#psi(2S)_{NP}");
+    lcr1.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.85, "non-prompt #psi(2S)");
     
     c->SaveAs(Form("plots/ratioFinal_NP/dists/bin1B_%d.pdf", i));
     c->Clear();

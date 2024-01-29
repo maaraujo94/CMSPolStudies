@@ -28,7 +28,7 @@ void plotCosDist_NP()
   TCanvas *c = new TCanvas("", "", 700, 700);    
   c->SetTopMargin(0.015);
   c->SetRightMargin(0.03);
-  int cols[] = {kRed+3, kGreen, kRed};
+  int cols[] = {kRed+3, kGreen+1, kRed};
     
   for(int i = 0; i < nBinsY; i++) {
     // get pt vars
@@ -58,9 +58,9 @@ void plotCosDist_NP()
     lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.9, "Run 2");
     lcr1.DrawLatex(0.7, h_rat1d[0][i]->GetMaximum()*0.85, Form("%.1f-%.1f GeV", pMin, pMax));
     lcr1.SetTextColor(cols[0]);
-    lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.825, "NP");
+    lcr1.DrawLatex(0.15, h_rat1d[0][i]->GetMaximum()*0.825, "NPS");
     lcr1.SetTextColor(cols[1]);
-    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.5, "f_{Bg}^{NP}*Bg^{NP}");
+    lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.5, "f_{B_{NP}}^{NPS}*B_{NP}");
     lcr1.SetTextColor(cols[2]);
     lcr1.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.875, "non-prompt J/#psi");
     

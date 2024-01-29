@@ -103,8 +103,8 @@ void plotCosFit_NP()
     //lcr1.SetTextColor(cols[1]);
     //lcr1.DrawLatex(0.15, h_rat1d[1][i]->GetMaximum()*1.5, "bkg^{NP}/MC");
     lcr1.SetTextColor(cols[2]);
-    lcr1.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.85, "#psi(2S)_{NP}/MC");
-    lcr1.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.72, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[2]->GetParameter(1), fit1d[2]->GetParError(1)));
+    lcr1.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.825, "(non-prompt #psi(2S))/MC");
+    lcr1.DrawLatex(0.15, h_rat1d[2][i]->GetMaximum()*0.71, Form("#lambda_{#theta} = %.3f #pm %.3f", fit1d[2]->GetParameter(1), fit1d[2]->GetParError(1)));
     
     c->SaveAs(Form("plots/ratioFinal_NP/fits/bin1F_%d.pdf", i));
     c->Clear();

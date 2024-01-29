@@ -17,6 +17,8 @@ void plotLth()
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetRightMargin(0.03);
+  c->SetTopMargin(0.02);
+  
   int cols[] = {kViolet-1, kRed, kBlack, kBlue, kGreen};
 
   for(int i = 0; i < 4; i++) {
@@ -36,7 +38,7 @@ void plotLth()
   fl1->SetYTitle("#lambda_{#theta}");
   fl1->GetYaxis()->SetTitleOffset(1.3);
   fl1->GetYaxis()->SetLabelOffset(0.01);
-  fl1->SetTitle("Run 2 #lambda_{#theta}");
+  fl1->SetTitle("");
   
   TLine *zero = new TLine(ptBins[0]-5, 0, ptBins[nPtBins], 0);
   zero->SetLineColor(kBlack);
@@ -45,7 +47,7 @@ void plotLth()
 
   graph_lth[0]->Draw("p same");
 
-  leg->Draw(); 
+  //leg->Draw(); 
   
   c->SaveAs("plots/ratioFinal/lth1_S.pdf");
 
@@ -57,17 +59,51 @@ void plotLth()
   
   // add prompt jpsi lambda_th
   graph_lth[3]->Draw("p same");
+
+  //REMOVE  int cols[] = {kViolet-1, kRed, kBlack, kBlue, kGreen};
+
+  TLatex lc;
+  lc.SetTextSize(0.04);
+  lc.DrawLatex(38, 0.3, "#bf{PR}");
+  lc.SetTextColor(kViolet-1);
+  lc.DrawLatex(44, 0.05, "#bf{Peak}");
+  lc.SetTextColor(kRed);
+  lc.DrawLatex(55, -0.4, "#bf{non-prompt J/#psi}");
+  lc.SetTextColor(kBlue);
+  lc.DrawLatex(55, 0.45, "#bf{prompt J/#psi}");
   
   c->SaveAs("plots/ratioFinal/lth3_S.pdf");
   c->Clear();
 
-  // now draw just prompt and non-prompt J/psi results
+  // draw just peak and prompt
   TH1F *fl2 = c->DrawFrame(ptBins[0]-5, -1, ptBins[nPtBins], 1);
   fl2->SetXTitle("p_{T} (GeV)");
   fl2->SetYTitle("#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #lambda_{#theta}");
+  fl2->SetTitle("");
+  
+  zero->Draw();
+
+  graph_lth[0]->Draw("p same");
+  graph_lth[3]->Draw("p same");
+
+  lc.SetTextSize(0.04);
+  lc.SetTextColor(kViolet-1);
+  lc.DrawLatex(44, 0.025, "#bf{PRS}");
+  lc.SetTextColor(kBlue);
+  lc.DrawLatex(55, 0.43, "#bf{prompt J/#psi}");
+  
+  c->SaveAs("plots/ratioFinal/lth3_S_alt.pdf");
+  c->Clear();
+
+  // now draw just prompt and non-prompt J/psi results
+  TH1F *flm = c->DrawFrame(ptBins[0]-5, -1, ptBins[nPtBins], 1);
+  flm->SetXTitle("p_{T} (GeV)");
+  flm->SetYTitle("#lambda_{#theta}");
+  flm->GetYaxis()->SetTitleOffset(1.3);
+  flm->GetYaxis()->SetLabelOffset(0.01);
+  flm->SetTitle("");
 
   // prompt J/psi
   graph_lth[3]->Draw("p same");
