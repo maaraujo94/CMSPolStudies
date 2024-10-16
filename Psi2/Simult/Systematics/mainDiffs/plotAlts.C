@@ -233,7 +233,7 @@ void plotAlts()
   c->Clear();
   
   // SECOND - draw 2017-2018 with the calculated uncertainty
-  da_lim = 0.5;
+  da_lim = 0.6;
 
   TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
   fl2->SetXTitle("p_{T} (GeV)");
@@ -248,10 +248,6 @@ void plotAlts()
   g_lthY->SetMarkerSize(.75);
   g_lthY->Draw("p same");
 
-  
-  TF1 *f1 = new TF1("f1", "[0]", 20, 100);
-  f1->SetParameter(0, 0.02);
-  g_lthY->Fit(f1, "0");
 
   zero->Draw();
   

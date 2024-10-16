@@ -28,7 +28,7 @@ void plotCosDist_NP()
   TCanvas *c = new TCanvas("", "", 700, 700);    
   c->SetTopMargin(0.015);
   c->SetRightMargin(0.03);
-  int cols[] = {kRed+3, kGreen+1, kRed};
+  int cols[] = {kBlack, kGreen+1, kRed};
     
   for(int i = 0; i < nBinsY; i++) {
     // get pt vars

@@ -63,7 +63,7 @@ void ctEvts()
 
   // output results into a .tex table
   ofstream ftex;
-  ftex.open(Form("text_output/data_mc_evts_2018.tex"));
+  ftex.open(Form("text_output/data_mc_evts_18.tex"));
   ftex << "\\begin{tabular}{cc|cccc|c}\n";
   ftex << "\\hline\n";
   ftex << Form("\\multicolumn{2}{c}{2018} & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[3], pt_max[3], pt_min[0], pt_max[3]);

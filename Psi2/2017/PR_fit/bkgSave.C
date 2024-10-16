@@ -1,14 +1,19 @@
 #import "../ptbins.C"
 
+// saving lifetime histos for all 3 mass regions
 void bkgSave()
 {
   // section for storing the lifetime histograms
-  double m_min = 3.57, m_max = 3.81;
-
   // prepare binning and histograms for plots
-  int tbins = 110;
+  int tbins = 55;
   double lowt = -0.05, hit = 0.5; // plotting in mm, not cm
-  TH2D *ltHist = new TH2D("ltH", "2017 data c#tau", tbins, lowt, hit, nPtBins, ptBins);
+  double m_min[] = {3.4, 3.57, 3.82};
+  double m_max[] = {3.52, 3.81, 4.0};
+
+  TH2D **ltHist = new TH2D*[3];
+  string lbl[] = {"LSB", "SR", "RSB"};
+  for(int i = 0; i < 3; i++) 
+    ltHist[i] = new TH2D(Form("ltH_%s", lbl[i].c_str()), Form("2017 %s data c#tau", lbl[i].c_str()), tbins, lowt, hit, nPtBins, ptBins);
     
   // open and read the data tree
   TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/data17_cos.root");
@@ -20,22 +25,25 @@ void bkgSave()
   treeD->SetBranchAddress("Mass", &data_m);
   treeD->SetBranchAddress("lt", &data_lt);
   
-  // cycle over data , fill the lifetime histogram
+  // cycle over data , fill the lifetime histograms
   int dEvt = treeD->GetEntries();
   for(int i = 0; i < dEvt; i++)
     {
       treeD->GetEntry(i);
-      // filling flat mass SR (3.0 - 3.2 GeV)
-      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && data_m < m_max && data_m > m_min && abs(data_y) < 1.2) {
-	ltHist->Fill(data_lt*10, data_pt); // filling with mm! Remember!
-      }
+      // filling in 3 mass intervals
+      if(data_pt > ptBins[0] && data_pt < ptBins[nPtBins] && abs(data_y) < 1.2) 
+	for(int j = 0; j < 3; j++) 
+	  if(data_m < m_max[j] && data_m > m_min[j]) 
+	    ltHist[j]->Fill(data_lt*10, data_pt); // filling with mm! Remember!
     }
+
   fin->Close();
     
   TFile *fout = new TFile("files/ltStore.root", "recreate");
-  ltHist->Write();
+  for(int i = 0; i < 3; i++) 
+    ltHist[i]->Write();
   fout->Close();
   cout << "lifetime histograms all filled" << endl;
-
-  
 }
+
+ 

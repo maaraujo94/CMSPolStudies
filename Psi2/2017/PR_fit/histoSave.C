@@ -1,5 +1,5 @@
-// code to get the 2d data/mc ratio hist (pr, np, peak and sidebands)
-// saves data, mc, ratio
+// code to get the 2d data/mc ratio hist (pr, np)
+// saves data, mc, ratio (normal and |costh|)
 
 #import "../ptbins.C"
 
@@ -18,14 +18,14 @@ void histoSave()
   TFile *fin = new TFile("../../Store_data_codes/data17_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
   TFile *fin2 = new TFile("../../Store_data_codes/MCm17_cos.root");
-  TTree *treeM2 = (TTree*)fin2->Get("MC_cos");
+  TTree *treeM1 = (TTree*)fin2->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();
-  int m2Evt = treeM2->GetEntries();
+  int m1Evt = treeM1->GetEntries();
 
   double m_min[] = {3.4, 3.57, 3.82};
   double m_max[] = {3.52, 3.81, 4.0};
-  
+
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m, data_y;
   Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y;
@@ -36,11 +36,11 @@ void histoSave()
   treeD->SetBranchAddress("Mass", &data_m);
   treeD->SetBranchAddress("lt", &data_lt);
   
-  treeM2->SetBranchAddress("theta", &mc_th);
-  treeM2->SetBranchAddress("dimPt", &mc_pt);
-  treeM2->SetBranchAddress("Rap", &mc_y);
-  treeM2->SetBranchAddress("Mass", &mc_m);
-  treeM2->SetBranchAddress("lt", &mc_lt);
+  treeM1->SetBranchAddress("theta", &mc_th);
+  treeM1->SetBranchAddress("dimPt", &mc_pt);
+  treeM1->SetBranchAddress("Rap", &mc_y);
+  treeM1->SetBranchAddress("Mass", &mc_m);
+  treeM1->SetBranchAddress("lt", &mc_lt);
 
   // cycle over data and MC, fill the costh histogram acc to binning
   for(int i = 0; i < dEvt; i++)
@@ -58,7 +58,7 @@ void histoSave()
 	    PRRHist->Fill(abs(cos(data_th)), data_pt);
 	}
 	// NP peak and sidebands
-	else if(data_lt > 0.01 && data_lt < 0.05 ) {
+	else if(data_lt > 0.01 && data_lt < 0.08 ) {
 	  if(data_m > m_min[1] && data_m < m_max[1])
 	    NPHist->Fill(abs(cos(data_th)), data_pt);
 	  else if(data_m < m_max[0] && data_m > m_min[0])
@@ -68,16 +68,15 @@ void histoSave()
 	}
       }
     }
-
-  // MC sample 2
-  for(int i = 0; i < m2Evt; i++)
+  
+  for(int i = 0; i < m1Evt; i++)
     {
-      treeM2->GetEntry(i);
+      treeM1->GetEntry(i);
       if(mc_pt > ptBins[0] && mc_pt < ptBins[nPtBins] && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > m_min[1] && mc_m < m_max[1]) {
 	MCHist->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
-
+  
   // get ratios
   TH2D *rPRHist  = new TH2D();
   TH2D *rPRLHist = new TH2D();

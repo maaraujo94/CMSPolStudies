@@ -180,12 +180,9 @@ void ltBkg2d()
     // draw mass bin
     double xp = getPos(lowt, hit, 0.35, 0);
     double yp = getPos(h_d1d[i_m]->GetMinimum(), h_d1d[i_m]->GetMaximum(), 0.9, 1);
-    lc.DrawLatex(xp, yp, Form("#bf{%s}", lbl[i_m].c_str()));
-    yp = getPos(h_d1d[i_m]->GetMinimum(), h_d1d[i_m]->GetMaximum(), 0.83, 1);
-    lc.DrawLatex(xp, yp, "#bf{2d fit with fixed t_{NP}}");
+      lc.DrawLatex(xp, yp, Form("#bf{%.2f < M(#mu#mu) < %.2f GeV}", m_min[i_m], m_max[i_m]));
     // draw the chi^2/ndf
-    yp = getPos(h_d1d[i_m]->GetMinimum(), h_d1d[i_m]->GetMaximum(), 0.9, 1);
-    xp = getPos(lowt, hit, 0.6, 0);
+    yp = getPos(h_d1d[i_m]->GetMinimum(), h_d1d[i_m]->GetMaximum(), 0.83, 1);
     lc.DrawLatex(xp, yp, Form("#bf{global #chi^{2}/ndf = %.0f / %d}", fitS->GetChisquare(), fitS->GetNDF()));
 
     c->SaveAs(Form("plots/lifetime2d/fit_%s.pdf", lbl[i_m].c_str()));
@@ -213,7 +210,7 @@ void ltBkg2d()
     fp->SetYTitle("pulls");
     fp->GetYaxis()->SetTitleOffset(1.3);
     fp->GetYaxis()->SetLabelOffset(0.01);
-    fp->SetTitle(Form("Lifetime fit pulls (%s)", lbl[i_m].c_str()));
+    fp->SetTitle(Form("Lifetime fit pulls"));
   
     TGraph *g_pull = new TGraph(tbins, tv, pv);
     g_pull->SetLineColor(kBlack);
@@ -253,7 +250,7 @@ void ltBkg2d()
     
     xp = getPos(lowt, hit, 0.4, 0);
     yp = getPos(-9, 9, 0.9, 0);
-    lc.DrawLatex(xp, yp, "#bf{2d fit with fixed t_{NP}}");
+    lc.DrawLatex(xp, yp, Form("#bf{%.2f < M(#mu#mu) < %.2f GeV}", m_min[i_m], m_max[i_m]));
     
     c->SaveAs(Form("plots/lifetime2d/pulls_%s.pdf", lbl[i_m].c_str()));
     c->Clear();

@@ -26,6 +26,8 @@ void plotRes()
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetRightMargin(0.03);
+  c->SetTopMargin(0.02);
 
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
@@ -33,9 +35,9 @@ void plotRes()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("2018 #lambda_{#theta}");
+  fl->SetTitle("");
     
-  int col[] = {kRed, kRed+3};
+  int col[] = {kRed+3, kRed};
   for(int i = 0; i < 2; i++) {
     graph_lth[i]->SetLineColor(col[i]);
     graph_lth[i]->SetMarkerColor(col[i]);
@@ -46,19 +48,13 @@ void plotRes()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  TLine *trans1 = new TLine(46, -1, 46, 1);
-  trans1->SetLineColor(kBlack);
-  trans1->SetLineStyle(kDashed);
-  //trans1->Draw();
-  TLine *trans2 = new TLine(66, -1, 66, 1);
-  trans2->SetLineColor(kBlack);
-  trans2->SetLineStyle(kDashed);
-  //trans2->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.65, 0.85, 0.95, 0.95);
   leg->SetTextSize(0.03);
-  leg->AddEntry(graph_lth[0], "NP", "pl");
-  leg->AddEntry(graph_lth[1], "pure NP", "pl");
+  leg->SetBorderSize(0);
+  leg->SetFillColorAlpha(kWhite, 0);
+  leg->AddEntry(graph_lth[0], "NPS", "pl");
+  leg->AddEntry(graph_lth[1], "non-prompt J/#psi", "pl");
   leg->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
@@ -70,7 +66,7 @@ void plotRes()
   fl2->SetYTitle("#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("2018 #lambda_{#theta} (pure NP J/#psi)");
+  fl2->SetTitle("");
 
   graph_lth[1]->SetLineColor(kBlack);
   graph_lth[1]->SetMarkerColor(kBlack);
@@ -78,13 +74,13 @@ void plotRes()
 
 
   zero->Draw();
-  //trans1->Draw();
-  //trans2->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
   c->Clear();
 
   // draw A(pT)
+  c->SetTopMargin(0.1);
+    
   c->SetLogy();
   TH1F *fa = c->DrawFrame(pTBins[0], 1e-2, pTBins[nBinspT], 6e-1);
   fa->SetXTitle("p_{T} (GeV)");

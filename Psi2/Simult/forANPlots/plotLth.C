@@ -25,12 +25,6 @@ void plotLth()
     graph_lth[i]->SetLineColor(cols[i]);
     graph_lth[i]->SetMarkerColor(cols[i]);
   }
-  TLegend *leg = new TLegend(0.65, 0.2, 0.95, 0.3);
-  leg->SetTextSize(0.03);
-  leg->SetBorderSize(0);
-  leg->SetFillColorAlpha(kWhite,0);
-  leg->AddEntry(graph_lth[0], "PRS", "pl");
-  leg->AddEntry(graph_lth[1], "prompt #psi(2S)", "pl");
 
   // draw lambda_th(pT) - just peak
   TH1F *fl1 = c->DrawFrame(ptBins[0]-5, -1, ptBins[nPtBins], 1);
@@ -46,8 +40,6 @@ void plotLth()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-
-  //leg->Draw();
   
   c->SaveAs("plots/ratioFinal/lth1_S.pdf");
 
@@ -83,14 +75,20 @@ void plotLth()
   
   zero->Draw();
 
+  graph_lth[0]->SetMarkerStyle(20);
+  graph_lth[0]->SetMarkerSize(.5);
   graph_lth[0]->Draw("p same");
+  graph_lth[3]->SetMarkerStyle(20);
+  graph_lth[3]->SetMarkerSize(.5);
   graph_lth[3]->Draw("p same");
 
-  lc.SetTextSize(0.04);
-  lc.SetTextColor(kViolet-1);
-  lc.DrawLatex(33, 0.625, "#bf{PRS}");
-  lc.SetTextColor(kBlue);
-  lc.DrawLatex(42, 0.31, "#bf{prompt #psi(2S)}");
+  TLegend *leg = new TLegend(0.15, 0.85, 0.45, 0.95);
+  leg->SetTextSize(0.03);
+  leg->SetBorderSize(0);
+  leg->SetFillColorAlpha(kWhite,0);
+  leg->AddEntry(graph_lth[0], "PRS", "pl");
+  leg->AddEntry(graph_lth[3], "prompt #psi(2S)", "pl");
+  leg->Draw();
   
   c->SaveAs("plots/ratioFinal/lth3_S_alt.pdf");
   c->Clear();

@@ -23,18 +23,12 @@ void plotRes()
     graph_chi[i_t] = (TGraph*)fInd->Get(Form("graph_chiP_%s", lbl[i_t].c_str()));
   }    
   fInd->Close();
-
-  TFile *fIndth = new TFile("../../Simult/PR_fit/files/finalFitRes.root");
-  TGraphErrors **graph_lth = new TGraphErrors*[3];
-  for(int i_t = 0; i_t < 3; i_t++) {
-    graph_lth[i_t] = (TGraphErrors*)fIndth->Get(Form("graph_lambda_%s", lbl[i_t].c_str()));
-  }
-  fIndth->Close();
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetRightMargin(0.03);
   c->SetLeftMargin(0.11);
+  c->SetTopMargin(0.015);
 
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
@@ -42,7 +36,7 @@ void plotRes()
   fl->SetYTitle("#beta");
   fl->GetYaxis()->SetTitleOffset(1.6);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("Run 2 #beta (PR)");
+  fl->SetTitle("");
 
   int col[] = {kViolet, kRed, kBlue};
   for(int i = 0; i < 3; i++) {
@@ -56,8 +50,10 @@ void plotRes()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.77, 0.7, 0.97, 0.9);
+  TLegend *leg = new TLegend(0.65, 0.75, 0.95, 0.95);
   leg->SetTextSize(0.03);
+  leg->SetBorderSize(0);
+  leg->SetFillColorAlpha(kWhite,0);
   leg->AddEntry(graph_B[0], "total", "pl");
   leg->AddEntry(graph_B[1], "non-prompt J/#psi", "pl");
   leg->AddEntry(graph_B[2], "prompt J/#psi", "pl");
@@ -72,7 +68,7 @@ void plotRes()
   fl2->SetYTitle("#beta");
   fl2->GetYaxis()->SetTitleOffset(1.6);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("Run 2 #beta");
+  fl2->SetTitle("");
 
   graph_B[2]->SetLineColor(kBlue);
   graph_B[2]->SetMarkerColor(kBlue);
@@ -84,8 +80,10 @@ void plotRes()
 
   zero->Draw();
 
-  TLegend *leg2 = new TLegend(0.7, 0.75, 0.97, 0.9);
+  TLegend *leg2 = new TLegend(0.65, 0.85, 0.95, 0.95);
   leg2->SetTextSize(0.03);
+  leg2->SetBorderSize(0);
+  leg2->SetFillColorAlpha(kWhite,0);
   leg2->AddEntry(graph_B[2], "prompt J/#psi", "pl");
   leg2->AddEntry(graph_B[1], "non-prompt J/#psi", "pl");
   leg2->Draw();

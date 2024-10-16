@@ -37,7 +37,6 @@ void compStates()
   int col_j[2] = {kBlue, kRed};
   int col_p[2] = {kViolet+1, kPink+7};
   
-
   TLegend *leg = new TLegend(0.65, 0.785, 0.95, 0.985);
   leg->SetTextSize(0.03);
   leg->SetBorderSize(0);

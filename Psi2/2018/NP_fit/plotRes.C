@@ -26,6 +26,8 @@ void plotRes()
   
   // draw the fit results
   TCanvas *c = new TCanvas("", "", 700, 700);
+  c->SetRightMargin(0.03);
+  c->SetTopMargin(0.02);
 
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(pTBins[0]-5, -1, pTBins[nBinspT], 1);
@@ -33,9 +35,9 @@ void plotRes()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-  fl->SetTitle("2018 #lambda_{#theta}");
-    
-  int col[] = {kRed, kRed+3};
+  fl->SetTitle("");
+
+  int col[] = {kRed+3, kRed};
   for(int i = 0; i < 2; i++) {
     graph_lth[i]->SetLineColor(col[i]);
     graph_lth[i]->SetMarkerColor(col[i]);
@@ -46,19 +48,13 @@ void plotRes()
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
-  TLine *trans1 = new TLine(46, -1, 46, 1);
-  trans1->SetLineColor(kBlack);
-  trans1->SetLineStyle(kDashed);
-  //trans1->Draw();
-  TLine *trans2 = new TLine(66, -1, 66, 1);
-  trans2->SetLineColor(kBlack);
-  trans2->SetLineStyle(kDashed);
-  //trans2->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+  TLegend *leg = new TLegend(0.65, 0.85, 0.95, 0.95);
   leg->SetTextSize(0.03);
-  leg->AddEntry(graph_lth[0], "NP", "pl");
-  leg->AddEntry(graph_lth[1], "pure NP", "pl");
+  leg->SetBorderSize(0);
+  leg->SetFillColorAlpha(kWhite, 0);
+  leg->AddEntry(graph_lth[0], "NPS", "pl");
+  leg->AddEntry(graph_lth[1], "non-prompt #psi(2S)", "pl");
   leg->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
@@ -70,23 +66,22 @@ void plotRes()
   fl2->SetYTitle("#lambda_{#theta}");
   fl2->GetYaxis()->SetTitleOffset(1.3);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("2018 #lambda_{#theta} (pure NP J/#psi)");
+  fl2->SetTitle("");
 
   graph_lth[1]->SetLineColor(kBlack);
   graph_lth[1]->SetMarkerColor(kBlack);
   graph_lth[1]->Draw("p same");
 
-
   zero->Draw();
-  //trans1->Draw();
-  //trans2->Draw();
   
   c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
   c->Clear();
 
   // draw A(pT)
   c->SetLogy();
-  TH1F *fa = c->DrawFrame(pTBins[0], 1e-2, pTBins[nBinspT], 6e-1);
+  c->SetTopMargin(0.1);
+  
+  TH1F *fa = c->DrawFrame(pTBins[0], 4e-2, pTBins[nBinspT], 4e-1);
   fa->SetXTitle("p_{T} (GeV)");
   fa->SetYTitle("A");
   fa->GetYaxis()->SetTitleOffset(1.3);
@@ -100,14 +95,10 @@ void plotRes()
     graph_A[i]->Draw("p same");
   }
 
-  TLine *trans1_A = new TLine(46, 1e-2, 46, 6e-1);
+  TLine *trans1_A = new TLine(46, 4e-2, 46, 4e-1);
   trans1_A->SetLineColor(kBlack);
   trans1_A->SetLineStyle(kDashed);
-  trans1_A->Draw();
-  TLine *trans2_A = new TLine(66, 1e-2, 66, 6e-1);
-  trans2_A->SetLineColor(kBlack);
-  trans2_A->SetLineStyle(kDashed);
-  trans2_A->Draw();
+  //trans1_A->Draw();
 
   c->SaveAs("plots/ratioFinal/par_A.pdf");
   c->Clear();
@@ -133,11 +124,7 @@ void plotRes()
   TLine *trans1_C = new TLine(46, 0, 46, 1);
   trans1_C->SetLineColor(kBlack);
   trans1_C->SetLineStyle(kDashed);
-  trans1_C->Draw();
-  TLine *trans2_C = new TLine(66, 0, 66, 1);
-  trans2_C->SetLineColor(kBlack);
-  trans2_C->SetLineStyle(kDashed);
-  trans2_C->Draw();
+  //trans1_C->Draw();
 
   c->SaveAs("plots/ratioFinal/par_chiP.pdf");
   c->Clear();

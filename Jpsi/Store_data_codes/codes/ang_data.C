@@ -6,54 +6,54 @@ const double Mprot = 0.9382720;
 const double sqrts = 13000.;
 
 // macro to calculate angles
-double *cos_B(TLorentzVector *B, TLorentzVector *psi, TLorentzVector *beam, TLorentzVector *targ)
+double *cos_psi(TLorentzVector *psi, TLorentzVector *mu, TLorentzVector *beam, TLorentzVector *targ)
 {
-  double y = B->Rapidity();
+  double y = psi->Rapidity();
   static double ang[2];
 
-  // B = B 4-vector in the laboratory
+  // psi = psi 4-vector in the laboratory
 
-  TVector3 cm_to_B = -B->BoostVector();
-  TVector3 B_to_cm = B->BoostVector();
+  TVector3 cm_to_psi = -psi->BoostVector();
+  TVector3 psi_to_cm = psi->BoostVector();
   
-  // calculate reference directions in the B rest frame
+  // calculate reference directions in the psi rest frame
 
-  TLorentzVector targ_B = *targ;  // beam, targ: 4-vectors of beams having positive (beam) and negative (targ) direction in the laboratory (use same convention as for the jpsi decay!)
-  targ_B.Boost(cm_to_B);         // target (= negative beam) in the B rest frame
-  TLorentzVector beam_B = *beam;
-  beam_B.Boost(cm_to_B);         // (positive) beam in the B rest frame
+  TLorentzVector targ_psi = *targ;  // beam, targ: 4-vectors of beams having positive (beam) and negative (targ) direction in the laboratory (use same convention as for the jpsi decay!)
+  targ_psi.Boost(cm_to_psi);         // target (= negative beam) in the psi rest frame
+  TLorentzVector beam_psi = *beam;
+  beam_psi.Boost(cm_to_psi);         // (positive) beam in the psi rest frame
 
-  TVector3 beam_direction_B     = beam_B.Vect().Unit();
-  TVector3 targ_direction_B     = targ_B.Vect().Unit();
-  TVector3 B_direction          = B->Vect().Unit();
+  TVector3 beam_direction_psi     = beam_psi.Vect().Unit();
+  TVector3 targ_direction_psi     = targ_psi.Vect().Unit();
+  TVector3 psi_direction          = psi->Vect().Unit();
 
-  TVector3 Yaxis = ( beam_direction_B.Cross( targ_direction_B ) ).Unit(); // use same convention as for the jpsi (beam x targ or targ x beam or particle_direction x beam? the sign depends on the convention)
+  TVector3 Yaxis = ( beam_direction_psi.Cross( targ_direction_psi ) ).Unit(); // use same convention as for the jpsi (beam x targ or targ x beam or particle_direction x beam? the sign depends on the convention)
   // symmetrize definition between rapidity>0 and rapidity <0:
   if ( y < 0 ) Yaxis = -Yaxis;
 
-  // boost psi from the B rest frame into the proton-proton CM frame:
+  // boost mu from the psi rest frame into the proton-proton CM frame:
 
-  TLorentzVector psi_B = *psi;   // psi = psi 4-vector in the lab
-  psi_B.Boost(cm_to_B);
+  TLorentzVector mu_psi = *mu;   // mu = mu 4-vector in the lab
+  mu_psi.Boost(cm_to_psi);
 
 
   TRotation rotation;
 
   TVector3 newYaxis = Yaxis;
-  TVector3 newZaxis = B_direction;
+  TVector3 newZaxis = psi_direction;
   TVector3 newXaxis = newYaxis.Cross(newZaxis);
 
   rotation.SetToIdentity();
   rotation.RotateAxes(newXaxis,newYaxis,newZaxis);
   rotation.Invert(); // transforms coordinates from the "oldXYZ" frame to the "newXYZ" frame
 
-  TVector3 psi_B_rotated = psi_B.Vect();
+  TVector3 mu_psi_rotated = mu_psi.Vect();
 
-  psi_B_rotated.Transform(rotation);
+  mu_psi_rotated.Transform(rotation);
 
-  double TH = psi_B_rotated.Theta();
+  double TH = mu_psi_rotated.Theta();
 
-  double PHI = psi_B_rotated.Phi() * 180. / gPI;
+  double PHI = mu_psi_rotated.Phi() * 180. / gPI;
 
   ang[0] = TH;
   ang[1] = PHI;
@@ -139,7 +139,7 @@ void ang_data()
 	
 	dR = sqrt(dEta*dEta+dPhi*dPhi)+log(dpT)/45.;
 	
-	ang = cos_B(mumu_p4, muP_p4, beam, targ);
+	ang = cos_psi(mumu_p4, muP_p4, beam, targ);
 	th = ang[0];
 	phi = ang[1];
 	
@@ -205,7 +205,7 @@ void ang_data()
 	lt = ct;
 	lterr = ctErr;
 
-	ang = cos_B(mumu_p4, muP_p4, beam, targ);
+	ang = cos_psi(mumu_p4, muP_p4, beam, targ);
 	th = ang[0];
 	phi = ang[1];
 

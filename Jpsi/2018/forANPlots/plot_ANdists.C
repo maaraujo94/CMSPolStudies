@@ -11,6 +11,13 @@ int col_three(int inp) {
   else return inp-7;
 }
 
+// get relative position on an axis (pi, pf)
+double getPos(double pi, double pf, double mult, bool isLog) {
+  if(isLog) return pow(10, log10(pi)+mult*(log10(pf)-log10(pi)));
+  else return pi + mult*(pf-pi);
+}
+
+
 void plot_ANdists()
 {
   // PART 1 : reading the histograms
@@ -19,8 +26,6 @@ void plot_ANdists()
   TH1D **h_pT = new TH1D*[5]; 
   // 6 y dists: PRSR data + MC over 3 pT regions
   TH1D **h_y = new TH1D*[8]; 
-  // 6 phi dists: PRSR data + MC over 3 pT regions
-  TH1D **h_phi = new TH1D*[8]; 
   // 7 M dists: PR data + MC over 3 pT regions + full pT data
   TH1D **h_m = new TH1D*[9]; 
   // 4 lifetime dists: data in 4 pT regions
@@ -40,11 +45,6 @@ void plot_ANdists()
   string lbl_y[] = {"lowPtData", "midPtData", "highPtData", "highestPtData", "lowPtMC", "midPtMC", "highPtMC", "highestPtMC"};
   for(int i = 0; i < 8; i++) {
     h_y[i] = (TH1D*)fin->Get(Form("h_y_%s", lbl_y[i].c_str()));
-  }
-
-  // store the phi dists
-  for(int i = 0; i < 8; i++) {
-    h_phi[i] = (TH1D*)fin->Get(Form("h_phi_%s", lbl_y[i].c_str()));
   }
 
   // store the M dists
@@ -80,30 +80,47 @@ void plot_ANdists()
     h_pT[i]->SetLineColor(colpt[i]);
     h_pT[i]->SetMinimum(1e2);
     h_pT[i]->SetMaximum(2e7);
-    h_pT[i]->GetXaxis()->SetTitle("p_{T}(#mu#mu) (GeV)");
-    h_pT[i]->GetXaxis()->SetTitleOffset(1.1);
-    h_pT[i]->GetYaxis()->SetTitle("dN/dp_{T}");
+    h_pT[i]->GetXaxis()->SetRangeUser(0, 199);
+    h_pT[i]->GetXaxis()->SetTitle("#it{p}_{T} (GeV)");
+    h_pT[i]->GetXaxis()->SetTitleOffset(1.2);
+    h_pT[i]->GetXaxis()->CenterTitle(true);
+    h_pT[i]->GetXaxis()->SetLabelOffset(0.01);
+    h_pT[i]->GetYaxis()->SetLabelOffset(0.01);
+    h_pT[i]->GetYaxis()->SetTitle("dN/d#it{p}_{T}");
     h_pT[i]->SetTitle("");
-    if(i == 0) h_pT[i]->Draw("histo");
+    if(i == 0) {
+      h_pT[i]->SetLineWidth(2);
+      h_pT[i]->SetFillColorAlpha(kYellow,0.2);
+      h_pT[i]->Draw("histo");
+    }
     else {
       h_pT[i]->Draw("histo same");
     }
   }
   
   TLatex lcpt;
+  double yl = getPos(h_pT[0]->GetMinimum(), h_pT[0]->GetMaximum(), 0.91, 1);
   lcpt.SetTextSize(0.04);
+  lcpt.DrawLatex(45, yl, "#bf{2018 J/#psi}");
   lcpt.SetTextColor(colpt[0]);
-  lcpt.DrawLatex(120, 3.5e6, "Peak data");
+  lcpt.DrawLatex(105, yl, "#bf{PRS data}");
+  yl = getPos(h_pT[0]->GetMinimum(), h_pT[0]->GetMaximum(), 0.83, 1);
+  lcpt.DrawLatex(105, yl, "#bf{Prompt MC samples}");
   lcpt.SetTextColor(colpt[1]);
-  lcpt.DrawLatex(120, 1.5e6, "MC [25,46] GeV");
+  yl = getPos(h_pT[0]->GetMinimum(), h_pT[0]->GetMaximum(), 0.76, 1);
+  lcpt.DrawLatex(120, yl, "#bf{[25,46] GeV}");
   lcpt.SetTextColor(colpt[2]);
-  lcpt.DrawLatex(120, 6e5, "MC [40,52] GeV");
+  yl = getPos(h_pT[0]->GetMinimum(), h_pT[0]->GetMaximum(), 0.69, 1);
+  lcpt.DrawLatex(120, yl, "#bf{[40,52] GeV}");
   lcpt.SetTextColor(colpt[3]);
-  lcpt.DrawLatex(120, 2.5e5, "MC >46 GeV");
+  yl = getPos(h_pT[0]->GetMinimum(), h_pT[0]->GetMaximum(), 0.62, 1);
+  lcpt.DrawLatex(120, yl, "#bf{> 46 GeV}");
   lcpt.SetTextColor(colpt[4]);
-  lcpt.DrawLatex(120, 1.e5, "MC >66 GeV");
+  yl = getPos(h_pT[0]->GetMinimum(), h_pT[0]->GetMaximum(), 0.55, 1);
+  lcpt.DrawLatex(120, yl, "#bf{> 66 GeV}");
 
-  TLine *ptL = new TLine(120, 0, 120,  exp(0.5*(log(h_pT[0]->GetMaximum())+log(h_pT[0]->GetMinimum()))));
+  //TLine *ptL = new TLine(120, 0, 120,  exp(0.5*(log(h_pT[0]->GetMaximum())+log(h_pT[0]->GetMinimum()))));
+  TLine *ptL = new TLine(120, 0, 120,  2e4);
   ptL->SetLineStyle(kDashed);
   ptL->Draw();
 
@@ -119,19 +136,36 @@ void plot_ANdists()
     h_y[i]->SetLineColor(coly[i%4]);
     h_y[i]->SetMinimum(1e3);
     h_y[i]->SetMaximum(6e5);
-    h_y[i]->GetXaxis()->SetTitle("y(#mu#mu)");
+    h_y[i]->GetXaxis()->SetTitle("#it{y}");
     h_y[i]->GetXaxis()->SetTitleOffset(1.1);
-    h_y[i]->GetYaxis()->SetTitle("dN/dy");
+    h_y[i]->GetXaxis()->CenterTitle(true);
+    h_y[i]->GetXaxis()->SetLabelOffset(0.01);
+    h_y[i]->GetYaxis()->SetLabelOffset(0.01);
+    h_y[i]->GetYaxis()->SetTitle("dN/d#it{y}");
     h_y[i]->SetTitle("");
     if(i > 3) h_y[i]->SetLineStyle(kDashed);
     if(i == 0) h_y[i]->Draw("histo");
     else h_y[i]->Draw("histo same");  
   }
 
+  // just formatting h_m for the y legend
+  h_m[1]->SetLineColor(kBlack);
+  h_m[1]->SetLineStyle(kSolid);
+  h_m[5]->SetLineColor(kBlack);
+  h_m[5]->SetLineStyle(kDashed);
+  
+  TLegend *legcy = new TLegend(0.6, 0.65, 0.9, 0.775);
+  legcy->SetTextSize(0.04);
+  legcy->SetBorderSize(0);
+  legcy->SetFillColorAlpha(kWhite,0);
+  legcy->AddEntry(h_m[1], "PRS Data", "l");
+  legcy->AddEntry(h_m[5], "MC", "l");
+  legcy->Draw();
+
   TLatex lcy;
-  lcy.SetTextSize(0.03);
-  lcy.DrawLatex(0, 1e5, "#minus Peak data");
-  lcy.DrawLatex(0, 7e4, "-- MC");
+  lcy.SetTextSize(0.04);
+  yl = getPos(h_y[0]->GetMinimum(), h_y[0]->GetMaximum(), 0.68, 1);
+  lcy.DrawLatex(-1, yl, "#bf{2018 J/#psi}");
   
   c->SaveAs(Form("plots/ANdists/y_all.pdf"));
   c->Clear();
@@ -143,9 +177,9 @@ void plot_ANdists()
     h_y[i]->SetLineColor(coly[i%4]);
     h_y[i]->SetMinimum(1e3);
     h_y[i]->SetMaximum(6e5);
-    h_y[i]->GetXaxis()->SetTitle("y(#mu#mu)");
+    h_y[i]->GetXaxis()->SetTitle("#it{y}");
     h_y[i]->GetXaxis()->SetTitleOffset(1.1);
-    h_y[i]->GetYaxis()->SetTitle("dN/dy");
+    h_y[i]->GetYaxis()->SetTitle("dN/d#it{y}");
     h_y[i]->SetTitle("");
     if(i > 3) {
       h_y[i]->Scale(h_y[i-4]->Integral() / h_y[i]->Integral());
@@ -155,84 +189,77 @@ void plot_ANdists()
     else h_y[i]->Draw("histo same");  
   }
 
+  TLegend *legcys = new TLegend(0.575, 0.6, 0.875, 0.725);
+  legcys->SetTextSize(0.04);
+  legcys->SetBorderSize(0);
+  legcys->SetFillColorAlpha(kWhite,0);
+  legcys->AddEntry(h_m[1], "PRS Data", "l");
+  legcys->AddEntry(h_m[5], "Scaled MC", "l");
+  legcys->Draw();
+
+
   TLatex lcys;
-  lcys.SetTextSize(0.03);
-  lcys.DrawLatex(0, 6e4, "#minus Peak data");
-  lcys.DrawLatex(0, 3.5e4, "-- scaled MC");
-
+  lcys.SetTextSize(0.04);
+  yl = getPos(h_y[0]->GetMinimum(), h_y[0]->GetMaximum(), 0.9, 1);
+  lcys.DrawLatex(-1, yl, "#bf{2018 J/#psi}");
   lcys.SetTextColor(coly[0]);
-  lcys.DrawLatex(-1, 1e5, "Low p_{T}");
+  yl = getPos(h_y[0]->GetMinimum(), h_y[0]->GetMaximum(), 0.7, 1);
+  lcys.DrawLatex(-1, yl, "#bf{[25,45] GeV}");
   lcys.SetTextColor(coly[1]);
-  lcys.DrawLatex(-1, 6e4, "Mid p_{T}");
+  yl = getPos(h_y[0]->GetMinimum(), h_y[0]->GetMaximum(), 0.62, 1);
+  lcys.DrawLatex(-1, yl, "#bf{[45,50] GeV}");
   lcys.SetTextColor(coly[2]);
-  lcys.DrawLatex(-1, 3.5e4, "High p_{T}");
+  yl = getPos(h_y[0]->GetMinimum(), h_y[0]->GetMaximum(), 0.54, 1);
+  lcys.DrawLatex(-1, yl, "#bf{[50,70] GeV}");
   lcys.SetTextColor(coly[3]);
-  lcys.DrawLatex(-1, 2e4, "Highest p_{T}");
-
+  yl = getPos(h_y[0]->GetMinimum(), h_y[0]->GetMaximum(), 0.46, 1);
+  lcys.DrawLatex(-1, yl, "#bf{[70,120] GeV}");
 
   c->SaveAs(Form("plots/ANdists/y_scale.pdf"));
   c->Clear();
-  
-  // plot phi
-  c->SetLogy();
-  for(int i = 0; i < 8; i++) {
 
-    h_phi[i]->SetStats(0);
-    h_phi[i]->SetLineColor(coly[i%4]);
-    h_phi[i]->SetMinimum(1e3);
-    h_phi[i]->SetMaximum(6e5);
-    h_phi[i]->GetXaxis()->SetTitle("#varphi(#mu#mu)");
-    h_phi[i]->GetXaxis()->SetTitleOffset(1.1);
-    h_phi[i]->GetYaxis()->SetTitle("dN/d#varphi");
-    h_phi[i]->SetTitle("");
-    if(i > 3) h_phi[i]->SetLineStyle(kDashed);
-    if(i == 0) h_phi[i]->Draw("histo");
-    else h_phi[i]->Draw("histo same");  
+  // plot ratio data/MC
+  c->SetLogy(0);
+  TH1D **h_yr = new TH1D*[4]; 
+  for(int i = 0; i < 4; i++) {
+    h_yr[i] = (TH1D*)h_y[i]->Clone(Form("rH_%d",i));
+    h_yr[i]->Sumw2();
+    h_yr[i]->Divide(h_y[i+4]);
+
+    h_yr[i]->SetMinimum(0.51);
+    h_yr[i]->SetMaximum(1.49);
+    h_yr[i]->SetStats(0);
+    h_yr[i]->SetLineColor(coly[i]);
+    h_yr[i]->GetXaxis()->SetTitle("#it{y}");
+    h_yr[i]->GetXaxis()->SetTitleOffset(1.1);
+    h_yr[i]->GetXaxis()->CenterTitle(true);
+    h_yr[i]->GetXaxis()->SetLabelOffset(0.01);
+    h_yr[i]->GetYaxis()->SetLabelOffset(0.01);
+    h_yr[i]->GetYaxis()->SetTitle("Data/MC");
+    h_yr[i]->SetTitle("");
+
+    if(i == 0) h_yr[i]->Draw("histo");
+    else h_yr[i]->Draw("histo same");  
   }
 
-  TLatex lcphi;
-  lcphi.SetTextSize(0.03);
-  lcphi.DrawLatex(0, 7e4, "#minus Peak data");
-  lcphi.DrawLatex(0, 5e4, "-- MC");
-  
-  c->SaveAs(Form("plots/ANdists/phi_all.pdf"));
-  c->Clear();
+  TLatex lcyr;
+  lcyr.SetTextSize(0.04);
+  yl = getPos(h_yr[0]->GetMinimum(), h_yr[0]->GetMaximum(), 0.9, 0);
+  lcyr.DrawLatex(-1.1, yl, "#bf{2018 J/#psi}");
+  lcyr.SetTextColor(coly[0]);
+  yl = getPos(h_yr[0]->GetMinimum(), h_yr[0]->GetMaximum(), 0.88, 0);
+  lcyr.DrawLatex(0.35, yl, "#bf{[25,45] GeV}");
+  lcyr.SetTextColor(coly[1]);
+  yl = getPos(h_yr[0]->GetMinimum(), h_yr[0]->GetMaximum(), 0.8, 0);
+  lcyr.DrawLatex(0.35, yl, "#bf{[45,50] GeV}");
+  lcyr.SetTextColor(coly[2]);
+  yl = getPos(h_yr[0]->GetMinimum(), h_yr[0]->GetMaximum(), 0.72, 0);
+  lcyr.DrawLatex(0.35, yl, "#bf{[50,70] GeV}");
+  lcyr.SetTextColor(coly[3]);
+  yl = getPos(h_yr[0]->GetMinimum(), h_yr[0]->GetMaximum(), 0.64, 0);
+  lcyr.DrawLatex(0.35, yl, "#bf{[70,120] GeV}");
 
-  // phi scaling MC to data
-  for(int i = 0; i < 8; i++) {
-
-    h_phi[i]->SetStats(0);
-    h_phi[i]->SetLineColor(coly[i%4]);
-    h_phi[i]->SetMinimum(1e3);
-    h_phi[i]->SetMaximum(6e5);
-    h_phi[i]->GetXaxis()->SetTitle("#varphi(#mu#mu)");
-    h_phi[i]->GetXaxis()->SetTitleOffset(1.1);
-    h_phi[i]->GetYaxis()->SetTitle("dN/d#varphi");
-    h_phi[i]->SetTitle("");
-    if(i > 3) {
-      h_phi[i]->Scale(h_phi[i-4]->Integral() / h_phi[i]->Integral());
-      h_phi[i]->SetLineStyle(kDashed);
-    }
-    if(i == 0) h_phi[i]->Draw("histo");
-    else h_phi[i]->Draw("histo same");  
-  }
-
-  TLatex lcphis;
-  lcphis.SetTextSize(0.03);
-  lcphis.DrawLatex(0, 6e4, "#minus Peak data");
-  lcphis.DrawLatex(0, 4e4, "-- scaled MC");
-
-  lcphis.SetTextColor(coly[0]);
-  lcphis.DrawLatex(-1, 8e4, "Low p_{T}");
-  lcphis.SetTextColor(coly[1]);
-  lcphis.DrawLatex(-1, 5.5e4, "Mid p_{T}");
-  lcphis.SetTextColor(coly[2]);
-  lcphis.DrawLatex(-1, 3.7e4, "High p_{T}");
-  lcphis.SetTextColor(coly[3]);
-  lcphis.DrawLatex(-1, 2.5e4, "Highest p_{T}");
-
-
-  c->SaveAs(Form("plots/ANdists/phi_scale.pdf"));
+  c->SaveAs(Form("plots/ANdists/y_ratio.pdf"));
   c->Clear();
 
   // plot lifetime
@@ -241,11 +268,14 @@ void plot_ANdists()
   for(int i = 0; i < 4; i++) {
     h_lt[i]->SetStats(0);
     h_lt[i]->SetLineColor(coly[i]);
-    h_lt[i]->SetMinimum(1e3);
+    h_lt[i]->SetMinimum(4e2);
     h_lt[i]->SetMaximum(3e6);
     h_lt[i]->GetXaxis()->SetTitle("c#tau (#mum)");
     h_lt[i]->GetXaxis()->SetTitleOffset(1.1);
-    h_lt[i]->GetYaxis()->SetTitle("dN/dc#tau");
+    h_lt[i]->GetXaxis()->CenterTitle(true);
+    h_lt[i]->GetXaxis()->SetLabelOffset(0.01);
+    h_lt[i]->GetYaxis()->SetLabelOffset(0.01);
+    h_lt[i]->GetYaxis()->SetTitle("dN/d c#tau");
     h_lt[i]->SetTitle("");
     if(i == 0) h_lt[i]->Draw("histo");
     else h_lt[i]->Draw("histo same");  
@@ -264,7 +294,7 @@ void plot_ANdists()
   l_NPm->SetLineStyle(kDotted);
   l_NPm->SetLineColor(kBlack);
   l_NPm->Draw();
-  TLine *l_NPp = new TLine(500, h_lt[0]->GetMinimum(), 500, h_lt[0]->GetMaximum());
+  TLine *l_NPp = new TLine(800, h_lt[0]->GetMinimum(), 800, h_lt[0]->GetMaximum());
   l_NPp->SetLineStyle(kDotted);
   l_NPp->SetLineColor(kBlack);
   l_NPp->Draw();
@@ -272,15 +302,22 @@ void plot_ANdists()
   TLatex lclt;
   lclt.SetTextSize(0.04);
   lclt.SetTextColor(colpt[0]);
-  lclt.DrawLatex(300, 1.5e6, "Data:");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.9, 1);
+  lclt.DrawLatex(150, yl, "#bf{2018 J/#psi}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.95, 1);
+  lclt.DrawLatex(400, yl, "#bf{Signal Region Data}");
   lclt.SetTextColor(colpt[1]);
-  lclt.DrawLatex(300, 9e5, "low p_{T}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.88, 1);
+  lclt.DrawLatex(500, yl, "#bf{[25,45] GeV}");
   lclt.SetTextColor(colpt[2]);
-  lclt.DrawLatex(300, 5e5, "mid p_{T}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.81, 1);
+  lclt.DrawLatex(500, yl, "#bf{[45,50] GeV}");
   lclt.SetTextColor(colpt[3]);
-  lclt.DrawLatex(300, 2.7e5, "high p_{T}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.74, 1);
+  lclt.DrawLatex(500, yl, "#bf{[50,70] GeV}");
   lclt.SetTextColor(colpt[4]);
-  lclt.DrawLatex(300, 1.5e5, "highest p_{T}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.67, 1);
+  lclt.DrawLatex(500, yl, "#bf{[70,120] GeV}");
 
   c->SaveAs(Form("plots/ANdists/lt_all.pdf"));
   c->Clear();
@@ -289,7 +326,7 @@ void plot_ANdists()
   h_lt[4]->SetStats(0);
   h_lt[4]->SetLineColor(colpt[0]);
   h_lt[4]->SetMinimum(1e3);
-  h_lt[4]->SetMaximum(3e6);
+  h_lt[4]->SetMaximum(4e6);
   h_lt[4]->GetXaxis()->SetTitle("c#tau (#mum)");
   h_lt[4]->GetXaxis()->SetTitleOffset(1.1);
   h_lt[4]->GetYaxis()->SetTitle("dN/dc#tau");
@@ -304,9 +341,9 @@ void plot_ANdists()
   TLatex lcltf;
   lcltf.SetTextSize(0.04);
   lcltf.SetTextColor(colpt[0]);
-  lcltf.DrawLatex(300, 1.5e6, "2018 Data");
+  lcltf.DrawLatex(300, 1.5e6, "Run 2 Data");
 
-  c->SaveAs(Form("plots/ANdists/lt_full.pdf"));
+  //  c->SaveAs(Form("plots/ANdists/lt_full.pdf"));
   c->Clear();
 
   // lifetime scaling to low pT
@@ -314,11 +351,11 @@ void plot_ANdists()
     h_lt[i]->SetStats(0);
     h_lt[i]->SetLineColor(coly[i]);
     h_lt[i]->Scale(h_lt[0]->Integral()/h_lt[i]->Integral());
-    h_lt[i]->SetMinimum(1e3);
+    h_lt[i]->SetMinimum(4e2);
     h_lt[i]->SetMaximum(3e6);
     h_lt[i]->GetXaxis()->SetTitle("c#tau (#mum)");
     h_lt[i]->GetXaxis()->SetTitleOffset(1.1);
-    h_lt[i]->GetYaxis()->SetTitle("dN/dc#tau (a.u.)");
+    h_lt[i]->GetYaxis()->SetTitle("dN/d c#tau (a.u.)");
     h_lt[i]->SetTitle("");
     if(i == 0) h_lt[i]->Draw("histo");
     else h_lt[i]->Draw("histo same");  
@@ -332,18 +369,29 @@ void plot_ANdists()
   TLatex lclts;
   lclts.SetTextSize(0.04);
   lclts.SetTextColor(colpt[0]);
-  lclts.DrawLatex(300, 1.5e6, "Data:");
-  lclts.DrawLatex(-40, 2e3, "Peak");
-  lclts.DrawLatex(275, 2e3, "NP");
-  
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.9, 1);
+  lclts.DrawLatex(150, yl, "#bf{2018 J/#psi}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.5, 1);
+  lclts.DrawLatex(125, yl, "#bf{Signal Region Data}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.1, 1);
+  double xl = getPos(-50, 50, 0.5, 0);
+  lclts.SetTextAlign(21);
+  lclts.DrawLatex(xl, yl, "#bf{PR}");
+  xl = getPos(100, 800, 0.5, 0);
+  lclts.DrawLatex(xl, yl, "#bf{NP}");
   lclts.SetTextColor(colpt[1]);
-  lclts.DrawLatex(300, 9e5, "low p_{T}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.43, 1);
+  lclts.SetTextAlign(11);
+  lclts.DrawLatex(225, yl, "#bf{[25,45] GeV}");
   lclts.SetTextColor(colpt[2]);
-  lclts.DrawLatex(300, 5e5, "mid p_{T}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.36, 1);
+  lclts.DrawLatex(225, yl, "#bf{[45,50] GeV}");
   lclts.SetTextColor(colpt[3]);
-  lclts.DrawLatex(300, 2.7e5, "high p_{T}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.29, 1);
+  lclts.DrawLatex(225, yl, "#bf{[50,70] GeV}");
   lclts.SetTextColor(colpt[4]);
-  lclts.DrawLatex(300, 1.5e5, "highest p_{T}");
+  yl = getPos(h_lt[0]->GetMinimum(), h_lt[0]->GetMaximum(), 0.22, 1);
+  lclts.DrawLatex(225, yl, "#bf{[70,120] GeV}");
 
   c->SaveAs(Form("plots/ANdists/lt_scale.pdf"));
   c->Clear();
@@ -357,9 +405,12 @@ void plot_ANdists()
     h_m[i]->Scale(1./h_m[i]->Integral());
     h_m[i]->Scale(h_m[i%4]->GetMaximum()/h_m[i]->GetMaximum());
     h_m[i]->SetLineColor(coly[i%4]);
-    h_m[i]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
+    h_m[i]->GetXaxis()->SetTitle("#it{m} (GeV)");
+    h_m[i]->GetXaxis()->CenterTitle(true);
     h_m[i]->GetXaxis()->SetTitleOffset(1.1);
-    h_m[i]->GetYaxis()->SetTitle("dN/dM (normalized)");
+    h_m[i]->GetXaxis()->SetLabelOffset(0.01);
+    h_m[i]->GetYaxis()->SetLabelOffset(0.01);
+    h_m[i]->GetYaxis()->SetTitle("dN/d#it{m} (normalized)");
     h_m[i]->SetTitle("");
     if(i > 3) h_m[i]->SetLineStyle(kDashed);
   }
@@ -375,37 +426,50 @@ void plot_ANdists()
 
   TLatex lcm;
   lcm.SetTextSize(0.04);
+  lcm.DrawLatex(2.95, 0.074, "#bf{2018 J/#psi}");
   lcm.SetTextColor(coly[0]);
-  lcm.DrawLatex(3.17, 0.069, "low p_{T}");
+  lcm.DrawLatex(3.16, 0.049, "#bf{#it{p}_{T}: 25-45 GeV}");
   lcm.SetTextColor(coly[3]);
-  lcm.DrawLatex(3.17, 0.062, "highest p_{T}");
-  lcm.SetTextColor(kBlack);
-  lcm.DrawLatex(2.925, 0.073, "#minus Data");
-  lcm.DrawLatex(2.925, 0.066, "--MC");
+  lcm.DrawLatex(3.16, 0.041, "#bf{#it{p}_{T}: 70-120 GeV}");
 
+  // set a line black just for the legend
+  h_m[1]->SetLineColor(kBlack);
+  h_m[5]->SetLineColor(kBlack);
+   
+  TLegend *legcm = new TLegend(0.725, 0.77, 1.025, 0.92);
+  legcm->SetTextSize(0.04);
+  legcm->SetBorderSize(0);
+  legcm->SetFillColorAlpha(kWhite,0);
+  legcm->AddEntry(h_m[1], "PR Data", "l");
+  legcm->AddEntry(h_m[5], "MC", "l");
+  legcm->Draw();
+  
   c->SaveAs(Form("plots/ANdists/m_scale.pdf"));
   c->Clear();
 
-  h_m[6]->SetStats(0);
-  h_m[6]->SetLineColor(kBlack);
-  h_m[6]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
-  h_m[6]->GetXaxis()->SetTitleOffset(1.1);
-  h_m[6]->GetYaxis()->SetTitle("dN/dM");
-  h_m[6]->SetMaximum(720e3);
-  h_m[6]->SetTitle("");
-  h_m[6]->Draw("histo");  
+  c->SetTopMargin(0.04);
+
+  h_m[8]->SetStats(0);
+  h_m[8]->SetLineColor(kBlack);
+  h_m[8]->GetXaxis()->SetTitle("M(#mu#mu) (GeV)");
+  h_m[8]->GetXaxis()->SetTitleOffset(1.1);
+  h_m[8]->GetYaxis()->SetTitle("dN/dM");
+  h_m[8]->GetYaxis()->SetTitleOffset(1.8);
+  h_m[8]->SetMaximum(1.2e6);
+  h_m[8]->SetTitle("");
+  h_m[8]->Draw("histo");  
 
   TLatex lcmf;
   lcmf.SetTextSize(0.04);
   lcmf.SetTextColor(colpt[0]);
-  lcmf.DrawLatex(3.15, 6.5e5, "2018 Data");
-
+  lcmf.DrawLatex(3.15, 1e6, "Run 2 Data");
   
-  c->SaveAs(Form("plots/ANdists/m_full.pdf"));
+  //  c->SaveAs(Form("plots/ANdists/m_full.pdf"));
   c->Clear();
 
   // plot costh
   c->SetLogy(0);
+  c->SetTopMargin(0.015);
 
   for(int i = 10; i < 14; i++) {
 
@@ -433,7 +497,7 @@ void plot_ANdists()
   lcc.SetTextColor(coly[3]);
   lcc.DrawLatex(0.05, 0.009, "MC highest p_{T}");
   
-  c->SaveAs(Form("plots/ANdists/cos_MC.pdf"));
+  //  c->SaveAs(Form("plots/ANdists/cos_MC.pdf"));
   c->Clear();
 
   int colc[] = {kViolet-1, kRed, kBlack};
@@ -458,17 +522,17 @@ void plot_ANdists()
   TLatex lccf;
   lccf.SetTextSize(0.04);
   lccf.SetTextColor(colc[0]);
-  lccf.DrawLatex(0.1, 0.04, "Data Peak");
+  lccf.DrawLatex(0.1, 0.04, "Data PRS");
   lccf.SetTextColor(colc[2]);
   lccf.DrawLatex(0.1, 0.033, "MC");
   lccf.SetTextColor(colc[1]);
-  lccf.DrawLatex(0.1, 0.026, "Data NP");
+  lccf.DrawLatex(0.1, 0.026, "Data NPS");
 
   lccf.SetTextColor(colc[2]);
   lccf.SetTextSize(0.03);
   lccf.DrawLatex(0.08, 0.01, "25<p_{T}<120 GeV");
 
-  c->SaveAs(Form("plots/ANdists/cos_full.pdf"));
+  //  c->SaveAs(Form("plots/ANdists/cos_full.pdf"));
   c->Clear();
   
   c->Destructor();

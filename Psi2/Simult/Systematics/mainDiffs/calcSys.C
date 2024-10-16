@@ -11,7 +11,7 @@ void calcSys()
   const double *pTBins = rHist->GetYaxis()->GetXbins()->GetArray();
   
   // get the fit results - baseline vs mu effs
-  TGraphErrors **graph_lth = new TGraphErrors*[6];
+  TGraphErrors **graph_lth = new TGraphErrors*[8];
   // 0 - get Run2 results
   TFile *fIndB = new TFile("../../PR_fit/files/finalFitRes.root");
   graph_lth[0] = (TGraphErrors*)fIndB->Get("graph_lambda_J");
@@ -20,9 +20,11 @@ void calcSys()
   // 1 - get lambda values for each eff model
   TFile *fIndf1 = new TFile("../../../Simult_eff1/PR_fit/files/finalFitRes.root");
   graph_lth[1] = (TGraphErrors*)fIndf1->Get(Form("graph_lambda_J"));
+  graph_lth[6] = (TGraphErrors*)fIndf1->Get(Form("graph_lambda_NP"));
   fIndf1->Close();
   TFile *fIndf2 = new TFile("../../../Simult_eff2/PR_fit/files/finalFitRes.root");
   graph_lth[2] = (TGraphErrors*)fIndf2->Get(Form("graph_lambda_J"));
+  graph_lth[7] = (TGraphErrors*)fIndf2->Get(Form("graph_lambda_NP"));
   fIndf2->Close();
   // 2 - get lambda values for the phi reweighings
   TFile *fIndP1 = new TFile("../../../Simult_phi1/PR_fit/files/finalFitRes.root");
@@ -40,7 +42,8 @@ void calcSys()
   
   // get the differences - positive and negative are the same
   // efficiency curves -> symmetrize, pos+neg
-  TH1F *hs_sigEff = new TH1F("hs_sigEff", "hs_sigEff", nBinspT, pTBins);
+  TH1F *hs_sigEffPR = new TH1F("hs_sigEffPR", "hs_sigEffPR", nBinspT, pTBins);
+  TH1F *hs_sigEffNP = new TH1F("hs_sigEffNP", "hs_sigEffNP", nBinspT, pTBins);
   // lambda_phi -> asymmetric, different for PR and NP
   TH1F *hs_sigPhiPR = new TH1F("hs_sigPhiPR", "hs_sigPhiPR", nBinspT, pTBins);
   TH1F *hs_sigPhiNP = new TH1F("hs_sigPhiNP", "hs_sigPhiNP", nBinspT, pTBins);
@@ -51,7 +54,11 @@ void calcSys()
     if(graph_lth[0]->GetX()[i] < 40)
       aux = 0.5*(abs(graph_lth[1]->GetY()[i] - graph_lth[0]->GetY()[i])+abs(graph_lth[2]->GetY()[i] - graph_lth[0]->GetY()[i]));
     else aux = 0;
-    hs_sigEff->SetBinContent(i+1, aux);
+    hs_sigEffPR->SetBinContent(i+1, aux);
+    if(graph_lth[0]->GetX()[i] < 40)
+      aux = 0.5*(abs(graph_lth[6]->GetY()[i] - graph_lth[3]->GetY()[i])+abs(graph_lth[7]->GetY()[i] - graph_lth[3]->GetY()[i]));
+    else aux = 0;
+    hs_sigEffNP->SetBinContent(i+1, aux);
     // phi reweighing
     aux = graph_lth[4]->GetY()[i]-graph_lth[0]->GetY()[i];
     if(graph_lth[0]->GetX()[i] < 35)
@@ -66,8 +73,10 @@ void calcSys()
   // draw the fit results
 
   // FIRST - set colors, styles for elements
-  hs_sigEff->SetFillColor(kGreen+1);
-  hs_sigEff->SetLineColor(kGreen+1);
+  hs_sigEffPR->SetFillColor(kGreen+1);
+  hs_sigEffPR->SetLineColor(kGreen+1);
+  hs_sigEffNP->SetFillColor(kGreen+1);
+  hs_sigEffNP->SetLineColor(kGreen+1);
  
   hs_sigPhiPR->SetFillColor(kBlue);
   hs_sigPhiPR->SetLineColor(kBlue);
@@ -79,13 +88,15 @@ void calcSys()
   // negative cont: stat unc
   
   // get the systs
-  TH1F *f_sigEff = new TH1F("f_sigEff", "f_sigEff", nBinspT, pTBins);
+  TH1F *f_sigEffPR = new TH1F("f_sigEffPR", "f_sigEffPR", nBinspT, pTBins);
+  TH1F *f_sigEffNP = new TH1F("f_sigEffNP", "f_sigEffNP", nBinspT, pTBins);
   TH1F *f_sigPhiPR = new TH1F("f_sigPhiPR", "f_sigPhiPR", nBinspT, pTBins);
   TH1F *f_sigPhiNP = new TH1F("f_sigPhiNP", "f_sigPhiNP", nBinspT, pTBins);
   
   for(int i = 0; i < nBinspT; i++) {
     // eff (symmetric)
-    f_sigEff->SetBinContent(i+1, pow(hs_sigEff->GetBinContent(i+1), 2));
+    f_sigEffPR->SetBinContent(i+1, pow(hs_sigEffPR->GetBinContent(i+1), 2));
+    f_sigEffNP->SetBinContent(i+1, pow(hs_sigEffNP->GetBinContent(i+1), 2));
     // phi weights (asymmetric)
     f_sigPhiPR->SetBinContent(i+1, pow(hs_sigPhiPR->GetBinContent(i+1), 2));
     f_sigPhiNP->SetBinContent(i+1, pow(hs_sigPhiNP->GetBinContent(i+1), 2));
@@ -102,8 +113,10 @@ void calcSys()
   // draw stacks
   double da_lim = 0.04;
   
-  f_sigEff->SetFillColor(kGreen+1);
-  f_sigEff->SetLineColor(kGreen+1);
+  f_sigEffPR->SetFillColor(kGreen+1);
+  f_sigEffPR->SetLineColor(kGreen+1);
+  f_sigEffNP->SetFillColor(kGreen+1);
+  f_sigEffNP->SetLineColor(kGreen+1);
   f_sigPhiPR->SetFillColor(kBlue);
   f_sigPhiPR->SetLineColor(kBlue);
   f_sigPhiNP->SetFillColor(kBlue);
@@ -125,7 +138,7 @@ void calcSys()
 
   THStack *hsigP = new THStack("hsigP", "");
   hsigP->SetMinimum(-da_lim);
-  hsigP->Add(f_sigEff);
+  hsigP->Add(f_sigEffPR);
   hsigP->Add(f_sigPhiPR);
   hsigP->SetMaximum(da_lim);
   
@@ -138,7 +151,7 @@ void calcSys()
   TLegend *legF = new TLegend(0.7, 0.785, 0.97, 0.985);
   legF->SetTextSize(0.03);
   legF->AddEntry(hs_sigPhiPR, "#beta (only negative)", "l");
-  legF->AddEntry(hs_sigEff, "Single #mu eff", "l");
+  legF->AddEntry(hs_sigEffPR, "Single #mu eff", "l");
   legF->AddEntry(f_statP, "stat", "l");
   legF->Draw();
 
@@ -147,7 +160,7 @@ void calcSys()
 
   THStack *hsigN = new THStack("hsigN", "");
   hsigN->SetMinimum(-da_lim);
-  hsigN->Add(f_sigEff);
+  hsigN->Add(f_sigEffNP);
   hsigN->Add(f_sigPhiNP);
   hsigN->SetMaximum(da_lim);
   
@@ -160,7 +173,7 @@ void calcSys()
   TLegend *legN = new TLegend(0.7, 0.785, 0.97, 0.985);
   legN->SetTextSize(0.03);
   legN->AddEntry(hs_sigPhiNP, "#beta (only positive)", "l");
-  legN->AddEntry(hs_sigEff, "Single #mu eff", "l");
+  legN->AddEntry(hs_sigEffNP, "Single #mu eff", "l");
   legN->AddEntry(f_statP, "stat", "l");
   legN->Draw();
 
@@ -172,19 +185,26 @@ void calcSys()
   double sysNP_P[nBinspT], sysNP_N[nBinspT];
   ofstream ftexPR;
   ftexPR.open(Form("text_output/sysPR_unc.tex"));
-  ftexPR << "\\begin{tabular}{c||c|c||c}\n";
-  ftexPR << "$\\pt$ (GeV) & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$  \\\\\n";
+  ftexPR << "\\begin{tabular}{c|cc|c}\n";
+  ftexPR << "$\\pt$ (GeV)  & $\\mu$ eff. & $\\beta$ & total \\\\\n";
   ftexPR << "\\hline\n";
 
   int p_norm = 3;
   double val_eff, val_phi;
   for(int i = 0; i < nBinspT; i++) {
     // pT bin
-    ftexPR << Form("$[%.1f, %.1f]$", pTBins[i], pTBins[i+1]);
+    if(pTBins[i] - (int)pTBins[i] == 0)
+      ftexPR << Form("%.0f--", pTBins[i]);
+    else
+      ftexPR << Form("%.1f--", pTBins[i]);
+    if(pTBins[i+1] - (int)pTBins[i+1] == 0)
+      ftexPR << Form("%.0f", pTBins[i+1]);
+    else
+      ftexPR << Form("%.1f", pTBins[i+1]);
     // syst sources (start with fixed 2 decimal places)
     ftexPR << setprecision(p_norm) << fixed;
     // single muon efficiency: already set to zero above
-    val_eff = hs_sigEff->GetBinContent(i+1);
+    val_eff = hs_sigEffPR->GetBinContent(i+1);
     if(val_eff == 0)
       ftexPR << " & $-$";
     else 
@@ -201,7 +221,10 @@ void calcSys()
     sysPR_P[i] = valP;
     sysPR_N[i] = valN;
     double valAv = max(valP, valN);
-    ftexPR << " & $\\pm" << valAv << "$";
+    if(valAv > 0)
+      ftexPR << " & $\\pm" << valAv << "$";
+    else
+      ftexPR << " & $-$";      
     ftexPR << "\\\\";
     ftexPR << "\n";
   }
@@ -210,17 +233,24 @@ void calcSys()
 
   ofstream ftexNP;
   ftexNP.open(Form("text_output/sysNP_unc.tex"));
-  ftexNP << "\\begin{tabular}{c||c|c||c}\n";
-  ftexNP << "$\\pt$ (GeV) & $\\sigma^{\\text{eff}}$ & $\\sigma^{\\lambda_\\varphi}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$ \\\\\n";
+  ftexNP << "\\begin{tabular}{c|cc|c}\n";
+  ftexNP << "$\\pt$ (GeV)  & $\\mu$ eff. & $\\beta$ & total \\\\\n";
   ftexNP << "\\hline\n";
 
   for(int i = 0; i < nBinspT; i++) {
     // pT bin
-    ftexNP << Form("$[%.1f, %.1f]$", pTBins[i], pTBins[i+1]);
+    if(pTBins[i] - (int)pTBins[i] == 0)
+      ftexNP << Form("%.0f--", pTBins[i]);
+    else
+      ftexNP << Form("%.1f--", pTBins[i]);
+    if(pTBins[i+1] - (int)pTBins[i+1] == 0)
+      ftexNP << Form("%.0f", pTBins[i+1]);
+    else
+      ftexNP << Form("%.1f", pTBins[i+1]);
     // syst sources (start with fixed 2 decimal places)
     ftexNP << setprecision(p_norm) << fixed;
     // single muon efficiency: already set to zero above
-    val_eff = hs_sigEff->GetBinContent(i+1);
+    val_eff = hs_sigEffNP->GetBinContent(i+1);
     if(val_eff == 0)
       ftexNP << " & $-$";
     else 
@@ -237,7 +267,10 @@ void calcSys()
     sysNP_P[i] = valP;
     sysNP_N[i] = valN;
     double valAv = max(valP, valN);
-    ftexNP << " & $\\pm" << valAv << "$";
+    if(valAv > 0)
+      ftexNP << " & $\\pm" << valAv << "$";
+    else
+      ftexNP << " & $-$";      
     ftexNP << "\\\\";
     ftexNP << "\n";
   }
@@ -247,19 +280,32 @@ void calcSys()
   // tex tables with central values + uncerts
   ofstream ftexLPR;
   ftexLPR.open(Form("text_output/lthPR.tex"));
-  ftexLPR << "\\begin{tabular}{c||c||c|c}\n";
-  ftexLPR << "$\\pt$ (GeV) & $\\lambda_\\theta^{\\text{PR}}$ & $\\sigma_{\\text{stat}}^{\\text{PR}}$ & $\\sigma_{\\text{sys}}^{\\text{PR}}$  \\\\\n";
+  ftexLPR << "\\begin{tabular}{c|cccc}\n";
+  ftexLPR << "$\\pt$ (GeV) & $\\lambda_\\theta$ & $\\sigma_{\\text{stat}}$ & $\\sigma_{\\text{sys}}$ & $\\sigma_{\\text{tot}}$  \\\\\n";
   ftexLPR << "\\hline\n";
   for(int i = 0; i < nBinspT; i++) {
     // pT bin
-    ftexLPR << Form("$[%.1f, %.1f]$", pTBins[i], pTBins[i+1]);
+    if(pTBins[i] - (int)pTBins[i] == 0)
+      ftexLPR << Form("%.0f--", pTBins[i]);
+    else
+      ftexLPR << Form("%.1f--", pTBins[i]);
+    if(pTBins[i+1] - (int)pTBins[i+1] == 0)
+      ftexLPR << Form("%.0f", pTBins[i+1]);
+    else
+      ftexLPR << Form("%.1f", pTBins[i+1]);
     ftexLPR << setprecision(p_norm) << fixed;
     // central value
     ftexLPR << "& $" << graph_lth[0]->GetY()[i] << "$";
     // statistical uncertainty
     ftexLPR << " & $\\pm" << graph_lth[0]->GetEY()[i] << "$";
     // systematic uncertainty
-    ftexLPR << " & $\\pm" << max(sysPR_P[i],sysPR_N[i]) << "$";
+    if(max(sysPR_P[i],sysPR_N[i]) > 0)
+      ftexLPR << " & $\\pm" << max(sysPR_P[i],sysPR_N[i]) << "$";
+    else
+      ftexLPR << " & $-$";
+    // total unc
+    double valAv = max(sysPR_P[i],sysPR_N[i]);
+    ftexLPR << " & $\\pm" << sqrt(pow(graph_lth[0]->GetEY()[i], 2) + pow(valAv, 2)) << "$";
     ftexLPR << "\\\\";
     ftexLPR << "\n";
   }
@@ -269,24 +315,140 @@ void calcSys()
   // tex tables with central values + uncerts
   ofstream ftexLNP;
   ftexLNP.open(Form("text_output/lthNP.tex"));
-  ftexLNP << "\\begin{tabular}{c||c||c|c}\n";
-  ftexLNP << "$\\pt$ (GeV) & $\\lambda_\\theta^{\\text{NP}}$ & $\\sigma_{\\text{stat}}^{\\text{NP}}$ & $\\sigma_{\\text{sys}}^{\\text{NP}}$  \\\\\n";
+  ftexLNP << "\\begin{tabular}{c|cccc}\n";
+  ftexLNP << "$\\pt$ (GeV) & $\\lambda_\\theta$ & $\\sigma_{\\text{stat}}$ & $\\sigma_{\\text{sys}}$ & $\\sigma_{\\text{tot}}$  \\\\\n";
   ftexLNP << "\\hline\n";
   for(int i = 0; i < nBinspT; i++) {
     // pT bin
-    ftexLNP << Form("$[%.1f, %.1f]$", pTBins[i], pTBins[i+1]);
+    if(pTBins[i] - (int)pTBins[i] == 0)
+      ftexLNP << Form("%.0f--", pTBins[i]);
+    else
+      ftexLNP << Form("%.1f--", pTBins[i]);
+    if(pTBins[i+1] - (int)pTBins[i+1] == 0)
+      ftexLNP << Form("%.0f", pTBins[i+1]);
+    else
+      ftexLNP << Form("%.1f", pTBins[i+1]);
     ftexLNP << setprecision(p_norm) << fixed;
     // central value
     ftexLNP << "& $" << graph_lth[3]->GetY()[i] << "$";
     // statistical uncertainty
     ftexLNP << " & $\\pm" << graph_lth[3]->GetEY()[i] << "$";
     // systematic uncertainty
-    ftexLNP << " & $\\pm" << max(sysNP_P[i],sysNP_N[i]) << "$";
+    if(max(sysNP_P[i],sysNP_N[i]) > 0)
+      ftexLNP << " & $\\pm" << max(sysNP_P[i],sysNP_N[i]) << "$";
+    else
+      ftexLNP << " & $-$";
+    // total unc
+    double valAv = max(sysNP_P[i],sysNP_N[i]);
+    ftexLNP << " & $\\pm" << sqrt(pow(graph_lth[3]->GetEY()[i], 2) + pow(valAv, 2)) << "$";
     ftexLNP << "\\\\";
     ftexLNP << "\n";
   }
   ftexLNP << "\\end{tabular}\n";
   ftexLNP.close();
+
+  // extra table - all syst, total sys (pos vs neg), stat, total sum (pos vs neg)
+  ofstream fexPR;
+  fexPR.open(Form("text_output/uncPR_comp.tex"));
+  fexPR << "\\begin{tabular}{c|cc|cc|c|cc}\n";
+  fexPR << "$\\pt$ (GeV)  & $\\mu$ eff. & $\\beta$ & total sys (pos) & total sys (neg) & $\\sigma_{\\text{stat}}$ & total unc (pos) & total unc (neg) \\\\\n";
+  fexPR << "\\hline\n";
+
+  p_norm = 3;
+  for(int i = 0; i < nBinspT; i++) {
+    // pT bin
+    if(pTBins[i] - (int)pTBins[i] == 0)
+      fexPR << Form("%.0f--", pTBins[i]);
+    else
+      fexPR << Form("%.1f--", pTBins[i]);
+    if(pTBins[i+1] - (int)pTBins[i+1] == 0)
+      fexPR << Form("%.0f", pTBins[i+1]);
+    else
+      fexPR << Form("%.1f", pTBins[i+1]);
+    // syst sources (start with fixed 2 decimal places)
+    fexPR << setprecision(p_norm) << fixed;
+    // single muon efficiency: already set to zero above
+    val_eff = hs_sigEffPR->GetBinContent(i+1);
+    if(val_eff == 0)
+      fexPR << " & $-$";
+    else 
+      fexPR << " & $\\pm" << val_eff << "$";
+    // lambda_phi: only negative
+    val_phi = hs_sigPhiPR->GetBinContent(i+1);
+    if(val_phi == 0)
+      fexPR << " & $-$";
+    else
+      fexPR << " & $" << val_phi << "$";
+    // full syst (sum all sources) - pos, then neg
+    if(sysPR_P[i] > 0)
+      fexPR << " & $+" << sysPR_P[i] << "$";
+    else
+      fexPR << " & $-$";      
+    if(sysPR_N[i] > 0)
+      fexPR << " & $-" << sysPR_N[i] << "$";
+    else
+      fexPR << " & $-$";
+    // statistical uncertainty
+    fexPR << " & $\\pm" << graph_lth[0]->GetEY()[i] << "$";
+    // total unc - pos, then neg
+    fexPR << " & $+" << sqrt(pow(graph_lth[0]->GetEY()[i], 2) + pow(sysPR_P[i], 2)) << "$";
+    fexPR << " & $-" << sqrt(pow(graph_lth[0]->GetEY()[i], 2) + pow(sysPR_N[i], 2)) << "$";
+    fexPR << "\\\\";
+    fexPR << "\n";
+  }
+  fexPR << "\\end{tabular}\n";
+  fexPR.close();
+
+  ofstream fexNP;
+  fexNP.open(Form("text_output/uncNP_comp.tex"));
+  fexNP << "\\begin{tabular}{c|cc|cc|c|cc}\n";
+  fexNP << "$\\pt$ (GeV)  & $\\mu$ eff. & $\\beta$ & total sys (pos) & total sys (neg) & $\\sigma_{\\text{stat}}$ & total unc (pos) & total unc (neg) \\\\\n";
+  fexNP << "\\hline\n";
+
+  p_norm = 3;
+  for(int i = 0; i < nBinspT; i++) {
+    // pT bin
+    if(pTBins[i] - (int)pTBins[i] == 0)
+      fexNP << Form("%.0f--", pTBins[i]);
+    else
+      fexNP << Form("%.1f--", pTBins[i]);
+    if(pTBins[i+1] - (int)pTBins[i+1] == 0)
+      fexNP << Form("%.0f", pTBins[i+1]);
+    else
+      fexNP << Form("%.1f", pTBins[i+1]);
+    // syst sources (start with fixed 2 decimal places)
+    fexNP << setprecision(p_norm) << fixed;
+    // single muon efficiency: already set to zero above
+    val_eff = hs_sigEffNP->GetBinContent(i+1);
+    if(val_eff == 0)
+      fexNP << " & $-$";
+    else 
+      fexNP << " & $\\pm" << val_eff << "$";
+    // lambda_phi: only positive
+    val_phi = hs_sigPhiNP->GetBinContent(i+1);
+    if(val_phi == 0)
+      fexNP << " & $-$";
+    else
+      fexNP << " & $+" << val_phi << "$";
+    // full syst (sum all sources) - pos, then neg
+    if(sysNP_P[i] > 0)
+      fexNP << " & $+" << sysNP_P[i] << "$";
+    else
+      fexNP << " & $-$";      
+    if(sysNP_N[i] > 0)
+      fexNP << " & $-" << sysNP_N[i] << "$";
+    else
+      fexNP << " & $-$";
+    // statistical uncertainty
+    fexNP << " & $\\pm" << graph_lth[3]->GetEY()[i] << "$";
+    // total unc - pos, then neg
+    fexNP << " & $+" << sqrt(pow(graph_lth[3]->GetEY()[i], 2) + pow(sysNP_P[i], 2)) << "$";
+    fexNP << " & $-" << sqrt(pow(graph_lth[3]->GetEY()[i], 2) + pow(sysNP_N[i], 2)) << "$";
+    fexNP << "\\\\";
+    fexNP << "\n";
+  }
+  fexNP << "\\end{tabular}\n";
+  fexNP.close();
 
   // plotting the lambda_theta with total (sys+stat) error
   // but also with just stat for comparison- graph_lth[0]

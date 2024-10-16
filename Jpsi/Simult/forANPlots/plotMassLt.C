@@ -33,7 +33,8 @@ void plotMassLt()
 
   TCanvas *c = new TCanvas("", "", 700, 700);
   c->SetLeftMargin(0.11);
-  c->SetRightMargin(0.03);
+  //c->SetRightMargin(0.03);
+  c->SetRightMargin(0.11);
   c->SetTopMargin(0.02);
   c->SetLogz();
  
@@ -46,7 +47,7 @@ void plotMassLt()
   hist->GetXaxis()->SetTitleOffset(1.1);
   hist->GetXaxis()->CenterTitle(true);
   hist->SetTitle("");
-  hist->Draw("COL");
+  hist->Draw("COLZ");
 
     for(int i = 0; i <3; i++){
     for(int j = 0; j< 2; j++){

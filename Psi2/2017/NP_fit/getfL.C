@@ -42,7 +42,7 @@ void getfL()
     avg_RSB[i] = mMass->Integral(m_min[2], m_max[2])/fMass->Integral(m_min[2], m_max[2]);
     double avg_sig = (m_max[1]+m_min[1])/2.;
     fL[i] = (avg_sig - avg_LSB[i]) / (avg_RSB[i] - avg_LSB[i]);
-    
+
     fL[i] *= 100;
 
     cout << i << " " << fL[i] << endl;

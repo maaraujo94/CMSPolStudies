@@ -96,10 +96,10 @@ void getCos()
   fit_j->SetLineColor(kGreen);
   fit_j->Draw("same");
 
-  
   can->SaveAs("costh_lim.pdf");
   can->Clear();
-
+  can->Destructor();
+  
   // save the fit results to a txt file
   ofstream outfile;
   outfile.open("cosMaxFitRes.txt");
@@ -121,6 +121,4 @@ void getCos()
   outfile << setprecision(0) << fixed <<  fitf->GetChisquare() << "/" << fitf->GetNDF() << endl;
   outfile << "\\end{tabular}\n";
   outfile.close();
-
-  can->Destructor();  
 }

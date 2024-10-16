@@ -32,9 +32,19 @@ void compStates_full()
   fl->SetYTitle("#lambda_{#theta}");
   fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
-
+  
   int col_j[2] = {kBlue, kRed};
   int col_p[2] = {kViolet+1, kPink+7};
+
+  TLegend *legPR = new TLegend(0.65, 0.875, 0.95, 0.975);
+  legPR->SetTextSize(0.03);
+  legPR->SetBorderSize(0);
+  legPR->SetFillColorAlpha(kWhite,0);
+  TLegend *legNP = new TLegend(0.65, 0.2, 0.95, 0.3);
+  legNP->SetTextSize(0.03);
+  legNP->SetBorderSize(0);
+  legNP->SetFillColorAlpha(kWhite,0);
+
   for(int i_l = 0; i_l < 2; i_l++) {
     
     graph_lthJ[i_l]->SetMarkerSize(.75);
@@ -49,58 +59,93 @@ void compStates_full()
     graph_lthP[i_l]->SetLineColor(col_p[i_l]);
     graph_lthP[i_l]->Draw("p same");
   }
-  
+  legPR->AddEntry(graph_lthJ[0], "prompt J/#psi", "pe");
+  legPR->AddEntry(graph_lthP[0], "prompt #psi(2S)", "pe");
+  legPR->Draw();  
+  legNP->AddEntry(graph_lthJ[1], "non-prompt J/#psi", "pe");
+  legNP->AddEntry(graph_lthP[1], "non-prompt #psi(2S)", "pe");
+  legNP->Draw();  
+
   TLine *zero = new TLine(15, 0, 125, 0);
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.82, 0.75, 0.97, 0.9);
-  leg->SetTextSize(0.03);
-  //leg->AddEntry(graph_lthJ[i_l], "J/#psi", "pl");
-  //leg->AddEntry(graph_lthP[i_l], "#psi(2S)", "pl");
-  //leg->Draw();
   
   c->SaveAs("par_lthF.pdf");
   c->Clear();
 
   // now plot states separately
-  TH1F *flJ = c->DrawFrame(15, -1, 125, 1);
-  flJ->SetXTitle("p_{T} (GeV)");
-  flJ->SetYTitle("#lambda_{#theta}");
-  flJ->GetYaxis()->SetTitleOffset(1.3);
-  flJ->GetYaxis()->SetLabelOffset(0.01);
+  // PR J/psi
+  TH1F *flJ_PR = c->DrawFrame(15, -1, 125, 1);
+  flJ_PR->SetXTitle("p_{T} (GeV)");
+  flJ_PR->SetYTitle("#lambda_{#theta}");
+  flJ_PR->GetYaxis()->SetTitleOffset(1.3);
+  flJ_PR->GetYaxis()->SetLabelOffset(0.01);
 
-  for(int i_l = 0; i_l < 2; i_l++) {    
-    graph_lthJ[i_l]->SetMarkerSize(.75);
-    graph_lthJ[i_l]->SetMarkerStyle(20);
-    graph_lthJ[i_l]->SetMarkerColor(col_j[i_l]);
-    graph_lthJ[i_l]->SetLineColor(col_j[i_l]);
-    graph_lthJ[i_l]->Draw("p same");
-  }
+  graph_lthJ[0]->SetMarkerSize(.75);
+  graph_lthJ[0]->SetMarkerStyle(20);
+  graph_lthJ[0]->SetMarkerColor(col_j[0]);
+  graph_lthJ[0]->SetLineColor(col_j[0]);
+  graph_lthJ[0]->Draw("p same");
   
   zero->Draw();
 
-  c->SaveAs("par_lthF_jpsi.pdf");
+  c->SaveAs("par_lthPR_jpsi.pdf");
   c->Clear();
-  
-  TH1F *flP = c->DrawFrame(15, -1, 125, 1);
-  flP->SetXTitle("p_{T} (GeV)");
-  flP->SetYTitle("#lambda_{#theta}");
-  flP->GetYaxis()->SetTitleOffset(1.3);
-  flP->GetYaxis()->SetLabelOffset(0.01);
 
-  for(int i_l = 0; i_l < 2; i_l++) {    
-    graph_lthP[i_l]->SetMarkerSize(.75);
-    graph_lthP[i_l]->SetMarkerStyle(20);
-    graph_lthP[i_l]->SetMarkerColor(col_p[i_l]);
-    graph_lthP[i_l]->SetLineColor(col_p[i_l]);
-    graph_lthP[i_l]->Draw("p same");
-  }
+  // NP J/psi
+  TH1F *flJ_NP = c->DrawFrame(15, -1, 125, 1);
+  flJ_NP->SetXTitle("p_{T} (GeV)");
+  flJ_NP->SetYTitle("#lambda_{#theta}");
+  flJ_NP->GetYaxis()->SetTitleOffset(1.3);
+  flJ_NP->GetYaxis()->SetLabelOffset(0.01);
+
+  graph_lthJ[1]->SetMarkerSize(.75);
+  graph_lthJ[1]->SetMarkerStyle(20);
+  graph_lthJ[1]->SetMarkerColor(col_j[1]);
+  graph_lthJ[1]->SetLineColor(col_j[1]);
+  graph_lthJ[1]->Draw("p same");
   
   zero->Draw();
 
-  c->SaveAs("par_lthF_psip.pdf");
+  c->SaveAs("par_lthNP_jpsi.pdf");
   c->Clear();
-  c->Destructor();
+
+  // PR psi(2S)
+  TH1F *flP_PR = c->DrawFrame(15, -1, 125, 1);
+  flP_PR->SetXTitle("p_{T} (GeV)");
+  flP_PR->SetYTitle("#lambda_{#theta}");
+  flP_PR->GetYaxis()->SetTitleOffset(1.3);
+  flP_PR->GetYaxis()->SetLabelOffset(0.01);
+
+  graph_lthP[0]->SetMarkerSize(.75);
+  graph_lthP[0]->SetMarkerStyle(20);
+  graph_lthP[0]->SetMarkerColor(col_p[0]);
+  graph_lthP[0]->SetLineColor(col_p[0]);
+  graph_lthP[0]->Draw("p same");
+  
+  zero->Draw();
+
+  c->SaveAs("par_lthPR_psip.pdf");
+  c->Clear();
+
+  // NP psi(2S)
+  TH1F *flP_NP = c->DrawFrame(15, -1, 125, 1);
+  flP_NP->SetXTitle("p_{T} (GeV)");
+  flP_NP->SetYTitle("#lambda_{#theta}");
+  flP_NP->GetYaxis()->SetTitleOffset(1.3);
+  flP_NP->GetYaxis()->SetLabelOffset(0.01);
+
+  graph_lthP[1]->SetMarkerSize(.75);
+  graph_lthP[1]->SetMarkerStyle(20);
+  graph_lthP[1]->SetMarkerColor(col_p[1]);
+  graph_lthP[1]->SetLineColor(col_p[1]);
+  graph_lthP[1]->Draw("p same");
+  
+  zero->Draw();
+
+  c->SaveAs("par_lthNP_psip.pdf");
+  c->Clear();
+c->Destructor();
 }

@@ -22,21 +22,25 @@ void histoSave()
   // open files and read TTrees
   TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/data18_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
+  
   TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MC18_cos.root");
   TTree *treeM1 = (TTree*)fin1->Get("MC_cos");
+  
   TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCm18_cos.root");
   TTree *treeM2 = (TTree*)fin2->Get("MC_cos");
+  
   TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCh18_cos.root");
   TTree *treeM3 = (TTree*)fin3->Get("MC_cos");
+  
   TFile *fin4 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvh18_cos.root");
   TTree *treeM4 = (TTree*)fin4->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();
   int m1Evt = treeM1->GetEntries();
   int m2Evt = treeM2->GetEntries();
-  int m3Evt = treeM3->GetEntries();
-  int m4Evt = treeM3->GetEntries();
-  
+  int m3Evt = treeM3->GetEntries(); 
+  int m4Evt = treeM4->GetEntries();
+ 
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m;
   Double_t mc_th, mc_pt, mc_lt, mc_m;
@@ -90,15 +94,15 @@ void histoSave()
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
       }
     }
-  
+
   for(int i = 0; i < m3Evt; i++)
     {
       treeM3->GetEntry(i);
       if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && mc_m > 3.0 && mc_m < 3.2) {
-	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
+	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);	
       }
     }
-
+  
   for(int i = 0; i < m4Evt; i++)
     {
       treeM4->GetEntry(i);
@@ -106,7 +110,7 @@ void histoSave()
 	mcHist_ab->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
-
+  
   dataHist_ab->SetStats(0);
   dataHist_ab->GetXaxis()->SetTitle("|cos#theta_{HX}|");
   dataHist_ab->GetYaxis()->SetTitle("p_{T} (GeV)");

@@ -37,9 +37,11 @@ void plotRes()
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->SetTitle("");
 
-  int col[] = {kRed+3, kRed};
+  int col[] = {kBlack, kRed};
   for(int i = 0; i < 2; i++) {
     graph_lth[i]->SetLineColor(col[i]);
+    graph_lth[i]->SetMarkerStyle(20);
+    graph_lth[i]->SetMarkerSize(.5);
     graph_lth[i]->SetMarkerColor(col[i]);
     graph_lth[i]->Draw("p same");
   }

@@ -113,37 +113,5 @@ void compBkgFrac()
   c->SaveAs("plots/fNP_comp.pdf");
   c->Clear();
 
-  // get fit fNP^c
-  TH1D **h_fNPc = new TH1D*[3];
-
-  for(int i = 0; i < 3; i++) {
-    TFile *fin1 = new TFile(Form("%s%s/PR_fit/files/NPFrac.root", basel.c_str(), loc[i].c_str()));
-    TH2D* fNP2d = (TH2D*)fin1->Get("h_fNPc"); 
-    fNP2d->SetDirectory(0);
-    fin1->Close();
-    
-    h_fNPc[i] = fNP2d->ProjectionY(Form("fnpc_1d_%d", i), 1, 1);
-    h_fNPc[i]->Scale(100.);
-  }
-
-  TH1F *fr2c = c->DrawFrame(20, 0.0, 125, 40);
-  fr2c->SetXTitle("p_{T} (GeV)");
-  fr2c->SetYTitle("f (%)");
-  fr2c->GetYaxis()->SetTitleOffset(1.3);
-  fr2c->GetYaxis()->SetLabelOffset(0.01);
-  fr2c->SetTitle("f_{NP}^{c} comparison");
-
-  for(int i = 0; i < 3; i++) {
-    h_fNPc[i]->SetLineColor(cols[i]);
-    h_fNPc[i]->SetMarkerColor(cols[i]);
-    h_fNPc[i]->SetMarkerStyle(20);
-    h_fNPc[i]->SetMarkerSize(.5);
-    h_fNPc[i]->Draw("error same");
-  }
-  
-  leg->Draw();
-  
-  c->SaveAs("plots/fNPc_comp.pdf");
-  c->Clear();
   c->Destructor();
 }

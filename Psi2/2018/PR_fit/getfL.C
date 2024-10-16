@@ -10,11 +10,11 @@ int do_round(double val)
 void getfL()
 {
   // get the mass background fit function
-  TF1 *fMass = new TF1("fMass", "exp(-x/[0])", 3.35, 4.0);
+  TF1 *fMass = new TF1("fMass", "exp(-x/[0])", 3.35, 4.);
   // define same function as above but *m
-  TF1 *mMass = new TF1("mMass", "exp(-x/[0])*x", 3.35, 4.0);
+  TF1 *mMass = new TF1("mMass", "exp(-x/[0])*x", 3.35, 4.);
   // get fMass parameters
-  TFile *inFMass = new TFile("../bkgFits/files/mfit_2.root");
+  TFile *inFMass = new TFile("../bkgFits/files/mfit_1.root");
   TGraphErrors *m_ld = (TGraphErrors*)inFMass->Get("fit_lambda");
   inFMass->Close();
 
@@ -41,6 +41,7 @@ void getfL()
     avg_LSB[i] = mMass->Integral(m_min[0], m_max[0])/fMass->Integral(m_min[0], m_max[0]);
     avg_RSB[i] = mMass->Integral(m_min[2], m_max[2])/fMass->Integral(m_min[2], m_max[2]);
     double avg_sig = (m_max[1]+m_min[1])/2.;
+    cout << avg_sig << endl;
     fL[i] = (avg_sig - avg_LSB[i]) / (avg_RSB[i] - avg_LSB[i]);
     
     fL[i] *= 100;

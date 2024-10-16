@@ -84,7 +84,6 @@ void plotRes()
   leg2->SetTextSize(0.03);
   leg2->SetBorderSize(0);
   leg2->SetFillColorAlpha(kWhite,0);
-  leg2->SetTextSize(0.03);
   leg2->AddEntry(graph_B[2], "prompt #psi(2S)", "pl");
   leg2->AddEntry(graph_B[1], "non-prompt #psi(2S)", "pl");
   leg2->Draw();

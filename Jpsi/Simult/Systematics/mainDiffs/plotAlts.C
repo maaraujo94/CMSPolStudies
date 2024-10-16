@@ -24,9 +24,11 @@ void plotAlts()
 
   // get the fit results - 10 sets
   TGraphErrors **graph_lth = new TGraphErrors*[10];
+  TGraphErrors **graph_lthNP = new TGraphErrors*[4];
   // 0 - get Run2 results
   TFile *fIndB = new TFile("../../PR_fit/files/finalFitRes.root");
   graph_lth[0] = (TGraphErrors*)fIndB->Get("graph_lambda_J");
+  graph_lthNP[0] = (TGraphErrors*)fIndB->Get("graph_lambda_NP");
   fIndB->Close();
   // 1 - get 2017 and 2018 results
   TFile *fInd17 = new TFile("../../../2017/PR_fit/files/finalFitRes.root");
@@ -38,13 +40,16 @@ void plotAlts()
   // 2 - get lambda values for each eff model
   TFile *fIndf1 = new TFile("../../../Simult_eff1/PR_fit/files/finalFitRes.root");
   graph_lth[3] = (TGraphErrors*)fIndf1->Get(Form("graph_lambda_J"));
+  graph_lthNP[1] = (TGraphErrors*)fIndf1->Get(Form("graph_lambda_NP"));
   fIndf1->Close();
   TFile *fIndf2 = new TFile("../../../Simult_eff2/PR_fit/files/finalFitRes.root");
   graph_lth[4] = (TGraphErrors*)fIndf2->Get(Form("graph_lambda_J"));
+  graph_lthNP[2] = (TGraphErrors*)fIndf2->Get(Form("graph_lambda_NP"));
   fIndf2->Close();
   // 3 - get results with higher pT cut
   TFile *fIndpt = new TFile("../../../Simult_cutPt/PR_fit/files/finalFitRes.root");
   graph_lth[5] = (TGraphErrors*)fIndpt->Get(Form("graph_lambda_J"));
+  graph_lthNP[3] = (TGraphErrors*)fIndpt->Get(Form("graph_lambda_NP"));
   fIndpt->Close();
   // 4 - get results with |eta| cut
   TFile *fIndEta = new TFile("../../../Simult_cutEta/PR_fit/files/finalFitRes.root");
@@ -77,7 +82,7 @@ void plotAlts()
 
   // get the differences
   double diff[5][nBinspT], za[nBinspT], uncR[nBinspT];
-  double diffP[3][nBinspT];
+  double diffP[3][nBinspT], diffNP[3][nBinspT];
   double diffY[nBinspT], errY[nBinspT];
   for(int i = 0; i < nBinspT; i++) {
     diff[0][i] = (graph_lth[3]->GetY()[i] - graph_lth[0]->GetY()[i]);
@@ -110,6 +115,10 @@ void plotAlts()
     diffP[1][i] = (graph_phi[3]->GetY()[i] - graph_phi[0]->GetY()[i]);
     diffP[2][i] = (graph_phi[4]->GetY()[i] - graph_phi[1]->GetY()[i]);
 
+    // NP uncs also
+    diffNP[0][i] = (graph_lthNP[1]->GetY()[i] - graph_lthNP[0]->GetY()[i]);
+    diffNP[1][i] = (graph_lthNP[2]->GetY()[i] - graph_lthNP[0]->GetY()[i]);
+    diffNP[2][i] = (graph_lthNP[3]->GetY()[i] - graph_lthNP[0]->GetY()[i]);
     //cout << i << " " << diffP[0][i] << " " << diffP[1][i] << " / " << diffP[2][i] << endl;
     
     za[i] = 0;
@@ -165,6 +174,9 @@ void plotAlts()
   TGraphErrors *g_lthPhi1 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[0], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthPhi2 = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[1], graph_lth[0]->GetEX(), za);
   TGraphErrors *g_lthPhiNP = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), diffP[2], graph_lth[0]->GetEX(), za);
+  TGraphErrors *g_lthNPF = new TGraphErrors(nBinspT, graph_lthNP[0]->GetX(), diffNP[0], graph_lthNP[0]->GetEX(), za);
+  TGraphErrors *g_lthNPFI = new TGraphErrors(nBinspT, graph_lthNP[0]->GetX(), diffNP[1], graph_lthNP[0]->GetEX(), za);
+  TGraphErrors *g_lthNPpT = new TGraphErrors(nBinspT, graph_lthNP[0]->GetX(), diffNP[2], graph_lthNP[0]->GetEX(), za);
   
   TGraphErrors *g_unc = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_lth[0]->GetEY());
   TGraphErrors *g_uncNP = new TGraphErrors(nBinspT, graph_lth[0]->GetX(), za, graph_lth[0]->GetEX(), graph_phi[1]->GetEY());
@@ -220,8 +232,42 @@ void plotAlts()
   c->SaveAs("plots/lth_absDiff_muEff.pdf");
   c->Clear();
 
-  c->SetTopMargin(0.1);
+  // now the NP case  
+  TH1F *flNP1 = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
+  flNP1->SetXTitle("p_{T} (GeV)");
+  flNP1->SetYTitle("#Delta#lambda_{#theta}");
+  flNP1->GetYaxis()->SetTitleOffset(1.3);
+  flNP1->GetYaxis()->SetLabelOffset(0.01);
+  //flNP1->SetTitle("prompt #Delta#lambda_{#theta} (muon eff |#eta|<0.2)");
   
+  g_lthNPF->SetLineColor(kBlue);
+  g_lthNPF->SetMarkerColor(kBlue);
+  g_lthNPF->SetMarkerStyle(24);
+  g_lthNPF->SetMarkerSize(.75);
+  g_lthNPF->Draw("p same");
+
+  g_lthNPFI->SetLineColor(kBlue);
+  g_lthNPFI->SetMarkerColor(kBlue);
+  g_lthNPFI->SetMarkerStyle(22);
+  g_lthNPFI->SetMarkerSize(.75);
+  g_lthNPFI->Draw("p same");
+
+  g_lthNPpT->SetLineColor(kGreen+1);
+  g_lthNPpT->SetMarkerColor(kGreen+1);
+  g_lthNPpT->SetMarkerStyle(20);
+  g_lthNPpT->SetMarkerSize(.75);
+  g_lthNPpT->Draw("p same");
+
+  g_uncNP->SetLineColor(kBlack);
+  g_uncNP->SetFillColorAlpha(kBlack, 0.1);
+  g_uncNP->Draw("ce3");
+
+  leg->Draw();
+
+  c->SaveAs("plots/lthNP_absDiff_muEff.pdf");
+  c->Clear();
+
+  c->SetTopMargin(0.1);
   
   // eta variation
   TH1F *flE = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
@@ -288,13 +334,27 @@ void plotAlts()
   g_lthY->SetMarkerSize(.75);
   g_lthY->Draw("p same");
   
-  TF1 *f1 = new TF1("f1", "[0]", 25, 120);
-  f1->SetParameter(0, 0.02);
-  g_lthY->Fit(f1);
-
   zero->Draw();
   
   c->SaveAs("plots/lth_absDiff_Y.pdf");
+  c->Clear();
+
+  // SECOND - draw 2017-2018 with the calculated uncertainty
+  // again but with same interval as psi(2S)
+  da_lim = 0.6;
+  
+  TH1F *fl2a = c->DrawFrame(pTBins[0]-5, -da_lim, pTBins[nBinspT], da_lim);
+  fl2a->SetXTitle("p_{T} (GeV)");
+  fl2a->SetYTitle("#Delta#lambda_{#theta}");
+  fl2a->GetYaxis()->SetTitleOffset(1.3);
+  fl2a->GetYaxis()->SetLabelOffset(0.01);
+  fl2a->SetTitle("prompt #Delta#lambda_{#theta} (2017-2018)");
+  
+  g_lthY->Draw("p same");
+  
+  zero->Draw();
+  
+  c->SaveAs("plots/lth_absDiff_Y_alt.pdf");
   c->Clear();
 
   // phi-based variation
@@ -305,7 +365,7 @@ void plotAlts()
   fl3->SetYTitle("#Delta#lambda_{#theta}");
   fl3->GetYaxis()->SetTitleOffset(1.3);
   fl3->GetYaxis()->SetLabelOffset(0.01);
-  fl3->SetTitle("prompt #Delta#lambda_{#theta} (#lambda_{#varphi} weight)");
+  fl3->SetTitle("prompt #Delta#lambda_{#theta}");
   
   g_lthPhi1->SetLineColor(kBlue);
   g_lthPhi1->SetMarkerColor(kBlue);
@@ -321,7 +381,9 @@ void plotAlts()
 
   g_unc->Draw("ce3");
 
-  TLegend *legp = new TLegend(0.72, 0.7, 0.97, 0.9);
+  TLegend *legp = new TLegend(0.7, 0.775, 1., 0.875);
+  legp->SetBorderSize(0);
+  legp->SetFillColorAlpha(kWhite, 0);
   legp->SetTextSize(0.03);
   legp->AddEntry(g_lthPhi1, "#beta = -0.005", "pl");
   legp->AddEntry(g_lthPhi2, "#beta = -0.015", "pl");
@@ -335,7 +397,7 @@ void plotAlts()
   fl4->SetYTitle("#Delta#lambda_{#theta}");
   fl4->GetYaxis()->SetTitleOffset(1.3);
   fl4->GetYaxis()->SetLabelOffset(0.01);
-  fl4->SetTitle("non-prompt #Delta#lambda_{#theta} (#lambda_{#varphi} weight)");
+  fl4->SetTitle("non-prompt #Delta#lambda_{#theta}");
   
   g_lthPhiNP->SetLineColor(kBlue);
   g_lthPhiNP->SetMarkerColor(kBlue);
@@ -347,7 +409,9 @@ void plotAlts()
   g_uncNP->SetFillColorAlpha(kBlack, 0.1);
   g_uncNP->Draw("ce3");
 
-  TLegend *legpn = new TLegend(0.72, 0.8, 0.97, 0.9);
+  TLegend *legpn = new TLegend(0.7, 0.825, 1., 0.875);
+  legpn->SetBorderSize(0);
+  legpn->SetFillColorAlpha(kWhite, 0);
   legpn->SetTextSize(0.03);
   legpn->AddEntry(g_lthPhiNP, "#beta = 0.02", "pl");
   legpn->Draw();

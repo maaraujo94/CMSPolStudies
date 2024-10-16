@@ -131,10 +131,10 @@ if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt
   for(int i = 0; i < m2Evt; i++)
     {
       treeM2->GetEntry(i);
-if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
-      if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
-	MCHist->Fill(abs(cos(mc_th)), mc_pt);
-      }
+      if((abs(mPEta) > eta_lim || mPPt > pt_cut) && (abs(mMEta) > eta_lim || mMPt > pt_cut))
+	if(mc_pt > 45 && mc_pt < 50 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
+	  MCHist->Fill(abs(cos(mc_th)), mc_pt);
+	}
     }
 
   // MC sample 3

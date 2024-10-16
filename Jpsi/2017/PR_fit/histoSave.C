@@ -30,8 +30,8 @@ void histoSave()
   int m1Evt = treeM1->GetEntries();
   int m2Evt = treeM2->GetEntries();
   int m3Evt = treeM3->GetEntries();
-  int m4Evt = treeM4->GetEntries();
-  
+  int m4Evt = treeM4->GetEntries(); 
+ 
   // definitions to store data and MC events
   Double_t data_th, data_pt, data_lt, data_m, data_y;
   Double_t mc_th, mc_pt, mc_lt, mc_m, mc_y;
@@ -82,7 +82,7 @@ void histoSave()
 	    PRRHist->Fill(abs(cos(data_th)), data_pt);
 	}
 	// NP peak and sidebands
-	else if(data_lt > 0.01 && data_lt < 0.05 ) {
+	else if(data_lt > 0.01 && data_lt < 0.08 ) {
 	  if(data_m > 3.0 && data_m < 3.2)
 	    NPHist->Fill(abs(cos(data_th)), data_pt);
 	  else if(data_m < 2.95 && data_m > 2.92)
@@ -116,7 +116,7 @@ void histoSave()
     {
       treeM3->GetEntry(i);
       if(mc_pt > 50 && mc_pt < 70 && abs(mc_lt) < 0.005 && abs(mc_y) < 1.2 && mc_m > 3.0 && mc_m < 3.2) {
-      	MCHist->Fill(abs(cos(mc_th)), mc_pt);
+	MCHist->Fill(abs(cos(mc_th)), mc_pt);
       }
     }
 

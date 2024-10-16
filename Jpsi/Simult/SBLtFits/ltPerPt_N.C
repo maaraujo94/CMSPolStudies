@@ -191,7 +191,7 @@ void ltPerPt_N(double binLo, double binHi, int nBin)
     double yp = getPos(h_d1d[i_m]->GetMinimum(), h_d1d[i_m]->GetMaximum(), 0.9, 1);
     lc.DrawLatex(xp, yp, Form("#bf{%.1f < #it{p}_{T} < %.1f GeV}", binLo, binHi));
     yp = getPos(h_d1d[i_m]->GetMinimum(), h_d1d[i_m]->GetMaximum(), 0.83, 1);
-    lc.DrawLatex(xp, yp, Form("#bf{%.3f < M(#mu#mu) < %.3f GeV}", m_min[i_m], m_max[i_m]));
+    lc.DrawLatex(xp, yp, Form("#bf{%.2f < M(#mu#mu) < %.2f GeV}", m_min[i_m], m_max[i_m]));
     // draw the chi^2/ndf
     yp = getPos(h_d1d[i_m]->GetMinimum(), h_d1d[i_m]->GetMaximum(), 0.75, 1);
     lc.DrawLatex(xp, yp, Form("#bf{global #chi^{2}/ndf = %.0f / %d}", fitS->GetChisquare(), fitS->GetNDF()));
