@@ -64,22 +64,22 @@ void ctEvts()
   // output results into a .tex table
   ofstream ftex;
   ftex.open(Form("text_output/data_mc_evts_18.tex"));
-  ftex << "\\begin{tabular}{cc|cccc|c}\n";
+  ftex << "\\begin{tabular}{cl|cccc|c}\n";
   ftex << "\\hline\n";
-  ftex << Form("\\multicolumn{2}{c}{2018} & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV & $[%.0f, %.0f]$ GeV \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[3], pt_max[3], pt_min[0], pt_max[3]);
+  ftex << Form("\\multicolumn{2}{c}{2018} & $[%.0f, %.0f]$  & $[%.0f, %.0f]$  & $[%.0f, %.0f]$  & $[%.0f, %.0f]$  & $[%.0f, %.0f]$  \\\\\n", pt_min[0], pt_max[0], pt_min[1], pt_max[1], pt_min[2], pt_max[2], pt_min[3], pt_max[3], pt_min[0], pt_max[3]);
   ftex << "\\hline\n";
 
   // data output
-  ftex << Form("\\multirow{6}{*}{\\rotatebox[origin=c]{90}{Data}} & Peak & %.3f M & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_PRSR[0]/1e6, n_PRSR[1]/1e6, n_PRSR[2]/1e6, n_PRSR[3]/1e6, n_PRSR[4]/1e6);
-  ftex << Form("& NP & %.3f M & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_NPSR[0]/1e6, n_NPSR[1]/1e6, n_NPSR[2]/1e6, n_NPSR[3]/1e6, n_NPSR[4]/1e6);
-  ftex << Form("& PR LSB & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_PLSB[0]/1e3, n_PLSB[1]/1e3, n_PLSB[2]/1e3, n_PLSB[3]/1e3, n_PLSB[4]/1e3);
-  ftex << Form("& PR RSB & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_PRSB[0]/1e3, n_PRSB[1]/1e3, n_PRSB[2]/1e3, n_PRSB[3]/1e3, n_PRSB[4]/1e3);
-  ftex << Form("& NP LSB & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_NLSB[0]/1e3, n_NLSB[1]/1e3, n_NLSB[2]/1e3, n_NLSB[3]/1e3, n_NLSB[4]/1e3);
-  ftex << Form("& NP RSB & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_NRSB[0]/1e3, n_NRSB[1]/1e3, n_NRSB[2]/1e3, n_NRSB[3]/1e3, n_NRSB[4]/1e3);
+  ftex << Form("\\multirow{6}{*}{\\rotatebox[origin=c]{90}{Data}} & Prompt signal region (PRS) & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_PRSR[0]/1e3, n_PRSR[1]/1e3, n_PRSR[2]/1e3, n_PRSR[3]/1e3, n_PRSR[4]/1e3);
+  ftex << Form("& Non-prompt signal region (NPS) & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_NPSR[0]/1e3, n_NPSR[1]/1e3, n_NPSR[2]/1e3, n_NPSR[3]/1e3, n_NPSR[4]/1e3);
+  ftex << Form("& Prompt left mass SB (PRLSB) & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_PLSB[0]/1e3, n_PLSB[1]/1e3, n_PLSB[2]/1e3, n_PLSB[3]/1e3, n_PLSB[4]/1e3);
+  ftex << Form("& Prompt right mass SB (PRRSB) & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_PRSB[0]/1e3, n_PRSB[1]/1e3, n_PRSB[2]/1e3, n_PRSB[3]/1e3, n_PRSB[4]/1e3);
+  ftex << Form("& Non-prompt left mass SB (NPLSB) & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_NLSB[0]/1e3, n_NLSB[1]/1e3, n_NLSB[2]/1e3, n_NLSB[3]/1e3, n_NLSB[4]/1e3);
+  ftex << Form("& Non-prompt right mass SB (NPRSB) & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_NRSB[0]/1e3, n_NRSB[1]/1e3, n_NRSB[2]/1e3, n_NRSB[3]/1e3, n_NRSB[4]/1e3);
   ftex << "\\hline\n";
 
   // MC output
-  ftex << Form("MC & (only Peak) & %.3f M & %.3f M & %.3f M & %.3f M & %.3f M \\\\\n", n_MC[0]/1e6, n_MC[1]/1e6, n_MC[2]/1e6, n_MC[3]/1e6, n_MC[4]/1e6);
+  ftex << Form("MC & Only PRS region & %.1f k & %.1f k & %.1f k & %.1f k & %.1f k \\\\\n", n_MC[0]/1e3, n_MC[1]/1e3, n_MC[2]/1e3, n_MC[3]/1e3, n_MC[4]/1e3);
   ftex << "\\hline\n";
   
   ftex << "\\end{tabular}\n";

@@ -77,6 +77,7 @@ void plot_ANdists()
 
     h_pT[i]->SetStats(0);
     h_pT[i]->SetLineColor(colpt[i]);
+    h_pT[i]->SetMarkerColor(colpt[i]);
     h_pT[i]->SetMinimum(5e1);
     h_pT[i]->SetMaximum(8e6);
     h_pT[i]->GetXaxis()->SetTitle("#it{p}_{T} (GeV)");
@@ -88,12 +89,12 @@ void plot_ANdists()
     h_pT[i]->GetYaxis()->SetTitle("dN/d#it{p}_{T}");
     h_pT[i]->SetTitle("");
     if(i == 0) {
-      h_pT[i]->Draw("histo");
-      h_pT[i]->SetLineWidth(2);
-      h_pT[i]->SetFillColorAlpha(kYellow,0.2);
+      h_pT[i]->Draw("error");
+      //      h_pT[i]->SetLineWidth(2);
+      // h_pT[i]->SetFillColorAlpha(kYellow,0.2);
     }
     else {
-      h_pT[i]->Draw("histo same");
+      h_pT[i]->Draw("error same");
     }
   }
   
@@ -121,6 +122,9 @@ void plot_ANdists()
 
     h_y[i]->SetStats(0);
     h_y[i]->SetLineColor(coly[0]);
+    h_y[i]->SetMarkerColor(coly[0]);
+    h_y[i]->SetMarkerStyle(20);
+    h_y[i]->SetMarkerSize(.5);
     h_y[i]->SetMinimum(1e3);
     h_y[i]->SetMaximum(2e5);
     h_y[i]->GetXaxis()->SetTitle("#it{y}");
@@ -130,17 +134,20 @@ void plot_ANdists()
     h_y[i]->GetYaxis()->SetLabelOffset(0.01);
     h_y[i]->GetYaxis()->SetTitle("dN/d#it{y}");
     h_y[i]->SetTitle("");
-    if(i > 0) h_y[i]->SetLineStyle(kDashed);
-    if(i == 0) h_y[i]->Draw("histo");
-    else h_y[i]->Draw("histo same");  
+    if(i > 0) {
+      h_y[i]->SetLineStyle(kDashed);
+      h_y[i]->SetMarkerStyle(24);
+    }
+    if(i == 0) h_y[i]->Draw("error");
+    else h_y[i]->Draw("error same");  
   }
 
   TLegend *legcy = new TLegend(0.6, 0.725, 0.9, 0.85);
   legcy->SetTextSize(0.04);
   legcy->SetBorderSize(0);
   legcy->SetFillColorAlpha(kWhite,0);
-  legcy->AddEntry(h_y[0], "PRS Data", "l");
-  legcy->AddEntry(h_y[1], "MC", "l");
+  legcy->AddEntry(h_y[0], "PRS Data", "pl");
+  legcy->AddEntry(h_y[1], "MC", "pl");
   legcy->Draw();
 
   TLatex lcy;
@@ -149,7 +156,7 @@ void plot_ANdists()
   lcy.DrawLatex(-1, yl, "#bf{2018 #psi(2S)}");
 
   
-  c->SaveAs(Form("plots/ANdists/y_all.pdf"));
+  //  c->SaveAs(Form("plots/ANdists/y_all.pdf"));
   c->Clear();
 
   // y scaling MC to data
@@ -163,16 +170,16 @@ void plot_ANdists()
     if(i > 0) {
       h_y[i]->Scale(h_y[i-1]->Integral() / h_y[i]->Integral());
     }
-    if(i == 0) h_y[i]->Draw("histo");
-    else h_y[i]->Draw("histo same");  
+    if(i == 0) h_y[i]->Draw("error");
+    else h_y[i]->Draw("error same");  
   }
 
   TLegend *legcys = new TLegend(0.575, 0.475, 0.875, 0.6);
   legcys->SetTextSize(0.04);
   legcys->SetBorderSize(0);
   legcys->SetFillColorAlpha(kWhite,0);
-  legcys->AddEntry(h_y[0], "PRS Data", "l");
-  legcys->AddEntry(h_y[1], "Scaled MC", "l");
+  legcys->AddEntry(h_y[0], "PRS Data", "pl");
+  legcys->AddEntry(h_y[1], "Scaled MC", "pl");
   legcys->Draw();
 
   TLatex lcys;
@@ -205,8 +212,8 @@ void plot_ANdists()
     h_yr[i]->GetYaxis()->SetTitle("Data/MC");
     h_yr[i]->SetTitle("");
 
-    if(i == 0) h_yr[i]->Draw("histo");
-    else h_yr[i]->Draw("histo same");  
+    if(i == 0) h_yr[i]->Draw("error");
+    else h_yr[i]->Draw("error same");  
   }
 
   TLatex lcyr;
@@ -216,7 +223,7 @@ void plot_ANdists()
   yl = getPos(h_yr[0]->GetMinimum(), h_yr[0]->GetMaximum(), 0.9, 0);
   lcyr.DrawLatex(0.35, yl, "#bf{[20,100] GeV}");
 
-  c->SaveAs(Form("plots/ANdists/y_ratio.pdf"));
+  //  c->SaveAs(Form("plots/ANdists/y_ratio.pdf"));
   c->Clear();
 
   // plot lifetime
@@ -234,8 +241,8 @@ void plot_ANdists()
     h_lt[i]->GetYaxis()->SetLabelOffset(0.01);
     h_lt[i]->GetYaxis()->SetTitle("dN/d c#tau");
     h_lt[i]->SetTitle("");
-    if(i == 0) h_lt[i]->Draw("histo");
-    else h_lt[i]->Draw("histo same");  
+    if(i == 0) h_lt[i]->Draw("error");
+    else h_lt[i]->Draw("error same");  
   }
 
   TLine *l_PRm = new TLine(-50, h_lt[0]->GetMinimum(), -50, h_lt[0]->GetMaximum());
@@ -286,7 +293,7 @@ void plot_ANdists()
   h_lt[0]->GetXaxis()->SetTitleOffset(1.1);
   h_lt[0]->GetYaxis()->SetTitle("dN/dc#tau");
   h_lt[0]->SetTitle("");
-  h_lt[0]->Draw("histo");
+  h_lt[0]->Draw("error");
   
   l_PRm->Draw();
   l_PRp->Draw();
@@ -312,8 +319,8 @@ void plot_ANdists()
     h_lt[i]->GetXaxis()->SetTitleOffset(1.1);
     h_lt[i]->GetYaxis()->SetTitle("dN/dc#tau (a.u.)");
     h_lt[i]->SetTitle("");
-    if(i == 0) h_lt[i]->Draw("histo");
-    else h_lt[i]->Draw("histo same");  
+    if(i == 0) h_lt[i]->Draw("error");
+    else h_lt[i]->Draw("error same");  
   }
 
   l_PRm->Draw();
@@ -338,11 +345,11 @@ void plot_ANdists()
   for(int i = 0; i < 2; i++) {
     h_m[i]->SetStats(0);
     h_m[i]->Scale(1./h_m[i]->Integral());
-    cout << i << endl;
-    cout << h_m[i]->GetMaximum() << endl;
     h_m[i]->Scale(h_m[0]->GetMaximum()/h_m[i]->GetMaximum());
-    cout << h_m[i]->GetMaximum() << endl;
     h_m[i]->SetLineColor(coly[0]);
+    h_m[i]->SetMarkerColor(coly[0]);
+    h_m[i]->SetMarkerStyle(20);
+    h_m[i]->SetMarkerSize(.5);
     h_m[i]->GetXaxis()->SetTitle("#it{m} (GeV)");
     h_m[i]->GetXaxis()->CenterTitle(true);
     h_m[i]->GetXaxis()->SetTitleOffset(1.1);
@@ -351,14 +358,17 @@ void plot_ANdists()
     h_m[i]->GetYaxis()->SetLabelOffset(0.01);
     h_m[i]->GetYaxis()->SetTitle("dN/d#it{m} (normalized)");
     h_m[i]->SetTitle("");
-    if(i > 0) h_m[i]->SetLineStyle(kDashed);
+    if(i > 0){
+      h_m[i]->SetLineStyle(kDashed);
+      h_m[i]->SetMarkerStyle(24);
+    }
   }
   
   for(int i = 0; i < 2; i++) {  
     h_m[i]->SetMinimum(0);
     h_m[i]->SetMaximum(0.0425);
-    if(i==0) h_m[i]->Draw("histo");
-    else h_m[i]->Draw("histo same");
+    if(i==0) h_m[i]->Draw("error");
+    else h_m[i]->Draw("error same");
   }
 
 
@@ -371,8 +381,8 @@ void plot_ANdists()
   legcm->SetTextSize(0.04);
   legcm->SetBorderSize(0);
   legcm->SetFillColorAlpha(kWhite,0);
-  legcm->AddEntry(h_m[0], "PR Data", "l");
-  legcm->AddEntry(h_m[1], "MC", "l");
+  legcm->AddEntry(h_m[0], "PR Data", "pl");
+  legcm->AddEntry(h_m[1], "MC", "pl");
   legcm->Draw();
 
   c->SaveAs(Form("plots/ANdists/m_scale.pdf"));
@@ -388,7 +398,7 @@ void plot_ANdists()
   h_m[0]->GetYaxis()->SetTitleOffset(1.8);
   h_m[0]->SetMaximum(1.2e6);
   h_m[0]->SetTitle("");
-  h_m[0]->Draw("histo");  
+  h_m[0]->Draw("error");  
 
   TLatex lcmf;
   lcmf.SetTextSize(0.04);
@@ -415,8 +425,8 @@ void plot_ANdists()
     h_cos[i]->GetXaxis()->SetTitleOffset(1.);
     h_cos[i]->GetYaxis()->SetTitle("dN/d|cos#theta| (a.u.)");
     h_cos[i]->SetTitle("");
-    if(i == 0) h_cos[i]->Draw("histo");
-    else h_cos[i]->Draw("histo same"); 
+    if(i == 0) h_cos[i]->Draw("error");
+    else h_cos[i]->Draw("error same"); 
   }
 
   TLatex lccf;

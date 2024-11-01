@@ -26,6 +26,12 @@ void store_muDists()
   for(int i = 0; i < 2; i++)
     hM_eta[i] = new TH1D(Form("hM_eta%d", i), Form("#eta(mu^{-}) distributions"), 60, -1.5, 1.5);
 
+  // extra mu+ pT dists for comparing dimuon pT intervals
+  double pt_ints[] = {20,30,40,60,100};
+  TH1D **hP_dimpT = new TH1D*[8]; 
+  for(int i = 0; i < 8; i++)
+    hP_dimpT[i] = new TH1D(Form("hP_dimpT%d", i), Form("p_{T}(#mu^{+}) distributions"), 55, 0, 110);
+
   double m_min[] = {3.4, 3.57, 3.82};
   double m_max[] = {3.52, 3.81, 4.0};
 
@@ -72,6 +78,10 @@ void store_muDists()
 	hM_pT[0]->Fill(mMPt);
 	hP_eta[0]->Fill(mPEta);
 	hM_eta[0]->Fill(mMEta);
+	for(int j = 0; j < 4; j++) {
+	  if(data_pt > pt_ints[j] && data_pt < pt_ints[j+1])
+	    hP_dimpT[j]->Fill(mPPt);
+	}
       }
     }
   
@@ -88,6 +98,10 @@ void store_muDists()
 	hM_pT[1]->Fill(mMPt);
 	hP_eta[1]->Fill(mPEta);
 	hM_eta[1]->Fill(mMEta);
+	for(int j = 0; j < 4; j++) {
+	  if(mc_pt > pt_ints[j] && mc_pt < pt_ints[j+1])
+	    hP_dimpT[j+4]->Fill(mPPt);
+	}
       }
     }
   
@@ -106,8 +120,11 @@ void store_muDists()
     hM_pT[i]->Write(Form("hM_pT_%s", lbl_pT[i].c_str()));
     hP_eta[i]->Write(Form("hP_eta_%s", lbl_pT[i].c_str()));
     hM_eta[i]->Write(Form("hM_eta_%s", lbl_pT[i].c_str()));
+    for(int j = 0; j < 4; j++) {
+      hP_dimpT[j+i*4]->Write(Form("hP_dimpT_%s%d", lbl_pT[i].c_str(), j));
+    }
   }
-
+  
   cout << "all histos stored" << endl;
   
   fout->Close();

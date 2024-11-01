@@ -44,7 +44,7 @@ void plot_muDists()
   c->SetTopMargin(0.015);
   c->SetRightMargin(0.03);
   
-  // plot pT (mu+) - don't scale
+  // plot pT (mu+) - scale
   c->SetLogy();
   c->SetLeftMargin(0.11);
   int col_v[] = {kRed+1, kViolet+2, kGreen+3, kBlue};
@@ -53,8 +53,11 @@ void plot_muDists()
 
     hP_pT[i]->SetStats(0);
     hP_pT[i]->SetLineColor(col_v[i%4]);
+    hP_pT[i]->SetMarkerColor(col_v[i%4]);
+    hP_pT[i]->SetMarkerStyle(20);
+    hP_pT[i]->SetMarkerSize(.5);
     hP_pT[i]->SetMinimum(1e1);
-    hP_pT[i]->SetMaximum(4e6);
+    hP_pT[i]->SetMaximum(2e6);
     hP_pT[i]->GetXaxis()->SetTitle("#it{p}_{T} (#mu^{+}) (GeV)");
     hP_pT[i]->GetXaxis()->SetTitleOffset(1.1);
     hP_pT[i]->GetXaxis()->CenterTitle(true);
@@ -64,26 +67,33 @@ void plot_muDists()
     hP_pT[i]->SetTitle("");
 
     if(i > 3) {
-      //    hP_pT[i]->Scale(hP_pT[i-4]->Integral() / hP_pT[i]->Integral());
+      hP_pT[i]->Scale(hP_pT[i-4]->Integral() / hP_pT[i]->Integral());
       hP_pT[i]->SetLineStyle(kDashed);
+      hP_pT[i]->SetMarkerStyle(24);
     }
-    if(i == 0) hP_pT[i]->Draw("histo");
-    else hP_pT[i]->Draw("histo same");  
+    if(i == 0) hP_pT[i]->Draw("error");
+    else hP_pT[i]->Draw("error same");  
 
   }
 
   // just formatting another histo for the y legend
   hP_eta[1]->SetLineColor(kBlack);
   hP_eta[1]->SetLineStyle(kSolid);
+  hP_eta[1]->SetMarkerColor(kBlack);
+  hP_eta[1]->SetMarkerStyle(20);
+  hP_eta[1]->SetMarkerSize(.5);
   hP_eta[5]->SetLineColor(kBlack);
   hP_eta[5]->SetLineStyle(kDashed);
+  hP_eta[5]->SetMarkerColor(kBlack);
+  hP_eta[5]->SetMarkerStyle(24);
+  hP_eta[5]->SetMarkerSize(.5);
   
-  TLegend *legPPts = new TLegend(0.65, 0.85, 0.95, 0.975);
+  TLegend *legPPts = new TLegend(0.65, 0.825, 0.95, 0.95);
   legPPts->SetTextSize(0.04);
   legPPts->SetBorderSize(0);
   legPPts->SetFillColorAlpha(kWhite,0);
-  legPPts->AddEntry(hP_eta[1], "PRS Data", "l");
-  legPPts->AddEntry(hP_eta[5], "MC", "l");
+  legPPts->AddEntry(hP_eta[1], "PRS Data", "pl");
+  legPPts->AddEntry(hP_eta[5], "MC", "pl");
   legPPts->Draw();
 
   TLatex lcPPts;
@@ -91,28 +101,29 @@ void plot_muDists()
   double yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.9, 1);
   lcPPts.DrawLatex(35, yl, "#bf{2018 J/#psi}");
   lcPPts.SetTextColor(col_v[0]);
-  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.76, 1);
-  lcPPts.DrawLatex(95, yl, "#bf{[25,45] GeV}");
+  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.735, 1);
+  lcPPts.DrawLatex(92.5, yl, "#bf{[25,45] GeV}");
   lcPPts.SetTextColor(col_v[1]);
-  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.68, 1);
-  lcPPts.DrawLatex(95, yl, "#bf{[45,50] GeV}");
+  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.655, 1);
+  lcPPts.DrawLatex(92.5, yl, "#bf{[45,50] GeV}");
   lcPPts.SetTextColor(col_v[2]);
-  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.6, 1);
-  lcPPts.DrawLatex(95, yl, "#bf{[50,70] GeV}");
+  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.575, 1);
+  lcPPts.DrawLatex(92.5, yl, "#bf{[50,70] GeV}");
   lcPPts.SetTextColor(col_v[3]);
-  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.52, 1);
-  lcPPts.DrawLatex(95, yl, "#bf{[70,120] GeV}");
+  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.495, 1);
+  lcPPts.DrawLatex(92.5, yl, "#bf{[70,120] GeV}");
   
-  c->SaveAs(Form("plots/muDists/muPPt_all.pdf"));
+  c->SaveAs(Form("plots/muDists/muPPt_scale.pdf"));
   c->Clear();
 
-  // plot pT (mu-) - don't scale
+  // plot pT (mu-) -  scale
   for(int i = 0; i < 8; i++) {
 
     hM_pT[i]->SetStats(0);
     hM_pT[i]->SetLineColor(col_v[i%4]);
+    hM_pT[i]->SetMarkerColor(col_v[i%4]);
     hM_pT[i]->SetMinimum(1e1);
-    hM_pT[i]->SetMaximum(4e6);
+    hM_pT[i]->SetMaximum(2e6);
     hM_pT[i]->GetXaxis()->SetTitle("#it{p}_{T} (#mu^{-}) (GeV)");
     hM_pT[i]->GetXaxis()->SetTitleOffset(1.1);
     hM_pT[i]->GetXaxis()->CenterTitle(true);
@@ -122,11 +133,11 @@ void plot_muDists()
     hM_pT[i]->SetTitle("");
 
     if(i > 3) {
-      //    hM_pT[i]->Scale(hM_pT[i-4]->Integral() / hM_pT[i]->Integral());
+      hM_pT[i]->Scale(hM_pT[i-4]->Integral() / hM_pT[i]->Integral());
       hM_pT[i]->SetLineStyle(kDashed);
     }
-    if(i == 0) hM_pT[i]->Draw("histo");
-    else hM_pT[i]->Draw("histo same");  
+    if(i == 0) hM_pT[i]->Draw("error");
+    else hM_pT[i]->Draw("error same");  
 
   }
 
@@ -137,19 +148,19 @@ void plot_muDists()
   yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.9, 1);
   lcMPts.DrawLatex(35, yl, "#bf{2018 J/#psi}");
   lcMPts.SetTextColor(col_v[0]);
-  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.76, 1);
-  lcMPts.DrawLatex(95, yl, "#bf{[25,45] GeV}");
+  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.735, 1);
+  lcMPts.DrawLatex(92.5, yl, "#bf{[25,45] GeV}");
   lcMPts.SetTextColor(col_v[1]);
-  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.68, 1);
-  lcMPts.DrawLatex(95, yl, "#bf{[45,50] GeV}");
+  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.655, 1);
+  lcMPts.DrawLatex(92.5, yl, "#bf{[45,50] GeV}");
   lcMPts.SetTextColor(col_v[2]);
-  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.6, 1);
-  lcMPts.DrawLatex(95, yl, "#bf{[50,70] GeV}");
+  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.575, 1);
+  lcMPts.DrawLatex(92.5, yl, "#bf{[50,70] GeV}");
   lcMPts.SetTextColor(col_v[3]);
-  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.52, 1);
-  lcMPts.DrawLatex(95, yl, "#bf{[70,120] GeV}");
+  yl = getPos(hP_pT[0]->GetMinimum(), hP_pT[0]->GetMaximum(), 0.495, 1);
+  lcMPts.DrawLatex(92.5, yl, "#bf{[70,120] GeV}");
   
-  c->SaveAs(Form("plots/muDists/muMPt_all.pdf"));
+  c->SaveAs(Form("plots/muDists/muMPt_scale.pdf"));
   c->Clear();
 
   // now the etas
@@ -158,6 +169,9 @@ void plot_muDists()
 
     hP_eta[i]->SetStats(0);
     hP_eta[i]->SetLineColor(col_v[i%4]);
+    hP_eta[i]->SetMarkerColor(col_v[i%4]);
+    hP_eta[i]->SetMarkerStyle(20);
+    hP_eta[i]->SetMarkerSize(.5);
     hP_eta[i]->SetMinimum(1e1);
     hP_eta[i]->SetMaximum(9e5);
     hP_eta[i]->GetXaxis()->SetTitle("#eta (#mu^{+})");
@@ -171,24 +185,27 @@ void plot_muDists()
     if(i > 3) {
       hP_eta[i]->Scale(hP_eta[i-4]->Integral() / hP_eta[i]->Integral());
       hP_eta[i]->SetLineStyle(kDashed);
+      hP_eta[i]->SetMarkerStyle(24);
     }
-    if(i == 0) hP_eta[i]->Draw("histo");
-    else hP_eta[i]->Draw("histo same");  
+    if(i == 0) hP_eta[i]->Draw("error");
+    else hP_eta[i]->Draw("error same");  
 
   }
 
   // just formatting another histo for the y legend
   hP_pT[1]->SetLineColor(kBlack);
+  hP_pT[1]->SetMarkerColor(kBlack);
   hP_pT[1]->SetLineStyle(kSolid);
   hP_pT[5]->SetLineColor(kBlack);
   hP_pT[5]->SetLineStyle(kDashed);
+  hP_pT[5]->SetMarkerColor(kBlack);
   
   TLegend *legPEtas = new TLegend(0.6, 0.25, 0.9, 0.375);
   legPEtas->SetTextSize(0.04);
   legPEtas->SetBorderSize(0);
   legPEtas->SetFillColorAlpha(kWhite,0);
-  legPEtas->AddEntry(hP_pT[1], "PRS Data", "l");
-  legPEtas->AddEntry(hP_pT[5], "Scaled MC", "l");
+  legPEtas->AddEntry(hP_pT[1], "PRS Data", "pl");
+  legPEtas->AddEntry(hP_pT[5], "Scaled MC", "pl");
   legPEtas->Draw();
 
   TLatex lcPEtas;
@@ -221,6 +238,7 @@ void plot_muDists()
 
     hP_etar[i]->SetStats(0);
     hP_etar[i]->SetLineColor(col_v[i]);
+    hP_etar[i]->SetMarkerColor(col_v[i]);
     hP_etar[i]->SetMinimum(0.51);
     hP_etar[i]->SetMaximum(1.49);
     hP_etar[i]->GetXaxis()->SetTitle("#eta (#mu^{+})");
@@ -231,8 +249,8 @@ void plot_muDists()
     hP_etar[i]->GetYaxis()->SetTitle("Data/MC");
     hP_etar[i]->SetTitle("");
 
-    if(i == 0) hP_etar[i]->Draw("histo");
-    else hP_etar[i]->Draw("histo same");  
+    if(i == 0) hP_etar[i]->Draw("error");
+    else hP_etar[i]->Draw("error same");  
 
   }
   
@@ -253,14 +271,16 @@ void plot_muDists()
   yl = getPos(hP_etar[0]->GetMinimum(), hP_etar[0]->GetMaximum(), 0.66, 0);
   lcPEtar.DrawLatex(0.3, yl, "#bf{[70,120] GeV}");
   
-  c->SaveAs(Form("plots/muDists/muPEta_ratio.pdf"));
+  //c->SaveAs(Form("plots/muDists/muPEta_ratio.pdf"));
   c->Clear();
 
   // plot eta(mu-) - scaling MC to data
+  c->SetLogy();
   for(int i = 0; i < 8; i++) {
 
     hM_eta[i]->SetStats(0);
     hM_eta[i]->SetLineColor(col_v[i%4]);
+    hM_eta[i]->SetMarkerColor(col_v[i%4]);
     hM_eta[i]->SetMinimum(1e1);
     hM_eta[i]->SetMaximum(9e5);
     hM_eta[i]->GetXaxis()->SetTitle("#eta (#mu^{-})");
@@ -275,8 +295,8 @@ void plot_muDists()
       hM_eta[i]->Scale(hM_eta[i-4]->Integral() / hM_eta[i]->Integral());
       hM_eta[i]->SetLineStyle(kDashed);
     }
-    if(i == 0) hM_eta[i]->Draw("histo");
-    else hM_eta[i]->Draw("histo same");  
+    if(i == 0) hM_eta[i]->Draw("error");
+    else hM_eta[i]->Draw("error same");  
 
   }
   
@@ -318,6 +338,7 @@ void plot_muDists()
 
     hM_etar[i]->SetStats(0);
     hM_etar[i]->SetLineColor(col_v[i]);
+    hM_etar[i]->SetMarkerColor(col_v[i]);
     hM_etar[i]->SetMinimum(0.51);
     hM_etar[i]->SetMaximum(1.49);
     hM_etar[i]->GetXaxis()->SetTitle("#eta (#mu^{-})");
@@ -328,8 +349,8 @@ void plot_muDists()
     hM_etar[i]->GetYaxis()->SetTitle("Data/MC");
     hM_etar[i]->SetTitle("");
 
-    if(i == 0) hM_etar[i]->Draw("histo");
-    else hM_etar[i]->Draw("histo same");  
+    if(i == 0) hM_etar[i]->Draw("error");
+    else hM_etar[i]->Draw("error same");  
 
   }
   
@@ -350,7 +371,7 @@ void plot_muDists()
   yl = getPos(hM_etar[0]->GetMinimum(), hM_etar[0]->GetMaximum(), 0.66, 0);
   lcMEtar.DrawLatex(0.3, yl, "#bf{[70,120] GeV}");
   
-  c->SaveAs(Form("plots/muDists/muMEta_ratio.pdf"));
+  // c->SaveAs(Form("plots/muDists/muMEta_ratio.pdf"));
   c->Clear();
 
   c->Destructor();
