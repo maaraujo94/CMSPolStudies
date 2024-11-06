@@ -9,7 +9,7 @@ void ctEvts()
   double m_max[] = {2.95, 3.2, 3.28};
 
   double lt_min[] = {-0.005, 0.01};
-  double lt_max[] = {0.005,  0.05};
+  double lt_max[] = {0.005,  0.08};
   
   double n_PRSR[pt_n+1];
   double n_NPSR[pt_n+1];

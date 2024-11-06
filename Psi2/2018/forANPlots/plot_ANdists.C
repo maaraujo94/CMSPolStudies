@@ -78,6 +78,8 @@ void plot_ANdists()
     h_pT[i]->SetStats(0);
     h_pT[i]->SetLineColor(colpt[i]);
     h_pT[i]->SetMarkerColor(colpt[i]);
+    h_pT[i]->SetMarkerStyle(20);
+    h_pT[i]->SetMarkerSize(.5);
     h_pT[i]->SetMinimum(5e1);
     h_pT[i]->SetMaximum(8e6);
     h_pT[i]->GetXaxis()->SetTitle("#it{p}_{T} (GeV)");
