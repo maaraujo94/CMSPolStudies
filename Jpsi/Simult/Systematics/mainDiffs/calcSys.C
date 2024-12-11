@@ -73,16 +73,15 @@ void calcSys()
   // draw the fit results
 
   // FIRST - set colors, styles for elements
-  hs_sigEffPR->SetFillColor(kGreen+1);
-  hs_sigEffPR->SetLineColor(kGreen+1);
-  hs_sigEffNP->SetFillColor(kGreen+1);
-  hs_sigEffNP->SetLineColor(kGreen+1);
+  hs_sigEffPR->SetFillColor(kViolet);
+  hs_sigEffPR->SetLineColor(kViolet);
+  hs_sigEffNP->SetFillColor(kViolet);
+  hs_sigEffNP->SetLineColor(kViolet);
 
   hs_sigPhiPR->SetFillColor(kBlue);
   hs_sigPhiPR->SetLineColor(kBlue);
   hs_sigPhiNP->SetFillColor(kBlue);
   hs_sigPhiNP->SetLineColor(kBlue);
-
 
   // draw uncerts, squared and stacked
   // positive conts: eff up to 50
@@ -112,12 +111,12 @@ void calcSys()
   }
   
   // draw stacks
-  double da_lim = 0.004;
+  double da_lim = 0.0039;
   
-  f_sigEffPR->SetFillColor(kGreen+1);
-  f_sigEffPR->SetLineColor(kGreen+1);
-  f_sigEffNP->SetFillColor(kGreen+1);
-  f_sigEffNP->SetLineColor(kGreen+1);
+  f_sigEffPR->SetFillColor(kViolet);
+  f_sigEffPR->SetLineColor(kViolet);
+  f_sigEffNP->SetFillColor(kViolet);
+  f_sigEffNP->SetLineColor(kViolet);
   f_sigPhiPR->SetFillColor(kBlue);
   f_sigPhiPR->SetLineColor(kBlue);
   f_sigPhiNP->SetFillColor(kBlue);
@@ -144,15 +143,21 @@ void calcSys()
   hsigP->SetMaximum(da_lim);
   
   hsigP->Draw();
-  hsigP->GetXaxis()->SetTitle("p_{T} (GeV)");
-  hsigP->GetYaxis()->SetTitle("#sigma^{2}");
-  hsigP->GetYaxis()->SetTitleOffset(2.);
+  hsigP->GetXaxis()->SetTitle("#it{p}_{T} (GeV)");
+  hsigP->GetYaxis()->SetTitle("Squared uncertainties");
+  hsigP->GetYaxis()->SetTitleOffset(2);
+  hsigP->GetYaxis()->SetLabelOffset(0.01);
+  hsigP->GetXaxis()->SetTitleOffset(1.1);
+  hsigP->GetYaxis()->SetLabelOffset(0.01);
+  hsigP->GetXaxis()->CenterTitle(true);
   hstatP->Draw("same");
 
-  TLegend *legF = new TLegend(0.7, 0.785, 0.97, 0.985);
+  TLegend *legF = new TLegend(0.8, 0.8, 1.1, 0.95);
   legF->SetTextSize(0.03);
-  legF->AddEntry(hs_sigPhiPR, "#beta (only negative)", "l");
-  legF->AddEntry(hs_sigEffPR, "Single #mu eff", "l");
+  legF->SetBorderSize(0);
+  legF->SetFillColorAlpha(kWhite,0);
+  legF->AddEntry(hs_sigPhiPR, "#beta", "l");
+  legF->AddEntry(hs_sigEffPR, "#mu eff.", "l");
   legF->AddEntry(f_statP, "stat", "l");
   legF->Draw();
 

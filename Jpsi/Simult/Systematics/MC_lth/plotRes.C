@@ -70,14 +70,14 @@ void plotRes()
   c->SetLeftMargin(0.1);
   
   // draw lambda_th(pT)
-  TH1F *fl = c->DrawFrame(pTBins[0]-5, -1.1, pTBins[nBinspT], 1.1);
-  fl->SetXTitle("p_{T} (GeV)");
+  TH1F *fl = c->DrawFrame(pTBins[0]-5, -1.1, pTBins[nBinspT]+5, 1.35);
+  fl->SetXTitle("#it{p}_{T} (GeV)");
   fl->SetYTitle("#lambda_{#theta}");
-  fl->GetYaxis()->SetTitleOffset(1.4);
+  fl->GetYaxis()->SetTitleOffset(1.3);
   fl->GetYaxis()->SetLabelOffset(0.01);
   fl->GetXaxis()->SetLabelOffset(0.015);
   fl->GetXaxis()->SetTitleOffset(1.3);
-  fl->SetTitle("");
+  fl->GetXaxis()->CenterTitle(true);
 
   init_color();
   double n_max = 21;
@@ -88,15 +88,34 @@ void plotRes()
     int gc = do_round(cv);
     graph_lth[i]->SetLineColor(gc);
     graph_lth[i]->SetMarkerColor(gc);
-    graph_lth[i]->SetMarkerStyle(st[i%4]);
+    // graph_lth[i]->SetMarkerStyle(st[i%4]);
+    graph_lth[i]->SetMarkerStyle(20);
     graph_lth[i]->SetMarkerSize(.75);
     graph_lth[i]->Draw("p same");
+
+    TLine *cons = new TLine(pTBins[0]-5, -1+0.1*i, pTBins[nBinspT]+5, -1+0.1*i);
+    cons->SetLineColor(gc);
+    cons->SetLineStyle(kDashed);
+    cons->Draw();
   }
 
-  TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
-  zero->SetLineColor(kBlack);
-  zero->SetLineStyle(kDashed);
-  zero->Draw();
+  // need a all-black graph for plotting
+  TGraphErrors *g_leg = (TGraphErrors*)graph_lth[0]->Clone("g_leg");
+  g_leg->SetMarkerColor(kBlack);
+  g_leg->SetLineColor(kBlack);
+  TF1 *flin = new TF1("flin", "2", pTBins[0]-5, pTBins[nBinspT]+5);
+  flin->SetLineColor(kBlack);
+  flin->SetLineStyle(kDashed);
+  flin->Draw("same");
+  
+  TLegend *legAll = new TLegend(0.7, 0.875, 1., 0.975);
+  legAll->SetTextSize(0.03);
+  legAll->SetBorderSize(0);
+  legAll->SetFillColorAlpha(kWhite,0);
+  legAll->AddEntry(flin, "Generated", "l");
+  legAll->AddEntry(g_leg, "Measured", "pl");
+  legAll->Draw();
+
 
   c->SaveAs("plots/ratioFinal/par_lth.pdf");
   c->Clear();
@@ -113,14 +132,14 @@ void plotRes()
     graph_dlth[i] = new TGraphErrors(nBinspT, graph_lth[i]->GetX(), dv[i], graph_lth[i]->GetEX(), graph_lth[i]->GetEY());
   }
   
-  TH1F *fdl = c->DrawFrame(pTBins[0]-5, -0.0299, pTBins[nBinspT], 0.0299);
-  fdl->SetXTitle("p_{T} (GeV)");
+  TH1F *fdl = c->DrawFrame(pTBins[0]-5, -0.029, pTBins[nBinspT]+5, 0.029);
+  fdl->SetXTitle("#it{p}_{T} (GeV)");
   fdl->SetYTitle("#Delta#lambda_{#theta}");
   fdl->GetYaxis()->SetTitleOffset(1.4);
   fdl->GetYaxis()->SetLabelOffset(0.01);
   fdl->GetXaxis()->SetLabelOffset(0.015);
   fdl->GetXaxis()->SetTitleOffset(1.3);
-  fdl->SetTitle("");
+  fdl->GetXaxis()->CenterTitle(true);
 
   int n_plot[] = {8, 12, 14};
   for(int i = 0; i < 21; i++) {
@@ -137,16 +156,19 @@ void plotRes()
     }
   }
 
+  TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT]+5, 0);
+  zero->SetLineColor(kBlack);
+  zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  TLegend *leg = new TLegend(0.7, 0.8, 0.9, 0.95);
+  TLegend *leg = new TLegend(0.7, 0.8, 1., 0.95);
   leg->SetTextSize(0.03);
   leg->SetBorderSize(0);
   leg->SetFillColorAlpha(kWhite,0);
   for(int i = 0; i < 21; i++) {
     for(int i_p = 0; i_p < 3; i_p++) {
       if(i == n_plot[i_p]) {
-	leg->AddEntry(graph_dlth[i], Form("MC (#lambda_{#theta} = %.1f)", lth[i]), "pl");
+	leg->AddEntry(graph_dlth[i], Form("#lambda_{#theta} = %.1f", lth[i]), "pl");
       }
     }
   }

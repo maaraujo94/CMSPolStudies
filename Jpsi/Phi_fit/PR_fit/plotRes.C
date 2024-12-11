@@ -63,19 +63,25 @@ void plotRes()
   c->Clear();
 
   // draw just final lambda_th(pT)
-  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
-  fl2->SetXTitle("p_{T} (GeV)");
+  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -0.249, pTBins[nBinspT]+5, 0.249);
+  fl2->SetXTitle("#it{p}_{T} (GeV)");
   fl2->SetYTitle("#beta");
-  fl2->GetYaxis()->SetTitleOffset(1.6);
+  fl2->GetYaxis()->SetTitleOffset(1.4);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("");
+  fl2->GetXaxis()->SetTitleOffset(1.1);
+  fl2->GetYaxis()->SetLabelOffset(0.01);
+  fl2->GetXaxis()->CenterTitle(true);
 
   graph_B[2]->SetLineColor(kBlue);
   graph_B[2]->SetMarkerColor(kBlue);
+  graph_B[2]->SetMarkerStyle(20);
+  graph_B[2]->SetMarkerSize(.75);
   graph_B[2]->Draw("p same");
 
   graph_B[1]->SetLineColor(kRed);
   graph_B[1]->SetMarkerColor(kRed);
+  graph_B[1]->SetMarkerStyle(20);
+  graph_B[1]->SetMarkerSize(.75);
   graph_B[1]->Draw("p same");
 
   zero->Draw();
@@ -90,7 +96,7 @@ void plotRes()
 
   c->SaveAs("plots/ratioFinal/par_lth_F.pdf");
 
-    // draw the bands around dists
+  // draw the bands around dists
   int n = nBinspT+1;
   double xv[n], xe[n], yv1[n], ye1[n], yv2[n], ye2[n];
   for(int i = 0; i < n; i++) {
@@ -118,16 +124,38 @@ void plotRes()
   TGraphErrors *g_2 = new TGraphErrors(n, xv, yv2, xe, ye2);
   g_2->SetFillColorAlpha(kRed, 0.3);
   g_2->Draw("e3");
-
+  
   c->GetListOfPrimitives()->Remove(leg2);
   c->Update();
-  
+
+  /* TLegend *legB = new TLegend(0.65, 0.75, 0.95, 0.95);
+  legB->SetTextSize(0.03);
+  legB->SetBorderSize(0);
+  legB->SetFillColorAlpha(kWhite,0);
+  legB->AddEntry(graph_B[2], "prompt J/#psi", "pl");
+  legB->AddEntry(g_1, Form("%.3f < #beta < %.3f", yv1[0]-ye1[0], yv1[0]+ye1[0]), "f");
+  legB->AddEntry(graph_B[1], "non-prompt J/#psi", "pl");
+  legB->AddEntry(g_2, Form("%.2f < #beta < %.2f", yv2[0]-ye2[0], yv2[0]+ye2[0]), "f");
+  legB->Draw();*/
+
+ TLegend *legB = new TLegend(0.65, 0.85, 0.95, 0.95);
+  legB->SetTextSize(0.03);
+  legB->SetBorderSize(0);
+  legB->SetFillColorAlpha(kWhite,0);
+  legB->AddEntry(graph_B[2], "prompt J/#psi", "pl");
+  legB->AddEntry(graph_B[1], "non-prompt J/#psi", "pl");
+  legB->Draw();
+
   TLatex lc;
   lc.SetTextSize(0.03);
   lc.SetTextColor(kRed);
-  lc.DrawLatex(40, 0.05, Form("#bf{non-prompt J/#psi  %.2f < #beta < %.2f}", yv2[0]-ye2[0], yv2[0]+ye2[0]));
+  double xp = 90, yp = 0.11;
+  lc.DrawLatex(40, 0.05, Form("#bf{%.2f < #beta < %.2f}", yv2[0]-ye2[0], yv2[0]+ye2[0]));
+  //lc.DrawLatex(xp, yp, Form("#bf{%.2f < #beta < %.2f}", yv2[0]-ye2[0], yv2[0]+ye2[0]));
   lc.SetTextColor(kBlue);
-  lc.DrawLatex(40, -0.075, Form("#bf{prompt J/#psi   %.3f < #beta < %.3f}", yv1[0]-ye1[0], yv1[0]+ye1[0]));
+  lc.DrawLatex(40, -0.065, Form("#bf{%.3f < #beta < %.3f}", yv1[0]-ye1[0], yv1[0]+ye1[0]));
+  yp = 0.17;
+  //lc.DrawLatex(xp, yp, Form("#bf{%.3f < #beta < %.3f}", yv1[0]-ye1[0], yv1[0]+ye1[0]));
 
 
   c->SaveAs("plots/ratioFinal/par_lth_band.pdf");

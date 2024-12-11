@@ -63,19 +63,25 @@ void plotRes()
   c->Clear();
   
   // draw just final lambda_th(pT)
-  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -0.25, pTBins[nBinspT], 0.25);
-  fl2->SetXTitle("p_{T} (GeV)");
+  TH1F *fl2 = c->DrawFrame(pTBins[0]-5, -0.249, pTBins[nBinspT]+5, 0.249);
+  fl2->SetXTitle("#it{p}_{T} (GeV)");
   fl2->SetYTitle("#beta");
-  fl2->GetYaxis()->SetTitleOffset(1.6);
+  fl2->GetYaxis()->SetTitleOffset(1.4);
   fl2->GetYaxis()->SetLabelOffset(0.01);
-  fl2->SetTitle("");
+  fl2->GetXaxis()->SetTitleOffset(1.1);
+  fl2->GetYaxis()->SetLabelOffset(0.01);
+  fl2->GetXaxis()->CenterTitle(true);
 
   graph_B[2]->SetLineColor(kBlue);
   graph_B[2]->SetMarkerColor(kBlue);
+  graph_B[2]->SetMarkerStyle(20);
+  graph_B[2]->SetMarkerSize(.75);
   graph_B[2]->Draw("p same");
 
   graph_B[1]->SetLineColor(kRed);
   graph_B[1]->SetMarkerColor(kRed);
+  graph_B[1]->SetMarkerStyle(20);
+  graph_B[1]->SetMarkerSize(.75);
   graph_B[1]->Draw("p same");
 
   zero->Draw();
@@ -118,16 +124,13 @@ void plotRes()
   TGraphErrors *g_2 = new TGraphErrors(n, xv, yv2, xe, ye2);
   g_2->SetFillColorAlpha(kRed, 0.3);
   g_2->Draw("e3");
-
-  c->GetListOfPrimitives()->Remove(leg2);
-  c->Update();
   
   TLatex lc;
   lc.SetTextSize(0.03);
   lc.SetTextColor(kRed);
-  lc.DrawLatex(20, 0.1, Form("#bf{non-prompt #psi(2S)  %.3f < #beta < %.3f}", yv2[0]-ye2[0], yv2[0]+ye2[0]));
+  lc.DrawLatex(25, 0.075, Form("#bf{%.3f < #beta < %.3f}", yv2[0]-ye2[0], yv2[0]+ye2[0]));
   lc.SetTextColor(kBlue);
-  lc.DrawLatex(20, -0.1, Form("#bf{prompt #psi(2S)   %.2f < #beta < %.2f}", yv1[0]-ye1[0], yv1[0]+ye1[0]));
+  lc.DrawLatex(25, -0.075, Form("#bf{%.2f < #beta < %.2f}", yv1[0]-ye1[0], yv1[0]+ye1[0]));
 
   c->SaveAs("plots/ratioFinal/par_lth_band.pdf");
   c->Clear();
