@@ -47,12 +47,13 @@ void plot_muDists()
   // plot pT (mu+) - scaling MC to data
   c->SetLogy();
   c->SetLeftMargin(0.11);
-  int col_v[] = {kBlack};
+  int col_v[] = {kBlack, kRed+1};
 
   for(int i = 0; i < 2; i++) {
 
     hP_pT[i]->SetStats(0);
-    hP_pT[i]->SetLineColor(col_v[0]);
+    hP_pT[i]->SetLineColor(col_v[i]);
+    hP_pT[i]->SetMarkerColor(col_v[i]);
     hP_pT[i]->SetMarkerStyle(20);
     hP_pT[i]->SetMarkerSize(.5);
     hP_pT[i]->SetMinimum(1e0);
@@ -67,7 +68,7 @@ void plot_muDists()
 
     if(i > 0) {
       hP_pT[i]->Scale(hP_pT[i-1]->Integral() / hP_pT[i]->Integral());
-      hP_pT[i]->SetLineStyle(kDashed);
+      //      hP_pT[i]->SetLineStyle(kDashed);
       hP_pT[i]->SetMarkerStyle(24);
     }
     if(i == 0) hP_pT[i]->Draw("error");
@@ -97,7 +98,8 @@ void plot_muDists()
   for(int i = 0; i < 2; i++) {
 
     hM_pT[i]->SetStats(0);
-    hM_pT[i]->SetLineColor(col_v[0]);
+    hM_pT[i]->SetLineColor(col_v[i]);
+    hM_pT[i]->SetMarkerColor(col_v[i]);
     hM_pT[i]->SetMinimum(1e0);
     hM_pT[i]->SetMaximum(2e6);
     hM_pT[i]->GetXaxis()->SetTitle("#it{p}_{T} (#mu^{-}) (GeV)");
@@ -110,7 +112,7 @@ void plot_muDists()
 
     if(i > 0) {
       hM_pT[i]->Scale(hM_pT[i-1]->Integral() / hM_pT[i]->Integral());
-      hM_pT[i]->SetLineStyle(kDashed);
+      //      hM_pT[i]->SetLineStyle(kDashed);
     }
     if(i == 0) hM_pT[i]->Draw("error");
     else hM_pT[i]->Draw("error same");  
@@ -140,7 +142,8 @@ void plot_muDists()
   for(int i = 0; i < 2; i++) {
 
     hP_eta[i]->SetStats(0);
-    hP_eta[i]->SetLineColor(col_v[0]);
+    hP_eta[i]->SetLineColor(col_v[i]);
+    hP_eta[i]->SetMarkerColor(col_v[i]);
     hP_eta[i]->SetMarkerStyle(20);
     hP_eta[i]->SetMarkerSize(.5);
     hP_eta[i]->SetMinimum(8e2);
@@ -155,7 +158,7 @@ void plot_muDists()
 
     if(i > 0) {
       hP_eta[i]->Scale(hP_eta[i-1]->Integral() / hP_eta[i]->Integral());
-      hP_eta[i]->SetLineStyle(kDashed);
+      //      hP_eta[i]->SetLineStyle(kDashed);
       hP_eta[i]->SetMarkerStyle(24);
     }
     if(i == 0) hP_eta[i]->Draw("error");
@@ -191,6 +194,7 @@ void plot_muDists()
 
     hP_etar[i]->SetStats(0);
     hP_etar[i]->SetLineColor(col_v[i]);
+    hP_etar[i]->SetMarkerColor(col_v[i]);
     hP_etar[i]->SetMinimum(0.51);
     hP_etar[i]->SetMaximum(1.49);
     hP_etar[i]->GetXaxis()->SetTitle("#eta (#mu^{+})");
@@ -222,7 +226,8 @@ void plot_muDists()
   for(int i = 0; i < 2; i++) {
 
     hM_eta[i]->SetStats(0);
-    hM_eta[i]->SetLineColor(col_v[0]);
+    hM_eta[i]->SetLineColor(col_v[i]);
+    hM_eta[i]->SetMarkerColor(col_v[i]);
     hM_eta[i]->SetMinimum(8e2);
     hM_eta[i]->SetMaximum(9e4);
     hM_eta[i]->GetXaxis()->SetTitle("#eta (#mu^{-})");
@@ -235,7 +240,7 @@ void plot_muDists()
 
     if(i > 0) {
       hM_eta[i]->Scale(hM_eta[i-1]->Integral() / hM_eta[i]->Integral());
-      hM_eta[i]->SetLineStyle(kDashed);
+      //      hM_eta[i]->SetLineStyle(kDashed);
     }
     if(i == 0) hM_eta[i]->Draw("error");
     else hM_eta[i]->Draw("error same");  
@@ -270,6 +275,7 @@ void plot_muDists()
 
     hM_etar[i]->SetStats(0);
     hM_etar[i]->SetLineColor(col_v[i]);
+    hM_etar[i]->SetMarkerColor(col_v[i]);
     hM_etar[i]->SetMinimum(0.51);
     hM_etar[i]->SetMaximum(1.49);
     hM_etar[i]->GetXaxis()->SetTitle("#eta (#mu^{+})");

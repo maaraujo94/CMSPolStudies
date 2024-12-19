@@ -28,15 +28,18 @@ void compStates_full()
 
   // draw lambda_th(pT)
   TH1F *fl = c->DrawFrame(15, -1, 125, 1);
-  fl->SetXTitle("p_{T} (GeV)");
+  fl->SetXTitle("#it{p}_{T} (GeV)");
   fl->SetYTitle("#lambda_{#theta}");
-  fl->GetYaxis()->SetTitleOffset(1.3);
+  fl->GetYaxis()->SetTitleOffset(1.4);
   fl->GetYaxis()->SetLabelOffset(0.01);
+  fl->GetXaxis()->SetTitleOffset(1.1);
+  fl->GetYaxis()->SetLabelOffset(0.01);
+  fl->GetXaxis()->CenterTitle(true);
   
   int col_j[2] = {kBlue, kRed};
   int col_p[2] = {kViolet+1, kPink+7};
 
-  TLegend *legPR = new TLegend(0.65, 0.875, 0.95, 0.975);
+  TLegend *legPR = new TLegend(0.65, 0.85, 0.95, 0.95);
   legPR->SetTextSize(0.03);
   legPR->SetBorderSize(0);
   legPR->SetFillColorAlpha(kWhite,0);
@@ -71,7 +74,6 @@ void compStates_full()
   zero->SetLineStyle(kDashed);
   zero->Draw();
 
-  
   c->SaveAs("par_lthF.pdf");
   c->Clear();
 

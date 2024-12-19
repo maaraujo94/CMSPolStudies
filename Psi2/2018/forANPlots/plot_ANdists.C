@@ -123,8 +123,8 @@ void plot_ANdists()
   for(int i = 0; i < 2; i++) {
 
     h_y[i]->SetStats(0);
-    h_y[i]->SetLineColor(coly[0]);
-    h_y[i]->SetMarkerColor(coly[0]);
+    h_y[i]->SetLineColor(colpt[i]);
+    h_y[i]->SetMarkerColor(colpt[i]);
     h_y[i]->SetMarkerStyle(20);
     h_y[i]->SetMarkerSize(.5);
     h_y[i]->SetMinimum(1e3);
@@ -137,7 +137,7 @@ void plot_ANdists()
     h_y[i]->GetYaxis()->SetTitle("dN/d#it{y}");
     h_y[i]->SetTitle("");
     if(i > 0) {
-      h_y[i]->SetLineStyle(kDashed);
+      //      h_y[i]->SetLineStyle(kDashed);
       h_y[i]->SetMarkerStyle(24);
     }
     if(i == 0) h_y[i]->Draw("error");
@@ -165,7 +165,7 @@ void plot_ANdists()
   for(int i = 0; i < 2; i++) {
 
     h_y[i]->SetStats(0);
-    h_y[i]->SetLineColor(coly[0]);
+    h_y[i]->SetLineColor(colpt[i]);
     h_y[i]->SetMinimum(1e3);
     h_y[i]->SetMaximum(2e5);
     h_y[i]->SetTitle("");
@@ -205,7 +205,7 @@ void plot_ANdists()
     h_yr[i]->SetMinimum(0.51);
     h_yr[i]->SetMaximum(1.49);
     h_yr[i]->SetStats(0);
-    h_yr[i]->SetLineColor(coly[i]);
+    h_yr[i]->SetLineColor(colpt[i]);
     h_yr[i]->GetXaxis()->SetTitle("#it{y}");
     h_yr[i]->GetXaxis()->SetTitleOffset(1.1);
     h_yr[i]->GetXaxis()->CenterTitle(true);
@@ -348,8 +348,8 @@ void plot_ANdists()
     h_m[i]->SetStats(0);
     h_m[i]->Scale(1./h_m[i]->Integral());
     h_m[i]->Scale(h_m[0]->GetMaximum()/h_m[i]->GetMaximum());
-    h_m[i]->SetLineColor(coly[0]);
-    h_m[i]->SetMarkerColor(coly[0]);
+    h_m[i]->SetLineColor(colpt[i]);
+    h_m[i]->SetMarkerColor(colpt[i]);
     h_m[i]->SetMarkerStyle(20);
     h_m[i]->SetMarkerSize(.5);
     h_m[i]->GetXaxis()->SetTitle("#it{m} (GeV)");
@@ -361,7 +361,7 @@ void plot_ANdists()
     h_m[i]->GetYaxis()->SetTitle("dN/d#it{m} (normalized)");
     h_m[i]->SetTitle("");
     if(i > 0){
-      h_m[i]->SetLineStyle(kDashed);
+      //      h_m[i]->SetLineStyle(kDashed);
       h_m[i]->SetMarkerStyle(24);
     }
   }
