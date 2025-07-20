@@ -1,3 +1,10 @@
+// get relative position on an axis (pi, pf)
+double getPos(double pi, double pf, double mult, bool isLog) {
+  if(isLog) return pow(10, log10(pi)+mult*(log10(pf)-log10(pi)));
+  else return pi + mult*(pf-pi);
+}
+
+
 // code to get the final set of systematics contributions: final plots + table
 void calcSys()
 {
@@ -152,14 +159,21 @@ void calcSys()
   hsigP->GetXaxis()->CenterTitle(true);
   hstatP->Draw("same");
 
-  TLegend *legF = new TLegend(0.8, 0.8, 1.1, 0.95);
+  TLegend *legF = new TLegend(0.7, 0.8, 1., 0.95);
   legF->SetTextSize(0.03);
   legF->SetBorderSize(0);
   legF->SetFillColorAlpha(kWhite,0);
-  legF->AddEntry(hs_sigPhiPR, "#beta", "l");
+  legF->AddEntry(hs_sigPhiPR, "#varphi asymm.", "l");
   legF->AddEntry(hs_sigEffPR, "#mu eff.", "l");
   legF->AddEntry(f_statP, "stat", "l");
   legF->Draw();
+
+  double xl = getPos(pTBins[0], pTBins[nBinspT], 0.1, 0);
+  double yl = getPos(-da_lim, da_lim, 0.9, 0);
+  
+  TLatex lt;
+  lt.SetTextSize(0.04);
+  lt.DrawLatex(xl, yl, "#bf{Prompt J/#psi}");
 
   c->SaveAs("plots/lth_uncs_stack.pdf");
   c->Clear();
@@ -458,6 +472,7 @@ void calcSys()
 
   
   // plotting the lambda_theta with total (sys+stat) error
+  // also saving the sys error
   // but also with just stat for comparison- graph_lth[0]
   // sysp, sysn, graph_lth[0]->GetEY() (stat)
   double errPR_P[nBinspT], errPR_N[nBinspT];
@@ -489,6 +504,9 @@ void calcSys()
   lth_fNP->SetLineColor(kRed);
   lth_fNP->Draw("p same");
 
+  TGraphAsymmErrors *lth_sysPR = new TGraphAsymmErrors(nBinspT, graph_lth[0]->GetX(), graph_lth[0]->GetY(), graph_lth[0]->GetEX(), graph_lth[0]->GetEX(), sysPR_P, sysPR_N);
+  TGraphAsymmErrors *lth_sysNP = new TGraphAsymmErrors(nBinspT, graph_lth[3]->GetX(), graph_lth[3]->GetY(), graph_lth[3]->GetEX(), graph_lth[3]->GetEX(), sysNP_P, sysNP_N);
+
   TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
@@ -499,7 +517,7 @@ void calcSys()
   leg2->AddEntry(lth_fPR, "prompt J/#psi", "pl");
   leg2->AddEntry(lth_fNP, "non-prompt J/#psi", "pl");
   leg2->Draw();
-
+  
   c->SaveAs("plots/lth_full_unc.pdf");
   c->Clear();
   c->Destructor();
@@ -507,5 +525,7 @@ void calcSys()
   TFile *fout = new TFile("files/finalUnc.root", "recreate");
   lth_fPR->Write("lth_fPR");
   lth_fNP->Write("lth_fNP");
+  lth_sysPR->Write("lth_sysPR");
+  lth_sysNP->Write("lth_sysNP");
   fout->Close();
 }

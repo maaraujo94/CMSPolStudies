@@ -1,3 +1,9 @@
+// get relative position on an axis (pi, pf)
+double getPos(double pi, double pf, double mult, bool isLog) {
+  if(isLog) return pow(10, log10(pi)+mult*(log10(pf)-log10(pi)));
+  else return pi + mult*(pf-pi);
+}
+
 // code to get the final set of systematics contributions: final plots + table
 void calcSys()
 {
@@ -73,10 +79,10 @@ void calcSys()
   // draw the fit results
 
   // FIRST - set colors, styles for elements
-  hs_sigEffPR->SetFillColor(kGreen+1);
-  hs_sigEffPR->SetLineColor(kGreen+1);
-  hs_sigEffNP->SetFillColor(kGreen+1);
-  hs_sigEffNP->SetLineColor(kGreen+1);
+  hs_sigEffPR->SetFillColor(kViolet);
+  hs_sigEffPR->SetLineColor(kViolet);
+  hs_sigEffNP->SetFillColor(kViolet);
+  hs_sigEffNP->SetLineColor(kViolet);
  
   hs_sigPhiPR->SetFillColor(kBlue);
   hs_sigPhiPR->SetLineColor(kBlue);
@@ -111,12 +117,12 @@ void calcSys()
   }
   
   // draw stacks
-  double da_lim = 0.04;
+  double da_lim = 0.039;
   
-  f_sigEffPR->SetFillColor(kGreen+1);
-  f_sigEffPR->SetLineColor(kGreen+1);
-  f_sigEffNP->SetFillColor(kGreen+1);
-  f_sigEffNP->SetLineColor(kGreen+1);
+  f_sigEffPR->SetFillColor(kViolet);
+  f_sigEffPR->SetLineColor(kViolet);
+  f_sigEffNP->SetFillColor(kViolet);
+  f_sigEffNP->SetLineColor(kViolet);
   f_sigPhiPR->SetFillColor(kBlue);
   f_sigPhiPR->SetLineColor(kBlue);
   f_sigPhiNP->SetFillColor(kBlue);
@@ -143,20 +149,29 @@ void calcSys()
   hsigP->SetMaximum(da_lim);
   
   hsigP->Draw();
-  hsigP->GetXaxis()->SetTitle("p_{T} (GeV)");
-  hsigP->GetYaxis()->SetTitle("#sigma^{2}");
-  hsigP->GetYaxis()->SetTitleOffset(2.);
+  hsigP->GetXaxis()->SetTitle("#it{p}_{T} (GeV)");
+  hsigP->GetYaxis()->SetTitle("Squared uncertainties");
+  hsigP->GetYaxis()->SetTitleOffset(2);
+  hsigP->GetYaxis()->SetLabelOffset(0.01);
+  hsigP->GetXaxis()->SetTitleOffset(1.1);
+  hsigP->GetYaxis()->SetLabelOffset(0.01);
+  hsigP->GetXaxis()->CenterTitle(true);
   hstatP->Draw("same");
 
-  TLegend *legF = new TLegend(0.7, 0.785, 0.97, 0.985);
+  TLegend *legF = new TLegend(0.7, 0.8, 1., 0.95);
   legF->SetTextSize(0.03);
-  legF->AddEntry(hs_sigPhiPR, "#beta (only negative)", "l");
-  legF->AddEntry(hs_sigEffPR, "Single #mu eff", "l");
+  legF->SetBorderSize(0);
+  legF->SetFillColorAlpha(kWhite,0);
+  legF->AddEntry(hs_sigPhiPR, "#varphi asymm.", "l");
+  legF->AddEntry(hs_sigEffPR, "#mu eff.", "l");
   legF->AddEntry(f_statP, "stat", "l");
   legF->Draw();
 
   c->SaveAs("plots/lth_uncs_stack.pdf");
   c->Clear();
+
+  da_lim = 0.0059;
+
 
   THStack *hsigN = new THStack("hsigN", "");
   hsigN->SetMinimum(-da_lim);
@@ -165,17 +180,30 @@ void calcSys()
   hsigN->SetMaximum(da_lim);
   
   hsigN->Draw();
-  hsigN->GetXaxis()->SetTitle("p_{T} (GeV)");
-  hsigN->GetYaxis()->SetTitle("#sigma^{2}");
-  hsigN->GetYaxis()->SetTitleOffset(2.);
+  hsigN->GetXaxis()->SetTitle("#it{p}_{T} (GeV)");
+  hsigN->GetYaxis()->SetTitle("Squared uncertainties");
+  hsigN->GetYaxis()->SetTitleOffset(2);
+  hsigN->GetYaxis()->SetLabelOffset(0.01);
+  hsigN->GetXaxis()->SetTitleOffset(1.1);
+  hsigN->GetYaxis()->SetLabelOffset(0.01);
+  hsigN->GetXaxis()->CenterTitle(true);
   hstatN->Draw("same");
 
-  TLegend *legN = new TLegend(0.7, 0.785, 0.97, 0.985);
+  TLegend *legN = new TLegend(0.7, 0.8, 1., 0.95);
   legN->SetTextSize(0.03);
-  legN->AddEntry(hs_sigPhiNP, "#beta (only positive)", "l");
-  legN->AddEntry(hs_sigEffNP, "Single #mu eff", "l");
+  legN->SetBorderSize(0);
+  legN->SetFillColorAlpha(kWhite,0);
+  legN->AddEntry(hs_sigPhiPR, "#varphi asymm.", "l");
+  legN->AddEntry(hs_sigEffPR, "#mu eff.", "l");
   legN->AddEntry(f_statP, "stat", "l");
   legN->Draw();
+
+  double xl = getPos(pTBins[0], pTBins[nBinspT], 0.1, 0);
+  double yl = getPos(-da_lim, da_lim, 0.9, 0);
+  
+  TLatex lt;
+  lt.SetTextSize(0.04);
+  lt.DrawLatex(xl, yl, "#bf{Non-prompt #psi(2S)}");
 
   c->SaveAs("plots/lthNP_uncs_stack.pdf");
   c->Clear();
@@ -482,6 +510,10 @@ void calcSys()
   lth_fNP->SetLineColor(kRed);
   lth_fNP->Draw("p same");
 
+  TGraphAsymmErrors *lth_sysPR = new TGraphAsymmErrors(nBinspT, graph_lth[0]->GetX(), graph_lth[0]->GetY(), graph_lth[0]->GetEX(), graph_lth[0]->GetEX(), sysPR_P, sysPR_N);
+  TGraphAsymmErrors *lth_sysNP = new TGraphAsymmErrors(nBinspT, graph_lth[3]->GetX(), graph_lth[3]->GetY(), graph_lth[3]->GetEX(), graph_lth[3]->GetEX(), sysNP_P, sysNP_N);
+
+
   TLine *zero = new TLine(pTBins[0]-5, 0, pTBins[nBinspT], 0);
   zero->SetLineColor(kBlack);
   zero->SetLineStyle(kDashed);
@@ -500,6 +532,8 @@ void calcSys()
   TFile *fout = new TFile("files/finalUnc.root", "recreate");
   lth_fPR->Write("lth_fPR");
   lth_fNP->Write("lth_fNP");
+  lth_sysPR->Write("lth_sysPR");
+  lth_sysNP->Write("lth_sysNP");
   fout->Close();
 
 }
