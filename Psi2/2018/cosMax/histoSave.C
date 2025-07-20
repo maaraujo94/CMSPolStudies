@@ -19,9 +19,9 @@ void histoSave()
   TH2D *mcHist_ab = new TH2D("mcH_ab", "2018 MC", 20, 0, 1., nPtBins, ptBins);
 
   // open files and read TTrees
-  TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/data18_cos.root");
+  TFile *fin = new TFile("../../Store_data_codes/data18_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
-  TFile *fin4 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/MCm18_cos.root");
+  TFile *fin4 = new TFile("../../Store_data_codes/MCm18_cos.root");
   TTree *treeM3 = (TTree*)fin4->Get("MC_cos");
   
   int dEvt = treeD->GetEntries();

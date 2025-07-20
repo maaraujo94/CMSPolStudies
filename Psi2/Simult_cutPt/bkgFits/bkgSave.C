@@ -13,7 +13,7 @@ void bkgSave()
 
   // filling all the histos at once    
   // open and read the data tree
-  TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Psi2/Store_data_codes/dataS_cos.root");
+  TFile *fin1 = new TFile("../../Store_data_codes/dataS_cos.root");
   TTree *tree1 = (TTree*)fin1->Get("data_cos");
     
   // data

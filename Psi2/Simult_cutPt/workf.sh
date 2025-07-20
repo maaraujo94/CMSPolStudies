@@ -10,7 +10,7 @@ cd ../bkgFits
 
 root -l -b -q bkgSave.C
 root -l -b -q newDatamass_1.C
-#root -l -b -q plotDMPars.C
+root -l -b -q plotDMPars.C
 root -l -b -q fbkgProp.C
 root -l -b -q newNPmass.C
 root -l -b -q plotDMPars_NP.C
@@ -29,7 +29,7 @@ cd ../SBLtFits
 root -l -b -q bkgSave.C
 root -l -b -q bkgSave_N.C
 root -l -b -q ltBkg2d_tnp12_f.C
-#root -l -b -q plotLtPars.C
+root -l -b -q plotLtPars.C
 root -l -b -q ltBkg_N.C
 root -l -b -q plotLtPars_N.C
 root -l -b -q store_SB.C
@@ -39,7 +39,7 @@ cd ../PR_fit
 
 root -l -b -q bkgSave.C
 root -l -b -q ltBkg2d.C
-root -l -b -q plotLPars2d.C
+root -l -b -q plotLtPars2d.C
 root -l -b -q fnpProp.C
 
 root -l -b -q getfL.C
