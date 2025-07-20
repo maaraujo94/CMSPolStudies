@@ -1,4 +1,5 @@
-// code to plot the fit results
+// code to plot the fit results for both states as lth(pT/M)
+// includes both stat and sys uncertainties
 
 void compXi()
 {

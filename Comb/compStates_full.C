@@ -1,10 +1,11 @@
-// code to plot the fit results
+// code to plot the fit results for both states simultaneously
+// includes both stat and sys uncertainties
 
 void compStates_full()
 {
   // get the fit results
   // get lambda values for each bin
-  const int n_lbl = 3;
+  const int n_lbl = 2;
   string lbl[] = {"PR", "NP"}; 
   string nm_lbl[] = {"prompt", "non-prompt"};
   
