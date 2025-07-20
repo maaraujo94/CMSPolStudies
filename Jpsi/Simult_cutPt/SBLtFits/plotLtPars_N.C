@@ -1,5 +1,5 @@
 #import "mbins.C"
-#import "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Simult/ptbins.C"
+#import "../../Simult/ptbins.C"
 
 // get relative position on an axis (pi, pf)
 double getPos(double pi, double pf, double mult, bool isLog) {

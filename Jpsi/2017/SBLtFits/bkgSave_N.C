@@ -14,7 +14,7 @@ void bkgSave_N()
     ltHist[i] = new TH2D(Form("ltH_%s", lbl[i].c_str()), Form("2017 %s data c#tau", lbl[i].c_str()), tbins, lowt, hit, nPtBins, ptBins);
     
   // open and read the data tree
-  TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/data17_cos.root");
+  TFile *fin = new TFile("../../Store_data_codes/data17_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
     
   Double_t data_pt, data_lt, data_m, data_y;  

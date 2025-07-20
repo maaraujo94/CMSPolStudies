@@ -3,8 +3,8 @@
 echo "getting costh limits with fine binning\n"
 
 cd cosMax
-#root -l -b -q histoSave.C
-#root -l -b -q getCos.C
+root -l -b -q histoSave.C
+root -l -b -q getCos.C
 
 echo "saving the PR histos for fitting"
 

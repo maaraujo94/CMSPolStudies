@@ -26,7 +26,7 @@ void plotDMPars_NP()
   TGraphErrors ***g_par = new TGraphErrors**[n_m];
   for(int i_m = 0; i_m < n_m; i_m++) {
     g_par[i_m] = new TGraphErrors*[n_p];
-    TFile *fin = new TFile(Form("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Simult/%s/files/mfit_NP.root", modn[i_m].c_str()));
+    TFile *fin = new TFile(Form("../../Simult/%s/files/mfit_NP.root", modn[i_m].c_str()));
     int n_pv = n_p;
     for(int i_p = 0; i_p < n_pv; i_p++) {
       fin->GetObject(Form("fit_%s", parlab[i_p].c_str()), g_par[i_m][i_p]);

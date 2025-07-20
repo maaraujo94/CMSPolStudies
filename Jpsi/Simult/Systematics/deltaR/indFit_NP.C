@@ -18,7 +18,7 @@ double cminf(double pt, double a, double b, double c, double d)
 // main
 void indFit_NP()
 {
-  string loc = "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi";
+  string loc = "../../..";
 
   // PART 1 - FINE BIN FITS
   // read the three fine histos

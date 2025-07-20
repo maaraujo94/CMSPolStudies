@@ -9,7 +9,7 @@ void bkgSave()
   TH2D *ltHist = new TH2D("ltH", "2018 data c#tau", tbins, lowt, hit, nPtBins, ptBins);
     
   // open and read the data tree
-  TFile *fin = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/data18_cos.root");
+  TFile *fin = new TFile("../../Store_data_codes/data18_cos.root");
   TTree *treeD = (TTree*)fin->Get("data_cos");
     
   Double_t data_pt, data_lt, data_m, data_y;  

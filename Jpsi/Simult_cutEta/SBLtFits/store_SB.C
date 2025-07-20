@@ -1,4 +1,4 @@
-#import "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Simult/ptbins.C"
+#import "../../Simult/ptbins.C"
 #import "mbins.C"
 
 void store_SB()

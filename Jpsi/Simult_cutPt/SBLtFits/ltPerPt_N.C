@@ -1,5 +1,5 @@
 #import "mbins.C"
-#import "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Simult/ptbins.C"
+#import "../../Simult/ptbins.C"
 
 // define negative exponential only for positive x
 double pos_exp(double x, double ld1)

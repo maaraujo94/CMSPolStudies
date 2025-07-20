@@ -80,13 +80,13 @@ void newMCmass_0()
 
   // filling all the histos at once    
   // open and read the data tree
-  TFile *fin1 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCOS_cos.root");
+  TFile *fin1 = new TFile("../../Store_data_codes/MCOS_cos.root");
   TTree *tree1 = (TTree*)fin1->Get("MC_cos");
-  TFile *fin2 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCmS_cos.root");
+  TFile *fin2 = new TFile("../../Store_data_codes/MCmS_cos.root");
   TTree *tree2 = (TTree*)fin2->Get("MC_cos");
-  TFile *fin3 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MChS_cos.root");
+  TFile *fin3 = new TFile("../../Store_data_codes/MChS_cos.root");
   TTree *tree3 = (TTree*)fin3->Get("MC_cos");
-  TFile *fin4 = new TFile("/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/Store_data_codes/MCvhS_cos.root");
+  TFile *fin4 = new TFile("../../Store_data_codes/MCvhS_cos.root");
   TTree *tree4 = (TTree*)fin4->Get("MC_cos");
   
   // MC 1

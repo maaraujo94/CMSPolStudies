@@ -6,7 +6,7 @@ void compBkgFrac()
   TH1D **fSB_b = new TH1D*[3];
   TH1D **h_fSB = new TH1D*[3];
 
-  string basel = "/home/mariana/Documents/2020_PhD_work/CERN/CMSPolStudies/Jpsi/";
+  string basel = "../../../";
   string loc[3] = {"Simult", "Simult_dR2", "Simult_dR1"};
   for(int i = 0; i < 3; i++) {
     TFile *fin1 = new TFile(Form("%s%s/bkgFits/files/bkgFrac.root", basel.c_str(), loc[i].c_str()));

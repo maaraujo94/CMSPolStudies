@@ -3,7 +3,7 @@
 echo "storing the main histos"
 cd PR_fit
 
-#root -l -b -q histoSave.C
+root -l -b -q histoSave.C
 
 echo "running the mass fits"
 cd ../bkgFits
@@ -26,21 +26,20 @@ root -l -b -q getCos.C
 echo "run SB lifetime fits"
 cd ../SBLtFits
 
-#root -l -b -q bkgSave.C
-#root -l -b -q bkgSave_N.C
-#root -l -b -q ltBkg.C
-#root -l -b -q ltBkg2d.C
-#root -l -b -q ltBkg_N.C
-#root -l -b -q plotLtPars_N.C
-#root -l -b -q store_SB.C
+root -l -b -q bkgSave.C
+root -l -b -q bkgSave_N.C
+root -l -b -q ltBkg2d.C
+root -l -b -q ltBkg_N.C
+root -l -b -q plotLtPars_N.C
+root -l -b -q store_SB.C
 
 echo "run PR fit framework - part 1"
 cd ../PR_fit
 
-#root -l -b -q bkgSave.C
-#root -l -b -q ltBkg2d.C
-#root -l -b -q plotLPars2d.C
-#root -l -b -q fnpProp.C
+root -l -b -q bkgSave.C
+root -l -b -q ltBkg2d.C
+root -l -b -q plotLPars2d.C
+root -l -b -q fnpProp.C
 
 root -l -b -q getfL.C
 root -l -b -q genDist.C
